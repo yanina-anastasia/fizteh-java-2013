@@ -5,13 +5,15 @@ import java.util.Map;
 import java.math.BigInteger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.locks.*;
 
 public class FileStorage implements TableInterface {
 
 	private final File dbFilePath;
 	private final Map<String, String> memoryStore;
-	private final Map<String, String> diffRemoved;
-	private final Map<String, String> diffAdded;
+	private final ThreadLocal<Map<String, String>> diffRemoved;
+	private final ThreadLocal<Map<String, String>> diffAdded;
+	private final Lock commitLock = new ReentrantLock();
 	private final int MAX_KEY_LENGTH = 1024*1024;
 	private final int MAX_VAL_LENGTH = 1024*1024;
 	private final int MAX_TOTAL_LENGTH = 500*1024*1024;
@@ -19,8 +21,16 @@ public class FileStorage implements TableInterface {
 	public FileStorage (String directory, String fileName) throws IOException {
 		dbFilePath = new File(directory, fileName);
 		memoryStore = new TreeMap<String, String>();
-		diffRemoved = new TreeMap<String, String>();
-		diffAdded = new TreeMap<String, String>();
+		diffRemoved = new ThreadLocal() {
+			public Map<String, String> initialValue () {
+				return new TreeMap<String, String>();
+			}
+		};
+		diffAdded = new ThreadLocal() {
+			public Map<String, String> initialValue () {
+				return new TreeMap<String, String>();
+			}
+		};
 		loadDataToMemory();
 	}
 
@@ -91,56 +101,98 @@ public class FileStorage implements TableInterface {
 		}
 	}
 
+	private void actualizeChanges () {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
+		commitLock.lock();
+		for (String key : diffRemoved.keySet()) {
+			if (memoryStore.get(key) == null) {
+				diffRemoved.remove(key);
+			}
+		}
+		for (Map.Entry<String, String> entry : diffAdded.entrySet()) {
+			if (entry.getValue().equals(memoryStore.get(entry.getKey()))) {
+				diffAdded.remove(entry.getKey());
+			}
+		}
+		commitLock.unlock();
+	}
+
 	public String getName () {
 		throw new UnsupportedOperationException();
 	}
 
 	public String get (String key) {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
 		if (key == null || key.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		return memoryStore.get(key);
+		actualizeChanges();
+		if (diffRemoved.get(key) != null) {
+			return null;
+		}
+		if (diffAdded.get(key) != null) {
+			return diffAdded.get(key);
+		}
+		commitLock.lock();
+		String value = memoryStore.get(key);
+		commitLock.unlock();
+		return value;
 	}
 
 	public String put (String key, String value) {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
 		if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		if (!value.equals(memoryStore.get(key))) {
-			if (value.equals(diffRemoved.get(key))) {
-				diffRemoved.remove(key);
-			}
-			else if (diffAdded.get(key) == null && diffRemoved.get(key) == null && memoryStore.get(key) != null) {
-				diffRemoved.put(key, memoryStore.get(key));
-			}
-			else if (diffRemoved.get(key) == null) {
+		actualizeChanges();
+		if (diffRemoved.get(key) != null) {
+			if (!value.equals(diffRemoved.get(key))) {
 				diffAdded.put(key, value);
 			}
+			diffRemoved.remove(key);
+			return null;
 		}
-		return memoryStore.put(key, value);
+		if (diffAdded.get(key) != null) {
+			return diffAdded.put(key, value);
+		}
+		commitLock.lock();
+		String oldValue = memoryStore.get(key);
+		commitLock.unlock();
+		if (!value.equals(oldValue)) {
+			diffAdded.put(key, value);
+		}
+		return oldValue;
 	}
 
 	public String remove (String key) {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
 		if (key == null || key.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		if (memoryStore.get(key) == null) {
+		actualizeChanges();
+		if (diffRemoved.get(key) != null) {
 			return null;
 		}
-		if (diffAdded.get(key) == null && diffRemoved.get(key) == null) {
-			diffRemoved.put(key, memoryStore.get(key));
+		commitLock.lock();
+		String oldValue = memoryStore.get(key);
+		commitLock.unlock();
+		if (oldValue != null) {
+			diffRemoved.put(key, oldValue);
 		}
-		diffAdded.remove(key);
-		return memoryStore.remove(key);
+		if (diffAdded.get(key) != null) {
+			return diffAdded.remove(key);
+		}
+		return oldValue;
 	}
 
 	public int rollback () {
-		for (String key : diffAdded.keySet()) {
-			memoryStore.remove(key);
-		}
-		for (Map.Entry<String, String> entry : diffRemoved.entrySet()) {
-			memoryStore.put(entry.getKey(), entry.getValue());
-		}
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
+		actualizeChanges();
 		int result = diffAdded.size() + diffRemoved.size();
 		diffAdded.clear();
 		diffRemoved.clear();
@@ -148,19 +200,44 @@ public class FileStorage implements TableInterface {
 	}
 
 	public int size () {
-		return memoryStore.size();
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
+		actualizeChanges();
+		commitLock.lock();
+		int result = memoryStore.size() + diffAdded.size() - diffRemoved.size();
+		for (String key : diffAdded.keySet()) {
+			if (memoryStore.get(key) != null) {
+				result--;
+			}
+		}
+		commitLock.unlock();
+		return result;
 	}
 
 	public int unsavedChanges () {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
+		actualizeChanges();
 		return diffAdded.size() + diffRemoved.size();
 	}
 
 	public int commit () {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
+		actualizeChanges();
+		commitLock.lock();
 		int result = diffAdded.size() + diffRemoved.size();
+		for (String key : diffRemoved.keySet()) {
+			memoryStore.remove(key);
+		}
+		for (Map.Entry<String, String> entry : diffAdded.entrySet()) {
+			memoryStore.put(entry.getKey(), entry.getValue());
+		}
 		diffAdded.clear();
 		diffRemoved.clear();
 		if (memoryStore.size() == 0) {
 			dbFilePath.delete();
+			commitLock.unlock();
 			return result;
 		}
 		try {
@@ -182,6 +259,9 @@ public class FileStorage implements TableInterface {
 			dbFile.close();
 		}
 		catch (IOException e) {}
+		finally {
+			commitLock.unlock();
+		}
 		return result;
 	}
 }
