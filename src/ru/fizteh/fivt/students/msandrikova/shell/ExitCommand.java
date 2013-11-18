@@ -18,7 +18,7 @@ public class ExitCommand extends Command {
 		if(shell.getState().isMultiFileHashMap && shell.getState().currentTable != null) {
 			shell.getState().currentTable.commit();
 		}
-		if(shell.getState().isStoreable && shell.getState().currentTable != null) {
+		if(shell.getState().isStoreable && shell.getState().currentStoreableTable != null) {
 			try {
 				shell.getState().currentStoreableTable.commit();
 			} catch (IOException e) {

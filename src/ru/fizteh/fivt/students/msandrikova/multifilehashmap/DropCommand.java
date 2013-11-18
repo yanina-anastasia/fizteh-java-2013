@@ -24,7 +24,7 @@ public class DropCommand extends Command {
 			shell.getState().currentTable = null;
 		} 
 		if(shell.getState().isStoreable && shell.getState().currentStoreableTable != null && shell.getState().currentStoreableTable.getName().equals(name)) {
-			shell.getState().currentTable = null;
+			shell.getState().currentStoreableTable = null;
 		} 
 		
 		if(!shell.getState().isStoreable) {

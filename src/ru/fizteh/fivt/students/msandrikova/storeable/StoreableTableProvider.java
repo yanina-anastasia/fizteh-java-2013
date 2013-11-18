@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -86,9 +87,8 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 		}
 		Object o = null;
 		for(int i = 0; i < table.getColumnsCount(); ++i) {
-			try {
-				o = valueJSON.get(i);
-			} catch (JSONException e) {
+			o = valueJSON.get(i);
+			if(o.equals(JSONObject.NULL)) {
 				o = null;
 			}
 			if(table.getColumnType(i).equals(Byte.class) && o.getClass().equals(Integer.class)) {
@@ -116,14 +116,18 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 		Object o = null;
 		for(int i = 0; i < table.getColumnsCount(); ++i) {
 			o = value.getColumnAt(i);
-			if(!o.getClass().equals(table.getColumnType(i))) {
-				throw new ColumnFormatException("Incorrect column type.");
+			if(o == null) {
+				valueJSON.put(JSONObject.NULL);
+				continue;
 			}
 			if(table.getColumnType(i).equals(Byte.class)) {
 				o = (Integer) o;
 			}
 			if(table.getColumnType(i).equals(Float.class)) {
 				o = (Double) o;
+			}
+			if(!o.getClass().equals(table.getColumnType(i))) {
+				throw new ColumnFormatException("Incorrect column type.");
 			}
 			valueJSON.put(o);
 		}

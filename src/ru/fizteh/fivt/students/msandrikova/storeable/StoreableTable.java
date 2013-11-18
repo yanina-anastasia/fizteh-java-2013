@@ -1,11 +1,13 @@
 package ru.fizteh.fivt.students.msandrikova.storeable;
 
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -27,7 +29,7 @@ public class StoreableTable implements ChangesCountingTable {
 	private File tablePath;
 	private List<Class<?>> columnTypes = new ArrayList<Class<?>>();
 	private Map<String, Storeable> originalDatabase = new HashMap<String, Storeable>();
-	private Map<String, Storeable> newDatabase = new HashMap<String, Storeable>();
+	private Map<String, Storeable> newDatabase;
 	private final int MAX_DIRECTORIES_AMOUNT = 16;
 	private final int MAX_DATABASES_IN_DIRECTORY_AMOUNT = 16;
 	private final int MAX_TABLE_SIZE = 1000*1000*100;
@@ -62,14 +64,14 @@ public class StoreableTable implements ChangesCountingTable {
 		if(!signature.createNewFile()) {
 			throw new IOException("Can not create 'signature.tsv' file.");
 		}
-		DataOutputStream writer = null;
 		List<String> columnTypesNames = Utils.getColumnTypesNames(this.columnTypes);
+		BufferedWriter writer = null;
 		try {
-			writer = new DataOutputStream(new FileOutputStream(signature));
+			writer = new BufferedWriter(new FileWriter(signature));
 			for(int i = 0; i < this.getColumnsCount(); ++i) {
-				writer.writeUTF(columnTypesNames.get(i));
+				writer.write(columnTypesNames.get(i));
 				if(i != this.getColumnsCount() - 1) {
-					writer.writeUTF(" ");
+					writer.write(" ");
 				}
 			}
 		} finally {
@@ -107,9 +109,6 @@ public class StoreableTable implements ChangesCountingTable {
 		}
 		File currentFile;
 		for(int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
-			if(keysDueTheirHash.get(i).size() == 0) {
-				continue;
-			}
 			directory = new File(this.tablePath, i + ".dir");
 			for(int j = 0; j < this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
 				if(keysDueTheirHash.get(i).get(j).size() == 0) {
@@ -256,7 +255,7 @@ public class StoreableTable implements ChangesCountingTable {
 				}
 			}
 		}
-		this.newDatabase = this.originalDatabase;
+		this.newDatabase = new HashMap<String, Storeable>(this.originalDatabase);
 	}
 	
 	
@@ -317,7 +316,8 @@ public class StoreableTable implements ChangesCountingTable {
 		}
 		int changesCount = this.unsavedChangesCount();
 		this.write();
-		this.originalDatabase = this.newDatabase;
+		this.originalDatabase.clear();
+		this.originalDatabase.putAll(this.newDatabase);
 		return changesCount;
 	}
 
@@ -327,7 +327,8 @@ public class StoreableTable implements ChangesCountingTable {
 			throw new IllegalStateException("Table was removed.");
 		}
 		int changesCount = this.unsavedChangesCount();
-		this.newDatabase = this.originalDatabase;
+		this.newDatabase.clear();
+		this.newDatabase.putAll(this.originalDatabase);
 		return changesCount;
 	}
 
