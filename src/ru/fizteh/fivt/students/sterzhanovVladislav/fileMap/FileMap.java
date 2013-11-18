@@ -27,7 +27,7 @@ public class FileMap implements Table {
     private final Lock rLock = rwLock.readLock(); 
     private final Lock wLock = rwLock.writeLock(); 
 
-    /*Purpose: do not lock rwLock for primitive operations like getName(). Maybe get rid of it?*/
+    /*Purpose: do not lock rwLock for primitive operations like getName()*/
     private final ReadWriteLock rwDestroyLock = new ReentrantReadWriteLock();
     private final Lock aliveLock = rwDestroyLock.readLock(); 
     private final Lock destroyLock = rwDestroyLock.writeLock(); 
@@ -48,6 +48,7 @@ public class FileMap implements Table {
     @Override
     public Storeable get(String key) {
         aliveLock.lock();
+        rLock.lock();
         try {
             ensureTableExists();
             if (key == null || key.isEmpty() || !isValidKey(key)) {
@@ -55,6 +56,7 @@ public class FileMap implements Table {
             }
             return getDirtyValue(key);
         } finally {
+            rLock.unlock();
             aliveLock.unlock();
         }
     }
@@ -62,6 +64,7 @@ public class FileMap implements Table {
     @Override
     public Storeable put(String key, Storeable value) {
         aliveLock.lock();
+        rLock.lock();
         try {
             ensureTableExists();
             if (!isValidKey(key)) {
@@ -74,6 +77,7 @@ public class FileMap implements Table {
             diff.get().put(key, new Diff(DiffType.ADD, value));
             return result;
         } finally {
+            rLock.unlock();
             aliveLock.unlock();
         }
     }
@@ -81,6 +85,7 @@ public class FileMap implements Table {
     @Override
     public Storeable remove(String key) {
         aliveLock.lock();
+        rLock.lock();
         try {
             ensureTableExists();
             if (key == null || key.isEmpty() || !isValidKey(key)) {
@@ -90,6 +95,7 @@ public class FileMap implements Table {
             diff.get().put(key, new Diff(DiffType.REMOVE, null));
             return result;
         } finally {
+            rLock.unlock();
             aliveLock.unlock();
         }
     }
@@ -97,10 +103,12 @@ public class FileMap implements Table {
     @Override
     public int size() {
         aliveLock.lock();
+        rLock.lock();
         try {
             ensureTableExists();
             return db.size() + estimateDiffDelta();
         } finally {
+            rLock.unlock();
             aliveLock.unlock();
         }
     }
@@ -108,30 +116,27 @@ public class FileMap implements Table {
     @Override
     public int commit() throws IOException {
         aliveLock.lock();
+        wLock.lock();
         try {
             ensureTableExists();
             int result = estimateDiffSize();
-            wLock.lock();
-            try {
-                for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
-                    String key = entry.getKey();
-                    Storeable value = entry.getValue().value;
-                    DiffType type = entry.getValue().type;
-                    if (type == DiffType.ADD) {
-                        db.put(key, value);
-                    } else if (type == DiffType.REMOVE) {
-                        db.remove(key);
-                    }
+            for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue().value;
+                DiffType type = entry.getValue().type;
+                if (type == DiffType.ADD) {
+                    db.put(key, value);
+                } else if (type == DiffType.REMOVE) {
+                    db.remove(key);
                 }
-                if (parentProvider != null) {
-                    writeOut(parentProvider.getRootDir());
-                }
-            } finally {
-                wLock.unlock();
+            }
+            if (parentProvider != null) {
+                writeOut(parentProvider.getRootDir());
             }
             diff.remove();
             return result;
         } finally {
+            wLock.unlock();
             aliveLock.unlock();
         }
     }
@@ -139,12 +144,14 @@ public class FileMap implements Table {
     @Override
     public int rollback() {
         aliveLock.lock();
+        rLock.lock();
         try {
             ensureTableExists();
             int result = estimateDiffSize();
             diff.remove();
             return result;
         } finally {
+            rLock.unlock();
             aliveLock.unlock();
         }
     }
@@ -311,14 +318,7 @@ public class FileMap implements Table {
     private Storeable getDirtyValue(String key) {
         Diff changed = diff.get().get(key);
         if (changed == null) {
-            Storeable result = null;
-            rLock.lock();
-            try {
-                result = db.get(key);
-            } finally {
-                rLock.unlock();
-            }
-            return result;
+            return db.get(key);
         } else if (changed.type == DiffType.ADD) {
             return changed.value;
         } else {
@@ -334,47 +334,37 @@ public class FileMap implements Table {
     
     private int estimateDiffDelta() {
         int diffSize = 0;
-        rLock.lock();
-        try {
-            for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
-                String key = entry.getKey();
-                DiffType type = entry.getValue().type;
-                if (type == DiffType.ADD) {
-                    if (!db.containsKey(key)) {
-                        ++diffSize;
-                    }
-                } else if (type == DiffType.REMOVE) {
-                    if (db.containsKey(key)) {
-                        --diffSize;
-                    }
+        for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
+            String key = entry.getKey();
+            DiffType type = entry.getValue().type;
+            if (type == DiffType.ADD) {
+                if (!db.containsKey(key)) {
+                    ++diffSize;
+                }
+            } else if (type == DiffType.REMOVE) {
+                if (db.containsKey(key)) {
+                    --diffSize;
                 }
             }
-        } finally {
-            rLock.unlock();
         }
         return diffSize;
     }
     
     private int estimateDiffSize() {
         int diffSize = 0;
-        rLock.lock();
-        try {
-            for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
-                String key = entry.getKey();
-                DiffType type = entry.getValue().type;
-                if (type == DiffType.ADD) {
-                    if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
-                        ++diffSize;
-                    }
-                } else if (type == DiffType.REMOVE) {
-                    if (db.containsKey(key)) {
-                        ++diffSize;
-                    }
+        for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
+            String key = entry.getKey();
+            DiffType type = entry.getValue().type;
+            if (type == DiffType.ADD) {
+                if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
+                    ++diffSize;
                 }
-            } 
-        } finally {
-            rLock.unlock();
-        }
+            } else if (type == DiffType.REMOVE) {
+                if (db.containsKey(key)) {
+                    ++diffSize;
+                }
+            }
+        } 
         return diffSize;
     }
 

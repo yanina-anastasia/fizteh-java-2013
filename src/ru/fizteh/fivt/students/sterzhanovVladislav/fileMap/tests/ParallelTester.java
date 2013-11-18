@@ -184,8 +184,8 @@ public class ParallelTester {
                 throw new RuntimeException("Got strange diff count");
             }
         }
+        assertEquals(1, countOnes);
         assertEquals(countZeros, threadCount - 1);
-        assertEquals(countOnes, 1);
     }
 
     @After
