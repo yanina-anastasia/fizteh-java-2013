@@ -12,6 +12,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Управляющий класс для работы с {@link ru.fizteh.fivt.storage.structured.Table таблицами}
@@ -27,6 +29,7 @@ public class StoreableTableProvider implements TableProvider {
     private final File rootDir;
 
     private HashMap<String, StoreableTable> tables;
+    private ReadWriteLock providerLock = new ReentrantReadWriteLock();
 
     StoreableTableProvider(File rootDir) {
         if (rootDir == null) {
@@ -54,19 +57,25 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable getTable(String name) {
         checkTableName(name);
-        StoreableTable requestedTable = tables.get(name);
-        if (requestedTable != null) {
-            return requestedTable;
-        } else {
-            File tableRootDir = new File(rootDir, name);
-            if (!tableRootDir.exists()) {
-                return null;
+        providerLock.readLock().lock();
+        try {
+            StoreableTable requestedTable = tables.get(name);
+            if (requestedTable != null) {
+                return requestedTable;
             } else {
-                StoreableTable newOpenedTable = new StoreableTable(this, tableRootDir);
-                tables.put(name, newOpenedTable);
-                return new StoreableTable(this, tableRootDir);
+                File tableRootDir = new File(rootDir, name);
+                if (!tableRootDir.exists()) {
+                    return null;
+                } else {
+                    StoreableTable newOpenedTable = new StoreableTable(this, tableRootDir);
+                    tables.put(name, newOpenedTable);
+                    return new StoreableTable(this, tableRootDir);
+                }
             }
+        } finally {
+            providerLock.readLock().unlock();
         }
+
     }
 
     /**
@@ -91,15 +100,20 @@ public class StoreableTableProvider implements TableProvider {
             throw new IllegalArgumentException("Can't create table without colums");
         }
         File tableRootDir = new File(rootDir, name);
-        if (tableRootDir.exists()) {
-            return null;
-        } else {
-            if (!tableRootDir.mkdir()) {
-                throw new IllegalStateException("Can't make table root dir");
+        providerLock.writeLock().lock();
+        try {
+            if (tableRootDir.exists()) {
+                return null;
+            } else {
+                if (!tableRootDir.mkdir()) {
+                    throw new IllegalStateException("Can't make table root dir");
+                }
+                StoreableTable newTable = new StoreableTable(this, tableRootDir, columnTypes);
+                tables.put(name, newTable);
+                return newTable;
             }
-            StoreableTable newTable = new StoreableTable(this, tableRootDir, columnTypes);
-            tables.put(name, newTable);
-            return newTable;
+        } finally {
+            providerLock.writeLock().unlock();
         }
     }
 
@@ -118,16 +132,21 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) throws IOException {
         checkTableName(name);
-        tables.remove(name);
-        File tableRootDir = new File(rootDir, name);
-        if (!tableRootDir.exists()) {
-            throw new IllegalStateException("No table with this name");
-        } else {
-            try {
-                FileUtil.recursiveDelete(rootDir, tableRootDir);
-            } catch (FileWasNotDeleted e) {
-                throw new IllegalStateException("Can't delete table");
+        providerLock.writeLock().lock();
+        try {
+            tables.remove(name);
+            File tableRootDir = new File(rootDir, name);
+            if (!tableRootDir.exists()) {
+                throw new IllegalStateException("No table with this name");
+            } else {
+                try {
+                    FileUtil.recursiveDelete(rootDir, tableRootDir);
+                } catch (FileWasNotDeleted e) {
+                    throw new IllegalStateException("Can't delete table");
+                }
             }
+        } finally {
+            providerLock.writeLock().unlock();
         }
     }
 
