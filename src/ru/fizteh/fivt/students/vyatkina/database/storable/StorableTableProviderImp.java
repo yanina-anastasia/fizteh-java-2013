@@ -40,6 +40,8 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     }
 
     public void loadTable (String tableName) {
+
+
         Path tableDirectory = tableDirectory (tableName);
         if (!Files.exists (tableDirectory)) {
             return;
@@ -49,6 +51,9 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
 
             try {
                 databaseKeeper.writeLock ().lock ();
+                if (tables.containsKey (tableName)) {
+                    return;
+                }
                 StorableRowShape shape = new StorableRowShape (readTableSignature (tableSignature));
                 StorableTableImp table = new StorableTableImp (tableName, shape, this);
 
@@ -75,9 +80,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     public Table getTable (String name) {
         isClosedCheck ();
         validTableNameCheck (name);
-        if (!tables.containsKey (name)) {
-            loadTable (name);
-        }
+        loadTable (name);
         try {
             databaseKeeper.readLock ().lock ();
             StorableTableImp table = tables.get (name);
