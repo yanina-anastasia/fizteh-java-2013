@@ -53,12 +53,6 @@ public class MyTable implements Table {
             return new HashMap<String, Storeable>();
         }
     };
-    private ThreadLocal<HashMap<String, Storeable>> fuckingDiff = new ThreadLocal<HashMap<String, Storeable>>() {
-        @Override
-        public HashMap<String, Storeable> initialValue() {
-            return new HashMap<String, Storeable>();
-        }
-    };
 
     public MyTable(String tableName, List<Class<?>> columnTypes, MyTableProvider parent) {
         name = tableName;
@@ -202,7 +196,7 @@ public class MyTable implements Table {
                 }
             }
             int n = changes.get().size();
-            //changes.get().clear();
+            changes.get().clear();
             revision++;
             threadRevision.set(revision);
             return n;
