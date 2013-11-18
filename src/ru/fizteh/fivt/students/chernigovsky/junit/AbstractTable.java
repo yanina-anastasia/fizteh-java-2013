@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractTable<ValueType> {
     private HashMap<String, ValueType> hashMap;
-    private HashMap<String, ValueType> newEntries;
     private HashMap<String, ValueType> changedEntries;
     private HashMap<String, ValueType> removedEntries;
     private boolean autoCommit;
@@ -22,7 +21,6 @@ public abstract class AbstractTable<ValueType> {
         tableName = name;
         autoCommit = flag;
         hashMap = new HashMap<String, ValueType>();
-        newEntries = new HashMap<String, ValueType>();
         changedEntries = new HashMap<String, ValueType>();
         removedEntries = new HashMap<String, ValueType>();
     }
@@ -32,7 +30,21 @@ public abstract class AbstractTable<ValueType> {
     }
 
     public int getDiffCount() {
-        return newEntries.size() + changedEntries.size() + removedEntries.size();
+        int diffCount = 0;
+
+        for (String string : changedEntries.keySet()) {
+            if (hashMap.get(string) == null || hashMap.get(string) != changedEntries.get(string)) {
+                ++diffCount;
+            }
+        }
+
+        for (String string : removedEntries.keySet()) {
+            if (hashMap.get(string) != null) {
+                ++diffCount;
+            }
+        }
+
+        return diffCount;
     }
 
     /**
@@ -56,9 +68,7 @@ public abstract class AbstractTable<ValueType> {
         if (removedEntries.get(key) != null) {
             return null;
         }
-        if (newEntries.get(key) != null) {
-            return newEntries.get(key);
-        }
+
         if (changedEntries.get(key) != null) {
             return changedEntries.get(key);
         }
@@ -77,32 +87,13 @@ public abstract class AbstractTable<ValueType> {
      */
 
     private ValueType putting(String key, ValueType value) {
-        if (hashMap.get(key) == null) {
-            return newEntries.put(key, value);
-        } else {
-            if (hashMap.get(key).equals(value)) {
-                if (changedEntries.get(key) != null) {
-                    return changedEntries.remove(key);
-                }
-                if (removedEntries.get(key) != null) {
-                    removedEntries.remove(key);
-                    return null;
-                }
-                return value;
-            }
-            if (removedEntries.get(key) != null) {
-                removedEntries.remove(key);
-                changedEntries.put(key, value);
-                return null;
-            }
-            if (changedEntries.get(key) == null) {
-                changedEntries.put(key, value);
-                return hashMap.get(key);
-            } else {
-                return changedEntries.put(key, value);
-            }
-        }
+        ValueType oldValue = get(key);
+        ValueType commitedValue = hashMap.get(key);
 
+        changedEntries.put(key, value);
+        removedEntries.remove(key);
+
+        return oldValue;
     }
 
     public ValueType put(String key, ValueType value) {
@@ -137,21 +128,14 @@ public abstract class AbstractTable<ValueType> {
      */
 
     private ValueType removing(String key) {
-        if (removedEntries.get(key) != null) {
-            return null;
+        ValueType oldValue = get(key);
+
+        if (oldValue != null) {
+            removedEntries.put(key, oldValue);
         }
-        if (newEntries.get(key) != null) {
-            return newEntries.remove(key);
-        }
-        if (changedEntries.get(key) != null) {
-            removedEntries.put(key, hashMap.get(key));
-            return changedEntries.remove(key);
-        }
-        if (hashMap.get(key) != null) {
-            removedEntries.put(key, hashMap.get(key));
-            return hashMap.get(key);
-        }
-        return null;
+        changedEntries.remove(key);
+
+        return oldValue;
     }
 
     public ValueType remove(String key) {
@@ -178,7 +162,21 @@ public abstract class AbstractTable<ValueType> {
      * @return Количество ключей в таблице.
      */
     public int size() {
-        return hashMap.size() - removedEntries.size() + newEntries.size();
+        int size = hashMap.size();
+
+        for (String string : changedEntries.keySet()) {
+            if (hashMap.get(string) == null || hashMap.get(string) != changedEntries.get(string)) {
+                ++size;
+            }
+        }
+
+        for (String string : removedEntries.keySet()) {
+            if (hashMap.get(string) != null) {
+                --size;
+            }
+        }
+
+        return size;
     }
 
     /**
@@ -188,11 +186,6 @@ public abstract class AbstractTable<ValueType> {
      */
     public int commit() {
         int changed = getDiffCount();
-
-        for (Map.Entry<String, ValueType> entry : newEntries.entrySet()) {
-            hashMap.put(entry.getKey(), entry.getValue());
-        }
-        newEntries.clear();
 
         for (Map.Entry<String, ValueType> entry : changedEntries.entrySet()) {
             hashMap.put(entry.getKey(), entry.getValue());
@@ -215,7 +208,6 @@ public abstract class AbstractTable<ValueType> {
     public int rollback() {
         int changed = getDiffCount();
 
-        newEntries.clear();
         changedEntries.clear();
         removedEntries.clear();
 
