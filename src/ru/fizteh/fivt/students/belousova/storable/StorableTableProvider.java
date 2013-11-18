@@ -47,9 +47,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
             throw new IllegalArgumentException("incorrect name");
         }
 
-        if (tableMap.containsKey(name)) {
-            return null;
-        }
+
         if (columnTypes == null) {
             throw new IllegalArgumentException("ColumnTypes list is not set");
         }
@@ -58,7 +56,11 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
         }
         File tableFile = new File(dataDitectory, name);
         tableProviderTransactionLock.writeLock().lock();
+        tableProviderTransactionLock.readLock().lock();
         try {
+            if (tableMap.containsKey(name)) {
+                return null;
+            }
             tableFile.mkdir();
             try {
                 StorableUtils.writeSignature(tableFile, columnTypes);
@@ -70,6 +72,7 @@ public class StorableTableProvider extends AbstractTableProvider<ChangesCounting
             return table;
         } finally {
             tableProviderTransactionLock.writeLock().unlock();
+            tableProviderTransactionLock.readLock().unlock();
         }
     }
 
