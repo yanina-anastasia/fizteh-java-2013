@@ -29,8 +29,8 @@ public class FileMap implements Table {
 
     /*Purpose: do not lock rwLock for primitive operations like getName(). Maybe get rid of it?*/
     private final ReadWriteLock rwDestroyLock = new ReentrantReadWriteLock();
-    private final Lock destroyLock = rwDestroyLock.readLock(); 
-    private final Lock aliveLock = rwDestroyLock.writeLock(); 
+    private final Lock aliveLock = rwDestroyLock.readLock(); 
+    private final Lock destroyLock = rwDestroyLock.writeLock(); 
 
     private ThreadLocal<HashMap<String, Diff>> diff;
 
