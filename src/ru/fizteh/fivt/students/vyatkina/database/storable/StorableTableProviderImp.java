@@ -78,6 +78,14 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
         if (!tables.containsKey (name)) {
             loadTable (name);
         }
+        try {
+            databaseKeeper.readLock ().lock ();
+            StorableTableImp table = tables.get (name);
+            table.setCurrentThreadValues ();
+        }
+        finally {
+           databaseKeeper.readLock ().unlock ();
+        }
         return tables.get (name);
     }
 

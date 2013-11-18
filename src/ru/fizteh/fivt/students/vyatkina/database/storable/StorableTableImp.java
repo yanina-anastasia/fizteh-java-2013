@@ -26,6 +26,10 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
         return super.getName ();
     }
 
+    void setCurrentThreadValues () {
+        rollback ();
+    }
+
     @Override
     public Storeable get (String key) {
         isClosedCheck ();
