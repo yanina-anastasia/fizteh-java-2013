@@ -74,7 +74,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
         if(storage.containsKey(key)) {
             dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("%s exists", key));
-            return null;
+            return storage.get(key);
         } else {
             File newData = new File(dir, key);
             try {

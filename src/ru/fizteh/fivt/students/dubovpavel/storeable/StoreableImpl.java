@@ -18,7 +18,7 @@ public class StoreableImpl implements Storeable {
     }
 
     private void checkIndex(int columnIndex) throws IndexOutOfBoundsException {
-        if(columnIndex >= fields.size()) {
+        if(columnIndex < 0 || columnIndex >= fields.size()) {
             throw new IndexOutOfBoundsException(
                     String.format("Index is out of bound. Size: %s, index: %s", fields.size(), columnIndex)
             );
