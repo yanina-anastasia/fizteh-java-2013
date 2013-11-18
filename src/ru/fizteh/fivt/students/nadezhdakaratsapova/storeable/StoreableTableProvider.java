@@ -11,7 +11,10 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable
 import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalTableProvider;
 
 import javax.xml.stream.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -169,7 +172,8 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
             int node = 0;
             if (xmlReader.hasNext()) {
                 int startNode = xmlReader.next();
-                if (!(startNode == XMLStreamConstants.START_ELEMENT) || !(xmlReader.getName().getLocalPart().equals("row"))) {
+                if (!(startNode == XMLStreamConstants.START_ELEMENT)
+                        || !(xmlReader.getName().getLocalPart().equals("row"))) {
                     throw new ParseException("there is a mistake in getting first tag. <row> is expected", 0);
                 } else {
                     while (xmlReader.hasNext()) {
@@ -178,37 +182,46 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
                             if (node == XMLStreamConstants.END_ELEMENT) {
                                 break;
                             } else {
-                                if ((node == XMLStreamConstants.START_ELEMENT) && (xmlReader.getName().getLocalPart().equals("col"))) {
+                                if ((node == XMLStreamConstants.START_ELEMENT)
+                                        && (xmlReader.getName().getLocalPart().equals("col"))) {
                                     if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
                                         if (node == XMLStreamConstants.CHARACTERS) {
                                             String parseValue = xmlReader.getText();
-                                            ret.setColumnAt(columnCounter, StoreableColumnType.convertStringToAnotherObject(parseValue, table.getColumnType(columnCounter)));
+                                            ret.setColumnAt(columnCounter, StoreableColumnType.
+                                                    convertStringToAnotherObject(parseValue,
+                                                            table.getColumnType(columnCounter)));
                                             ++columnCounter;
                                         }
 
                                     } else {
-                                        throw new ParseException("Not managed to convert xml value. The text is expected", 0);
+                                        throw new ParseException("Not managed to convert xml value. " +
+                                                "The text is expected", 0);
                                     }
 
                                     if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
                                         if (node != XMLStreamConstants.END_ELEMENT) {
-                                            throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
+                                            throw new ParseException("Not managed to convert xml value." +
+                                                    " End tag is expected", 0);
                                         }
                                     } else {
-                                        throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
+                                        throw new ParseException("Not managed to convert xml value." +
+                                                " End tag is expected", 0);
                                     }
 
                                 } else {
-                                    if ((node != XMLStreamConstants.START_ELEMENT) || (!(xmlReader.getName().getLocalPart().equals("null")))) {
-                                        throw new ParseException("Not managed to convert xml value. Start tag is expected", 0);
+                                    if ((node != XMLStreamConstants.START_ELEMENT)
+                                            || (!(xmlReader.getName().getLocalPart().equals("null")))) {
+                                        throw new ParseException("Not managed to convert xml value. " +
+                                                "Start tag is expected", 0);
                                     }
                                     ++columnCounter;
                                     if (xmlReader.hasNext()) {
                                         node = xmlReader.next();
                                         if (node != XMLStreamConstants.END_ELEMENT) {
-                                            throw new ParseException("Not managed to convert xml value. End tag is expected", 0);
+                                            throw new ParseException("Not managed to convert xml value. " +
+                                                    "End tag is expected", 0);
                                         }
                                     }
                                 }
