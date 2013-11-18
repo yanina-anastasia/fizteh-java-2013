@@ -157,7 +157,6 @@ public abstract class GenericTable<ValueType> {
         } finally {
             hardDiskLock.writeLock().unlock();
         }
-
         changedValues.get().clear();
         return res;
     }
@@ -219,6 +218,7 @@ public abstract class GenericTable<ValueType> {
         try {
             hardDiskLock.readLock().lock();
             lock.writeLock().lock();
+            oldDatabase.clear();
             for (int i = 0; i < 256; ++i) {
                 File dir = new File(tableDirectory, i / 16 + ".dir");
                 if (!dir.isDirectory()) {
