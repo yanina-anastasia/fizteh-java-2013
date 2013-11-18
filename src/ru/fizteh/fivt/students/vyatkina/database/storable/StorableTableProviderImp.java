@@ -31,7 +31,7 @@ import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUt
 
 public class StorableTableProviderImp implements StorableTableProvider, RemoteTableProvider {
 
-    private volatile Map<String, StorableTableImp> tables = new ConcurrentHashMap<> ();
+    private volatile Map<String, StorableTableImp> tables = new HashMap<> ();
     private final Path location;
     private final ReadWriteLock databaseKeeper = new ReentrantReadWriteLock (true);
     private AtomicBoolean isClosed = new AtomicBoolean (false);

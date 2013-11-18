@@ -58,7 +58,7 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
     }
 
     @Override
-    public synchronized int commit () {
+    public int commit () {
         isClosedCheck ();
         try {
             tableKeeper.writeLock ().lock ();
