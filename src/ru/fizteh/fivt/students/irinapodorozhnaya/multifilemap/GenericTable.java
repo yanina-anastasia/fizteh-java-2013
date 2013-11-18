@@ -121,8 +121,14 @@ public abstract class GenericTable<ValueType> {
             lock.writeLock().lock();
             for (String s : changedValues.get().keySet()) {
                 if (changedValues.get().get(s) == null) {
+                    if (oldDatabase.get(s) == null) {
+                        changedValues.get().remove(s);
+                    }
                     oldDatabase.remove(s);
                 } else {
+                    if (changedValues.get().get(s).equals(oldDatabase.get(s))) {
+                        changedValues.get().remove(s);
+                    }
                     oldDatabase.put(s, changedValues.get().get(s));
                 }
             }
