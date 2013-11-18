@@ -9,6 +9,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.fizteh.fivt.students.demidov.storeable.WrongTypeException;
+
 abstract public class BasicTable<ElementType> {
 	private volatile FilesMap<ElementType> filesMap;
 	private String tableName;	
@@ -41,18 +43,19 @@ abstract public class BasicTable<ElementType> {
 	public ElementType get(String key) {
 		checkKey(key);
 		
-		readWriteLock.readLock().lock();		
-		ElementType value = filesMap.getFileMapForKey(key).getCurrentTable().get(key);
-		readWriteLock.readLock().unlock();
-		
-		if (putDiff.get().containsKey(key)) {
-			value = putDiff.get().get(key);
-		}
 		if (removeDiff.get().contains(key)) {
-			value = null;
+			return null;
+		}
+		if (putDiff.get().containsKey(key)) {
+		    return putDiff.get().get(key);
 		}
 		
-		return value;
+		readWriteLock.readLock().lock();      
+        try {
+            return filesMap.getFileMapForKey(key).getCurrentTable().get(key);
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
 	}
 
 	public ElementType put(String key, ElementType value) {
@@ -69,7 +72,6 @@ abstract public class BasicTable<ElementType> {
 		return overwrite;
 	}
 	
-
 	public ElementType remove(String key) {
 		checkKey(key);
 		ElementType removed = get(key);
@@ -97,11 +99,9 @@ abstract public class BasicTable<ElementType> {
 	        }
 	    }
 	    
-	    try {
-	    	return previousSize;
-	    } finally {
-	    	readWriteLock.readLock().unlock();
-		}
+	    readWriteLock.readLock().unlock();
+	    
+	    return previousSize;
 	}
 
 	public int commit() throws IOException {	
@@ -118,8 +118,7 @@ abstract public class BasicTable<ElementType> {
 		return changesNumber;		
 	}
 	
-	public void autoCommit() {
-	    readWriteLock.writeLock().lock();  
+	public void autoCommit() { 
 		for (String key: putDiff.get().keySet()) {
 			filesMap.getFileMapForKey(key).getCurrentTable().put(key, putDiff.get().get(key));
 		}		
@@ -128,10 +127,8 @@ abstract public class BasicTable<ElementType> {
 	        String key = removeDiffIterator.next();
 	        filesMap.getFileMapForKey(key).getCurrentTable().remove(key);
 	    }
-	    readWriteLock.writeLock().unlock();
 	}
 	
-
 	public int rollback() {
 		int changesNumber = getChangesNumber();
 		
@@ -152,9 +149,13 @@ abstract public class BasicTable<ElementType> {
 	        }
 	    }
 	    for (String key: putDiff.get().keySet()) {
-			if (!(putDiff.get().get(key).equals(filesMap.getFileMapForKey(key).getCurrentTable().get(key)))) {
-				++changesNumber;
-			}
+	        try {
+	            if (!serialize((putDiff.get().get(key))).equals(serialize(filesMap.getFileMapForKey(key).getCurrentTable().get(key)))) {
+	                ++changesNumber;
+	            }
+	        } catch (IOException catchedException) {
+	            throw new WrongTypeException(catchedException.getMessage());
+	        }
 		}	
 	    readWriteLock.readLock().unlock();
 	    
