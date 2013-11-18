@@ -11,10 +11,7 @@ import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -213,7 +210,7 @@ public class StoreableTable implements Table {
     public int size() {
         try {
             transactionLock.lock();
-            return data.size() + changes.get().size() - removedKeys.get().size();
+            return CountingTools.correctCountingOfSize(data, changes.get(), removedKeys.get());
         } finally {
             transactionLock.unlock();
         }
