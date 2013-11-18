@@ -135,7 +135,7 @@ public class TableMember implements Table {
         for (String key : changes.keySet()) {
             String value = changes.get(key);
             if (value != null) {
-                table.put(key, changes.get(key));
+                table.put(key, value);
             } else {
                 table.remove(key);
             }

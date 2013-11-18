@@ -130,9 +130,6 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
      public String get(String key) throws IllegalArgumentException {
-        byte firstByte = getFirstByte(key);
-        currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
-        currentPath = directoriesList[firstByte % partsNumber];
         if (key == null) {
             throw new IllegalArgumentException();
         }
@@ -145,10 +142,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public String put(String key, String value) throws IllegalArgumentException {
-        byte firstByte = getFirstByte(key);
-        currentFile = filesList[firstByte % partsNumber][(firstByte / partsNumber) % partsNumber];
-        currentPath = directoriesList[firstByte % partsNumber];
-        if (key == null) {
+        if (key == null || value == null) {
             throw new IllegalArgumentException();
         }
         if (get(key) == null) {
@@ -177,7 +171,13 @@ public class DistributedTable extends FileManager implements Table {
     public int commit() {
         int updated = findDifference();
         for (String key : changes.keySet()) {
-            cache.put(key, changes.get(key));
+            if (changes.get(key) == null) {
+                if (cache.containsKey(key)) {
+                    cache.remove(key);
+                }
+            } else {
+                cache.put(key, changes.get(key));
+            }
         }
         changes.clear();
         for (String key : cache.keySet()) {
@@ -293,7 +293,7 @@ public class DistributedTable extends FileManager implements Table {
         }
         if (get(key) != null) {
             recordNumber--;
-            return changes.put(key, null);
+            changes.put(key, null);
         }
         return get(key);
     }

@@ -152,11 +152,12 @@ public class DistributedTableProvider implements TableProvider {
                 } finally {
                     tablesLock.writeLock().unlock();
                 }
+            } else {
+                return tableMembers.get(name).get();
             }
         } finally {
             membersLock.writeLock().unlock();
         }
-        return null;
     }
 
     protected void createSignature(File tableDirectory, List<Class<?>> columnTypes) throws IOException {
