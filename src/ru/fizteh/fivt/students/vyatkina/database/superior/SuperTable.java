@@ -8,20 +8,12 @@ import java.util.Set;
 
 public class SuperTable<ValueType> {
 
-    private Map<String, Diff<ValueType>> values = new HashMap<> ();
+    private volatile Map<String, Diff<ValueType>> values = new HashMap<> ();
     private final String name;
 
     public SuperTable (String name) {
         this.name = name;
     }
-
-    public void fillWithValues (Map <String,ValueType> diskValues) {
-        values.clear ();
-        for (Map.Entry <String,ValueType> entry: diskValues.entrySet ()) {
-          putValueFromDisk (entry.getKey (),entry.getValue ());
-        }
-    }
-
 
     public String getName () {
         return name;

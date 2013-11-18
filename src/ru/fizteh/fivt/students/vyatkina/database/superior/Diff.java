@@ -1,47 +1,45 @@
 package ru.fizteh.fivt.students.vyatkina.database.superior;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class Diff<ValueType> {
 
-    private ValueType commitedValue;
-    private ValueType value;
+    private AtomicReference <ValueType> commitedValue;
+    private ThreadLocal<ValueType> value;
 
     public Diff (ValueType commitedValue, ValueType value) {
 
-        this.commitedValue = commitedValue;
-        this.value = value;
+        this.commitedValue.set (commitedValue);
+        this.value.set (value);
     }
 
     public ValueType getCommitedValue () {
-        return commitedValue;
+        return commitedValue.get ();
     }
 
     public ValueType getValue () {
-        return value;
+        return value.get ();
     }
 
 
     public void setValue (ValueType value) {
-        this.value = value;
+        this.value.set (value);
     }
 
     public boolean isNeedToCommit () {
-        if (commitedValue == null) {
-            if (value == null) {
+        if (commitedValue.get () == null) {
+            if (value.get () == null) {
                 return false;
             } else {
                 return true;
             }
         }
-        return !commitedValue.equals (value);
-    }
-
-    public void changeAsIfCommited () {
-        commitedValue = value;
+        return !commitedValue.get ().equals (value.get ());
     }
 
     public boolean commit () {
         if (isNeedToCommit ()) {
-            commitedValue = value;
+            commitedValue.set (value.get ());
             return true;
         } else {
             return false;
@@ -50,7 +48,7 @@ public class Diff<ValueType> {
 
     public boolean rollback () {
         if (isNeedToCommit ()) {
-            value = commitedValue;
+            value.set (commitedValue.get ());
             return true;
         } else {
             return false;
