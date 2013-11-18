@@ -266,8 +266,19 @@ public class Utils {
 	
 	public static List<Class<?>> parseColumnTypes(String[] argumentsList) throws IOException {
 		List<String> columnTypes = new ArrayList<String>();
-		for(int i = 3; i < argumentsList.length - 1; i++) {
+		for(int i = 2; i < argumentsList.length; i++) {
 			columnTypes.add(argumentsList[i]);
+		}
+		if(columnTypes.get(0).equals("(")) {
+			columnTypes = columnTypes.subList(1, columnTypes.size() - 1);
+		} else {
+			columnTypes.set(0, columnTypes.get(0).substring(1));
+		}
+		if(columnTypes.get(columnTypes.size() - 1).equals(")")) {
+			columnTypes = columnTypes.subList(0, columnTypes.size() - 2);
+		} else {
+			String previous = columnTypes.get(columnTypes.size() - 1);
+			columnTypes.set(columnTypes.size() - 1, previous.substring(0, previous.length() - 2));
 		}
 		return Utils.classTypesFromList(columnTypes);
 	}
