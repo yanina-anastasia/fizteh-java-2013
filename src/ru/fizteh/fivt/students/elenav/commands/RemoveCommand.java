@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
+import java.io.IOException;
+
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class RemoveCommand extends AbstractCommand {
@@ -8,7 +10,7 @@ public class RemoveCommand extends AbstractCommand {
 		super(s, "remove", 1);
 	}
 
-	public void execute(String[] args) {
+	public void execute(String[] args) throws IOException {
 		FilesystemState table = getState();
 		String key = args[1];
 		if (table.getWorkingDirectory() == null) {

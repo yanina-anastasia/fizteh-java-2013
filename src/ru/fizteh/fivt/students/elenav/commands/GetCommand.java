@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
+import java.io.IOException;
+
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class GetCommand extends AbstractCommand {
@@ -7,7 +9,7 @@ public class GetCommand extends AbstractCommand {
 		super(s, "get", 1);
 	}
 	
-	public void execute(String[] args) {
+	public void execute(String[] args) throws IOException {
 		FilesystemState table = getState();
 		String key = args[1];
 		if (table.getWorkingDirectory() == null) {

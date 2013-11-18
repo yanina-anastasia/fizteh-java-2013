@@ -130,6 +130,6 @@ public abstract class FilesystemState {
 		name = n;
 	}
 
-	public abstract String getValue(String key);
+	public abstract String getValue(String key) throws IOException;
 	
 }

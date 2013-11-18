@@ -32,7 +32,7 @@ import ru.fizteh.fivt.students.elenav.utils.Writer;
 public class StoreableTableState extends FilesystemState implements Table {
 
 	private static final int DIR_COUNT = 16;
-    private static final int FILES_PER_DIR = 16;
+	private static final int FILES_PER_DIR = 16;
     
 	private List<Class<?>> columnTypes = new ArrayList<>();
 	private final HashMap<String, Storeable> startMap = new HashMap<>();
@@ -447,14 +447,12 @@ public class StoreableTableState extends FilesystemState implements Table {
 	} 
 	
 	@Override
-	public String getValue(String key) {
+	public String getValue(String key) throws IOException {
 		try {
 			return Serializer.run(this, get(key));
 		} catch (XMLStreamException e) {
-			System.err.println("can't serialize "+key+"'s value to get it");
-			System.exit(1);
+			throw new IOException("can't serialize "+key+"'s value to get it");
 		}
-		return null;
 	}
 
 	public HashSet<String> getRemovedKeys() {

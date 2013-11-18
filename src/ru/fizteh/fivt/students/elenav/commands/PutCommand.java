@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
+import java.io.IOException;
 import java.text.ParseException;
 
 import javax.xml.stream.XMLStreamException;
@@ -12,7 +13,7 @@ public class PutCommand extends AbstractCommand {
 		super(s, "put", 2);
 	}
 
-	public void execute(String[] args) {
+	public void execute(String[] args) throws IOException {
 		FilesystemState table = getState();
 		if (table.getWorkingDirectory() == null) {
 			getState().getStream().println("no table");
