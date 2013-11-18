@@ -125,14 +125,19 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
         isClosedCheck ();
         validTableNameCheck (name);
         getTable (name);
-        if (tables.containsKey (name)) {
-            return null;
-        } else {
-            StorableRowShape shape = new StorableRowShape (columnTypes);
+        try {
+            databaseKeeper.readLock ().lock ();
+            if (tables.containsKey (name)) {
+                return null;
+            }
+        }
+        finally {
+          databaseKeeper.readLock ().unlock ();
+        }
+        StorableRowShape shape = new StorableRowShape (columnTypes);
             StorableTableImp table = new StorableTableImp (name, shape, this);
             try {
                 databaseKeeper.writeLock ().lock ();
-                table.setCurrentThreadValues ();
                 tables.put (name, table);
                 Files.createDirectory (location.resolve (name));
                 writeTableSignature (tableDirectory (name), columnTypes);
@@ -141,7 +146,6 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
                 databaseKeeper.writeLock ().unlock ();
             }
             return table;
-        }
     }
 
     @Override
