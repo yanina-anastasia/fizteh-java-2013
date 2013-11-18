@@ -330,7 +330,12 @@ public class DatabaseTable implements Table {
                 result += 1;
             }
         }
-        return result - deletedKeys.get().size();
+        for (final String key : deletedKeys.get()) {
+            if (oldData.containsKey(key)) {
+                result -= 1;
+            }
+        }
+        return result;
     }
 
     private boolean compare(Storeable key1, Storeable key2) {
