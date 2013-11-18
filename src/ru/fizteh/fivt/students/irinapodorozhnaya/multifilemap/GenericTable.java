@@ -10,7 +10,6 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.utils.FileStorage;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 
 public abstract class GenericTable<ValueType> {
-
     private final String name;
     protected ReadWriteLock lock = new ReentrantReadWriteLock(true);
     protected ReadWriteLock hardDiskLock = new ReentrantReadWriteLock(true);
@@ -48,17 +47,8 @@ public abstract class GenericTable<ValueType> {
     public ValueType remove(String key) {
         checkKey(key);
         ValueType res = get(key);
-        try {
-            lock.readLock().lock();
-            if (oldDatabase.get(key) == null) {
-                changedValues.get().remove(key);
-            } else {
-                changedValues.get().put(key, null);
-            }
-            return res;
-        } finally {
-            lock.readLock().unlock();
-        }
+        changedValues.get().put(key, null);
+        return res;
     }
 
     public ValueType put(String key, ValueType value) {
@@ -67,17 +57,8 @@ public abstract class GenericTable<ValueType> {
             throw new IllegalArgumentException("null value");
         }
         ValueType res = get(key);
-        try {
-            lock.readLock().lock();
-            if (oldDatabase.get(key).equals(value)) {
-                changedValues.get().remove(key);
-            } else {
-                changedValues.get().put(key, value);
-            }
-            return res;
-        } finally {
-            lock.readLock().unlock();
-        }
+        changedValues.get().put(key, value);
+        return res;
     }
 
     private int countChanges() {
@@ -97,7 +78,6 @@ public abstract class GenericTable<ValueType> {
             return true;
         }
         return val1 != null && val2 != null && val1.equals(val2);
-
     }
 
     public int commit() throws IOException {
@@ -203,19 +183,21 @@ public abstract class GenericTable<ValueType> {
             hardDiskLock.readLock().lock();
             lock.writeLock().lock();
             oldDatabase.clear();
-            for (int i = 0; i < 256; ++i) {
-                File dir = new File(tableDirectory, i / 16 + ".dir");
+            for (int i = 0; i < 16; ++i) {
+                File dir = new File(tableDirectory, i + ".dir");
                 if (!dir.isDirectory()) {
                     continue;
                 } else if (dir.listFiles().length == 0) {
                     throw new IOException("empty dir");
                 }
-                File db = new File(dir, i % 16 + ".dat");
-                if (db.isFile()) {
-                    Map<String, String> fromFile = FileStorage.openDataFile(db, i);
-                    oldDatabase.putAll(deserialize(fromFile));
-                    if (fromFile.isEmpty()) {
-                        throw new IOException("empty file");
+                for (int j = 0; j < 16; ++j) {
+                    File db = new File(dir, j + ".dat");
+                    if (db.isFile()) {
+                        Map<String, String> fromFile = FileStorage.openDataFile(db, i * 16 + j);
+                        oldDatabase.putAll(deserialize(fromFile));
+                        if (fromFile.isEmpty()) {
+                            throw new IOException("empty file");
+                        }
                     }
                 }
             }
