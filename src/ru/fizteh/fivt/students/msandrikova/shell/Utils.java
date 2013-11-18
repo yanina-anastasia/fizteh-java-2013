@@ -267,22 +267,22 @@ public class Utils {
 	public static List<Class<?>> parseColumnTypes(String[] argumentsList) throws IOException {
 		List<String> columnTypes = new ArrayList<String>();
 		for(int i = 2; i < argumentsList.length; i++) {
+			if(argumentsList[i].equals(")") || argumentsList[i].equals("(")) {
+				continue;
+			}
 			columnTypes.add(argumentsList[i]);
 		}
-		if(columnTypes.get(0).equals("(")) {
-			columnTypes = columnTypes.subList(1, columnTypes.size() - 1);
-		} else {
+		if(columnTypes.isEmpty()) {
+			throw new IOException("Incorrect arguments amount");
+		}
+		if(columnTypes.get(0).startsWith("(")) {
 			columnTypes.set(0, columnTypes.get(0).substring(1));
 		}
-		if(columnTypes.get(columnTypes.size() - 1).equals(")")) {
-			if(columnTypes.size() == 0) {
-				throw new IOException("Incorrect arguments amount");
-			}
-			columnTypes = columnTypes.subList(0, columnTypes.size() - 2);
-		} else {
+		if(columnTypes.get(columnTypes.size() - 1).endsWith(")")) {
 			String previous = columnTypes.get(columnTypes.size() - 1);
 			columnTypes.set(columnTypes.size() - 1, previous.substring(0, previous.length() - 2));
 		}
+		
 		return Utils.classTypesFromList(columnTypes);
 	}
 
