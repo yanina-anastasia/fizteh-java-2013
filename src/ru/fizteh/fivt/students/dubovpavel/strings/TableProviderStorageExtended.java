@@ -31,6 +31,9 @@ public class TableProviderStorageExtended<DB extends FileRepresentativeDataBase>
         if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
+        if(!isNameValid(name)) {
+            throw new RuntimeException();
+        }
         try {
             return storage.createExplosive(name);
         } catch (StorageException e) {

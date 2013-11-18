@@ -27,7 +27,7 @@ public class TableStoreableParallel extends TableStoreable implements Table {
                 return threadDict.get(curThread);
             } else {
                 HashMap<String, Storeable> localDictCopy = new HashMap<>();
-                copyHashMap(localDictCopy, localDict);
+                copyHashMap(localDict, localDictCopy);
                 threadDict.put(curThread, localDictCopy);
                 return localDictCopy;
             }
