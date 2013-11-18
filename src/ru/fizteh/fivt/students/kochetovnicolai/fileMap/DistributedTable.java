@@ -171,13 +171,7 @@ public class DistributedTable extends FileManager implements Table {
     public int commit() {
         int updated = findDifference();
         for (String key : changes.keySet()) {
-            if (changes.get(key) == null) {
-                if (cache.containsKey(key)) {
-                    cache.remove(key);
-                }
-            } else {
-                cache.put(key, changes.get(key));
-            }
+            cache.put(key, changes.get(key));
         }
         changes.clear();
         for (String key : cache.keySet()) {
