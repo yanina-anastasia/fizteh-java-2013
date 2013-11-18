@@ -9,26 +9,51 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DatabaseTable implements Table {
     public HashMap<String, Storeable> oldData;
-    public HashMap<String, Storeable> modifiedData;
-    public HashSet<String> deletedKeys;
-    public int size;
-    public int uncommittedChanges;
+    public ThreadLocal<HashMap<String, Storeable>> modifiedData;
+    public ThreadLocal<HashSet<String>> deletedKeys;
+    public ThreadLocal<Integer> size;
+    public ThreadLocal<Integer> uncommittedChanges;
     private String tableName;
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
+    private Lock transactionLock = new ReentrantLock(true);
 
 
     public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
         this.tableName = name;
         oldData = new HashMap<String, Storeable>();
-        modifiedData = new HashMap<String, Storeable>();
-        deletedKeys = new HashSet<String>();
+        modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
+        deletedKeys = new ThreadLocal<HashSet<String>>() {
+            @Override
+            public HashSet<String> initialValue() {
+                return new HashSet<String>();
+            }
+        };
+        uncommittedChanges = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return new Integer(0);
+            }
+        };
+        size = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return oldData.size();
+            }
+        };
         columnTypes = colTypes;
         provider = providerRef;
-        uncommittedChanges = 0;
+        uncommittedChanges.set(0);
         for (final Class<?> columnType : columnTypes) {
             if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
                 throw new IllegalArgumentException("unknown column type");
@@ -61,17 +86,13 @@ public class DatabaseTable implements Table {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
-        if (modifiedData.containsKey(key)) {
-            return modifiedData.get(key);
+        if (modifiedData.get().containsKey(key)) {
+            return modifiedData.get().get(key);
         }
-        if (deletedKeys.contains(key)) {
+        if (deletedKeys.get().contains(key)) {
             return null;
         }
         return oldData.get(key);
-    }
-
-    public static boolean checkStringCorrect(String string) {
-        return string.matches("\\s*") || string.split("\\s+").length != 1;
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
@@ -86,29 +107,29 @@ public class DatabaseTable implements Table {
         }
         checkAlienStoreable(value);
         for (int index = 0; index < getColumnsCount(); ++index) {
-                switch (ColumnTypes.fromTypeToName(columnTypes.get(index))) {
-                    case "String":
-                        String stringValue = (String) value.getColumnAt(index);
-                        if (stringValue == null) {
-                            continue;
-                        }
-                        break;
-                    default:
-                }
+            switch (ColumnTypes.fromTypeToName(columnTypes.get(index))) {
+                case "String":
+                    String stringValue = (String) value.getColumnAt(index);
+                    if (stringValue == null) {
+                        continue;
+                    }
+                    break;
+                default:
+            }
         }
         Storeable oldValue = null;
-        oldValue = modifiedData.get(key);
-        if (oldValue == null && !deletedKeys.contains(key)) {
+        oldValue = modifiedData.get().get(key);
+        if (oldValue == null && !deletedKeys.get().contains(key)) {
             oldValue = oldData.get(key);
         }
-        modifiedData.put(key, value);
-        if (deletedKeys.contains(key)) {
-            deletedKeys.remove(key);
+        modifiedData.get().put(key, value);
+        if (deletedKeys.get().contains(key)) {
+            deletedKeys.get().remove(key);
         }
         if (oldValue == null) {
-            size += 1;
+            size.set(size.get() + 1);
         }
-        uncommittedChanges = changesCount();
+        uncommittedChanges.set(changesCount());
         return oldValue;
     }
 
@@ -117,57 +138,62 @@ public class DatabaseTable implements Table {
             throw new IllegalArgumentException("Key name cannot be null");
         }
         Storeable oldValue = null;
-        oldValue = modifiedData.get(key);
-        if (oldValue == null && !deletedKeys.contains(key)) {
+        oldValue = modifiedData.get().get(key);
+        if (oldValue == null && !deletedKeys.get().contains(key)) {
             oldValue = oldData.get(key);
         }
-        if (modifiedData.containsKey(key)) {
-            modifiedData.remove(key);
+        if (modifiedData.get().containsKey(key)) {
+            modifiedData.get().remove(key);
             if (oldData.containsKey(key)) {
-                deletedKeys.add(key);
+                deletedKeys.get().add(key);
             }
         } else {
-            deletedKeys.add(key);
+            deletedKeys.get().add(key);
         }
         if (oldValue != null) {
-            size -= 1;
+            size.set(size.get() - 1);
         }
-        uncommittedChanges = changesCount();
+        uncommittedChanges.set(changesCount());
         return oldValue;
     }
 
     public int size() {
-        return size;
+        return oldData.size() + diffSize();
     }
 
     public int commit() {
-        int recordsCommitted = changesCount();
-        for (String keyToDelete : deletedKeys) {
-            oldData.remove(keyToDelete);
-        }
-        for (String keyToAdd : modifiedData.keySet()) {
-            if (modifiedData.get(keyToAdd) != null) {
-                oldData.put(keyToAdd, modifiedData.get(keyToAdd));
+        int recordsCommitted = 0;
+        try {
+            transactionLock.lock();
+            recordsCommitted = Math.abs(changesCount());
+            for (String keyToDelete : deletedKeys.get()) {
+                oldData.remove(keyToDelete);
             }
+            for (String keyToAdd : modifiedData.get().keySet()) {
+                if (modifiedData.get().get(keyToAdd) != null) {
+                    oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
+                }
+            }
+            deletedKeys.get().clear();
+            modifiedData.get().clear();
+            size.set(oldData.size());
+            TableBuilder tableBuilder = new TableBuilder(provider, this);
+            save(tableBuilder);
+            uncommittedChanges.set(0);
+        } finally {
+            transactionLock.unlock();
         }
-        deletedKeys.clear();
-        modifiedData.clear();
-        size = oldData.size();
-        TableBuilder tableBuilder = new TableBuilder(provider, this);
-        save(tableBuilder);
-        uncommittedChanges = 0;
-
         return recordsCommitted;
     }
 
     public int rollback() {
-        int recordsDeleted = changesCount();
+        int recordsDeleted = Math.abs(changesCount());
 
-        deletedKeys.clear();
-        modifiedData.clear();
-        size = oldData.size();
+        deletedKeys.get().clear();
+        modifiedData.get().clear();
+        size.set(oldData.size());
 
-        uncommittedChanges = 0;
+        uncommittedChanges.set(0);
 
         return recordsDeleted;
     }
@@ -275,6 +301,7 @@ public class DatabaseTable implements Table {
                 String value = tableBuilder.get(key);
                 temp.write(value.getBytes(StandardCharsets.UTF_8));
             }
+            temp.close();
         } catch (IOException e) {
             return false;
         }
@@ -282,16 +309,30 @@ public class DatabaseTable implements Table {
     }
 
     private int changesCount() {
-        HashSet<String> tempSet = new HashSet<>();
-        HashSet<String> toRemove = new HashSet<>();
-        tempSet.addAll(modifiedData.keySet());
-        tempSet.addAll(deletedKeys);
-        for (String key : tempSet) {
-            if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get(key))) {
-                toRemove.add(key);
+        int result = 0;
+        for (final String key : modifiedData.get().keySet()) {
+            if (!modifiedData.get().get(key).equals(oldData.get(key))) {
+                result += 1;
             }
         }
-        return tempSet.size() - toRemove.size();
+        for (final String key : deletedKeys.get()) {
+            if (oldData.containsKey(key)) {
+                result -= 1;
+            }
+        }
+        return result;
+    }
+
+    private int diffSize() {
+        int result = 0;
+        for (final String key : modifiedData.get().keySet()) {
+            Storeable oldValue = oldData.get(key);
+            Storeable newValue = modifiedData.get().get(key);
+            if (oldValue == null && newValue != null) {
+                result += 1;
+            }
+        }
+        return result - deletedKeys.get().size();
     }
 
     private boolean compare(Storeable key1, Storeable key2) {
