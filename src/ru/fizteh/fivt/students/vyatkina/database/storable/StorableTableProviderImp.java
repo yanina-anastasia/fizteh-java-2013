@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderChecker.storableForThisTableCheck;
 import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderChecker.validTableNameCheck;
@@ -26,8 +29,9 @@ import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUt
 
 public class StorableTableProviderImp implements StorableTableProvider {
 
-    private Map<String, StorableTableImp> tables = new HashMap<> ();
-    private Path location;
+    private volatile Map<String, StorableTableImp> tables = new ConcurrentHashMap<> ();
+    private final Path location;
+    private final ReadWriteLock databaseKeeper = new ReentrantReadWriteLock (true);
 
     public StorableTableProviderImp (Path location) throws IOException {
         this.location = location;
@@ -42,18 +46,22 @@ public class StorableTableProviderImp implements StorableTableProvider {
         if (Files.exists (tableSignature)) {
 
             try {
+                databaseKeeper.writeLock ().lock ();
                 StorableRowShape shape = new StorableRowShape (readTableSignature (tableSignature));
                 StorableTableImp table = new StorableTableImp (tableName, shape, this);
 
                 Map<String, String> diskValues = getTableFromDisk (tableDirectory.toFile ());
+                Map <String, Storeable> deserializedDiskValues = new HashMap<> ();
                 for (Map.Entry<String, String> entry : diskValues.entrySet ()) {
-                    table.putValueFromDisk (entry.getKey (), deserialize (table, entry.getValue ()));
+                    deserializedDiskValues.put (entry.getKey (), deserialize (table, entry.getValue ()));
                 }
+                table.putValuesFromDisk (deserializedDiskValues);
                 tables.put (table.getName (), table);
-
             }
             catch (IOException | ParseException e) {
                 throw new WrappedIOException ();
+            } finally {
+                databaseKeeper.writeLock ().unlock ();
             }
         } else {
             throw new WrappedIOException ("Bad database: table without signature file");
@@ -71,15 +79,19 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     public void commitTable (StorableTableImp table) {
         Path tableDirectory = tableDirectory (table.getName ());
-        Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
 
+        Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
         try {
+            databaseKeeper.writeLock ().lock ();
             Set<Path> filesThatChanged = deleteFilesThatChanged (tableDirectory, keysThatValuesHaveChanged);
             rewriteFilesThatChanged (tableDirectory, entriesToWrite (table), filesThatChanged);
 
         }
         catch (IOException e) {
             throw new WrappedIOException ();
+        }
+        finally {
+           databaseKeeper.writeLock ().unlock ();
         }
 
     }
@@ -93,9 +105,15 @@ public class StorableTableProviderImp implements StorableTableProvider {
         } else {
             StorableRowShape shape = new StorableRowShape (columnTypes);
             StorableTableImp table = new StorableTableImp (name, shape, this);
-            tables.put (name, table);
-            Files.createDirectory (location.resolve (name));
-            writeTableSignature (tableDirectory (name), columnTypes);
+            try {
+                databaseKeeper.writeLock ().lock ();
+                tables.put (name, table);
+                Files.createDirectory (location.resolve (name));
+                writeTableSignature (tableDirectory (name), columnTypes);
+            }
+            finally {
+                databaseKeeper.writeLock ().unlock ();
+            }
             return table;
         }
     }
@@ -107,8 +125,14 @@ public class StorableTableProviderImp implements StorableTableProvider {
         if (!tables.containsKey (name)) {
             throw new IllegalStateException ();
         }
-        deleteTableFromDisk (tableDirectory (name).toFile ());
-        tables.remove (name);
+        try {
+            databaseKeeper.writeLock ().lock ();
+            deleteTableFromDisk (tableDirectory (name).toFile ());
+            tables.remove (name);
+        }
+        finally {
+            databaseKeeper.writeLock ().unlock ();
+        }
     }
 
     @Override
