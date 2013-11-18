@@ -8,10 +8,13 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Utils {
+	
 	
 	private Utils() {
 	    // static usage only
@@ -267,6 +270,31 @@ public class Utils {
 			columnTypes.add(argumentsList[i]);
 		}
 		return Utils.classTypesFromList(columnTypes);
+	}
+
+	public static boolean testColumnTypes(List<Class<?>> columnTypes) {
+		Set<Class<?>> permitTypes = new HashSet<Class<?>>();
+		permitTypes.add(Integer.class);
+		permitTypes.add(Byte.class);
+		permitTypes.add(Long.class);
+		permitTypes.add(Double.class);
+		permitTypes.add(Float.class);
+		permitTypes.add(String.class);
+		permitTypes.add(Boolean.class);
+			
+		if(columnTypes.isEmpty()) {
+			return false;
+		}
+		for(Class<?> type : columnTypes) {
+			if(type == null) {
+				return false;
+			}
+			if(!permitTypes.contains(type)) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 }
