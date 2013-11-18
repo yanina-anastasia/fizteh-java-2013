@@ -81,15 +81,16 @@ public class MyTable implements Table {
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
-        lock.writeLock().lock();
-        resetTable();
-        if (changes.get().containsKey(key)) {
-            lock.writeLock().unlock();
-            return changes.get().get(key);
+        lock.readLock().lock();
+        try {
+            resetTable();
+            if (changes.get().containsKey(key)) {
+                return changes.get().get(key);
+            }
+            return storage.get(key);
+        } finally {
+            lock.readLock().unlock();
         }
-        Storeable value = storage.get(key);
-        lock.writeLock().unlock();
-        return value;
     }
 
     @Override
@@ -112,27 +113,31 @@ public class MyTable implements Table {
         if (!tryToGetUnnecessaryColumn(value)) {
             throw new ColumnFormatException("Incorrect value to put.");
         }
-        lock.writeLock().lock();
-        resetTable();
-        if ((!changes.get().containsKey(key) && !storage.containsKey(key)) ||
-                (changes.get().containsKey(key) && changes.get().get(key) == null)) {
-            count.set(count.get() + 1);
+        lock.readLock().lock();
+        try {
+            resetTable();
+            if ((!changes.get().containsKey(key) && !storage.containsKey(key)) ||
+                    (changes.get().containsKey(key) && changes.get().get(key) == null)) {
+                count.set(count.get() + 1);
+            }
+            TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
+            uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
+            Storeable v = get(key);
+            String copyOfKey = "".concat(key);
+            Storeable copyOfValue = provider.createFor(this);
+            for (int i = 0; i < types.size(); ++i) {
+                copyOfValue.setColumnAt(i, value.getColumnAt(i));
+            }
+            changes.get().put(copyOfKey, copyOfValue);
+            if (storage.get(key) != null &&
+                    provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
+                changes.get().remove(key);
+            }
+            return v;
+        } finally {
+            lock.readLock().unlock();
         }
-        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
-        uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
-        Storeable v = get(key);
-        String copyOfKey = "".concat(key);
-        Storeable copyOfValue = provider.createFor(this);
-        for (int i = 0; i < types.size(); ++i) {
-            copyOfValue.setColumnAt(i, value.getColumnAt(i));
-        }
-        changes.get().put(copyOfKey, copyOfValue);
-        if (storage.get(key) != null &&
-                provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
-            changes.get().remove(key);
-        }
-        lock.writeLock().unlock();
-        return v;
+
     }
 
     @Override
@@ -143,64 +148,75 @@ public class MyTable implements Table {
         if (key.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to remove.");
         }
-        lock.writeLock().lock();
-        resetTable();
-        if (changes.get().get(key) != null || (!changes.get().containsKey(key) && storage.get(key) != null)) {
-            count.set(count.get() - 1);
+        lock.readLock().lock();
+        try {
+            resetTable();
+            if (changes.get().get(key) != null || (!changes.get().containsKey(key) && storage.get(key) != null)) {
+                count.set(count.get() - 1);
+            }
+            TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
+            uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
+            Storeable v = get(key);
+            changes.get().put(key, null);
+            if (storage.get(key) == null) {
+                changes.get().remove(key);
+            }
+            return v;
+        } finally {
+            lock.readLock().unlock();
         }
-        TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
-        uses.get()[Utils.getDirNumber(twoLayeredKey)][Utils.getFileNumber(twoLayeredKey)] = true;
-        Storeable v = get(key);
-        changes.get().put(key, null);
-        if (storage.get(key) == null) {
-            changes.get().remove(key);
-        }
-        lock.writeLock().unlock();
-        return v;
     }
 
     @Override
     public int size() {
-        lock.writeLock().lock();
-        resetTable();
-        int tableSize = count.get();
-        lock.writeLock().unlock();
-        return tableSize;
+        try {
+            lock.readLock().lock();
+            resetTable();
+            return count.get();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public int commit() throws IOException {
         lock.writeLock().lock();
-        resetTable();
-        for (String key : changes.get().keySet()) {
-            if (changes.get().get(key) == null) {
-                storage.remove(key);
-            } else {
-                storage.put(key, changes.get().get(key));
+        try {
+            resetTable();
+            for (String key : changes.get().keySet()) {
+                if (changes.get().get(key) == null) {
+                    storage.remove(key);
+                } else {
+                    storage.put(key, changes.get().get(key));
+                }
             }
-        }
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                globalUses[i][j] = uses.get()[i][j];
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    globalUses[i][j] = uses.get()[i][j];
+                }
             }
+            int n = changes.get().size();
+            changes.get().clear();
+            revision++;
+            threadRevision.set(revision);
+            return n;
+        } finally {
+            lock.writeLock().unlock();
         }
-        int n = changes.get().size();
-        changes.get().clear();
-        revision++;
-        threadRevision.set(revision);
-        lock.writeLock().unlock();
-        return n;
     }
 
     @Override
     public int rollback() {
-        lock.writeLock().lock();
-        resetTable();
-        int n = changes.get().size();
-        changes.get().clear();
-        count.set(storage.size());
-        lock.writeLock().unlock();
-        return n;
+        lock.readLock().lock();
+        try {
+            resetTable();
+            int n = changes.get().size();
+            changes.get().clear();
+            count.set(storage.size());
+            return n;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override

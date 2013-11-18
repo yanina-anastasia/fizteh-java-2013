@@ -398,4 +398,38 @@ public class MyTableTest {
         Assert.assertEquals(1, ref1.get().intValue());
         Assert.assertEquals(0, ref2.get().intValue());
     }
+
+    @Test
+    public void testMultiThreadPutPutCommit() throws Exception {
+        final AtomicReference<Integer> ref1 = new AtomicReference<Integer>();
+        table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+        table.commit();
+        Thread first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("a", provider.deserialize(table, "[\"string\",-1]"));
+                    Thread.sleep(200);
+                    ref1.set(table.commit());
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        Thread second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(50);
+                    table.put("a", provider.deserialize(table, "[\"string2\",-2]"));
+                    table.commit();
+                } catch (Exception ignored) {
+                }
+            }
+        });
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+        Assert.assertEquals(0, ref1.get().intValue());
+    }
 }
