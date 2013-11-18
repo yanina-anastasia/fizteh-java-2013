@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.strings.TableProviderFactory;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileTableProviderFactory;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap.MultiFileProviderFactory;
 
 public class MultiFileProviderFactoryTest {
     private static final String TESTED_DIRECTORY = "/home/hope/JavaTests";
@@ -13,7 +13,7 @@ public class MultiFileProviderFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-        tableProviderFactory = new MultiFileTableProviderFactory();
+        tableProviderFactory = new MultiFileProviderFactory();
     }
 
     @Test
