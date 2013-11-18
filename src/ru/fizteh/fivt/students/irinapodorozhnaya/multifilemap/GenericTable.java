@@ -24,6 +24,7 @@ public abstract class GenericTable<ValueType> {
         }
     };
 
+
     public GenericTable(String name, File rootDir) {
         tableDirectory = new File(rootDir, name);
         if (!tableDirectory.isDirectory()) {
@@ -39,7 +40,7 @@ public abstract class GenericTable<ValueType> {
         } else {
             try {
                 lock.readLock().lock();
-                return oldDatabase.get(key);
+                return  oldDatabase.get(key);
             } finally {
                 lock.readLock().unlock();
             }
@@ -48,27 +49,25 @@ public abstract class GenericTable<ValueType> {
 
     public ValueType remove(String key) {
         checkKey(key);
-        ValueType res;
         try {
             lock.readLock().lock();
             if (changedValues.get().containsKey(key)) {
                 if (oldDatabase.get(key) == null) {
-                    res = changedValues.get().remove(key);
+                    return changedValues.get().remove(key);
                 } else {
-                    res = changedValues.get().put(key, null);
+                    return changedValues.get().put(key, null);
                 }
             } else {
                 if (oldDatabase.get(key) == null) {
-                    res = null;
+                    return null;
                 } else {
                     changedValues.get().put(key, null);
-                    res = oldDatabase.get(key);
+                    return oldDatabase.get(key);
                 }
             }
         } finally {
             lock.readLock().unlock();
         }
-        return res;
     }
 
     public ValueType put(String key, ValueType value) {
@@ -76,41 +75,22 @@ public abstract class GenericTable<ValueType> {
         if (value == null) {
             throw new IllegalArgumentException("null value");
         }
-        ValueType res;
         try {
             lock.readLock().lock();
             if (changedValues.get().containsKey(key)) {
                 if (value.equals(oldDatabase.get(key))) {
-                    res = changedValues.get().remove(key);
+                    return changedValues.get().remove(key);
                 } else {
-                    res = changedValues.get().put(key, value);
+                    return changedValues.get().put(key, value);
                 }
             } else {
                 if (value.equals(oldDatabase.get(key))) {
-                    res = oldDatabase.get(key);
+                    return oldDatabase.get(key);
                 } else {
                     changedValues.get().put(key, value);
-                    res = oldDatabase.get(key);
+                    return oldDatabase.get(key);
                 }
             }
-        } finally {
-            lock.readLock().unlock();
-        }
-        return res;
-    }
-
-    private int countChanges() {
-        int chan = 0;
-        try {
-            lock.readLock().lock();
-            for (Map.Entry<String, ValueType> s : changedValues.get().entrySet()) {
-                if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
-                    --chan;
-                } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
-                    ++chan;
-                }
-            }
-            return chan;
         } finally {
             lock.readLock().unlock();
         }
@@ -119,31 +99,22 @@ public abstract class GenericTable<ValueType> {
     public int commit() throws IOException {
         try {
             lock.writeLock().lock();
-            for (String s : changedValues.get().keySet()) {
+            for (String s: changedValues.get().keySet()) {
                 if (changedValues.get().get(s) == null) {
-                    if (oldDatabase.get(s) == null) {
-                        changedValues.get().remove(s);
-                        continue;
-                    }
                     oldDatabase.remove(s);
                 } else {
-                    if (changedValues.get().get(s).equals(oldDatabase.get(s))) {
-                        changedValues.get().remove(s);
-                        continue;
-                    }
                     oldDatabase.put(s, changedValues.get().get(s));
                 }
             }
         } finally {
             lock.writeLock().unlock();
         }
-
         try {
             hardDiskLock.writeLock().lock();
-            Map<Integer, Map<String, ValueType>> database = new HashMap<>();
+            Map <Integer, Map<String, ValueType>> database = new HashMap<>();
             try {
                 lock.readLock().lock();
-                for (Map.Entry<String, ValueType> s : oldDatabase.entrySet()) {
+                for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
                     int nfile = Utils.getNumberOfFile(s.getKey());
                     if (database.get(nfile) == null) {
                         database.put(nfile, new HashMap<String, ValueType>());
@@ -189,7 +160,6 @@ public abstract class GenericTable<ValueType> {
     }
 
     protected abstract Map<String, String> serialize(Map<String, ValueType> values);
-
     protected abstract Map<String, ValueType> deserialize(Map<String, String> values) throws IOException;
 
     public int rollback() {
@@ -207,7 +177,17 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int size() {
-        return oldDatabase.size() + countChanges();
+        lock.readLock().lock();
+        int res = oldDatabase.size();
+        for (Map.Entry<String, ValueType> s: changedValues.get().entrySet()) {
+            if (s.getValue() == null && oldDatabase.get(s.getKey()) != null) {
+                --res;
+            } else if (s.getValue() != null && oldDatabase.get(s.getKey()) == null) {
+                ++res;
+            }
+        }
+        lock.readLock().unlock();
+        return res;
     }
 
     public void loadAll() throws IOException {
@@ -241,7 +221,7 @@ public abstract class GenericTable<ValueType> {
         }
     }
 
-    private void checkKey(String key) throws IllegalArgumentException {
+    private void checkKey(String key ) throws IllegalArgumentException {
         if (key == null || key.matches("(.*\\s+.*)*")) {
             throw new IllegalArgumentException("key or value null or empty or contain spaces");
         }
