@@ -242,6 +242,7 @@ public class TableCommands implements Table {
 
     private int getCountSize(int first, int second) {
         int result = lastList[first][second].size();
+        //System.out.println(result);
         for (Map.Entry entry : list[first][second].entrySet()) {
             String key = (String) entry.getKey();
             String value = (String) entry.getValue();
@@ -326,7 +327,7 @@ public class TableCommands implements Table {
                     continue;
                 }
                 if (newValue != null) {
-                    value = newValue; 
+                    value = newValue;
                 }
                 int curPointer = (int) db.getFilePointer();
                 db.seek(pointers[counter]);
@@ -404,15 +405,31 @@ public class TableCommands implements Table {
             }
             if (isWrite) {
                 writeIntoFile(numberOfDir, numberOfFile);
-                list[numberOfDir][numberOfFile].clear();
             }
         }
         return result;
     }
     
+    private void assigment(HashMap<String, String>[][] first, HashMap<String, String>[][] second) {
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                first[i][j].clear();
+                for (Map.Entry entry : second[i][j].entrySet()) {
+                    first[i][j].put((String) entry.getKey(), (String) entry.getValue());
+                }
+            }
+        }
+    }
+    
     @Override
     public int commit() throws IOException {
         int result = countChanges(true);
+        assigment(lastList, list);
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                list[i][j].clear();
+            }
+        }
         return result;
     }
 
