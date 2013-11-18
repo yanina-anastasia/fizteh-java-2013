@@ -102,12 +102,12 @@ public abstract class GenericTable<ValueType> {
         lock.readLock().lock();
         Set<String> toRemove = new HashSet<>();
         for (String s: changedValues.get().keySet()) {
-            if (changedValues.get().get(s) == null && oldDatabase.get(s) == null) {
+            if (changedValues.get().get(s) == oldDatabase.get(s)) {
                 toRemove.add(s);
-            } else if (changedValues.get().get(s) != null && oldDatabase.get(s) != null
-                    && changedValues.get().get(s).equals(oldDatabase.get(s))) {
-                toRemove.add(s);
-            }
+            } //else if (changedValues.get().get(s) != null && oldDatabase.get(s) != null
+                //    && changedValues.get().get(s).equals(oldDatabase.get(s))) {
+                //toRemove.add(s);
+            //}
         }
         for (String s: toRemove) {
             changedValues.get().remove(s);
