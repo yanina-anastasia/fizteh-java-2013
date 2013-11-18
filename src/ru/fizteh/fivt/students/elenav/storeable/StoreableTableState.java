@@ -475,10 +475,12 @@ public class StoreableTableState extends FilesystemState implements Table {
 				}
 			}
 			for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-				if (startMap.get(pair.getKey()) != pair.getValue()) {
+				if (startMap.get(pair.getKey()) == null || Serializer.run(this, startMap.get(pair.getKey())).equals(Serializer.run(this, pair.getValue()))) {
 					++result;
 				}
 			}
+		} catch (XMLStreamException e) {
+			throw new RuntimeException("wrong type ()");
 		} finally {
 			lock.readLock().unlock();
 		}
