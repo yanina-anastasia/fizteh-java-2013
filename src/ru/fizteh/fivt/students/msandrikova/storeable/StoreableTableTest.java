@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.msandrikova.storeable;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,13 +14,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
 public class StoreableTableTest {
-	private StoreableTable table;
+	private ChangesCountingTable table;
 	private File path;
-	private TableProvider tableProvider;
+	private ChangesCountingTableProvider tableProvider;
 
 	@After
 	public void clear() {
@@ -42,7 +42,7 @@ public class StoreableTableTest {
 		columnTypes.add(Boolean.class);
 		columnTypes.add(String.class);
 		tableProvider = new StoreableTableProvider(path);
-		table = new StoreableTable(path, "tableName", columnTypes, tableProvider);
+		table = tableProvider.createTable("tableName", columnTypes);
 	}
 	
 	@Test
@@ -61,7 +61,7 @@ public class StoreableTableTest {
 		assertNull(table.put("key", value));
 		assertEquals(table.get("key"), value);
 		assertEquals(table.put("key", newvalue), value);
-		assertEquals(table.get("key"), "newvalue");
+		assertEquals(table.get("key"), newvalue);
 	}
 
 	@Test
@@ -80,8 +80,8 @@ public class StoreableTableTest {
 		Storeable value = null;
 		Storeable newvalue = null;
 		try {
-			value = tableProvider.deserialize(table, "[1 , true, \" value 1 \"]");
-			newvalue = tableProvider.deserialize(table, "[1 , null, \" value 1 \"]");
+			value = tableProvider.deserialize(table, "[1 , true, null]");
+			newvalue = tableProvider.deserialize(table, "[1 , null, null]");
 		} catch (ParseException e) {}
 		assertNull(table.put("key", value));
 		assertEquals(table.size(), 1);

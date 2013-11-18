@@ -21,10 +21,10 @@ import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 public class StoreableTableProviderTest {
 	private StoreableTableProvider tableProvider;
 	private File path;
-	private List<Class<?>> columnTypes;
+	private static List<Class<?>> columnTypes;
 
 	@BeforeClass
-	public void onlyOnce() {
+	public static void onlyOnce() {
 		columnTypes = new ArrayList<Class<?>>();
 		columnTypes.add(Integer.class);
 		columnTypes.add(Boolean.class);
@@ -88,7 +88,7 @@ public class StoreableTableProviderTest {
 		try {
 			value = tableProvider.deserialize(table, "[1, true, null]");
 		} catch (ParseException e) {}
-		assertEquals(tableProvider.serialize(table, value), "[1, true, null]");
+		assertEquals(tableProvider.serialize(table, value), "[1,true,null]");
 	}
 	
 	@Test(expected = ColumnFormatException.class)
@@ -96,7 +96,7 @@ public class StoreableTableProviderTest {
 		Table table = null;
 		Table table2 = null;
 		List<Class<?>> columnTypes2 = new ArrayList<Class<?>>();
-		columnTypes.add(Float.class);
+		columnTypes2.add(Float.class);
 		Storeable value = null;
 		try {
 			 table = tableProvider.createTable("tableName", columnTypes);
@@ -107,18 +107,7 @@ public class StoreableTableProviderTest {
 		} catch (ParseException e) {}
 		tableProvider.serialize(table2, value);
 	}
-	
 
-	@Test
-	public void testCreateForTable() {
-		Table table = null;
-		Storeable value = null;
-		try {
-			 table = tableProvider.createTable("tableName", columnTypes);
-		} catch (IOException e) {}
-		value = tableProvider.createFor(table);
-		assertEquals(tableProvider.serialize(table, value), "[null, null, null]");
-	}
 
 	@Test
 	public void testGetTable() {

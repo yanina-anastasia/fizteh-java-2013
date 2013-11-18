@@ -92,10 +92,10 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 				o = null;
 			}
 			if(table.getColumnType(i).equals(Byte.class) && o.getClass().equals(Integer.class)) {
-				o = (Byte) o;
+				o = Byte.parseByte(o.toString());
 			}
 			if(table.getColumnType(i).equals(Float.class) && o.getClass().equals(Double.class)) {
-				o = (Float) o;
+				o = Float.parseFloat(o.toString());
 			}
 			try {
 				row.setColumnAt(i, o);
@@ -120,14 +120,14 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 				valueJSON.put(JSONObject.NULL);
 				continue;
 			}
-			if(table.getColumnType(i).equals(Byte.class)) {
-				o = (Integer) o;
-			}
-			if(table.getColumnType(i).equals(Float.class)) {
-				o = (Double) o;
-			}
 			if(!o.getClass().equals(table.getColumnType(i))) {
 				throw new ColumnFormatException("Incorrect column type.");
+			}
+			if(table.getColumnType(i).equals(Byte.class)) {
+				o = Integer.parseInt(o.toString());
+			}
+			if(table.getColumnType(i).equals(Float.class)) {
+				o = Double.parseDouble(o.toString());
 			}
 			valueJSON.put(o);
 		}
