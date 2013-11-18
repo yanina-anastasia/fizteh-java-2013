@@ -208,7 +208,7 @@ public class ValidityChecker {
 
 	public static void checkTableValue(Object value) throws ValidityCheckFailedException {
 		if (value == null) {
-			throw new ValidityCheckFailedException("valuer not specified");
+			throw new ValidityCheckFailedException("value not specified");
 		}
 	}
 

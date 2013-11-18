@@ -13,13 +13,7 @@ import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneable {
     private volatile Map<String, V> commited;
     
-    private final ThreadLocal<HashMap<String, V>> added = new ThreadLocal<HashMap<String, V>>() {
-        protected HashMap<String, V> initialValue() {
-            return new HashMap<String, V>();
-        }
-    };
-
-    private final ThreadLocal<HashMap<String, V>> overwritten = new ThreadLocal<HashMap<String, V>>() {
+    private final ThreadLocal<HashMap<String, V>> changed = new ThreadLocal<HashMap<String, V>>() {
         protected HashMap<String, V> initialValue() {
             return new HashMap<String, V>();
         }
@@ -63,45 +57,29 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        V oldValue = null;
+        V commitedValue = null;
+        V returnValue = get(key);
 
         getCommitLock.readLock().lock();
 
         try {
-        	oldValue = commited.get(key);
+        	commitedValue = commited.get(key);
         } finally {
             getCommitLock.readLock().unlock();
         }      
 
-        V returnValue = null;  
- 
-        //overwriting the key from the last commit for the first time
-        if ((!deleted.get().contains(key)) && (oldValue != null) && (overwritten.get().get(key) == null)) {
-            if (!value.equals(oldValue)) {
-                overwritten.get().put(key, value);
-            }
-
-            returnValue = oldValue;
-        //adding a new key
-        } else if ((oldValue == null) && (added.get().get(key) == null)) {
-            returnValue = added.get().put(key, value);
-        } else if (deleted.get().contains(key)) {
-            deleted.get().remove(key);
-
-            if (!oldValue.equals(value)) {
-                overwritten.get().put(key, value);
-            }
-            
-            returnValue = null;
-        
-         //overwriting a key from the last commit not for the first time
-        } else if (overwritten.get().get(key) != null) {
-            returnValue = overwritten.get().put(key, value);
-
-        //overwriting a key added after the last commit
-        } else if (added.get().get(key) != null) {
-            returnValue = added.get().put(key, value);
+        if (value.equals(commitedValue)) {
+        	//putting the same value as in the last commited version
+        	//effectively discards any changes made to it
+        	changed.get().remove(key);
+        } else {
+        	//otherwise, this changes should be applied no matter what
+        	changed.get().put(key, value);
         }
+
+        //the value put back is no longer deleted
+
+        deleted.get().remove(key);
 
         if (autoCommit) {
             commit();
@@ -114,29 +92,25 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
             ValidityChecker.checkTableKey(key);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
-        }
+       	}
 
         if (deleted.get().contains(key)) {
             return null;
         }
 
-        if (overwritten.get().get(key) != null) {
-            return overwritten.get().get(key);
+        if (changed.get().get(key) != null) {
+            return changed.get().get(key);
         }
 
-        if (added.get().get(key) != null) {
-            return added.get().get(key);
-        }
+        getCommitLock.readLock().lock();
 
-        if (commited.get(key) != null) { 
-            getCommitLock.readLock().lock();
-
-            try {
-              return commited.get(key);
-            } finally {
-              getCommitLock.readLock().unlock();
-            }      
-        }
+        try {
+        	if (commited.get(key) != null) { 
+            	return commited.get(key);      
+        	}
+        } finally {
+            getCommitLock.readLock().unlock();
+       	}
 
         //redundant but still
         return null;
@@ -149,32 +123,23 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        V oldValue = null;
+        V returnValue = get(key);
+        V commitedValue = null;
 
         getCommitLock.readLock().lock();
 
         try {
-        	oldValue = commited.get(key);
+        	commitedValue = commited.get(key);
         } finally {
             getCommitLock.readLock().unlock();
         } 
 
-        V returnValue = null;
-
-        //removing key from last commit for the first time
-        if ((oldValue != null) && (!deleted.get().contains(key))) {
-            deleted.get().add(key);
-
-            if (overwritten.get().get(key) == null) {
-                returnValue = oldValue;
-            } else {
-                returnValue = overwritten.get().remove(key);
-            }
-
-        //removing a key that was added after the last commit
-        } else if (added.get().get(key) != null) {
-            returnValue = added.get().remove(key);
-        } 
+        //if present, the key should be deleted from a commited version of a table
+        if (commitedValue != null) {
+        	deleted.get().add(key);
+        }
+        //it is deleted from local changes regardless
+       	changed.get().remove(key);
 
         if (autoCommit) {
             commit();
@@ -182,71 +147,42 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
         return returnValue;
     }
 
-    public int getAddedCount() {
-        int count = 0;
-        getCommitLock.readLock().lock();
-
-        try {
-
-            for (Map.Entry<String, V> entry: added.get().entrySet()) {
-                if (commited.get(entry.getKey()) == null) {
-                    ++count;
-                }
-            } 
-
-            return count;
-        } finally {
-            getCommitLock.readLock().unlock();
-        }
-    }
-
-   public int getDeletedCount() {
-        int count = 0;
-        getCommitLock.readLock().lock();
-
-        try {
-            for (String entry : deleted.get()) {
-                if (commited.get(entry) != null) {
-                    ++count;
-                }
-            } 
-
-            return count;
-        } finally {
-            getCommitLock.readLock().unlock();
-        }
-    }
-
-    public int getOverwrittenCount() {
-        int count = 0;
-        getCommitLock.readLock().lock();
-
-        try {
-            for (Map.Entry<String, V> entry: overwritten.get().entrySet()) {
-                if (!entry.getValue().equals(commited.get(entry.getKey()))) {
-                    ++count;
-                }
-            } 
-
-            for (Map.Entry<String, V> entry: added.get().entrySet()) {
-                if ((commited.get(entry.getKey()) != null) && (!entry.getValue().equals(commited.get(entry.getKey())))) {
-                    ++count;
-                }
-            } 
-
-            return count;
-        } finally {
-            getCommitLock.readLock().unlock();
-        }
-    }
-
     public int size() {
+    	int size;
     	getCommitLock.readLock().lock();
+
     	try {
-	        return commited.size() - getDeletedCount() + getAddedCount();
+	        size = commited.size();
    		} finally {
    			getCommitLock.readLock().unlock();
    		}
+
+    	for (Map.Entry<String, V> entry: changed.get().entrySet()) {
+    		getCommitLock.readLock().lock();
+
+    		try {
+		        if (commited.get(entry.getKey()) == null) {
+		        	++size;
+		        }
+	   		} finally {
+	   			getCommitLock.readLock().unlock();
+	   		}
+	    }
+
+	    for (String entry : deleted.get()) {
+
+	    	getCommitLock.readLock().lock();
+
+	    	try {
+		        if (commited.get(entry) != null) {
+		        	--size;
+		        } 
+	   		} finally {
+	   			getCommitLock.readLock().unlock();
+	   		}
+	    }
+
+        return size;
    	}
 
     public String getName() {
@@ -254,18 +190,15 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     }
 
     public int commit() {
-        int diffNum = getDiffCount();
+
+    	int diffNum = getDiffCount();
 
         writeCommitLock.readLock().lock();
         getCommitLock.writeLock().lock();
 
         try {
 
-	        for (Map.Entry<String, V> entry: added.get().entrySet()) {
-	            commited.put(entry.getKey(), entry.getValue());
-	        }
-
-	        for (Map.Entry<String, V> entry: overwritten.get().entrySet()) {
+	        for (Map.Entry<String, V> entry: changed.get().entrySet()) {
 	            commited.put(entry.getKey(), entry.getValue());
 	        }
 
@@ -277,11 +210,9 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
 	        getCommitLock.writeLock().unlock();
 	        writeCommitLock.readLock().unlock();
     	}
-        //int diffNum = getDiffCount();
 
-        added.get().clear();
+        changed.get().clear();
         deleted.get().clear();
-        overwritten.get().clear();
 
         return diffNum;
     }
@@ -289,16 +220,43 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     public int rollback() {
         int diffNum = getDiffCount();
 
-        added.get().clear();
+        changed.get().clear();
         deleted.get().clear();
-        overwritten.get().clear();
-        
+
         return diffNum;
     }
 
     public int getDiffCount() {
-        return getAddedCount() + getOverwrittenCount() + getDeletedCount();
-    }
+
+    	int diffCount = 0;
+
+    	for (Map.Entry<String, V> entry: changed.get().entrySet()) {
+    		getCommitLock.readLock().lock();
+
+    		try {
+
+		        if (!entry.getValue().equals(commited.get(entry.getKey()))) {
+		        	++diffCount;
+		        }
+	   		} finally {
+	   			getCommitLock.readLock().unlock();
+	   		}
+	    }
+
+	    for (String entry : deleted.get()) {
+	    	getCommitLock.readLock().lock();
+
+	    	try {
+		        if (commited.get(entry) != null) {
+		        	++diffCount;
+		        } 
+	   		} finally {
+	   			getCommitLock.readLock().unlock();
+	   		}
+	    }
+
+        return diffCount;
+   	}
 
     public GenericTable<V> clone() {
         return new GenericTable<V>(name, autoCommit);
