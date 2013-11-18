@@ -52,8 +52,8 @@ public class SuperTable<ValueType> {
             oldValue = values.get (key);
 
             if (oldValue == null) {
-
-                values.put (key, new Diff (null, value));
+                Diff<ValueType> newValue = new Diff (null, value);
+                values.put (key, newValue);
                 oldStringValue = null;
 
             } else {
@@ -158,7 +158,8 @@ public class SuperTable<ValueType> {
     public void putValueFromDisk (String key, ValueType value) {
         try {
             tableKeeper.writeLock ().lock ();
-            values.put (key, new Diff (value, value));
+            Diff<ValueType> valueFromDisk = new Diff (value, value);
+            values.put (key, valueFromDisk);
         }
         finally {
             tableKeeper.writeLock ().unlock ();
@@ -169,7 +170,8 @@ public class SuperTable<ValueType> {
         try {
             tableKeeper.writeLock ().lock ();
             for (Map.Entry<String, ValueType> entry : diskValues.entrySet ()) {
-                values.put (entry.getKey (), new Diff (entry.getValue (), entry.getValue ()));
+                Diff<ValueType> valueFromDisk =  new Diff (entry.getValue (), entry.getValue ());
+                values.put (entry.getKey (),valueFromDisk);
             }
         }
         finally {

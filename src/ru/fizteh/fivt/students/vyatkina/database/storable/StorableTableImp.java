@@ -24,7 +24,13 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
 
     @Override
     public int commit () {
-        tableProvider.commitTable (this);
+        try {
+            tableKeeper.writeLock ().lock ();
+            tableProvider.commitTable (this);
+        }
+        finally {
+          tableKeeper.writeLock ().unlock ();
+        }
         return super.commit ();
     }
 
