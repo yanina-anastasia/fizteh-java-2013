@@ -294,7 +294,7 @@ public class StoreableTable implements ChangesCountingTable {
 		if(this.tableProvider.getTable(this.name) == null) {
 			throw new IllegalStateException("Table was removed.");
 		}
-		if(Utils.isEmpty(key) || value == null || key.contains(" ")) {
+		if(Utils.isEmpty(key) || value == null || key.contains("\\s+")) {
 			throw new IllegalArgumentException("Key and name can not be null or newline and key can not contain whitespace");
 		}
 		if(!this.checkColumnTypes(value)) {
