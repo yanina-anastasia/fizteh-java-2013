@@ -136,7 +136,7 @@ public class MyTable implements Table {
             }
             changes.get().put(copyOfKey, copyOfValue);
             if (fuckingDiff.get().containsKey(key)
-                    && provider.serialize(this, fuckingDiff.get().get(key)).equals(value)) {
+                    && !provider.serialize(this, fuckingDiff.get().get(key)).equals(provider.serialize(this, value))) {
                 fuckingDiff.get().remove(key);
             }
             if (storage.get(key) != null &&
