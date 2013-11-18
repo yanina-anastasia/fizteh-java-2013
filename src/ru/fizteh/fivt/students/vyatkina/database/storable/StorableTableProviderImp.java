@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -76,16 +75,10 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     public Table getTable (String name) {
         isClosedCheck ();
         validTableNameCheck (name);
-        try {
-            databaseKeeper.readLock ().lock ();
-            if (!tables.containsKey (name)) {
-                loadTable (name);
-            }
-            return tables.get (name);
+        if (!tables.containsKey (name)) {
+            loadTable (name);
         }
-        finally {
-           databaseKeeper.readLock ().unlock ();
-        }
+        return tables.get (name);
     }
 
     void commitTable (StorableTableImp table) {
