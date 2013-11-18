@@ -409,7 +409,12 @@ public class FileMapTable implements Table {
 
     @Override
     public int size() {
-        return oldSize() + changesSize();
+        try {
+            read.lock();
+            return oldSize() + changesSize();
+        } finally {
+            read.unlock();
+        }
     }
 
     public int uncommittedChangesCount() {
