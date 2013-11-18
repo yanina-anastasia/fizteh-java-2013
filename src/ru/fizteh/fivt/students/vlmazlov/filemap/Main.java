@@ -26,13 +26,16 @@ public class Main {
 		StringTable table = null;
 		File tempDir = null;
 		try {
-			table = new StringTable("table", true);
 			tempDir = FileUtils.createTempDir("providerstate", null);
 			if (tempDir == null) {
 				System.err.println("Unable to create a temporary directory");
 				System.exit(1);
 			}
-			state = new DataBaseState(new StringTableProvider(tempDir.getPath(), true));
+			StringTableProvider provider = new StringTableProvider(tempDir.getPath(), true);
+
+			state = new DataBaseState(provider);
+			table = new StringTable(provider, "table", true);
+			
 			state.setActiveTable(table);
 		} catch (IllegalArgumentException ex) {
 			System.err.println(ex.getMessage());
