@@ -43,7 +43,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     Set<String> setDirTable;
     FileMap dbData;
     boolean out;
-    HashMap<String, FileMap> mapFileMap = new HashMap<>();
+    volatile HashMap<String, FileMap> mapFileMap = new HashMap<>();
 
     final HashSet allowType = new HashSet(){ {
         add(String.class);

@@ -33,7 +33,7 @@ public class FileMap implements Table {
     private final CommandShell mySystem;
     private final Lock commitLock = new ReentrantLock();
     String nameTable;
-    HashMap<String, Storeable> tableData = new HashMap<>();
+    volatile HashMap<String, Storeable> tableData = new HashMap<>();
     ThreadLocal<Map<String, Storeable>> changeTable = new ThreadLocal<Map<String, Storeable>>() {
         @Override
         protected Map<String, Storeable> initialValue() {
@@ -42,7 +42,7 @@ public class FileMap implements Table {
     };
     boolean existDir = false;
     boolean tableDrop = false;
-    FileMapProvider parent;
+    volatile FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
