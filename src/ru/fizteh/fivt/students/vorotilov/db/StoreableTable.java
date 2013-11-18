@@ -142,7 +142,8 @@ public class StoreableTable implements Table {
         columnTypes = classes;
         localTable.set(new HashMap<String, Storeable>());
         changes.set(new ArrayList<LogEntry>());
-        localCommitNumber.set(lastCommitNumber.incrementAndGet());
+        lastCommitNumber.set(0);
+        localCommitNumber.set(lastCommitNumber.get());
         try {
             SignatureFile.createSignature(tableRootDir, columnTypes);
         } catch (IOException e) {
@@ -163,7 +164,8 @@ public class StoreableTable implements Table {
         this.tableRootDir = tableRootDir;
         localTable.set(new HashMap<String, Storeable>());
         changes.set(new ArrayList<LogEntry>());
-        localCommitNumber.set(lastCommitNumber.incrementAndGet());
+        lastCommitNumber.set(0);
+        localCommitNumber.set(lastCommitNumber.get());
         try {
             columnTypes = SignatureFile.readSignature(tableRootDir);
         } catch (IOException e) {
