@@ -99,14 +99,8 @@ public abstract class GenericTable<ValueType> {
     private int countChanges() {
         lock.readLock().lock();
         for (String s :changedValues.get().keySet()) {
-            if (changedValues.get().get(s) == null) {
-                if (oldDatabase.get(s) == null) {
-                    changedValues.get().remove(s);
-                }
-            } else {
-                if (oldDatabase.get(s) != null && changedValues.get().get(s).equals(oldDatabase.get(s))) {
-                    changedValues.get().remove(s);
-                }
+            if (changedValues.get().get(s) == oldDatabase.get(s)) {
+                changedValues.get().remove(s);
             }
         }
         lock.readLock().unlock();
