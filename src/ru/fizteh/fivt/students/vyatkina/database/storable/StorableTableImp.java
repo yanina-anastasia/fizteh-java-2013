@@ -67,8 +67,8 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
         isClosedCheck ();
         int commited = 0;
         try {
-            tableProvider.commitTable (this);
             tableKeeper.writeLock ().lock ();
+            tableProvider.commitTable (this);
             for (Diff<Storeable> value : values.values ()) {
                 if (value.commit ()) {
                     ++commited;
