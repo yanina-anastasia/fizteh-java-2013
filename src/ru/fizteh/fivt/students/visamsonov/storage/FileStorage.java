@@ -101,7 +101,7 @@ public class FileStorage implements TableInterface {
 		}
 	}
 
-	private void actualizeChanges () {
+	private void actualizeRemoved () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
 		commitLock.lock();
@@ -110,12 +110,33 @@ public class FileStorage implements TableInterface {
 				diffRemoved.remove(key);
 			}
 		}
+		commitLock.unlock();
+	}
+
+	private void actualizeAdded () {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
+		commitLock.lock();
 		for (Map.Entry<String, String> entry : diffAdded.entrySet()) {
 			if (entry.getValue().equals(memoryStore.get(entry.getKey()))) {
 				diffAdded.remove(entry.getKey());
 			}
 		}
 		commitLock.unlock();
+	}
+
+	private int calculateRepeated () {
+		Map<String, String> diffAdded = this.diffAdded.get();
+		Map<String, String> diffRemoved = this.diffRemoved.get();
+		commitLock.lock();
+		int result = 0;
+		for (Map.Entry<String, String> entry : diffAdded.entrySet()) {
+			if (entry.getValue().equals(memoryStore.get(entry.getKey()))) {
+				result++;
+			}
+		}
+		commitLock.unlock();
+		return result;
 	}
 
 	public String getName () {
@@ -128,7 +149,7 @@ public class FileStorage implements TableInterface {
 		if (key == null || key.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		actualizeChanges();
+		actualizeRemoved();
 		if (diffRemoved.get(key) != null) {
 			return null;
 		}
@@ -147,7 +168,7 @@ public class FileStorage implements TableInterface {
 		if (key == null || value == null || key.trim().isEmpty() || value.trim().isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		actualizeChanges();
+		actualizeRemoved();
 		if (diffRemoved.get(key) != null) {
 			if (!value.equals(diffRemoved.get(key))) {
 				diffAdded.put(key, value);
@@ -161,9 +182,7 @@ public class FileStorage implements TableInterface {
 		commitLock.lock();
 		String oldValue = memoryStore.get(key);
 		commitLock.unlock();
-		if (!value.equals(oldValue)) {
-			diffAdded.put(key, value);
-		}
+		diffAdded.put(key, value);
 		return oldValue;
 	}
 
@@ -173,7 +192,7 @@ public class FileStorage implements TableInterface {
 		if (key == null || key.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		actualizeChanges();
+		actualizeRemoved();
 		if (diffRemoved.get(key) != null) {
 			return null;
 		}
@@ -192,8 +211,8 @@ public class FileStorage implements TableInterface {
 	public int rollback () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
-		actualizeChanges();
-		int result = diffAdded.size() + diffRemoved.size();
+		actualizeRemoved();
+		int result = diffAdded.size() + diffRemoved.size() - calculateRepeated();
 		diffAdded.clear();
 		diffRemoved.clear();
 		return result;
@@ -202,7 +221,7 @@ public class FileStorage implements TableInterface {
 	public int size () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
-		actualizeChanges();
+		actualizeRemoved();
 		commitLock.lock();
 		int result = memoryStore.size() + diffAdded.size() - diffRemoved.size();
 		for (String key : diffAdded.keySet()) {
@@ -217,14 +236,15 @@ public class FileStorage implements TableInterface {
 	public int unsavedChanges () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
-		actualizeChanges();
-		return diffAdded.size() + diffRemoved.size();
+		actualizeRemoved();
+		return diffAdded.size() + diffRemoved.size() - calculateRepeated();
 	}
 
 	public int commit () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
-		actualizeChanges();
+		actualizeRemoved();
+		actualizeAdded();
 		commitLock.lock();
 		int result = diffAdded.size() + diffRemoved.size();
 		for (String key : diffRemoved.keySet()) {
