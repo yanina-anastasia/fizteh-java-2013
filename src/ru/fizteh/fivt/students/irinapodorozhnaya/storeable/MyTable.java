@@ -63,6 +63,15 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     }
 
     @Override
+    protected boolean checkEquals(Storeable val1, Storeable val2) {
+        if (val1 == null && val2 == null) {
+            return true;
+        }
+        return val1 != null && val2 != null && provider.serialize(this, val1).equals(provider.serialize(this, val2));
+
+    }
+
+    @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         
         if (value == null || key == null || key.trim().isEmpty()) {
@@ -85,7 +94,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
         try {
             value.getColumnAt(sizeColumn);
             throw new ColumnFormatException("alien Storeable");
-        } catch(IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             return super.put(key, value);
         }
      }

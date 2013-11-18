@@ -102,10 +102,7 @@ public abstract class GenericTable<ValueType> {
         lock.readLock().lock();
         Set<String> toRemove = new HashSet<>();
         for (String s: changedValues.get().keySet()) {
-            if (changedValues.get().get(s) == null && oldDatabase.get(s) == null) {
-                toRemove.add(s);
-            } else if (changedValues.get().get(s) != null && oldDatabase.get(s) != null
-                    && changedValues.get().get(s).equals(oldDatabase.get(s))) {
+            if (checkEquals(changedValues.get().get(s), oldDatabase.get(s))) {
                 toRemove.add(s);
             }
         }
@@ -114,6 +111,14 @@ public abstract class GenericTable<ValueType> {
         }
         lock.readLock().unlock();
         return changedValues.get().size();
+    }
+
+    protected boolean checkEquals(ValueType val1, ValueType val2) {
+        if (val1 == null && val2 == null) {
+            return true;
+        }
+        return val1 != null && val2 != null && val1.equals(val2);
+
     }
 
     public int commit() throws IOException {
