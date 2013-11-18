@@ -57,7 +57,20 @@ public class Storage <DB extends FileRepresentativeDataBase> {
             }
         }
     }
+
     public DB create(String key) {
+        try {
+            return createExplosive(key);
+        } catch (IOException e) {
+            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, e.getMessage());
+            return null;
+        } catch (StorageException e) {
+            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, e.getMessage());
+            return null;
+        }
+    }
+
+    public DB createExplosive(String key) throws IOException, StorageException {
         if(storage.containsKey(key)) {
             dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("%s exists", key));
@@ -66,17 +79,14 @@ public class Storage <DB extends FileRepresentativeDataBase> {
             File newData = new File(dir, key);
             try {
                 if(!newData.getCanonicalFile().getName().equals(key)) {
-                    dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, "Can not create table with this name");
-                    return null;
+                    throw new StorageException("Can not create table with this name");
                 }
             } catch(IOException e) {
                 throw new RuntimeException(e.getMessage()); // See the note for PerformerShell
             }
             if(!newData.isDirectory()) {
                 if(!newData.mkdir()) {
-                    dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
-                            String.format("Can not create directory '%s'", newData.getPath()));
-                    return null;
+                    throw new IOException(String.format("Can not create directory '%s'", newData.getPath()));
                 }
             }
             builder.setPath(newData);
@@ -84,9 +94,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
             try {
                 newDataBase.save();
             } catch (DataBaseHandler.DataBaseException e) {
-                dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
-                        String.format("Can not create database prototype: %s", e.getMessage()));
-                return null;
+                throw new IOException(String.format("Can not create database prototype: %s", e.getMessage()));
             }
             storage.put(key, newDataBase);
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS, "created");
@@ -95,14 +103,22 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     }
 
     public DB drop(String key) {
+        try {
+            return dropExplosive(key);
+        } catch (IOException e) {
+            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, e.getMessage());
+            return null;
+        }
+    }
+
+    public DB dropExplosive(String key) throws IOException {
         if(storage.containsKey(key)) {
             DB value = storage.get(key);
             if(value.getPath().isDirectory()) {
                 try {
                     new PerformerRemove().removeObject(storage.get(key).getPath());
                 } catch(PerformerRemove.PerformerRemoveException e) {
-                    dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, String.format("Drop: Can not remove: %s", e.getMessage()));
-                    return null;
+                    throw new IOException(String.format("Drop: Can not remove: %s", e.getMessage()));
                 }
             }
             if(cursor != null && cursor.getPath().getName().equals(key)) {

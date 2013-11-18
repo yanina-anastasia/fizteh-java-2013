@@ -9,6 +9,7 @@ import ru.fizteh.fivt.students.dubovpavel.strings.WrappedMindfulDataBaseMultiFil
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Storeable> implements Table {
     private ArrayList<Class<?>> fields;
@@ -23,6 +24,7 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
         fields.clear();
         super.generateLoadingError(error, message, acc);
     }
+
     @Override
     public void open() throws DataBaseException {
         try(BufferedReader reader = new BufferedReader(new FileReader(new File(root, "signature.tsv")))) {
@@ -65,11 +67,11 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
     }
 
     public Storeable putChecked(String key, Storeable value) {
-        return super.put(key, value);
+        return super.put(localDict, key, value);
     }
 
     @Override
-    public Storeable put(String key, Storeable value) throws ColumnFormatException {
+    protected Storeable put(HashMap<String, Storeable> dict, String key, Storeable value) throws ColumnFormatException {
         if(value == null) {
             throw new IllegalArgumentException();
         }
@@ -93,7 +95,7 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
         if(error) {
             throw new ColumnFormatException("Size of value mismtaches signature");
         }
-        return super.put(key, value);
+        return super.put(dict, key, value);
     }
 
     public int getColumnsCount() {

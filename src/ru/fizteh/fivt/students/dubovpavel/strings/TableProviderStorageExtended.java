@@ -2,6 +2,9 @@ package ru.fizteh.fivt.students.dubovpavel.strings;
 
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageException;
+
+import java.io.IOException;
 
 public class TableProviderStorageExtended<DB extends FileRepresentativeDataBase> {
     protected Storage<DB> storage;
@@ -24,23 +27,23 @@ public class TableProviderStorageExtended<DB extends FileRepresentativeDataBase>
         return storage.getDataBase(name);
     }
 
-    public DB createTable(String name) {
+    public DB createTableExplosive(String name) throws IOException {
         if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if(!isNameValid(name)) {
+        try {
+            return storage.createExplosive(name);
+        } catch (StorageException e) {
             throw new RuntimeException();
         }
-        return storage.create(name);
     }
 
-    public void removeTable(String name) {
+    public void removeTableExplosive(String name) throws IOException {
         if(name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if(storage.drop(name) == null) {
+        if(storage.dropExplosive(name) == null) {
             throw new IllegalStateException();
         }
-        storage.drop(name);
     }
 }

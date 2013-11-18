@@ -44,8 +44,8 @@ public class Dispatcher {
         performers.add(performer);
     }
 
-    public String callbackWriter(MessageType type, String msg) {
-        PrintStream stream = null;
+    public synchronized String callbackWriter(MessageType type, String msg) {
+        PrintStream stream;
         if(type == MessageType.SUCCESS || type == MessageType.WARNING) {
             stream = System.out;
         } else {

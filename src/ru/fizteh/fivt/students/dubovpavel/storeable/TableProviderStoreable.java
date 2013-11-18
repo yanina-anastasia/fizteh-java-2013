@@ -5,6 +5,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dubovpavel.filemap.Serial;
+import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 import ru.fizteh.fivt.students.dubovpavel.strings.TableProviderStorageExtended;
 
@@ -13,7 +14,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableProviderStoreable extends TableProviderStorageExtended<TableStoreable> implements TableProvider {
+public class TableProviderStoreable<DB extends FileRepresentativeDataBase<Storeable> & Table> extends TableProviderStorageExtended<DB> implements TableProvider {
     private TableStoreableBuilder dataBaseBuilder;
 
     public TableProviderStoreable(Storage storage, TableStoreableBuilder builder) {
@@ -21,12 +22,17 @@ public class TableProviderStoreable extends TableProviderStorageExtended<TableSt
         dataBaseBuilder = builder;
     }
 
-    public ArrayList<Class<?>> collectFields(Table table) {
+    private ArrayList<Class<?>> collectFields(Table table) {
         ArrayList<Class<?>> result = new ArrayList<>();
         for(int i = 0; i < table.getColumnsCount(); i++) {
             result.add(table.getColumnType(i));
         }
         return result;
+    }
+
+    @Override
+    public void removeTable(String name) throws IOException {
+        super.removeTableExplosive(name);
     }
 
     @Override
@@ -40,7 +46,7 @@ public class TableProviderStoreable extends TableProviderStorageExtended<TableSt
             }
         }
         dataBaseBuilder.setFields(new ArrayList<Class<?>>(columnTypes));
-        return super.createTable(name);
+        return super.createTableExplosive(name);
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {

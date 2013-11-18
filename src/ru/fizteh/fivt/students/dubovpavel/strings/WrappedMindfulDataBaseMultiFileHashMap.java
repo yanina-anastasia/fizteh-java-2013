@@ -4,6 +4,7 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMultiFileHashMap<V> {
@@ -17,27 +18,31 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
         super(path, transformer);
         this.dispatcher = dispatcher;
     }
+
     @Override
-    public V get(String key) {
+    protected V get(HashMap<String, V> dict, String key) {
         if(key == null) {
             throw new IllegalArgumentException();
         }
-        return super.get(key);
+        return super.get(dict, key);
     }
+
     @Override
-    public V put(String key, V value) {
+    protected V put(HashMap<String, V> dict, String key, V value) {
         if(key == null || key.isEmpty() || whitespacePattern.matcher(key).find()) {
             throw new IllegalArgumentException();
         }
-        return super.put(key, value);
+        return super.put(dict, key, value);
     }
+
     @Override
-    public V remove(String key) {
+    protected V remove(HashMap<String, V> dict, String key) {
         if(key == null) {
             throw new IllegalArgumentException();
         }
-        return super.remove(key);
+        return super.remove(dict, key);
     }
+
     @Override
     public int commit() {
         try {
@@ -46,6 +51,6 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                     String.format("Database %s: %s", getName(), e.getMessage()));
         }
-        return 0;
+        return -1;
     }
 }

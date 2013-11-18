@@ -12,7 +12,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     protected static final Charset charset = StandardCharsets.UTF_8;
     protected static final int MAXLENGTH = 1 << 20;
     private Serial<V> builder;
-    protected HashMap<String, V> dict = new HashMap<String, V>();
+    protected HashMap<String, V> localDict = new HashMap<>();
 
     private void checkValid() {
         if(savingEndPoint == null) {
@@ -21,7 +21,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     protected void generateLoadingError(String error, String message, boolean acc) throws DataBaseException {
-        dict = new HashMap<>();
+        localDict.clear();
         throw new DataBaseException(String.format("Conformity loading: %s: %s. Empty database applied", error, message), acc);
     }
 
@@ -48,7 +48,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
                 byte[] valueBuffer = new byte[valueLength];
                 db.readFully(valueBuffer, 0, valueLength);
                 String value = new String(valueBuffer, charset);
-                dict.put(key, builder.deserialize(value));
+                localDict.put(key, builder.deserialize(value));
             }
         } catch (IOException e) {
             generateLoadingError("IOException", e.getMessage(), false);
@@ -74,7 +74,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     public void save() throws DataBaseException {
         checkValid();
         try(DataOutputStream db = new DataOutputStream(new FileOutputStream(savingEndPoint))) {
-            for(Map.Entry<String, V> entry: dict.entrySet()) {
+            for(Map.Entry<String, V> entry: localDict.entrySet()) {
                 byte[] key = entry.getKey().getBytes(charset);
                 byte[] value = builder.serialize(entry.getValue()).getBytes(charset);
                 db.writeInt(key.length);
@@ -90,6 +90,10 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     public V put(String key, V value) {
+        return put(localDict, key, value);
+    }
+
+    protected V put(HashMap<String, V> dict, String key, V value) {
         if(dict.containsKey(key)) {
             V old = dict.get(key);
             dict.put(key, value);
@@ -101,6 +105,10 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     public V remove(String key) {
+        return remove(localDict, key);
+    }
+
+    protected V remove(HashMap<String, V> dict, String key) {
         if(dict.containsKey(key)) {
             V removing = dict.get(key);
             dict.remove(key);
@@ -111,6 +119,10 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     public V get(String key) {
+        return get(localDict, key);
+    }
+
+    protected V get(HashMap<String, V> dict, String key) {
         if(dict.containsKey(key)) {
             return dict.get(key);
         } else {

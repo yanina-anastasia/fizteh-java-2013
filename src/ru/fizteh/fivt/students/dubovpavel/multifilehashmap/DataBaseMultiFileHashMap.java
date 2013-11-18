@@ -58,20 +58,19 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
                     if(data.isFile()) {
                         dirIsEmpty = false;
                         try {
-                            dict = new HashMap<>();
                             setPath(data);
                             super.open();
-                            if(dict.size() == 0) {
+                            if(localDict.size() == 0) {
                                 throw new DataBaseException(String.format("Chunk can not be empty"), false);
                             }
-                            for(String key: dict.keySet()) {
+                            for(String key: localDict.keySet()) {
                                 Distribution<Integer, Integer> distr = getDistribution(key);
                                 if(i != distr.getDir() || j != distr.getChunk()) {
                                     throw new DataBaseException(
                                             String.format("Key '%s' must not belong to this chunk. The whole chunk denied", key), false);
                                 }
                             }
-                            chunksCollector.putAll(dict);
+                            chunksCollector.putAll(localDict);
                         } catch(DataBaseException e) {
                             String errorMessage = String.format("%nChunk (%d, %d): %s", i, j, e.getMessage());
                             if(e.acceptable) {
@@ -88,14 +87,14 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
                 }
             }
         }
-        dict = chunksCollector;
+        localDict = chunksCollector;
         if(!allReadSuccessfully) {
             throw new DataBaseException(exceptionMessage.toString());
         }
     }
     @Override
     public void save() throws DataBaseException {
-        HashMap<String, V> backUp = dict;
+        HashMap<String, V> backUp = localDict;
         HashMap<String, V>[][] distribution = new HashMap[dirsCount][chunksCount];
         for(int i = 0; i < dirsCount; i++) {
             File sub = generateChunksDir(i);
@@ -104,17 +103,17 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
                 distribution[i][j] = new HashMap<>();
                 if(data.isFile()) {
                     if(!data.delete()) {
-                        dict = backUp;
+                        localDict = backUp;
                         throw new DataBaseException(String.format("Can not delete chunk '%s'", data.getPath()));
                     }
                 }
             }
             if(sub.isDirectory() && sub.listFiles().length == 0 && !sub.delete()) {
-                dict = backUp;
+                localDict = backUp;
                 throw new DataBaseException(String.format("Can not delete directory '%s'", sub.getPath()));
             }
         }
-        for(Map.Entry<String, V> entry: dict.entrySet()) {
+        for(Map.Entry<String, V> entry: localDict.entrySet()) {
             Distribution<Integer, Integer> distr = getDistribution(entry.getKey());
             distribution[distr.getDir()][distr.getChunk()].put(entry.getKey(), entry.getValue());
         }
@@ -123,20 +122,20 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
             for(int j = 0; j < chunksCount; j++) {
                 if(!distribution[i][j].isEmpty()) {
                     if(!sub.isDirectory() && !sub.mkdir()) {
-                        dict = backUp;
+                        localDict = backUp;
                         throw new DataBaseException(String.format("Chunk (%d, *): Can not create directory", i));
                     }
-                    dict = distribution[i][j];
+                    localDict = distribution[i][j];
                     setPath(generateChunk(i, j));
                     try {
                         super.save();
                     } catch(DataBaseException e) {
-                        dict = backUp;
+                        localDict = backUp;
                         throw new DataBaseException(String.format("Chunk (%d, %d): %s", i, j, e.getMessage()));
                     }
                 }
             }
         }
-        dict = backUp;
+        localDict = backUp;
     }
 }
