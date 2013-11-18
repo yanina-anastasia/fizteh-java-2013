@@ -200,10 +200,10 @@ public class MyTable implements Table {
             resetTable();
             int n = 0;
             for (String key : fuckingDiff.get().keySet()) {
-                if (fuckingDiff.get().get(key) == null) {
+                if (fuckingDiff.get().get(key) == null && storage.get(key) != null) {
                     storage.remove(key);
                     ++n;
-                } else {
+                } else if (!provider.serialize(this, fuckingDiff.get().get(key)).equals(provider.serialize(this, storage.get(key)))) {
                     storage.put(key, fuckingDiff.get().get(key));
                     ++n;
                 }
