@@ -96,7 +96,7 @@ public class SignatureController {
         StoreableColumnType.getStoreableField(columnIndex, value, table.getColumnType(columnIndex));
     }
 
-    public static List<Class<?>> getSignatureFromArgs(String args[]) throws IOException {
+    public static List<Class<?>> getSignatureFromArgs(String[] args) throws IOException {
         SignatureController signatureController = new SignatureController();
         int argsCount = args.length;
         StringBuilder signature = new StringBuilder();
