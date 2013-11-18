@@ -172,16 +172,10 @@ public class StoreableTable implements ChangesCountingTable {
 	
 	private void readFile(int directory, int database) throws IOException {
 		File currentFile = new File(this.tablePath, directory + ".dir");
-		if(!currentFile.exists()) {
-			return;
-		}
 		if(!currentFile.isDirectory()) {
 			throw new IOException("File '" + directory + ".dir' must be directory.");
 		}
 		currentFile = new File(currentFile, database + ".dat");
-		if(!currentFile.exists()) {
-			return;
-		}
 		if(!currentFile.isFile()) {
 			throw new IOException("File '" + database + ".dat' in directory '" + directory + ".dir' can not be be directory.");
 		}
@@ -191,14 +185,19 @@ public class StoreableTable implements ChangesCountingTable {
 		String key;
 		String value;
 		DataInputStream reader = null;
+		int count = 0;
 		try {
 			reader = new DataInputStream(new FileInputStream(currentFile));
 			while(true) {
 				try {
 					keyLength = reader.readInt();
 				} catch(EOFException e) {
+					if(count == 0) {
+						throw new IOException("empty dat");
+					}
 					break;
 				}
+					++count;
 					if(keyLength <= 0 || keyLength >= 1000*1000) {
 						throw new IOException("reader: Invalid key length.");
 					}
@@ -249,9 +248,23 @@ public class StoreableTable implements ChangesCountingTable {
 				throw new IOException("Can not create directory for table " + this.name);
 			}
 		} else {
-			for(int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
+			int i;
+			for(i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
+				File directory = new File(this.tablePath, i + ".dir");
+				if(!directory.exists()) {
+					continue;
+				}
+				int count = 0;
 				for(int j = 0; j < this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
+					File currentFile = new File(directory, j + ".dat");
+					if(!currentFile.exists()) {
+						continue;
+					}
+					++count;
 					this.readFile(i, j);
+				}
+				if(count == 0) {
+					throw new IOException("empty dir");
 				}
 			}
 		}
