@@ -123,11 +123,13 @@ public abstract class GenericTable<ValueType> {
                 if (changedValues.get().get(s) == null) {
                     if (oldDatabase.get(s) == null) {
                         changedValues.get().remove(s);
+                        continue;
                     }
                     oldDatabase.remove(s);
                 } else {
                     if (changedValues.get().get(s).equals(oldDatabase.get(s))) {
                         changedValues.get().remove(s);
+                        continue;
                     }
                     oldDatabase.put(s, changedValues.get().get(s));
                 }
