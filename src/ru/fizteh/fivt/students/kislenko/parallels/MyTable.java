@@ -53,6 +53,12 @@ public class MyTable implements Table {
             return new HashMap<String, Storeable>();
         }
     };
+    private ThreadLocal<HashMap<String, Storeable>> fuckingDiff = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        public HashMap<String, Storeable> initialValue() {
+            return new HashMap<String, Storeable>();
+        }
+    };
 
     public MyTable(String tableName, List<Class<?>> columnTypes, MyTableProvider parent) {
         name = tableName;
@@ -132,6 +138,7 @@ public class MyTable implements Table {
             if (storage.get(key) != null &&
                     provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
                 changes.get().remove(key);
+                fuckingDiff.get().put(copyOfKey, copyOfValue);
             }
             return v;
         } finally {
@@ -160,6 +167,7 @@ public class MyTable implements Table {
             changes.get().put(key, null);
             if (storage.get(key) == null) {
                 changes.get().remove(key);
+                fuckingDiff.get().put(key, null);
             }
             return v;
         } finally {
@@ -183,6 +191,16 @@ public class MyTable implements Table {
         lock.writeLock().lock();
         try {
             resetTable();
+            int n = 0;
+            for (String key : fuckingDiff.get().keySet()) {
+                if (fuckingDiff.get().get(key) == null) {
+                    storage.remove(key);
+                    ++n;
+                } else {
+                    storage.put(key, fuckingDiff.get().get(key));
+                    ++n;
+                }
+            }
             for (String key : changes.get().keySet()) {
                 if (changes.get().get(key) == null) {
                     storage.remove(key);
@@ -195,8 +213,9 @@ public class MyTable implements Table {
                     globalUses[i][j] = uses.get()[i][j];
                 }
             }
-            int n = changes.get().size();
+            n += changes.get().size();
             changes.get().clear();
+            fuckingDiff.get().clear();
             revision++;
             threadRevision.set(revision);
             return n;
@@ -212,6 +231,7 @@ public class MyTable implements Table {
             resetTable();
             int n = changes.get().size();
             changes.get().clear();
+            fuckingDiff.get().clear();
             count.set(storage.size());
             return n;
         } finally {

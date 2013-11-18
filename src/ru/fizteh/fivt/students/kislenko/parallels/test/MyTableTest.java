@@ -430,6 +430,6 @@ public class MyTableTest {
         second.start();
         first.join();
         second.join();
-        Assert.assertEquals(0, ref1.get().intValue());
+        Assert.assertEquals(1, ref1.get().intValue());
     }
 }
