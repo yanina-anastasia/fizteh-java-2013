@@ -38,7 +38,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 					try {
 						columnTypes = Utils.getClassTypes(f);
 					} catch(IOException e) {
-						continue;
+						Utils.generateAnError("no signature.tsv", "tableProvider", false);
 					}
 					try {
 						newTable = new StoreableTable(this.currentDirectory, f.getName(), columnTypes, this);
