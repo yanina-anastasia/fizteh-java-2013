@@ -27,6 +27,24 @@ public class StoreableTester {
         row = new StoreableRow(null);
     }
 
+    public void equalTest() {
+        sampleSignature.add(String.class);
+        row = new StoreableRow(sampleSignature);
+        Storeable otherRow = new StoreableRow(sampleSignature);
+        row.setColumnAt(0, "Test string value");
+        otherRow.setColumnAt(0, "Test string value");
+        assertEquals(row, otherRow);
+    }
+
+    public void unequalTest() {
+        sampleSignature.add(String.class);
+        row = new StoreableRow(sampleSignature);
+        Storeable otherRow = new StoreableRow(sampleSignature);
+        row.setColumnAt(0, "Test string value");
+        otherRow.setColumnAt(0, "Other string value");
+        assertNotEquals(row, otherRow);
+    }
+
     @Test(expected = ColumnFormatException.class)
     public void putMismatchedValueShouldFail() {
         sampleSignature.add(String.class);

@@ -110,6 +110,31 @@ public class ParallelTester {
         commitCountTest(2);
     }
     
+    @Test
+    public void commitCountTest16() throws InterruptedException, ExecutionException {
+        commitCountTest(16);
+    }
+    
+    @Test
+    public void commitCountTest32() throws InterruptedException, ExecutionException {
+        commitCountTest(32);
+    }
+    
+    @Test
+    public void threadSharingCommitCountTest2() throws InterruptedException, ExecutionException, IOException {
+        threadSharingCommitCountTest(2);
+    }
+    
+    @Test
+    public void threadSharingCommitCountTest16() throws InterruptedException, ExecutionException, IOException {
+        threadSharingCommitCountTest(16);
+    }
+    
+    @Test
+    public void threadSharingCommitCountTest32() throws InterruptedException, ExecutionException, IOException {
+        threadSharingCommitCountTest(32);
+    }
+    
     private void commitCountTest(int threadCount) throws InterruptedException, ExecutionException {
         final AtomicLong counter = new AtomicLong();
         Callable<Integer> task = new Callable<Integer>() {
@@ -124,11 +149,43 @@ public class ParallelTester {
         List<Callable<Integer>> tasks = Collections.nCopies(threadCount, task);
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         List<Future<Integer>> futures = executorService.invokeAll(tasks);
-        // Check for exceptions
         for (Future<Integer> future : futures) {
             // Throws an exception if an exception was thrown by the task.
             assertEquals(future.get(), (Integer) 5);
         }
+    }
+
+    public void threadSharingCommitCountTest(int threadCount) 
+            throws InterruptedException, ExecutionException, IOException {
+        final Storeable newValue = provider.createFor(staticTable);
+        newValue.setColumnAt(0, "new value");
+        staticTable.put("key", sampleValue);
+        staticTable.commit();
+        Callable<Integer> task = new Callable<Integer>() {
+            @Override
+            public Integer call() throws InterruptedException, IOException {
+                staticTable.put("key", newValue);
+                return staticTable.commit();
+            }
+        };
+        List<Callable<Integer>> tasks = Collections.nCopies(threadCount, task);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        List<Future<Integer>> futures = executorService.invokeAll(tasks);
+        int countZeros = 0;
+        int countOnes = 0;
+        for (Future<Integer> future : futures) {
+            // Throws an exception if an exception was thrown by the task.
+            int result = future.get();
+            if (result == 0) {
+                ++countZeros;
+            } else if (result == 1) {
+                ++countOnes;
+            } else {
+                throw new RuntimeException("Got strange diff count");
+            }
+        }
+        assertEquals(countZeros, threadCount - 1);
+        assertEquals(countOnes, 1);
     }
 
     @After
