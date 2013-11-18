@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -33,6 +34,7 @@ public class StoreableTable implements ChangesCountingTable {
 	private final int MAX_DIRECTORIES_AMOUNT = 16;
 	private final int MAX_DATABASES_IN_DIRECTORY_AMOUNT = 16;
 	private final int MAX_TABLE_SIZE = 1000*1000*100;
+	private final Pattern P = Pattern.compile("\\s+");
 	
 	private void writeInFile(File currentFile, Set<String> keys) throws IOException {
 		if(!currentFile.createNewFile()) {
@@ -294,7 +296,7 @@ public class StoreableTable implements ChangesCountingTable {
 		if(this.tableProvider.getTable(this.name) == null) {
 			throw new IllegalStateException("Table was removed.");
 		}
-		if(Utils.isEmpty(key) || value == null || key.contains("\\s+")) {
+		if(Utils.isEmpty(key) || value == null || P.matcher(key).find()) {
 			throw new IllegalArgumentException("Key and name can not be null or newline and key can not contain whitespace");
 		}
 		if(!this.checkColumnTypes(value)) {
