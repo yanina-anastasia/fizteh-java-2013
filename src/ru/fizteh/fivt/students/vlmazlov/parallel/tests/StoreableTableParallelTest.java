@@ -183,16 +183,41 @@ public class StoreableTableParallelTest {
     }
 
      @Test 
-	public void concurrentPutRollback() {
-
-		table.put("key1", val1);
-		table.commit();
+	public void concurrentPutCommit() {
 
 		final Thread testThread1 = new Thread() {
             @Override
             public void run() {
                 table.put("key1", val1);
-                Assert.assertEquals("put shouldn't change value", 0, table.commit());
+                table.commit();
+            }
+        };
+
+        Thread testThread2 = new Thread() {
+            @Override
+            public void run() {
+            	try {
+            	    testThread1.join();
+            	} catch (InterruptedException ex) {}
+				
+            	table.put("key1", val2);
+
+                Assert.assertEquals("two parallel puts coexist", 1, table.commit());
+            }
+        };
+
+        testThread1.start();
+        testThread2.start();
+    }
+
+
+    @Test 
+	public void concurrentPutRollback() {
+		final Thread testThread1 = new Thread() {
+            @Override
+            public void run() {
+                table.put("key1", val1);
+                table.commit();
             }
         };
 

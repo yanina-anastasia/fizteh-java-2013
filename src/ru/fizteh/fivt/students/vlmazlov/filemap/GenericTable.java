@@ -179,13 +179,14 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     }
 
     public int commit() {
-
-    	int diffNum = getDiffCount();
+    	int diffNum = 0;
 
         writeCommitLock.readLock().lock();
         getCommitLock.writeLock().lock();
 
         try {
+
+        	diffNum = getDiffCount();
 
 	        for (Map.Entry<String, V> entry: changed.get().entrySet()) {
 	            commited.put(entry.getKey(), entry.getValue());
@@ -219,23 +220,16 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
 
     	int diffCount = 0;
 
-    	getCommitLock.readLock().lock();
+	    for (Map.Entry<String, V> entry: changed.get().entrySet()) {    		
+	    	if (!entry.getValue().equals(commited.get(entry.getKey()))) {
+			    ++diffCount;
+			}
+		}
 
-    	try {
-
-	    	for (Map.Entry<String, V> entry: changed.get().entrySet()) {    		
-	    		if (!entry.getValue().equals(commited.get(entry.getKey()))) {
-			        ++diffCount;
-			    }
-		    }
-
-		    for (String entry : deleted.get()) {
-			    if (commited.get(entry) != null) {
-			       	++diffCount; 
-		   		}
-		    }
-		} finally {
-			getCommitLock.readLock().unlock();
+		for (String entry : deleted.get()) {
+			if (commited.get(entry) != null) {
+			    ++diffCount; 
+		   	}
 		}
 
         return diffCount;
