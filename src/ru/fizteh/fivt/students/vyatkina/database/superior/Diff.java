@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.vyatkina.database.superior;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public class Diff<ValueType> {
 
     private volatile ValueType commitedValue;
@@ -13,14 +11,9 @@ public class Diff<ValueType> {
         this.value.set (value);
     }
 
-    public ValueType getCommitedValue () {
-        return commitedValue;
-    }
-
     public ValueType getValue () {
         return value.get ();
     }
-
 
     public void setValue (ValueType value) {
         this.value.set (value);
@@ -28,11 +21,7 @@ public class Diff<ValueType> {
 
     public boolean isNeedToCommit () {
         if (commitedValue == null) {
-            if (value.get () == null) {
-                return false;
-            } else {
-                return true;
-            }
+            return !(value.get () == null);
         }
         return !commitedValue.equals (value.get ());
     }

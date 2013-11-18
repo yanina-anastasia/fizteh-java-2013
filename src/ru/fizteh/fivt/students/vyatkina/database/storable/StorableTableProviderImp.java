@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.vyatkina.database.storable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.RemoteTableProvider;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.vyatkina.WrappedIOException;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -27,14 +29,15 @@ import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderCh
 import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.*;
 
 
-public class StorableTableProviderImp implements StorableTableProvider {
+public class StorableTableProviderImp implements StorableTableProvider, RemoteTableProvider {
 
     private volatile Map<String, StorableTableImp> tables = new ConcurrentHashMap<> ();
     private final Path location;
     private final ReadWriteLock databaseKeeper = new ReentrantReadWriteLock (true);
+    private AtomicBoolean isClosed = new AtomicBoolean (false);
 
-    public StorableTableProviderImp (Path location) throws IOException {
-        this.location = location;
+    public StorableTableProviderImp (Path location){
+        this.location = location.toAbsolutePath ();
     }
 
     public void loadTable (String tableName) {
@@ -70,6 +73,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     @Override
     public Table getTable (String name) {
+        isClosedCheck ();
         validTableNameCheck (name);
         if (!tables.containsKey (name)) {
             loadTable (name);
@@ -77,7 +81,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
         return tables.get (name);
     }
 
-    public void commitTable (StorableTableImp table) {
+    void commitTable (StorableTableImp table) {
         Path tableDirectory = tableDirectory (table.getName ());
 
         Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
@@ -98,6 +102,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     @Override
     public Table createTable (String name, List<Class<?>> columnTypes) throws IOException {
+        isClosedCheck ();
         validTableNameCheck (name);
         getTable (name);
         if (tables.containsKey (name)) {
@@ -120,6 +125,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     @Override
     public void removeTable (String name) throws IOException {
+        isClosedCheck ();
         validTableNameCheck (name);
         getTable (name);
         if (!tables.containsKey (name)) {
@@ -135,9 +141,19 @@ public class StorableTableProviderImp implements StorableTableProvider {
         }
     }
 
+    void removeReference (Table table) {
+        try {
+            databaseKeeper.writeLock ().lock ();
+            tables.remove (table.getName ());
+        }
+        finally {
+            databaseKeeper.writeLock ().unlock ();
+        }
+    }
+
     @Override
     public Storeable deserialize (Table table, String value) throws ParseException {
-
+        isClosedCheck ();
         try {
             JSONArray jsonArray = new JSONArray (value);
             Storeable result = createFor (table);
@@ -179,6 +195,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     @Override
     public String serialize (Table table, Storeable value) throws ColumnFormatException {
+        isClosedCheck ();
         storableForThisTableCheck (table, value);
         JSONArray jsonArray = new JSONArray ();
 
@@ -208,6 +225,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     @Override
     public Storeable createFor (Table table) {
+        isClosedCheck ();
         List<Class<?>> columnTypes = new ArrayList<> ();
         for (int i = 0; i < table.getColumnsCount (); i++) {
             columnTypes.add (table.getColumnType (i));
@@ -217,6 +235,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     @Override
     public Storeable createFor (Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        isClosedCheck ();
         List<Class<?>> columnTypes = new ArrayList<> ();
         for (int i = 0; i < table.getColumnsCount (); i++) {
             columnTypes.add (table.getColumnType (i));
@@ -233,12 +252,13 @@ public class StorableTableProviderImp implements StorableTableProvider {
         }
     }
 
-    private Path tableDirectory (String name) {
+    Path tableDirectory (String name) {
         return location.resolve (name);
     }
 
     @Override
     public List<Class<?>> parseStructedSignature (String structedSignature) {
+        isClosedCheck ();
         if (structedSignature.trim ().isEmpty ()) {
             throw new IllegalArgumentException ("wrong type (empty)");
         }
@@ -262,4 +282,28 @@ public class StorableTableProviderImp implements StorableTableProvider {
                 }
                 return serialized;
             }
+
+    @Override
+    public void close () throws IOException {
+        try {
+            databaseKeeper.writeLock ().lock ();
+            for (StorableTableImp table: tables.values ()) {
+                table.close ();
+            }
         }
+        finally {
+            databaseKeeper.writeLock ().unlock ();
+        }
+    }
+
+    private void isClosedCheck () {
+        if (isClosed.get ()) {
+            throw new IllegalStateException ("TableProvider is closed");
+        }
+    }
+
+    @Override
+    public String toString () {
+        return getClass ().getSimpleName () + "[" + location + "]";
+    }
+}

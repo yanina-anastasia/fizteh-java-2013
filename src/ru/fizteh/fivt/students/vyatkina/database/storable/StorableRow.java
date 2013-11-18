@@ -115,4 +115,24 @@ public class StorableRow implements Storeable {
         result = 31 * result + (values != null ? values.hashCode () : 0);
         return result;
     }
+
+    @Override
+    public String toString () {
+        StringBuilder sb = new StringBuilder ();
+        sb.append (getClass ().getSimpleName ());
+        sb.append ("[");
+        boolean isFirst = true;
+        for (Object value: values) {
+           if (!isFirst) {
+               sb.append (",");
+           } else {
+               isFirst = false;
+           }
+           if (value != null) {
+             sb.append (value);
+           }
+        }
+        sb.append ("]");
+        return sb.toString ();
+    }
 }

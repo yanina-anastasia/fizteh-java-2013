@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class SuperTable<ValueType> {
 
     private volatile Map<String, Diff<ValueType>> values = new ConcurrentHashMap<> ();
-    private final String name;
+    protected final String name;
     protected final ReadWriteLock tableKeeper = new ReentrantReadWriteLock (true);
 
     public SuperTable (String name) {
