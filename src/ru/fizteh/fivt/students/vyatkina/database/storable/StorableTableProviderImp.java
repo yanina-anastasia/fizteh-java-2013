@@ -97,7 +97,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             return table;
         }
         finally {
-           databaseKeeper.readLock ().unlock ();
+            databaseKeeper.readLock ().unlock ();
         }
 
     }
@@ -109,6 +109,9 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
             Set<Path> filesThatChanged = deleteFilesThatChanged (tableDirectory, keysThatValuesHaveChanged);
             rewriteFilesThatChanged (tableDirectory, entriesToWrite (table), filesThatChanged);
+            if (!tables.containsKey (table.getName ())) {
+                tables.put (table.getName (),table);
+            }
 
         }
         catch (IOException e) {
@@ -132,20 +135,20 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             }
         }
         finally {
-          databaseKeeper.readLock ().unlock ();
+            databaseKeeper.readLock ().unlock ();
         }
         StorableRowShape shape = new StorableRowShape (columnTypes);
-            StorableTableImp table = new StorableTableImp (name, shape, this);
-            try {
-                databaseKeeper.writeLock ().lock ();
-                tables.put (name, table);
-                Files.createDirectory (location.resolve (name));
-                writeTableSignature (tableDirectory (name), columnTypes);
-            }
-            finally {
-                databaseKeeper.writeLock ().unlock ();
-            }
-            return table;
+        StorableTableImp table = new StorableTableImp (name, shape, this);
+        try {
+            databaseKeeper.writeLock ().lock ();
+            tables.put (name, table);
+            Files.createDirectory (location.resolve (name));
+            writeTableSignature (tableDirectory (name), columnTypes);
+        }
+        finally {
+            databaseKeeper.writeLock ().unlock ();
+        }
+        return table;
     }
 
     @Override
@@ -153,8 +156,14 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
         isClosedCheck ();
         validTableNameCheck (name);
         getTable (name);
-        if (!tables.containsKey (name)) {
-            throw new IllegalStateException ();
+        try {
+            databaseKeeper.readLock ().lock ();
+            if (!tables.containsKey (name)) {
+                throw new IllegalStateException ();
+            }
+        }
+        finally {
+             databaseKeeper.readLock ().unlock ();
         }
         try {
             databaseKeeper.writeLock ().lock ();
