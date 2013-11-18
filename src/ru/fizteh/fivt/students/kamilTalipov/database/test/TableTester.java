@@ -151,4 +151,59 @@ public class TableTester {
         types.add(BigInteger.class);
         MultiFileHashTable table2 = provider.createTable("TypesTest", types);
     }
+    
+    /*
+    @Test
+    public void parallelGetTest() throws IOException {
+        Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
+        table.put("123", storeable);
+
+        Thread thread1 = new Thread() {
+            @Override
+            public void run() {
+                Assert.assertEquals(table.get("123"), storeable);
+            }
+        };
+
+    }
+
+    @Test
+    public void parallelGetPutTest() {
+
+    }
+
+    @Test
+    public void parallelRemoveTest() {
+
+    }
+
+    @Test
+    public void parallelPutCommitSizeTest() {
+
+    }
+
+    @Test
+    public void parallelPutRemoveCommitSizeTest() {
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void parallelRemoveTableGetNameShouldFailed() {
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void parallelRemoveTablePutShouldFailed() {
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void parallelRemoveTableGetShouldFailed() {
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void parallelRemoveTableRemoveShouldFailed() {
+
+    }*/
 }

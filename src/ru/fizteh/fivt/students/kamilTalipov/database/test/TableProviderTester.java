@@ -60,4 +60,25 @@ public class TableProviderTester {
     public void removeNullTest() {
         provider.removeTable(null);
     }
+    
+    /*
+    @Test
+    public void parallelCreateTableTest() {
+
+    }
+
+    @Test
+    public void parallelCreateTableGetTableTest() {
+
+    }
+
+    @Test
+    public void parallelGetRemoveTest() {
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void parallelRemoveTableCreateShouldFailedTest() {
+
+    }*/
 }

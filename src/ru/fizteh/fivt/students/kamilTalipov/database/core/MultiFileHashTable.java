@@ -18,10 +18,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MultiFileHashTable implements Table {
-    private HashMap<String, Storeable> table;
-    private HashMap<String, Storeable> newValues;
+    private final HashMap<String, Storeable> table;
+    private final ThreadLocal<HashMap<String, Storeable>> newValues;
 
     private final ArrayList<Class<?>> types;
 
@@ -29,6 +31,12 @@ public class MultiFileHashTable implements Table {
     private final File tableDirectory;
 
     private final TableProvider myTableProvider;
+
+    private boolean isRemoved = false;
+
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
 
     private static final int ALL_DIRECTORIES = 16;
     private static final int FILES_IN_DIRECTORY = 16;
@@ -82,7 +90,7 @@ public class MultiFileHashTable implements Table {
         writeSignatureFile();
 
         table = new HashMap<>();
-        newValues = new HashMap<>();
+        newValues = new ThreadLocal<>();
         readTable();
     }
 
@@ -93,157 +101,235 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public String getName() {
-        return tableName;
+        readLock.lock();
+        try {
+            checkState();
+
+            return tableName;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key must be not null");
-        }
-        if (key.trim().isEmpty()) {
-            throw new IllegalArgumentException("Key must be not empty");
-        }
+        readLock.lock();
+        try {
+            checkState();
 
-        if (newValues.containsKey(key)) {
-            return newValues.get(key);
+            if (key == null) {
+                throw new IllegalArgumentException("Key must be not null");
+            }
+            if (key.trim().isEmpty()) {
+                throw new IllegalArgumentException("Key must be not empty");
+            }
+
+            if (newValues.get().containsKey(key)) {
+                return newValues.get().get(key);
+            }
+
+            return table.get(key);
+        } finally {
+            readLock.unlock();
         }
-        return table.get(key);
     }
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key must be not null");
-        }
-        if (key.trim().isEmpty()) {
-            throw new IllegalArgumentException("Key must be not empty");
-        }
-        if (key.matches(".*\\s+.*")) {
-            throw new IllegalArgumentException("Key must not contain whitespace");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("Value must be not null");
-        }
-        if (!StoreableUtils.isCorrectStoreable(value, this)) {
-            throw new ColumnFormatException("Storeable incorrect value");
-        }
+        readLock.lock();
+        try {
+            checkState();
 
-        Storeable oldValue = get(key);
-        if (isEqualStoreable(value, table.get(key))) {
-            newValues.remove(key);
-        } else {
-            newValues.put(key, value);
-        }
+            if (key == null) {
+                throw new IllegalArgumentException("Key must be not null");
+            }
+            if (key.trim().isEmpty()) {
+                throw new IllegalArgumentException("Key must be not empty");
+            }
+            if (key.matches(".*\\s+.*")) {
+                throw new IllegalArgumentException("Key must not contain whitespace");
+            }
+            if (value == null) {
+                throw new IllegalArgumentException("Value must be not null");
+            }
+            if (!StoreableUtils.isCorrectStoreable(value, this)) {
+                throw new ColumnFormatException("Storeable incorrect value");
+            }
 
-        return oldValue;
+            Storeable oldValue = get(key);
+            if (isEqualStoreable(value, table.get(key))) {
+                newValues.get().remove(key);
+            } else {
+                newValues.get().put(key, value);
+            }
+
+            return oldValue;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("Key must be not null");
-        }
-        if (key.trim().isEmpty()) {
-            throw new IllegalArgumentException("Key must be not empty");
-        }
+        readLock.lock();
+        try {
+            checkState();
 
-        Storeable oldValue = get(key);
-        newValues.put(key, null);
+            if (key == null) {
+                throw new IllegalArgumentException("Key must be not null");
+            }
+            if (key.trim().isEmpty()) {
+                throw new IllegalArgumentException("Key must be not empty");
+            }
 
-        return oldValue;
+            Storeable oldValue = get(key);
+            newValues.get().put(key, null);
+
+            return oldValue;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public void removeTable() throws DatabaseException {
-        removeDataFiles();
-        FileUtils.remove(tableDirectory);
+        writeLock.lock();
+        try {
+            checkState();
+
+            isRemoved = true;
+            removeDataFiles();
+            FileUtils.remove(tableDirectory);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
     public int size() {
-        int tableSize = table.size();
-        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            Storeable savedValue = table.get(key);
-            if (savedValue == null) {
-                if (value != null) {
-                    ++tableSize;
-                }
-            } else {
-                if (value == null) {
-                    --tableSize;
+        readLock.lock();
+        try {
+            checkState();
+
+            int tableSize = table.size();
+            for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                Storeable savedValue = table.get(key);
+                if (savedValue == null) {
+                    if (value != null) {
+                        ++tableSize;
+                    }
+                } else {
+                    if (value == null) {
+                        --tableSize;
+                    }
                 }
             }
-        }
 
-        return tableSize;
+            return tableSize;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public int commit() throws IOException {
-        int changes = 0;
-        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            if (value == null) {
-                if (table.remove(key) != null) {
-                    ++changes;
-                }
-            } else {
-                Storeable oldValue = table.put(key, value);
-                if (!isEqualStoreable(value, oldValue)) {
-                    ++changes;
+        writeLock.lock();
+        try {
+            checkState();
+
+            int changes = 0;
+
+            for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                if (value == null) {
+                    if (table.remove(key) != null) {
+                        ++changes;
+                    }
+                } else {
+                    Storeable oldValue = table.put(key, value);
+                    if (!isEqualStoreable(value, oldValue)) {
+                        ++changes;
+                    }
                 }
             }
+
+            try {
+                writeTable();
+            } catch (DatabaseException e) {
+                throw new IOException("Database io error", e);
+            }
+
+            newValues.get().clear();
+
+            return changes;
+        } finally {
+            writeLock.unlock();
         }
-
-        try {
-            writeTable();
-        } catch (DatabaseException e) {
-            throw new IOException("Database io error", e);
-        }
-
-        newValues.clear();
-
-        return changes;
     }
 
     @Override
     public int rollback() {
-        int changes = uncommittedChanges();
-        newValues.clear();
-        return changes;
+        readLock.lock();
+        try {
+            checkState();
+
+            int changes = uncommittedChanges();
+            newValues.get().clear();
+            return changes;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public int getColumnsCount() {
-        return types.size();
+        readLock.lock();
+        try {
+            checkState();
+
+            return types.size();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        return types.get(columnIndex);
+        readLock.lock();
+        try {
+            checkState();
+
+            return types.get(columnIndex);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public int uncommittedChanges() {
-        int changes = 0;
-        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            if (!isEqualStoreable(value, table.get(key))) {
-                ++changes;
-            }
-        }
+        readLock.lock();
+        try {
+            checkState();
 
-        return changes;
+            int changes = 0;
+            for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                if (!isEqualStoreable(value, table.get(key))) {
+                    ++changes;
+                }
+            }
+
+            return changes;
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    public void exit() throws DatabaseException {
-        try {
-            writeTable();
-        } catch (IOException e) {
-            throw new DatabaseException("Database io error", e);
+    private void checkState() {
+        if (isRemoved) {
+            throw new IllegalStateException("Table + '" + tableName + "' is removed");
         }
     }
 
@@ -379,14 +465,14 @@ public class MultiFileHashTable implements Table {
         }
     }
 
-    private String getDirectoryName(byte keyByte) {
+    private static String getDirectoryName(byte keyByte) {
         if (keyByte < 0) {
             keyByte *= -1;
         }
         return Integer.toString((keyByte % ALL_DIRECTORIES + ALL_DIRECTORIES) % ALL_DIRECTORIES) + ".dir";
     }
 
-    private String getFileName(byte keyByte) {
+    private static String getFileName(byte keyByte) {
         if (keyByte < 0) {
             keyByte *= -1;
         }
@@ -394,7 +480,7 @@ public class MultiFileHashTable implements Table {
                                     + FILES_IN_DIRECTORY) % FILES_IN_DIRECTORY) + ".dat";
     }
 
-    private boolean isCorrectDirectoryName(String name) {
+    private static boolean isCorrectDirectoryName(String name) {
         for (int i = 0; i < ALL_DIRECTORIES; ++i) {
             if (name.equals(Integer.toString(i) + ".dir")) {
                 return true;
@@ -471,7 +557,7 @@ public class MultiFileHashTable implements Table {
         return result;
     }
 
-    private boolean isSupportedType(Class<?> type) {
+    private static boolean isSupportedType(Class<?> type) {
         return type == Integer.class
                 || type == Long.class
                 || type == Byte.class
