@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.FileStorage;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 
@@ -23,7 +22,6 @@ public abstract class GenericTable<ValueType> {
             return new HashMap<>();
         }
     };
-
 
     public GenericTable(String name, File rootDir) {
         tableDirectory = new File(rootDir, name);
@@ -49,22 +47,15 @@ public abstract class GenericTable<ValueType> {
 
     public ValueType remove(String key) {
         checkKey(key);
+        ValueType res = get(key);
         try {
             lock.readLock().lock();
-            if (changedValues.get().containsKey(key)) {
-                if (oldDatabase.get(key) == null) {
-                    return changedValues.get().remove(key);
-                } else {
-                    return changedValues.get().put(key, null);
-                }
+            if (oldDatabase.get(key) == null) {
+                changedValues.get().remove(key);
             } else {
-                if (oldDatabase.get(key) == null) {
-                    return null;
-                } else {
-                    changedValues.get().put(key, null);
-                    return oldDatabase.get(key);
-                }
+                changedValues.get().put(key, null);
             }
+            return res;
         } finally {
             lock.readLock().unlock();
         }
@@ -75,22 +66,15 @@ public abstract class GenericTable<ValueType> {
         if (value == null) {
             throw new IllegalArgumentException("null value");
         }
+        ValueType res = get(key);
         try {
             lock.readLock().lock();
-            if (changedValues.get().containsKey(key)) {
-                if (value.equals(oldDatabase.get(key))) {
-                    return changedValues.get().remove(key);
-                } else {
-                    return changedValues.get().put(key, value);
-                }
+            if (oldDatabase.get(key).equals(value)) {
+                changedValues.get().remove(key);
             } else {
-                if (value.equals(oldDatabase.get(key))) {
-                    return oldDatabase.get(key);
-                } else {
-                    changedValues.get().put(key, value);
-                    return oldDatabase.get(key);
-                }
+                changedValues.get().put(key, value);
             }
+            return res;
         } finally {
             lock.readLock().unlock();
         }
