@@ -109,10 +109,6 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
             Set<Path> filesThatChanged = deleteFilesThatChanged (tableDirectory, keysThatValuesHaveChanged);
             rewriteFilesThatChanged (tableDirectory, entriesToWrite (table), filesThatChanged);
-            if (!tables.containsKey (table.getName ())) {
-                tables.put (table.getName (),table);
-            }
-
         }
         catch (IOException e) {
             throw new WrappedIOException ();

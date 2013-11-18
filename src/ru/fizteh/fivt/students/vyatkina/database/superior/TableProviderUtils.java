@@ -131,7 +131,7 @@ public class TableProviderUtils implements TableProviderConstants {
                 }
 
                 if (emptyFile) {
-                    throw new WrappedIOException ("Empty file");
+                    throw new WrappedIOException ("Empty file " + file);
                 }
             }
 

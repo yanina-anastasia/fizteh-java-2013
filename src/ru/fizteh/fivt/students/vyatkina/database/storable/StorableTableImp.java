@@ -65,7 +65,13 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
     public int commit () {
         isClosedCheck ();
         int commited = super.commit ();
-        tableProvider.commitTable (this);
+        try {
+            tableKeeper.writeLock ().lock ();
+            tableProvider.commitTable (this);
+        }
+        finally {
+           tableKeeper.writeLock ().unlock ();
+        }
         return commited;
     }
 
