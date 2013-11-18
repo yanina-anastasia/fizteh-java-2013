@@ -489,12 +489,15 @@ public class DataBase implements Table {
         int tempChanged = transaction.get().changesCount();
         transaction.get().commit();
         try {
+            lock.lock();
             saveDataBase();
             System.out.println(tempChanged);
             return tempChanged;
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);
+        }  finally {
+            lock.unlock();
         }
         return 0;
     }
