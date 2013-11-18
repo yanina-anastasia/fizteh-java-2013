@@ -14,7 +14,7 @@ public class StoreableState extends BasicDataBaseState<Storeable, StoreableTable
 	public void use(String tableName) throws IOException {
 		if (usedTable != null) {
 			int changesNumber = usedTable.getChangesNumber();
-			if (usedTable.getChangesNumber() > 0) {
+			if (changesNumber > 0) {
 				throw new IOException(changesNumber + " unsaved changes");
 			}
 		}

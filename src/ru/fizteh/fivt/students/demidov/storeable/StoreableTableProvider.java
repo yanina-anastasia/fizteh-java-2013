@@ -67,32 +67,46 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 	}
 
 	public StoreableImplementation deserialize(Table table, String value) throws ParseException {
+	    providerLock.readLock().lock();
 		try {
 			return StoreableUtils.deserialize(table, value);
 		} catch (XMLStreamException catchedException) {
 			throw new ParseException(catchedException.getMessage(), 0);
-		}
+		} finally {
+            providerLock.readLock().unlock();
+        }
 	}
 
 	public String serialize(Table table, Storeable value) throws ColumnFormatException {
+	    providerLock.readLock().lock();
 		try {
 			return StoreableUtils.serialize(table, value);
 		} catch (XMLStreamException catchedException) {
 			throw new ColumnFormatException(catchedException);
+		} finally {
+		    providerLock.readLock().unlock();
 		}
 	}
 
 	public StoreableImplementation createFor(Table table) {
-		return new StoreableImplementation(table);
+	    providerLock.readLock().lock();
+		try {
+		    return new StoreableImplementation(table);
+		} finally {
+		    providerLock.readLock().unlock();
+		}
 	}
 
 	public StoreableImplementation createFor(Table table, List<?> values) throws ColumnFormatException {
+	    providerLock.readLock().lock();	    
 		if (table.getColumnsCount() != values.size()) {
 			throw new IndexOutOfBoundsException();
 		}
-
 		StoreableImplementation builtStoreable = createFor(table);
-		for (int column = 0; column < table.getColumnsCount(); ++column) {
+		
+		providerLock.readLock().unlock();
+		
+		for (int column = 0; column < values.size(); ++column) {
 			builtStoreable.setColumnAt(column, values.get(column));
 		}
 

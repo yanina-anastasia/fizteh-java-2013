@@ -60,17 +60,10 @@ abstract public class BasicTable<ElementType> {
 		if (value == null) {
 			throw new IllegalArgumentException("null or empty parameter");
 		}
-		
-		readWriteLock.readLock().lock();		
+				
 		ElementType overwrite = get(key);
-		ElementType previousValue = filesMap.getFileMapForKey(key).getCurrentTable().get(key);
-		readWriteLock.readLock().unlock();
 		
-		if (value.equals(previousValue)) {
-			putDiff.get().remove(key);
-		} else {
-			putDiff.get().put(key, value);
-		}
+		putDiff.get().put(key, value);
 		removeDiff.get().remove(key);
 		
 		return overwrite;
@@ -112,7 +105,7 @@ abstract public class BasicTable<ElementType> {
 	}
 
 	public int commit() throws IOException {	
-		readWriteLock.writeLock().lock();	
+		readWriteLock.writeLock().lock();	 
 		int changesNumber = getChangesNumber();
 		if (changesNumber != 0) {
 			autoCommit();
@@ -126,6 +119,7 @@ abstract public class BasicTable<ElementType> {
 	}
 	
 	public void autoCommit() {
+	    readWriteLock.writeLock().lock();  
 		for (String key: putDiff.get().keySet()) {
 			filesMap.getFileMapForKey(key).getCurrentTable().put(key, putDiff.get().get(key));
 		}		
@@ -134,13 +128,12 @@ abstract public class BasicTable<ElementType> {
 	        String key = removeDiffIterator.next();
 	        filesMap.getFileMapForKey(key).getCurrentTable().remove(key);
 	    }
+	    readWriteLock.writeLock().unlock();
 	}
 	
 
 	public int rollback() {
-		readWriteLock.readLock().lock();
 		int changesNumber = getChangesNumber();
-	    readWriteLock.readLock().unlock();
 		
 		putDiff.get().clear();
 		removeDiff.get().clear();
@@ -151,6 +144,7 @@ abstract public class BasicTable<ElementType> {
 		int changesNumber = 0;
 		Iterator<String> removeDiffIterator = removeDiff.get().iterator();
 		
+		readWriteLock.readLock().lock();
 	    while(removeDiffIterator.hasNext()) {
 	        String key = removeDiffIterator.next();
 	        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
@@ -162,6 +156,7 @@ abstract public class BasicTable<ElementType> {
 				++changesNumber;
 			}
 		}	
+	    readWriteLock.readLock().unlock();
 	    
 		return changesNumber;
 	}

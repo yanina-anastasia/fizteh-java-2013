@@ -30,11 +30,11 @@ abstract public class BasicTableProvider<TableType> {
 			throw new IllegalArgumentException("wrong table name: " + name);
 		}
 		
-		providerLock.writeLock().lock();		
+		providerLock.readLock().lock();		
 		try {
 			return tables.get(name);
 		} finally {		
-			providerLock.writeLock().unlock();
+			providerLock.readLock().unlock();
 		}
 	}
 	
@@ -48,8 +48,8 @@ abstract public class BasicTableProvider<TableType> {
 		if (!(tables.containsKey(name))) {
 			throw new IllegalStateException(name + " not exists");
 		}
-		Utils.deleteFileOrDirectory(new File(root, name));
 		tables.remove(name);
+		Utils.deleteFileOrDirectory(new File(root, name));
 		
 		providerLock.writeLock().unlock();
 	}
