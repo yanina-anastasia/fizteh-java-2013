@@ -21,7 +21,7 @@ public class StringTableProvider extends GenericTableProvider<String, StringTabl
 
 	@Override
 	protected StringTable instantiateTable(String name, Object args[]) {
-		return new StringTable(name, autoCommit);
+		return new StringTable(this, name, autoCommit);
 	}
 
 	public StringTable createTable(String name) {

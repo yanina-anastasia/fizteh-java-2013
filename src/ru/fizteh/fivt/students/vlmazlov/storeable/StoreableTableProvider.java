@@ -30,7 +30,7 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     protected StoreableTable instantiateTable(String name, Object args[]) {
-        return new StoreableTable(name, autoCommit, (List)args[0]);
+        return new StoreableTable(this, name, autoCommit, (List)args[0]);
     }
 
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {

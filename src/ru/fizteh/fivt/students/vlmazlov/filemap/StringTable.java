@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
-import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DiffCountingTable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
@@ -19,12 +18,16 @@ import ru.fizteh.fivt.students.vlmazlov.multifilemap.TableWriter;
 
 public class StringTable extends GenericTable<String> implements DiffCountingTable, Cloneable {
 
-	public StringTable(String name) {
-		super(name);
+	private StringTableProvider specificProvider;
+
+	public StringTable(StringTableProvider provider, String name) {
+		super(provider, name);
+		specificProvider = provider;
 	}
 
-	public StringTable(String name, boolean autoCommit) {
-		super(name, autoCommit);
+	public StringTable(StringTableProvider provider, String name, boolean autoCommit) {
+		super(provider, name, autoCommit);
+		specificProvider = provider;
 	}
 
 	public void read(String root, String fileName) 
@@ -35,15 +38,9 @@ public class StringTable extends GenericTable<String> implements DiffCountingTab
 
 		if (fileName == null) {
 			throw new FileNotFoundException("File not specified");
-		} 
-
-		File tempDir = FileUtils.createTempDir("readprovider", null);
-
-		if (tempDir == null) {
-			throw new FileNotFoundException("Unable to create a temporary directory");
 		}
  
-		TableReader.readTable(new File(root), new File(root, fileName), this, new StringTableProvider(tempDir.getPath(), true));
+		TableReader.readTable(new File(root), new File(root, fileName), this, specificProvider);
 	}
 
 	public void write(String root, String fileName)
@@ -56,17 +53,11 @@ public class StringTable extends GenericTable<String> implements DiffCountingTab
 			throw new FileNotFoundException("File not specified");
 		} 
 
-		File tempDir = FileUtils.createTempDir("writeprovider", null);
-
-		if (tempDir == null) {
-			throw new FileNotFoundException("Unable to create a temporary directory");
-		}
-
-		TableWriter.writeTable(new File(root), new File(root, fileName), this, new StringTableProvider(tempDir.getPath(), true));
+		TableWriter.writeTable(new File(root), new File(root, fileName), this, specificProvider);
 	}
 
 	@Override
 	public StringTable clone() {
-        return new StringTable(getName(), autoCommit);
+        return new StringTable(specificProvider, getName(), autoCommit);
     }
 }

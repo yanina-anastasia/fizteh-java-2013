@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.io.File;
-import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
 import ru.fizteh.fivt.students.vlmazlov.filemap.GenericTable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
@@ -14,19 +13,24 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
 public class StoreableTable extends GenericTable<Storeable> implements Table, Cloneable {
 
+	private StoreableTableProvider specificProvider;
+
 	private final List<Class<?>> valueTypes;
 
-	public StoreableTable(String name, List<Class<?>> valueTypes) {
-		super(name);
+	public StoreableTable(StoreableTableProvider provider, String name, List<Class<?>> valueTypes) {
+		super(provider, name);
 		if (valueTypes == null) {
 			throw new IllegalArgumentException("Value types not specified");
 		}
+
+		specificProvider = provider;
 		///questionable
 		this.valueTypes = Collections.unmodifiableList(new ArrayList<Class<?>>(valueTypes));
 	}
 
-	public StoreableTable(String name, boolean autoCommit, List<Class<?>> valueTypes) {
-		super(name, autoCommit);
+	public StoreableTable(StoreableTableProvider provider, String name, boolean autoCommit, List<Class<?>> valueTypes) {
+		super(provider, name, autoCommit);
+		specificProvider = provider;
 		this.valueTypes = Collections.unmodifiableList(new ArrayList<Class<?>>(valueTypes));
 	}
 
@@ -53,25 +57,11 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
 
     @Override
 	public StoreableTable clone() {
-        return new StoreableTable(getName(), autoCommit, valueTypes);
+        return new StoreableTable(specificProvider, getName(), autoCommit, valueTypes);
     }
 
     @Override
     protected boolean isValueEqual(Storeable first, Storeable second) {
-    	File tempDir = FileUtils.createTempDir("writeprovider", null);
-
-		if (tempDir == null) {
-			throw new RuntimeException("Unable to create a temporary directory");
-		}
-
-		StoreableTableProvider tmpProvider = null;
-
-		try {
-			tmpProvider = new StoreableTableProvider(tempDir.getPath(), true);
-		} catch (ValidityCheckFailedException ex) {
-			throw new RuntimeException("Unable to check storeable equality");
-		}
-
-	    return tmpProvider.serialize(this, first).equals(tmpProvider.serialize(this, second));
+	   	return specificProvider.serialize(this, first).equals(specificProvider.serialize(this, second));
     }
 }

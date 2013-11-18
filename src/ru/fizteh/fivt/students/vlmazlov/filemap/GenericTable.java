@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.GenericTableProvider;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReadWriteLock;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
@@ -12,7 +13,8 @@ import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 
 public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneable {
     private volatile Map<String, V> commited;
-    
+    protected GenericTableProvider<V, ? extends GenericTable<V>> provider;
+
     private final ThreadLocal<HashMap<String, V>> changed = new ThreadLocal<HashMap<String, V>>() {
         protected HashMap<String, V> initialValue() {
             return new HashMap<String, V>();
@@ -31,12 +33,13 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     private ReadWriteLock getCommitLock;
     private ReadWriteLock writeCommitLock;
 
-    public GenericTable(String name) {
-        this(name, true);
+    public GenericTable(GenericTableProvider<V, ? extends GenericTable<V>> provider, String name) {
+        this(provider, name, true);
     }
 
-    public GenericTable(String name, boolean autoCommit) {
+    public GenericTable(GenericTableProvider<V, ? extends GenericTable<V>> provider, String name, boolean autoCommit) {
         this.name = name;
+        this.provider = provider;	
         commited = new HashMap<String, V>();
         
         this.autoCommit = autoCommit;
@@ -225,7 +228,7 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
    	}
 
     public GenericTable<V> clone() {
-        return new GenericTable<V>(name, autoCommit);
+        return new GenericTable<V>(provider, name, autoCommit);
     }
 
     public void startWriting() {
