@@ -165,6 +165,9 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
+		if(columnTypes == null) {
+			throw new IllegalArgumentException("Null column types");
+		}
 		if(!Utils.testColumnTypes(columnTypes)) {
 			throw new IllegalArgumentException("Bad column types");
 		}
