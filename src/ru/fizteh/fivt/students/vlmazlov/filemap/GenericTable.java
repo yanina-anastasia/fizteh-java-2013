@@ -208,7 +208,15 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     }
 
     public int rollback() {
-        int diffNum = getDiffCount();
+    	int diffNum = 0;
+
+    	getCommitLock.readLock().lock();
+    	
+    	try {
+        	diffNum = getDiffCount();
+        } finally {
+            getCommitLock.readLock().unlock();
+       	}
 
         changed.get().clear();
         deleted.get().clear();
