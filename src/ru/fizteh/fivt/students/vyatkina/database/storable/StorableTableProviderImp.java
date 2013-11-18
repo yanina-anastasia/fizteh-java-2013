@@ -81,12 +81,16 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
         try {
             databaseKeeper.readLock ().lock ();
             StorableTableImp table = tables.get (name);
+            if (table == null) {
+                return null;
+            }
             table.setCurrentThreadValues ();
+            return table;
         }
         finally {
            databaseKeeper.readLock ().unlock ();
         }
-        return tables.get (name);
+
     }
 
     void commitTable (StorableTableImp table) {
