@@ -165,7 +165,7 @@ public abstract class AbstractTable<ValueType> {
         int size = hashMap.size();
 
         for (String string : changedEntries.keySet()) {
-            if (hashMap.get(string) == null || hashMap.get(string) != changedEntries.get(string)) {
+            if (hashMap.get(string) == null) {
                 ++size;
             }
         }
