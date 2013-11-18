@@ -115,7 +115,7 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-
+        /*
         try {
             membersLock.readLock().lock();
             if (tableMembers.containsKey(name)) {
@@ -124,7 +124,7 @@ public class DistributedTableProvider implements TableProvider {
         } finally {
             membersLock.readLock().unlock();
         }
-
+        */
         try {
             membersLock.writeLock().lock();
             if (!tableMembers.containsKey(name)) {
@@ -189,7 +189,7 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
-
+        /*
         try {
             membersLock.readLock().lock();
             if (tableMembers.containsKey(name)) {
@@ -206,7 +206,7 @@ public class DistributedTableProvider implements TableProvider {
         } finally {
             membersLock.readLock().unlock();
         }
-
+        */
         try {
             membersLock.writeLock().lock();
             if (tableMembers.containsKey(name)) {
