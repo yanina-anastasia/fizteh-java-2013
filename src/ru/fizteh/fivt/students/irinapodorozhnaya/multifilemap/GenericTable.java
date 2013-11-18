@@ -3,9 +3,7 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -100,17 +98,14 @@ public abstract class GenericTable<ValueType> {
 
     private int countChanges() {
         lock.readLock().lock();
-        Set<String> toRemove = new HashSet<>();
+        int res = 0;
         for (String s: changedValues.get().keySet()) {
-            if (checkEquals(changedValues.get().get(s), oldDatabase.get(s))) {
-                toRemove.add(s);
+            if (!checkEquals(changedValues.get().get(s), oldDatabase.get(s))) {
+                ++res;
             }
         }
-        for (String s: toRemove) {
-            changedValues.get().remove(s);
-        }
         lock.readLock().unlock();
-        return changedValues.get().size();
+        return res;
     }
 
     protected boolean checkEquals(ValueType val1, ValueType val2) {
