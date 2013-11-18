@@ -45,7 +45,7 @@ public class StoreableTableProvider implements TableProvider, Provider {
 			setWorkingDirectory(dir);
 			setStream(out);
 		} finally {
-			lock.writeLock().lock();
+			lock.writeLock().unlock();
 		}
 	}
 
