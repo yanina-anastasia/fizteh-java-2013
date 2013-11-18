@@ -31,7 +31,7 @@ public class MyStoreable implements Storeable{
             return null;
         }
     }
-
+     /*
     @Override
     public boolean equals(Object o) {
 
@@ -58,7 +58,7 @@ public class MyStoreable implements Storeable{
             return true;
         }
         return false;
-    }
+    }  */
 
     @Override
     public void setColumnAt(int columnIndex, Object value)
