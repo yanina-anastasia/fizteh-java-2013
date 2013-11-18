@@ -1,8 +1,8 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.multifilehashmap;
 
+import ru.fizteh.fivt.students.nadezhdakaratsapova.commands.*;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Shell;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.StringMethods;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.commands.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,7 +13,7 @@ public class Main {
         try {
             String dirName = System.getProperty("fizteh.db.dir");
             Shell multiFileHashMap = new Shell();
-            MultiFileProviderFactory providerFactory = new MultiFileProviderFactory();
+            MultiFileTableProviderFactory providerFactory = new MultiFileTableProviderFactory();
             MultiFileHashMapProvider state = providerFactory.create(dirName);
             multiFileHashMap.addCommand(new CommitCommand(state));
             multiFileHashMap.addCommand(new CreateCommand(state));
