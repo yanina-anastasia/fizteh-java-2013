@@ -6,8 +6,6 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
-import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;

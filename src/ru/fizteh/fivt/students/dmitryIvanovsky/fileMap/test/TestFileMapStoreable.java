@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapStoreable;
