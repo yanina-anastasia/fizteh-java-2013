@@ -206,8 +206,8 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
                                                     + " End tag is expected", 0);
                                         }
                                     } else {
-                                        throw new ParseException("Not managed to convert xml value." +
-                                                " End tag is expected", 0);
+                                        throw new ParseException("Not managed to convert xml value."
+                                                + " End tag is expected", 0);
                                     }
 
                                 } else {
