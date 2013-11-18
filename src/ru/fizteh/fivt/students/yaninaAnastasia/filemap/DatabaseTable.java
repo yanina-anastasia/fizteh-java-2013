@@ -309,18 +309,16 @@ public class DatabaseTable implements Table {
     }
 
     private int changesCount() {
-        int result = 0;
-        for (final String key : modifiedData.get().keySet()) {
-            if (!modifiedData.get().get(key).equals(oldData.get(key))) {
-                result += 1;
+        HashSet<String> tempSet = new HashSet<>();
+        HashSet<String> toRemove = new HashSet<>();
+        tempSet.addAll(modifiedData.get().keySet());
+        tempSet.addAll(deletedKeys.get());
+        for (String key : tempSet) {
+            if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get().get(key))) {
+                toRemove.add(key);
             }
         }
-        for (final String key : deletedKeys.get()) {
-            if (oldData.containsKey(key)) {
-                result -= 1;
-            }
-        }
-        return result;
+        return tempSet.size() - toRemove.size();
     }
 
     private int diffSize() {
