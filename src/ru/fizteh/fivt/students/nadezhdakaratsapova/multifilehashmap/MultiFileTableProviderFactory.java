@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class MultiFileProviderFactory implements TableProviderFactory {
+public class MultiFileTableProviderFactory implements TableProviderFactory {
 
     public MultiFileHashMapProvider create(String dir) throws IllegalArgumentException {
         if (dir == null) {
