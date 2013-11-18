@@ -3,13 +3,16 @@ package ru.fizteh.fivt.students.chernigovsky.junit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AbstractTable<ValueType> {
-    private HashMap<String, ValueType> hashMap;
-    private HashMap<String, ValueType> changedEntries;
-    private HashMap<String, ValueType> removedEntries;
+    private volatile HashMap<String, ValueType> hashMap;
+    private ThreadLocal<HashMap<String, ValueType>> changedEntries;
+    private ThreadLocal<HashMap<String, ValueType>> removedEntries;
+    private ReadWriteLock tableLock;
     private boolean autoCommit;
     private String tableName;
 
@@ -21,26 +24,47 @@ public abstract class AbstractTable<ValueType> {
         tableName = name;
         autoCommit = flag;
         hashMap = new HashMap<String, ValueType>();
-        changedEntries = new HashMap<String, ValueType>();
-        removedEntries = new HashMap<String, ValueType>();
+        tableLock = new ReentrantReadWriteLock(true);
+        changedEntries = new ThreadLocal<HashMap<String, ValueType>>() {
+            protected HashMap<String, ValueType> initialValue() {
+                return new HashMap<String, ValueType>();
+            }
+        };
+        removedEntries = new ThreadLocal<HashMap<String, ValueType>>() {
+            protected HashMap<String, ValueType> initialValue() {
+                return new HashMap<String, ValueType>();
+            }
+        };
     }
 
     public String getName(){
         return tableName;
     }
 
+    public abstract boolean valuesEqual(ValueType firstValue, ValueType secondValue);
+
     public int getDiffCount() {
         int diffCount = 0;
 
-        for (String string : changedEntries.keySet()) {
-            if (hashMap.get(string) == null || hashMap.get(string) != changedEntries.get(string)) {
-                ++diffCount;
+        for (String string : changedEntries.get().keySet()) {
+            try {
+                tableLock.readLock().lock();
+                if (hashMap.get(string) == null || !valuesEqual(hashMap.get(string), changedEntries.get().get(string))) {
+                    ++diffCount;
+                }
+            } finally {
+                tableLock.readLock().unlock();
             }
         }
 
-        for (String string : removedEntries.keySet()) {
-            if (hashMap.get(string) != null) {
-                ++diffCount;
+        for (String string : removedEntries.get().keySet()) {
+            try {
+                tableLock.readLock().lock();
+                if (hashMap.get(string) != null) {
+                    ++diffCount;
+                }
+            } finally {
+                tableLock.readLock().unlock();
             }
         }
 
@@ -65,14 +89,23 @@ public abstract class AbstractTable<ValueType> {
             throw new IllegalArgumentException("key is wrong");
         }
 
-        if (removedEntries.get(key) != null) {
+        if (removedEntries.get().get(key) != null) {
             return null;
         }
 
-        if (changedEntries.get(key) != null) {
-            return changedEntries.get(key);
+        if (changedEntries.get().get(key) != null) {
+            return changedEntries.get().get(key);
         }
-        return hashMap.get(key);
+
+        ValueType value;
+        try {
+            tableLock.readLock().lock();
+            value = hashMap.get(key);
+        } finally {
+            tableLock.readLock().unlock();
+        }
+
+        return value;
     }
 
     /**
@@ -88,10 +121,15 @@ public abstract class AbstractTable<ValueType> {
 
     private ValueType putting(String key, ValueType value) {
         ValueType oldValue = get(key);
-        ValueType commitedValue = hashMap.get(key);
+        try {
+            tableLock.readLock().lock();
+            ValueType commitedValue = hashMap.get(key);
+        } finally {
+            tableLock.readLock().unlock();
+        }
 
-        changedEntries.put(key, value);
-        removedEntries.remove(key);
+        changedEntries.get().put(key, value);
+        removedEntries.get().remove(key);
 
         return oldValue;
     }
@@ -131,8 +169,8 @@ public abstract class AbstractTable<ValueType> {
         ValueType oldValue = get(key);
 
         if (oldValue != null) {
-            removedEntries.put(key, oldValue);
-            changedEntries.remove(key);
+            removedEntries.get().put(key, oldValue);
+            changedEntries.get().remove(key);
         }
 
         return oldValue;
@@ -162,17 +200,33 @@ public abstract class AbstractTable<ValueType> {
      * @return Количество ключей в таблице.
      */
     public int size() {
-        int size = hashMap.size();
+        int size;
+        try {
+            tableLock.readLock().lock();
+            size = hashMap.size();
+        } finally {
+            tableLock.readLock().unlock();
+        }
 
-        for (String string : changedEntries.keySet()) {
-            if (hashMap.get(string) == null) {
-                ++size;
+        for (String string : changedEntries.get().keySet()) {
+            try {
+                tableLock.readLock().lock();
+                if (hashMap.get(string) == null) {
+                    ++size;
+                }
+            } finally {
+                tableLock.readLock().unlock();
             }
         }
 
-        for (String string : removedEntries.keySet()) {
-            if (hashMap.get(string) != null) {
-                --size;
+        for (String string : removedEntries.get().keySet()) {
+            try {
+                tableLock.readLock().lock();
+                if (hashMap.get(string) != null) {
+                    --size;
+                }
+            } finally {
+                tableLock.readLock().unlock();
             }
         }
 
@@ -187,15 +241,25 @@ public abstract class AbstractTable<ValueType> {
     public int commit() {
         int changed = getDiffCount();
 
-        for (Map.Entry<String, ValueType> entry : changedEntries.entrySet()) {
-            hashMap.put(entry.getKey(), entry.getValue());
+        try {
+            tableLock.writeLock().lock();
+            for (Map.Entry<String, ValueType> entry : changedEntries.get().entrySet()) {
+                hashMap.put(entry.getKey(), entry.getValue());
+            }
+        } finally {
+            tableLock.writeLock().unlock();
         }
-        changedEntries.clear();
+        changedEntries.get().clear();
 
-        for (Map.Entry<String, ValueType> entry : removedEntries.entrySet()) {
-            hashMap.remove(entry.getKey());
+        try {
+            tableLock.writeLock().lock();
+            for (Map.Entry<String, ValueType> entry : removedEntries.get().entrySet()) {
+                hashMap.remove(entry.getKey());
+            }
+        } finally {
+            tableLock.writeLock().unlock();
         }
-        removedEntries.clear();
+        removedEntries.get().clear();
 
         return changed;
     }
@@ -208,8 +272,8 @@ public abstract class AbstractTable<ValueType> {
     public int rollback() {
         int changed = getDiffCount();
 
-        changedEntries.clear();
-        removedEntries.clear();
+        changedEntries.get().clear();
+        removedEntries.get().clear();
 
         return changed;
     }
