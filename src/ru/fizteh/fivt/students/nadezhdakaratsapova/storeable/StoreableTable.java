@@ -18,6 +18,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
     private StoreableTableProvider tableProvider;
     private List<Class<?>> columnTypes = new ArrayList<Class<?>>();
 
+
     public StoreableTable(String name, File dir, List<Class<?>> types, StoreableTableProvider provider) {
         tableProvider = provider;
         valueConverter = new StoreableValueConverter(tableProvider, this);
@@ -60,6 +61,20 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
             throw new IndexOutOfBoundsException();
         }
         return columnTypes.get(columnIndex);
+    }
+
+    @Override
+    public int commit() throws IOException {
+        int commitSize = 0;
+        tableChangesLock.writeLock().lock();
+        try {
+            commitSize = commitWithoutWriteToDataBase();
+            writeToDataBase();
+            return commitSize;
+        } finally {
+            tableChangesLock.writeLock().unlock();
+        }
+
     }
 
     @Override

@@ -12,6 +12,7 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableDataValue;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTableProvider;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,9 @@ public class StoreableTableProviderTest {
     private static final String TESTED_TABLE = "MyFavouriteTable";
     private StoreableTableProvider tableProvider;
     private File testedFile = new File(TESTED_DIRECTORY);
-    List<Class<?>> types;
+    private List<Class<?>> types;
+    private static boolean firstThreadFlag = true;
+    private static boolean secondThreadFlag = true;
 
     @Before
     public void setUp() throws Exception {
@@ -98,16 +101,20 @@ public class StoreableTableProviderTest {
     @Test
     public void testDeserialize() throws Exception {
         Table table = tableProvider.createTable(TESTED_TABLE, types);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col>qwerty</col><col>true</col></row>").getIntAt(0).intValue(), 5);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col>qwerty</col><col>true</col></row>").getBooleanAt(2).booleanValue(), true);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col>qwerty</col><col>true</col></row>").getStringAt(1), "qwerty");
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col>qwerty</col><col>true</col></row>").getIntAt(0).intValue(), 5);
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col>qwerty</col><col>true</col></row>").getBooleanAt(2).booleanValue(), true);
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col>qwerty</col><col>true</col></row>").getStringAt(1), "qwerty");
         tableProvider.removeTable(TESTED_TABLE);
     }
 
     @Test(expected = ParseException.class)
     public void testBadDeserialize() throws Exception {
         Table table = tableProvider.createTable(TESTED_TABLE, types);
-        Assert.assertEquals(tableProvider.deserialize(table, "<row><col>5</col><col></col><col>true</col></row>").getIntAt(0).intValue(), 5);
+        Assert.assertEquals(tableProvider.deserialize(table,
+                "<row><col>5</col><col></col><col>true</col></row>").getIntAt(0).intValue(), 5);
     }
 
     @Test
@@ -117,7 +124,8 @@ public class StoreableTableProviderTest {
         storeable.setColumnAt(0, 89);
         storeable.setColumnAt(1, "cat");
         storeable.setColumnAt(2, false);
-        Assert.assertEquals(tableProvider.serialize(table, storeable), "<row><col>89</col><col>cat</col><col>false</col></row>");
+        Assert.assertEquals(tableProvider.serialize(table, storeable),
+                "<row><col>89</col><col>cat</col><col>false</col></row>");
     }
 
     @Test(expected = ColumnFormatException.class)
@@ -177,5 +185,78 @@ public class StoreableTableProviderTest {
         values.add(new String("moo"));
         values.add(new String("true"));
         Storeable storeable = tableProvider.createFor(table, values);
+    }
+
+    @Test
+    public void createSameTableFromDifferentThreads() throws Exception {
+        firstThreadFlag = true;
+        secondThreadFlag = true;
+        Thread firstThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    firstThreadFlag = (tableProvider.createTable(TESTED_TABLE, types) == null);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                }
+            }
+        });
+        Thread secondThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    secondThreadFlag = (tableProvider.createTable(TESTED_TABLE, types) == null);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                }
+            }
+        });
+        firstThread.start();
+        secondThread.start();
+        firstThread.join();
+        secondThread.join();
+        tableProvider.removeTable(TESTED_TABLE);
+        Assert.assertTrue(firstThreadFlag ^ secondThreadFlag);
+    }
+
+    @Test
+    public void removeSameTableFromDifferentThreads() throws Exception {
+        firstThreadFlag = true;
+        secondThreadFlag = true;
+        tableProvider.createTable(TESTED_TABLE, types);
+        Assert.assertTrue(tableProvider.getTable(TESTED_TABLE) != null);
+        Thread firstThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    tableProvider.removeTable(TESTED_TABLE);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                } catch (IllegalArgumentException e) {
+                    firstThreadFlag = false;
+                } catch (IllegalStateException e) {
+                    firstThreadFlag = false;
+                }
+            }
+        });
+        Thread secondThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    tableProvider.removeTable(TESTED_TABLE);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("failed to create table");
+                } catch (IllegalArgumentException e) {
+                    secondThreadFlag = false;
+                } catch (IllegalStateException e) {
+                    secondThreadFlag = false;
+                }
+            }
+        });
+        firstThread.start();
+        secondThread.start();
+        firstThread.join();
+        secondThread.join();
+        Assert.assertTrue(firstThreadFlag ^ secondThreadFlag);
     }
 }
