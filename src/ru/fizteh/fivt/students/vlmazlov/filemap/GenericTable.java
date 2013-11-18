@@ -57,30 +57,14 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        V commitedValue = null;
-        V returnValue = get(key);
+        V returnValue = get(key); 
 
-        getCommitLock.readLock().lock();
-
-        try {
-        	commitedValue = commited.get(key);
-        } finally {
-            getCommitLock.readLock().unlock();
-        }      
-
-        //System.out.println(key + " " + value + " " + commitedValue + " " + returnValue);
-
-        if (value.equals(commitedValue)) {
-        	//putting the same value as in the last commited version
-        	//effectively discards any changes made to it
-        	changed.get().remove(key);
-        } else {
-        	//otherwise, this changes should be applied no matter what
-        	changed.get().put(key, value);
-        }
+        //putting the same value as in the last commited version
+        //effectively discards any changes made to it
+        //anyway, local changes should be applied no matter what
+        changed.get().put(key, value);
 
         //the value put back is no longer deleted
-
         deleted.get().remove(key);
 
         if (autoCommit) {
@@ -220,7 +204,8 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     	getCommitLock.readLock().lock();
 
     	try {
-        	for (Map.Entry<String, V> entry: changed.get().entrySet()) {    		
+        	for (Map.Entry<String, V> entry: changed.get().entrySet()) {    
+        				
 		    	if (!entry.getValue().equals(commited.get(entry.getKey()))) {
 				    ++diffCount;
 				}

@@ -151,65 +151,35 @@ public class StoreableTableParallelTest {
     }
 
     @Test 
-	public void concurrentPutSize() {
-
-		final Thread testThread1 = new Thread() {
-            @Override
-            public void run() {
-                table.put("key1", val1);
-                table.commit();
-            }
-        };
-
-        Thread testThread2 = new Thread() {
-            @Override
-            public void run() {
-            	table.put("key1", val2);
-
-                Assert.assertEquals("two parallel puts coexist", 1, table.size());
-
-                try {
-            	    testThread1.join();
-            	} catch (InterruptedException ex) {}
-
-                table.put("key1", val1);
-
-                Assert.assertEquals("two similar puts not merged", 0, table.commit());
-            }
-        };
-
-        testThread1.start();
-        testThread2.start();
-    }
-
-     @Test 
 	public void concurrentPutCommit() {
 
-		final Thread testThread1 = new Thread() {
+		table.put("key1", val1);
+        table.commit();
+
+        final Thread testThread2 = new Thread() {
             @Override
             public void run() {
-                table.put("key1", val1);
+            	table.put("key1", val2);
                 table.commit();
             }
         };
 
-        Thread testThread2 = new Thread() {
+        final Thread testThread1 = new Thread() {
             @Override
             public void run() {
-            	try {
-            	    testThread1.join();
-            	} catch (InterruptedException ex) {}
-				
-            	table.put("key1", val2);
+                table.put("key1", val1);
 
-                Assert.assertEquals("two parallel puts coexist", 1, table.commit());
+                try {
+            	    testThread2.join();
+            	} catch (InterruptedException ex) {}
+
+                Assert.assertEquals("local change overshadowed", 1, table.commit());
             }
         };
 
         testThread1.start();
         testThread2.start();
     }
-
 
     @Test 
 	public void concurrentPutRollback() {
