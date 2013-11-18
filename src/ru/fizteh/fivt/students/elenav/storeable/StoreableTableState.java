@@ -447,11 +447,12 @@ public class StoreableTableState extends FilesystemState implements Table {
 	} 
 	
 	@Override
-	public String getValue(String key) throws IOException {
+	public String getValue(String key) {
 		try {
 			return Serializer.run(this, get(key));
 		} catch (XMLStreamException e) {
-			throw new IOException("can't serialize "+key+"'s value to get it");
+			System.err.println("can't serialize "+key+"'s value to get it");
+			return null;
 		}
 	}
 
