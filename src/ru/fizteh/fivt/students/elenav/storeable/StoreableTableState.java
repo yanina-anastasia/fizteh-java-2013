@@ -390,12 +390,14 @@ public class StoreableTableState extends FilesystemState implements Table {
 		if (changedKeys.get().containsKey(key)) {
 			return changedKeys.get().get(key);
 		}
+		Storeable result = null;
 		try {
 			lock.readLock().lock();
-			return startMap.get(key);
+			result = startMap.get(key);
 		} finally {
 			lock.readLock().unlock();
 		}
+		return result;
 		
 	} 
 	
