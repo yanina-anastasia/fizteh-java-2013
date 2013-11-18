@@ -68,6 +68,8 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
             getCommitLock.readLock().unlock();
         }      
 
+        //System.out.println(key + " " + value + " " + commitedValue + " " + returnValue);
+
         if (value.equals(commitedValue)) {
         	//putting the same value as in the last commited version
         	//effectively discards any changes made to it
@@ -148,39 +150,26 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     }
 
     public int size() {
-    	int size;
+    	int size = 0;
     	getCommitLock.readLock().lock();
 
     	try {
 	        size = commited.size();
-   		} finally {
+
+	    	for (Map.Entry<String, V> entry: changed.get().entrySet()) {
+			    if (commited.get(entry.getKey()) == null) {
+			    	++size;
+			    }
+		    }
+
+		    for (String entry : deleted.get()) {
+		    	if (commited.get(entry) != null) {
+			        --size;
+		   		}
+		    }
+		} finally {
    			getCommitLock.readLock().unlock();
    		}
-
-    	for (Map.Entry<String, V> entry: changed.get().entrySet()) {
-    		getCommitLock.readLock().lock();
-
-    		try {
-		        if (commited.get(entry.getKey()) == null) {
-		        	++size;
-		        }
-	   		} finally {
-	   			getCommitLock.readLock().unlock();
-	   		}
-	    }
-
-	    for (String entry : deleted.get()) {
-
-	    	getCommitLock.readLock().lock();
-
-	    	try {
-		        if (commited.get(entry) != null) {
-		        	--size;
-		        } 
-	   		} finally {
-	   			getCommitLock.readLock().unlock();
-	   		}
-	    }
 
         return size;
    	}
@@ -230,30 +219,24 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
 
     	int diffCount = 0;
 
-    	for (Map.Entry<String, V> entry: changed.get().entrySet()) {
-    		getCommitLock.readLock().lock();
+    	getCommitLock.readLock().lock();
 
-    		try {
+    	try {
 
-		        if (!entry.getValue().equals(commited.get(entry.getKey()))) {
-		        	++diffCount;
-		        }
-	   		} finally {
-	   			getCommitLock.readLock().unlock();
-	   		}
-	    }
+	    	for (Map.Entry<String, V> entry: changed.get().entrySet()) {    		
+	    		if (!entry.getValue().equals(commited.get(entry.getKey()))) {
+			        ++diffCount;
+			    }
+		    }
 
-	    for (String entry : deleted.get()) {
-	    	getCommitLock.readLock().lock();
-
-	    	try {
-		        if (commited.get(entry) != null) {
-		        	++diffCount;
-		        } 
-	   		} finally {
-	   			getCommitLock.readLock().unlock();
-	   		}
-	    }
+		    for (String entry : deleted.get()) {
+			    if (commited.get(entry) != null) {
+			       	++diffCount; 
+		   		}
+		    }
+		} finally {
+			getCommitLock.readLock().unlock();
+		}
 
         return diffCount;
    	}

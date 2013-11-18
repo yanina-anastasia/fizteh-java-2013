@@ -164,7 +164,6 @@ public class StoreableTableParallelTest {
         Thread testThread2 = new Thread() {
             @Override
             public void run() {
-
             	table.put("key1", val2);
 
                 Assert.assertEquals("two parallel puts coexist", 1, table.size());
@@ -184,7 +183,7 @@ public class StoreableTableParallelTest {
     }
 
      @Test 
-	public void concurrentPutCommit() {
+	public void concurrentPutRollback() {
 
 		table.put("key1", val1);
 		table.commit();
@@ -200,9 +199,13 @@ public class StoreableTableParallelTest {
         Thread testThread2 = new Thread() {
             @Override
             public void run() {
-            	table.put("key1", val2);
+            	try {
+            	    testThread1.join();
+            	} catch (InterruptedException ex) {}
 
-                Assert.assertEquals("diff incorrect", 1, table.rollback());
+            	table.put("key1", val1);
+
+                Assert.assertEquals("diff incorrect", 0, table.rollback());
             }
         };
 
