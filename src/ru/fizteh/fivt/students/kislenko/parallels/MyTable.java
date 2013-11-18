@@ -203,7 +203,8 @@ public class MyTable implements Table {
                 if (fuckingDiff.get().get(key) == null && storage.get(key) != null) {
                     storage.remove(key);
                     ++n;
-                } else if (!provider.serialize(this, fuckingDiff.get().get(key)).equals(provider.serialize(this, storage.get(key)))) {
+                } else if (fuckingDiff.get().containsKey(key) && !provider.serialize(this, fuckingDiff.get().get(key)).
+                        equals(provider.serialize(this, storage.get(key)))) {
                     storage.put(key, fuckingDiff.get().get(key));
                     ++n;
                 }
