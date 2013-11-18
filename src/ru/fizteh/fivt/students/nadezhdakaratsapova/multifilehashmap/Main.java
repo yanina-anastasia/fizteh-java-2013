@@ -13,7 +13,7 @@ public class Main {
         try {
             String dirName = System.getProperty("fizteh.db.dir");
             Shell multiFileHashMap = new Shell();
-            MultiFileTableProviderFactory providerFactory = new MultiFileTableProviderFactory();
+            MultiFileProviderFactory providerFactory = new MultiFileProviderFactory();
             MultiFileHashMapProvider state = providerFactory.create(dirName);
             multiFileHashMap.addCommand(new CommitCommand(state));
             multiFileHashMap.addCommand(new CreateCommand(state));
