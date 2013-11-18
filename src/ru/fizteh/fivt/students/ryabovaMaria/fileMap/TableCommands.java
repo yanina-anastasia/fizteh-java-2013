@@ -240,13 +240,17 @@ public class TableCommands implements Table {
         String fileString = String.valueOf(numOfFile) + ".dat";
         File dbDir = tableDir.toPath().resolve(dirString).normalize().toFile();
         if (!dbDir.isDirectory()) {
-            dbDir.mkdir();
+            if (!dbDir.mkdir()) {
+                throw new IOException("incorrect file");
+            }
         }
         File dbFile = dbDir.toPath().resolve(fileString).normalize().toFile();
         if (list[numOfDir][numOfFile].isEmpty()) {
             dbFile.delete();
             if (dbDir.list().length == 0) {
-                dbDir.delete();
+                if (!dbDir.delete()) {
+                    throw new IOException("incorrect file");
+                }
             }
             return;
         }
