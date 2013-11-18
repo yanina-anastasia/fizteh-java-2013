@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -170,8 +169,8 @@ public class SuperTable<ValueType> {
         try {
             tableKeeper.writeLock ().lock ();
             for (Map.Entry<String, ValueType> entry : diskValues.entrySet ()) {
-                Diff<ValueType> valueFromDisk =  new Diff (entry.getValue (), entry.getValue ());
-                values.put (entry.getKey (),valueFromDisk);
+                Diff<ValueType> valueFromDisk = new Diff (entry.getValue (), entry.getValue ());
+                values.put (entry.getKey (), valueFromDisk);
             }
         }
         finally {
