@@ -84,10 +84,11 @@ public abstract class AbstractTable<KeyType, ValueType> {
             }
         }
         Set<KeyType> addedKeysSet = addedKeys.get().keySet();
+        Set<KeyType> addedKeysForDeletion = new HashSet<>();
         for (KeyType key : addedKeysSet) {
             if (dataBase.containsKey(key)) {
                 if (dataBase.get(key).equals(addedKeys.get().get(key))) {
-                    //addedKeys.get().remove(key);
+                    addedKeysForDeletion.add(key);
                     if (deletedKeys.get().contains(key)) {
                         deletedKeys.get().remove(key);
                     }
@@ -98,6 +99,7 @@ public abstract class AbstractTable<KeyType, ValueType> {
                 }
             }
         }
+        addedKeys.get().keySet().removeAll(addedKeysForDeletion);
         return dataBase.size() + addedKeys.get().size() - deletedKeys.get().size();
     }
 
