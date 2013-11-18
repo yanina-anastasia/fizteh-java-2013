@@ -158,7 +158,10 @@ public class TableCommands implements Table {
             list[numOfDir][numOfFile].put(lastKey, lastValue);
         } catch(Exception e) {
             if (db != null) {
-                db.close();
+                try {
+                    db.close();
+                } catch (Exception ex) {
+                }
             }
             throw new IOException("Incorrect table");
         }
@@ -199,7 +202,7 @@ public class TableCommands implements Table {
         }
         try {
             getUsingDatFile(key);
-            update.put(numberOfDir*16 + numberOfFile, " ");
+            update.put(numberOfDir * 16 + numberOfFile, " ");
             String stringValue = tableProvider.serialize(this, value);
             String lastValue = list[numberOfDir][numberOfFile].put(key, stringValue);
             Storeable answer = tableProvider.deserialize(this, lastValue);
@@ -215,7 +218,7 @@ public class TableCommands implements Table {
             throw new IllegalArgumentException("Bad args");
         }
         getUsingDatFile(key);
-        update.put(numberOfDir*16 + numberOfFile, null);
+        update.put(numberOfDir * 16 + numberOfFile, null);
         String value = list[numberOfDir][numberOfFile].remove(key);
         try {
             return tableProvider.deserialize(this, value);
@@ -285,7 +288,10 @@ public class TableCommands implements Table {
             }
         } catch (Exception e) {
             if (db != null) {
-                db.close();
+                try {
+                    db.close();
+                } catch (Exception ex) {
+                }
             }
             throw new IOException("incorrect file");
         }
