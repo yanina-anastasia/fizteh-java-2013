@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -43,7 +44,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     Set<String> setDirTable;
     FileMap dbData;
     boolean out;
-    volatile HashMap<String, FileMap> mapFileMap = new HashMap<>();
+    volatile ConcurrentHashMap<String, FileMap> mapFileMap = new ConcurrentHashMap<>();
 
     final HashSet allowType = new HashSet(){ {
         add(String.class);

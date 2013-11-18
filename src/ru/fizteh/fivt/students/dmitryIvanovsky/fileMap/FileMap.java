@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
@@ -33,7 +34,7 @@ public class FileMap implements Table {
     private final CommandShell mySystem;
     private final Lock commitLock = new ReentrantLock();
     String nameTable;
-    volatile HashMap<String, Storeable> tableData = new HashMap<>();
+    volatile ConcurrentHashMap<String, Storeable> tableData = new ConcurrentHashMap<>();
     ThreadLocal<Map<String, Storeable>> changeTable = new ThreadLocal<Map<String, Storeable>>() {
         @Override
         protected Map<String, Storeable> initialValue() {
