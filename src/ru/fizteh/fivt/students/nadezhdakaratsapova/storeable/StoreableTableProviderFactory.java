@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.storeable;
 
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
-
 import java.io.File;
 import java.io.IOException;
 
