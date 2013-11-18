@@ -171,7 +171,7 @@ public class Utils {
 	}
 	
 	public static boolean testBadSymbols(String name) {
-		return name.matches("[à-ÿÀ-ßA-Za-z0-9_]*");
+		return name.matches("[\u0430-\u044F\u0410-\u042FA-Za-z0-9_]*");
 	}
 	
 	public static boolean isEmpty(String s) {
