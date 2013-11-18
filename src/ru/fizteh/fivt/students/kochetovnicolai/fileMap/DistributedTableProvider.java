@@ -99,8 +99,8 @@ public class DistributedTableProvider implements TableProvider {
         tables = new HashMap<>();
         tableMembers = new HashMap<>();
         types = new HashMap<>();
-        tablesLock = new ReentrantReadWriteLock();
-        membersLock = new ReentrantReadWriteLock();
+        tablesLock = new ReentrantReadWriteLock(true);
+        membersLock = new ReentrantReadWriteLock(true);
     }
 
     protected TableMember createTableMemberUnsafe(String name) {

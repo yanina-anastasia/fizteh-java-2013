@@ -113,7 +113,7 @@ public class DistributedTable extends FileManager implements Table {
                 filesList[i][j] = new File(directoriesList[i].getPath() + File.separator + j + ".dat");
             }
         }
-        lock = new ReentrantReadWriteLock();
+        lock = new ReentrantReadWriteLock(true);
         cache = new HashMap<>();
         changes = new HashMap<>();
         oldRecordNumber = readTable();
