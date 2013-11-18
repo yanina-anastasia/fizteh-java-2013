@@ -280,7 +280,7 @@ public class Utils {
 		}
 		if(columnTypes.get(columnTypes.size() - 1).endsWith(")")) {
 			String previous = columnTypes.get(columnTypes.size() - 1);
-			columnTypes.set(columnTypes.size() - 1, previous.substring(0, previous.length() - 2));
+			columnTypes.set(columnTypes.size() - 1, previous.substring(0, previous.length() - 1));
 		}
 		
 		return Utils.classTypesFromList(columnTypes);
