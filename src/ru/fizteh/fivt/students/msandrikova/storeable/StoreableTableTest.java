@@ -36,7 +36,7 @@ public class StoreableTableTest {
 	public void setUp() throws Exception {
 		path = new File(System.getProperty("user.home"), "sandbox");
 		clear();
-		new File(path, "tableName").mkdirs();
+		path.mkdirs();
 		List<Class<?>> columnTypes = new ArrayList<Class<?>>();
 		columnTypes.add(Integer.class);
 		columnTypes.add(Boolean.class);

@@ -260,8 +260,13 @@ public class Utils {
 		return answer;
 	}
 	
-	public static List<Class<?>> parseColumnTypes(String types) throws IOException {
-		String[] columnTypes = types.split("[)(,]");
+	public static List<Class<?>> parseColumnTypes(String[] argumentsList) throws IOException {
+		List<String> typesList = new ArrayList<String>();
+		for(int i = 3; i < argumentsList.length - 1; i++) {
+			typesList.add(argumentsList[i]);
+		}
+		String[] columnTypes = null;
+		typesList.toArray(columnTypes);
 		return Utils.classTypesFromArray(columnTypes);
 	}
 	

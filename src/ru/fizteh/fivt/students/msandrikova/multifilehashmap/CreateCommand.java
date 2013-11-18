@@ -19,15 +19,9 @@ public class CreateCommand extends Command {
 			return;
 		}
 		
-		if(shell.getState().isStoreable && argumentsList.length - 2 < 1) {
+		if(shell.getState().isStoreable && argumentsList.length < 5) {
 			Utils.generateAnError("Incorrect arguments amount.", this.getName(), shell.getIsInteractive());
 			return;
-		}
-		
-		if(shell.getState().isStoreable) {
-			for(int i = 3; i < argumentsList.length; ++i) {
-				argumentsList[2] += " " + argumentsList[i];
-			}
 		}
 		
 		Object newTable = null;
@@ -43,7 +37,7 @@ public class CreateCommand extends Command {
 		} else {
 			List<Class<?>> columnTypes = null;
 			try {
-				columnTypes = Utils.parseColumnTypes(argumentsList[2]);
+				columnTypes = Utils.parseColumnTypes(argumentsList);
 			} catch (IOException e1) {
 				System.out.println("wrong type (" + e1.getMessage() + ")");
 				return;

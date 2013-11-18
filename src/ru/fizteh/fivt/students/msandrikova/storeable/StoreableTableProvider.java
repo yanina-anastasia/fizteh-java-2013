@@ -33,8 +33,13 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 			for(File f : dir.listFiles()) {
 				if(f.isDirectory()){
 					ChangesCountingTable newTable = null;
+					List<Class<?>> columnTypes = null;
 					try {
-						List<Class<?>> columnTypes = Utils.getClassTypes(f);
+						columnTypes = Utils.getClassTypes(f);
+					} catch(IOException e) {
+						continue;
+					}
+					try {
 						newTable = new StoreableTable(this.currentDirectory, f.getName(), columnTypes, this);
 					} catch (IOException e) {
 						throw e;
