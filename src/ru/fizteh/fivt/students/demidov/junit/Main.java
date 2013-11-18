@@ -16,7 +16,7 @@ public class Main {
 		TableProviderImplementation provider = null;
 		try {
 			provider = (new TableProviderFactoryImplementation()).create(System.getProperty("fizteh.db.dir"));
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
 		}

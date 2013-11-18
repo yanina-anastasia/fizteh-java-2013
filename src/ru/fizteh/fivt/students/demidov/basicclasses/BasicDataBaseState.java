@@ -25,9 +25,9 @@ public abstract class BasicDataBaseState<ElementType, TableType extends BasicTab
 		}
 		try {
 			provider.removeTable(tableName);
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException.getMessage());
-		} catch(IllegalStateException catchedException) {
+		} catch (IllegalStateException catchedException) {
 			throw new IOException(catchedException.getMessage());
 		}
 	}

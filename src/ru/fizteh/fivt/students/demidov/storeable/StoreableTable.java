@@ -47,7 +47,7 @@ public class StoreableTable extends BasicTable<Storeable> implements Table {
 		
 		try {
 			value.getColumnAt(columnClasses.size());
-		} catch(IndexOutOfBoundsException catchedException) {
+		} catch (IndexOutOfBoundsException catchedException) {
 			return super.put(key, value);
 		}
 		throw new ColumnFormatException("wrong storeable");

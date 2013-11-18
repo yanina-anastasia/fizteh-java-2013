@@ -21,7 +21,7 @@ public class StoreableState extends BasicDataBaseState<Storeable, StoreableTable
 		StoreableTable gotTable = null;
 		try {
 			gotTable = provider.getTable(tableName);
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException);
 		}
 		if (gotTable == null) {
@@ -34,9 +34,9 @@ public class StoreableState extends BasicDataBaseState<Storeable, StoreableTable
 		StoreableTable createdTable = null;
 		try {
 			createdTable = provider.createTable(tableName, columnTypes);		
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException);
-		} catch(IllegalStateException catchedException) {
+		} catch (IllegalStateException catchedException) {
 			throw new IOException(catchedException);
 		}
 		if (createdTable == null) {

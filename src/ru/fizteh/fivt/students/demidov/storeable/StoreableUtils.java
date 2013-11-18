@@ -29,7 +29,8 @@ public class StoreableUtils {
 		}
 
 		arguments[0] = arguments[0].substring(1);
-		arguments[arguments.length - 1] = arguments[arguments.length - 1].substring(0, arguments[arguments.length - 1].length() - 1);
+		arguments[arguments.length - 1] = arguments[arguments.length - 1].substring(0,
+		        arguments[arguments.length - 1].length() - 1);
 
 		List<Class<?>> columnType = new ArrayList<>();
 		for (int column = 0; column < arguments.length; ++column) {
@@ -84,7 +85,8 @@ public class StoreableUtils {
 		return builtString.toString();
 	}
 
-	public static StoreableImplementation deserialize(Table table, String value) throws XMLStreamException, ParseException {
+	public static StoreableImplementation deserialize(Table table, String value)
+	        throws XMLStreamException, ParseException {
 		if (value == null) {
 			return null;
 		}
@@ -101,7 +103,8 @@ public class StoreableUtils {
 			if ((reader.isStartElement()) && (reader.getName().getLocalPart().equals("col"))) {
 				reader.next();
 				if (reader.isCharacters()) {
-					builtStoreable.setColumnAt(column, parseObject(reader.getText(), table.getColumnType(column).getSimpleName()));
+					builtStoreable.setColumnAt(column, parseObject(reader.getText(),
+					        table.getColumnType(column).getSimpleName()));
 				} else {
 					throw new ParseException("", 0);
 				}

@@ -20,7 +20,7 @@ public class DataBaseState extends BasicDataBaseState<String, TableImplementatio
 		TableImplementation gotTable = null;
 		try {
 			gotTable = provider.getTable(tableName);
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException);
 		}
 		if (gotTable == null) {
@@ -33,9 +33,9 @@ public class DataBaseState extends BasicDataBaseState<String, TableImplementatio
 		TableImplementation createdTable = null;
 		try {
 			createdTable = provider.createTable(tableName);		
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException);
-		} catch(IllegalStateException catchedException) {
+		} catch (IllegalStateException catchedException) {
 			throw new IOException(catchedException);
 		}
 		if (createdTable == null) {

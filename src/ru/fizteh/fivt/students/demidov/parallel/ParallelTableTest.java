@@ -63,7 +63,8 @@ public class ParallelTableTest {
 		try {
 			anotherThread.start();
 			anotherThread.join();
-		} catch (InterruptedException catchedException) {}
+		} catch (InterruptedException catchedException) {
+		}
 		
 		Assert.assertEquals("wrong diff", value_1, currentTable.get("key_1"));
 		Assert.assertNull("wrong diff", currentTable.get("key_2"));
@@ -76,7 +77,7 @@ public class ParallelTableTest {
 				currentTable.put("key", value_1);	
 				try {
 					currentTable.commit();
-				} catch(IOException catchedException) {
+				} catch (IOException catchedException) {
 					Assert.fail(catchedException.getMessage());
 				}
 			}
@@ -85,7 +86,8 @@ public class ParallelTableTest {
 		try {
 			anotherThread.start();
 			anotherThread.join();
-		} catch (InterruptedException catchedException) {}
+		} catch (InterruptedException catchedException) {
+		}
 		
 		Assert.assertEquals("unable to get committed value", value_1, currentTable.get("key"));
 		Assert.assertEquals("wrong size", currentTable.size(), 1);

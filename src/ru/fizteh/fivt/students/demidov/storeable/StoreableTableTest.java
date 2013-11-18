@@ -13,7 +13,7 @@ import org.junit.Test;
 public class StoreableTableTest {
 	private StoreableTable currentTable;
 	private StoreableTableProvider currentProvider;
-	private StoreableImplementation value_1, value_2;
+	private StoreableImplementation value1, value2;
 	private List<Class<?>> type;
 	
 	@Before
@@ -39,35 +39,35 @@ public class StoreableTableTest {
 		type = new ArrayList<Class<?>>() {{add(Integer.class); add(Double.class); add(String.class);}};
 		currentTable = currentProvider.createTable("createdTable", type);
 		
-		value_1 = new StoreableImplementation(currentTable);
-		value_2 = new StoreableImplementation(currentTable);
-		value_1.setColumnAt(0, 589);
-		value_1.setColumnAt(1, 3.14);
-		value_1.setColumnAt(2, "just string");
-		value_2.setColumnAt(0, -1204);
-		value_2.setColumnAt(1, 2.71);
-		value_2.setColumnAt(2, "6 a.m.");
+		value1 = new StoreableImplementation(currentTable);
+		value2 = new StoreableImplementation(currentTable);
+		value1.setColumnAt(0, 589);
+		value1.setColumnAt(1, 3.14);
+		value1.setColumnAt(2, "just string");
+		value2.setColumnAt(0, -1204);
+		value2.setColumnAt(1, 2.71);
+		value2.setColumnAt(2, "6 a.m.");
 	}
 
 	//test put
 	@Test
 	public void testPutWithNewKey() {
-		currentTable.put("key_1", value_1);
-		Assert.assertEquals("expected put value", value_1, currentTable.get("key_1"));
+		currentTable.put("key_1", value1);
+		Assert.assertEquals("expected put value", value1, currentTable.get("key_1"));
 	}
 	
 	@Test
 	public void testPutWithOverwriting() {
-		currentTable.put("key_1", value_1);
-		currentTable.put("key_1", value_2);
-		Assert.assertEquals("expected second put value", value_2, currentTable.get("key_1"));
+		currentTable.put("key_1", value1);
+		currentTable.put("key_1", value2);
+		Assert.assertEquals("expected second put value", value2, currentTable.get("key_1"));
 	}
 
 	//test remove
 	@Test
 	public void removeTest() {
-		currentTable.put("key_1", value_1);
-		currentTable.put("key_2", value_2);
+		currentTable.put("key_1", value1);
+		currentTable.put("key_2", value2);
 		currentTable.remove("key_2");
 
 		Assert.assertNull("expected null when get removed value", currentTable.get("key_2"));
@@ -76,15 +76,15 @@ public class StoreableTableTest {
 	//test get
     @Test
 	public void testGet() {
-    	currentTable.put("key_1", value_1);
-    	currentTable.put("key_2", value_1);
+    	currentTable.put("key_1", value1);
+    	currentTable.put("key_2", value1);
     	currentTable.remove("key_1");
     	Assert.assertNotNull("expected value", currentTable.get("key_2"));
 	}
     
 	@Test
 	public void testGetAfterRemove() {
-    	currentTable.put("key_1", value_1);
+    	currentTable.put("key_1", value1);
     	currentTable.remove("key_1");
     	Assert.assertNull("expected null when get removed value", currentTable.get("key_1"));
 	}
@@ -92,9 +92,9 @@ public class StoreableTableTest {
     //name and size checks	
 	@Test
 	public void checkSize() {
-		currentTable.put("key_1", value_1);
-		currentTable.put("key_2", value_1);
-		currentTable.put("key_3", value_1);
+		currentTable.put("key_1", value1);
+		currentTable.put("key_2", value1);
+		currentTable.put("key_3", value1);
 		Assert.assertEquals("Incorrect size", 3, currentTable.size());
 	}
 	
@@ -106,27 +106,27 @@ public class StoreableTableTest {
 	//commit and rollback tests
 	@Test
 	public void testCommit() throws IOException {
-		currentTable.put("key_1", value_1);
-		currentTable.put("key_2", value_2);
+		currentTable.put("key_1", value1);
+		currentTable.put("key_2", value2);
 		currentTable.remove("key_1");
 		Assert.assertEquals("there is only one diff", 1, currentTable.commit());
-		Assert.assertEquals("expected commited put key_2 with value_2", value_2, currentTable.get("key_2"));
+		Assert.assertEquals("expected commited put key_2 with value_2", value2, currentTable.get("key_2"));
 	}
 
 	@Test
 	public void testRollback() throws IOException {
-		currentTable.put("key_1", value_1);
+		currentTable.put("key_1", value1);
 		currentTable.commit();
 		currentTable.remove("key_1");
 		Assert.assertEquals("expected rollback 1 key", 1, currentTable.rollback());
-		Assert.assertEquals("expected rollback remove key_1", value_1, currentTable.get("key_1"));
+		Assert.assertEquals("expected rollback remove key_1", value1, currentTable.get("key_1"));
 	}
 
 	
 	//null parameters
 	@Test(expected = IllegalArgumentException.class)
 	public void putWithNullKey() {
-		currentTable.put(null, value_1);
+		currentTable.put(null, value1);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)

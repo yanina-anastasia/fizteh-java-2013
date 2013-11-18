@@ -132,5 +132,5 @@ public class TableTest {
 	@After
 	public void tearDown() {
 		currentProvider.removeTable("createdTable");
-	}  
-} 
+	}
+}

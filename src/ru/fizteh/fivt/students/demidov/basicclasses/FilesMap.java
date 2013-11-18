@@ -32,7 +32,8 @@ public class FilesMap<ElementType> {
 		
 		if (baseFileMaps.get(baseFileKey) == null) {
 			String fileMapDirectory = directoryPath + File.separator + ndirectory.toString() + ".dir";
-			baseFileMaps.put(baseFileKey, new FileMap<ElementType>(ndirectory, nfile, fileMapDirectory + File.separator + nfile.toString() + ".dat", table));
+			baseFileMaps.put(baseFileKey, new FileMap<ElementType>(ndirectory, nfile,
+			        fileMapDirectory + File.separator + nfile.toString() + ".dat", table));
 		}
 		return baseFileMaps.get(baseFileKey);
 	}
@@ -59,7 +60,8 @@ public class FilesMap<ElementType> {
 				continue;
 			}
 			File subdirectory = new File(directoryPath, subdirectoryName);
-			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir")) || (subdirectory.listFiles().length == 0))) {
+			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir"))
+			        || (subdirectory.listFiles().length == 0))) {
 				throw new IOException("wrong subdirectory " + subdirectory.getPath());
 			} else {
 				for (String baseFileName : subdirectory.list()) {

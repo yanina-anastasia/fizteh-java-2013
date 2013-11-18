@@ -77,4 +77,4 @@ public class TableProviderTest {
 	public void removeTableWithNullParameter() {
 		currentProvider.removeTable(null);
 	}
-} 
+}

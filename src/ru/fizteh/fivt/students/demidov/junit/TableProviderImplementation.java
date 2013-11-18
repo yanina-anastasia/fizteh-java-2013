@@ -25,7 +25,7 @@ public class TableProviderImplementation extends BasicTableProvider<TableImpleme
 			}
 			try {
 				tables.put(name, new TableImplementation(root + File.separator + name, name));
-			} catch(IOException catchedException) {
+			} catch (IOException catchedException) {
 				throw new IllegalStateException(catchedException);
 			}
 		}

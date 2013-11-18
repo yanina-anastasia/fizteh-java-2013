@@ -19,10 +19,10 @@ public class Main {
 		StoreableTableProvider provider = null;
 		try {
 			provider = (new StoreableTableProviderFactory()).create(System.getProperty("fizteh.db.dir"));
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
-		} catch(IOException catchedException) {
+		} catch (IOException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
 		}

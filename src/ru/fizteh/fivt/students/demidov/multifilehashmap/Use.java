@@ -13,5 +13,5 @@ public class Use<ElementType, TableType extends BasicTable<ElementType>> extends
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
 		dataBaseState.use(arguments[0]);
 		usedShell.curShell.getOutStream().println("using " + arguments[0]);
-	}	
+	}
 }

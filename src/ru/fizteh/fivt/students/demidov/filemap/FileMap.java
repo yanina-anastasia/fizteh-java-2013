@@ -92,7 +92,8 @@ public class FileMap<ElementType> {
 			dataBaseFile.seek(readPosition);
 
 			while (readPosition < positionOfValues) {
-				while ((dataBaseFile.getFilePointer() < dataBaseFile.length()) && !(dataBaseFile.readByte() == '\0')) {}
+				while ((dataBaseFile.getFilePointer() < dataBaseFile.length()) && !(dataBaseFile.readByte() == '\0')) {
+				}
 			
 				int nextOffset = dataBaseFile.readInt();
 				if (nextOffset < 0) {

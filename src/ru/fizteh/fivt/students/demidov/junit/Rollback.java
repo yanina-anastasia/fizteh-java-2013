@@ -11,7 +11,7 @@ public class Rollback<ElementType, TableType extends BasicTable<ElementType>> ex
 	public Rollback(BasicDataBaseState<ElementType, TableType> dataBaseState) {
 		super(dataBaseState, "rollback", 0);
 	}	
-	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {    
+	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {
 		usedShell.curShell.getOutStream().println(dataBaseState.getUsedTable().rollback());
 	}	
 }

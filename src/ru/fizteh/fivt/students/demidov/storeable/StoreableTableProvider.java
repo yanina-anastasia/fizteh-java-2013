@@ -54,7 +54,7 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 			
 			try {
 				tables.put(name, new StoreableTable(root + File.separator + name, name, this, columnTypes));
-			} catch(IOException catchedException) {
+			} catch (IOException catchedException) {
 				throw new IllegalStateException(catchedException);
 			}
 		}	
@@ -122,4 +122,3 @@ public class StoreableTableProvider extends BasicTableProvider<StoreableTable> i
 		return null;
 	}
 }
-

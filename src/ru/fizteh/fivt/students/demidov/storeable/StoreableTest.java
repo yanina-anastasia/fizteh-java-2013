@@ -50,37 +50,37 @@ public class StoreableTest {
 
 	//test get from correct column
 	@Test
-	public void GetIntFromColumn() {
+	public void getIntFromColumn() {
 		Assert.assertEquals(value.getIntAt(0), (Integer)(-1204));
 	}
 	
 	@Test
-	public void GetStringFromColumn() {
+	public void getStringFromColumn() {
 		Assert.assertEquals(value.getStringAt(1), "just string");
 	}
 
 	@Test
-	public void GetLongFromColumn() {
+	public void getLongFromColumn() {
 		Assert.assertEquals(value.getLongAt(2), (Long)865123456711L);
 	}
 
 	@Test
-	public void GetByteFromColumn() {
+	public void getByteFromColumn() {
 		Assert.assertEquals(value.getByteAt(3), Byte.valueOf((byte)5));
 	}
 	
 	@Test
-	public void GetBooleanFromColumn() {
+	public void getBooleanFromColumn() {
 		Assert.assertEquals(value.getBooleanAt(4), true);
 	}
 	
 	@Test
-	public void GetFloatFromColumn() {
+	public void getFloatFromColumn() {
 		Assert.assertEquals(value.getFloatAt(5), (Float)2.71f);
 	}
 
 	@Test
-	public void GetDoubleFromColumn() {
+	public void getDoubleFromColumn() {
 		Assert.assertEquals(value.getDoubleAt(6), (Double)3.14);
 	}
 	
@@ -142,4 +142,4 @@ public class StoreableTest {
 	public void checkNonExistingColumn() {
 		value.getColumnAt(100500);
 	}
-} 
+}

@@ -70,4 +70,3 @@ public class StoreableImplementation implements Storeable {
 		return (String)getObjectOfClassAt(columnIndex, String.class);
 	}
 }
-

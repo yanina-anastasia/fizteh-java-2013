@@ -13,9 +13,9 @@ abstract public class BasicTable<ElementType> {
 	private volatile FilesMap<ElementType> filesMap;
 	private String tableName;	
 	private ThreadLocal<HashMap<String, ElementType>> putDiff;
-    private ThreadLocal<HashSet<String>> removeDiff;
-    private ReadWriteLock readWriteLock;
-    
+	private ThreadLocal<HashSet<String>> removeDiff;
+	private ReadWriteLock readWriteLock;
+
 	public BasicTable(String path, String tableName) throws IOException {
 		this.filesMap = new FilesMap<ElementType>(path, this);
 		this.tableName = tableName;
@@ -23,17 +23,16 @@ abstract public class BasicTable<ElementType> {
 		readWriteLock = new ReentrantReadWriteLock(true);
 		
 		putDiff = new ThreadLocal<HashMap<String, ElementType>>() {
-	        protected HashMap<String, ElementType> initialValue() {
-	            return new HashMap<String, ElementType>();
-	        }
-	    };
-	    removeDiff = new ThreadLocal<HashSet<String>>() {
-	        protected HashSet<String> initialValue() {
-	            return new HashSet<String>();
-	        }
-	    };
+		    protected HashMap<String, ElementType> initialValue() {
+		        return new HashMap<String, ElementType>();
+		    }
+		};
+		removeDiff = new ThreadLocal<HashSet<String>>() {
+		    protected HashSet<String> initialValue() {
+		        return new HashSet<String>();
+		        }
+		};
 	}
-	
 	
 	public String getName() {
 		return tableName;
@@ -167,11 +166,9 @@ abstract public class BasicTable<ElementType> {
 		return changesNumber;
 	}
 	
-	
 	public FilesMap<ElementType> getFilesMap() {
 		return filesMap;
 	}
-	
 	
 	public void checkKey(String key) {
 		if ((key == null) || (key.trim().isEmpty())) {
@@ -191,4 +188,3 @@ abstract public class BasicTable<ElementType> {
 	
 	abstract public ElementType deserialize(String value) throws IOException;
 }
-
