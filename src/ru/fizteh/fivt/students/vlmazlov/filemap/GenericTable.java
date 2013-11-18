@@ -205,8 +205,9 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
 
     	try {
         	for (Map.Entry<String, V> entry: changed.get().entrySet()) {    
-        				
-		    	if (!entry.getValue().equals(commited.get(entry.getKey()))) {
+
+		    	if ((commited.get(entry.getKey()) == null) ||
+		    	 (!isValueEqual(entry.getValue(), commited.get(entry.getKey())))) {
 				    ++diffCount;
 				}
 			}
@@ -233,5 +234,10 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
 
     public void finishWriting() {
         writeCommitLock.writeLock().unlock();
+    }
+
+    //both != null
+    protected boolean isValueEqual(V first, V second) {
+    	return first.equals(second);
     }
 }

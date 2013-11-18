@@ -15,7 +15,7 @@ import java.util.ArrayList;
 public class StoreableTableParallelTest {
 	private volatile StoreableTable table;
 	private StoreableTableProvider provider;
-	private Storeable val1, val2, val3, val4;
+	private Storeable val1, val2, val3, val4, val5;
 	private final String root = "StoreableTableTest";
 
 	@Before
@@ -59,6 +59,7 @@ public class StoreableTableParallelTest {
 			val2  = provider.createFor(table, values2);
 			val3  = provider.createFor(table, values3);
 			val4  = provider.createFor(table, values4);
+			val5 = provider.createFor(table, values1);
 
 		} catch (ValidityCheckFailedException ex) {
 			Assert.fail("validity check failed: " + ex.getMessage());
@@ -141,7 +142,7 @@ public class StoreableTableParallelTest {
             	    testThread1.join();
             	} catch (InterruptedException ex) {}
 
-                Assert.assertEquals("local change reflected in another thread", table.get("key1"), null);
+                Assert.assertNull("local change reflected in another thread", table.get("key1"));
  				Assert.assertNull("local change reflected in another thread", table.get("key2"));
             }
         };
@@ -181,26 +182,30 @@ public class StoreableTableParallelTest {
         testThread2.start();
     }
 
-    @Test 
-	public void concurrentPutRollback() {
-		final Thread testThread1 = new Thread() {
+	@Test 
+	public void concurrentRemoveRollback() {
+
+		table.put("key1", val2);
+        table.commit();
+
+        final Thread testThread2 = new Thread() {
             @Override
             public void run() {
-                table.put("key1", val1);
+            	table.put("key1", val5);
                 table.commit();
             }
         };
 
-        Thread testThread2 = new Thread() {
+        final Thread testThread1 = new Thread() {
             @Override
             public void run() {
-            	try {
-            	    testThread1.join();
-            	} catch (InterruptedException ex) {}
-
             	table.put("key1", val1);
 
-                Assert.assertEquals("change doubled", 0, table.rollback());
+            	try {
+            	    testThread2.join();
+            	} catch (InterruptedException ex) {}
+            	
+                Assert.assertEquals("local change doubled from another thread", 0, table.rollback());
             }
         };
 

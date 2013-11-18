@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
     private Map<String, T> tables;
     private final String root;
-    private ReadWriteLock providerLock;
+    protected ReadWriteLock providerLock;
     protected final boolean autoCommit;
 
 	public GenericTableProvider(String root, boolean autoCommit) throws ValidityCheckFailedException {

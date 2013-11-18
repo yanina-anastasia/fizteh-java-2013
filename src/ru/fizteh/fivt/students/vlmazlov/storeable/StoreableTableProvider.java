@@ -190,7 +190,12 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
         ValidityChecker.checkMultiStoreableTableRoot(entry.getValue());
 
-        ProviderWriter.writeMultiTable(entry.getKey(), entry.getValue(), this);
+        providerLock.writeLock().lock();
+        try {
+           ProviderWriter.writeMultiTable(entry.getKey(), entry.getValue(), this);
+        } finally {
+            providerLock.writeLock().unlock();
+        }
       }
     }
 }

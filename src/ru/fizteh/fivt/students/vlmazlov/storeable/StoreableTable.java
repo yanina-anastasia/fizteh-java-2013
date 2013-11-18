@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.vlmazlov.storeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
+import java.io.File;
+import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
 import ru.fizteh.fivt.students.vlmazlov.filemap.GenericTable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
@@ -52,5 +54,24 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
     @Override
 	public StoreableTable clone() {
         return new StoreableTable(getName(), autoCommit, valueTypes);
+    }
+
+    @Override
+    protected boolean isValueEqual(Storeable first, Storeable second) {
+    	File tempDir = FileUtils.createTempDir("writeprovider", null);
+
+		if (tempDir == null) {
+			throw new RuntimeException("Unable to create a temporary directory");
+		}
+
+		StoreableTableProvider tmpProvider = null;
+
+		try {
+			tmpProvider = new StoreableTableProvider(tempDir.getPath(), true);
+		} catch (ValidityCheckFailedException ex) {
+			throw new RuntimeException("Unable to check storeable equality");
+		}
+
+	    return tmpProvider.serialize(this, first).equals(tmpProvider.serialize(this, second));
     }
 }
