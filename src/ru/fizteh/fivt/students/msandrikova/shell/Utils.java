@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
@@ -182,7 +183,7 @@ public class Utils {
 	}
 	
 	
-	public static List<Class<?>> classTypesFromArray(String[] columnTypes) throws IOException {
+	public static List<Class<?>> classTypesFromList(List<String> columnTypes) throws IOException {
 		List<Class<?>> answer = new ArrayList<Class<?>>();
 		for(String columnType : columnTypes) {
 			switch(columnType) {
@@ -227,7 +228,7 @@ public class Utils {
 		String[] columnTypes = reader.nextLine().split("\\s");
 		reader.close();
 		
-		return Utils.classTypesFromArray(columnTypes);
+		return Utils.classTypesFromList(Arrays.asList(columnTypes));
 	}
 	
 	public static List<String> getColumnTypesNames(List<Class<?>> columnTypes) {
@@ -261,13 +262,11 @@ public class Utils {
 	}
 	
 	public static List<Class<?>> parseColumnTypes(String[] argumentsList) throws IOException {
-		List<String> typesList = new ArrayList<String>();
+		List<String> columnTypes = new ArrayList<String>();
 		for(int i = 3; i < argumentsList.length - 1; i++) {
-			typesList.add(argumentsList[i]);
+			columnTypes.add(argumentsList[i]);
 		}
-		String[] columnTypes = null;
-		typesList.toArray(columnTypes);
-		return Utils.classTypesFromArray(columnTypes);
+		return Utils.classTypesFromList(columnTypes);
 	}
 	
 }

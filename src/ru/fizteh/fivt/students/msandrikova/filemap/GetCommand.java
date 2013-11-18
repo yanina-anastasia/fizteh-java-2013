@@ -15,12 +15,16 @@ public class GetCommand extends Command {
 			return;
 		}
 		
-		String key = argumentsList[1];
-		if(shell.getState().currentTable == null && (shell.getState().isMultiFileHashMap || shell.getState().isStoreable)) {
+
+		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
+				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
+		
+		String key = argumentsList[1];
 		String value = null;
+		
 		if(!shell.getState().isStoreable) {
 			value = shell.getState().currentTable.get(key);
 		} else {

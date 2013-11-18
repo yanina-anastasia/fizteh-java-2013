@@ -22,7 +22,7 @@ public class TableRow implements Storeable {
 		if(value != null && !value.getClass().equals(this.columnTypes.get(columnIndex))) {
 			throw new ColumnFormatException("Value's class must be equal to column type");
 		}
-		row.set(columnIndex, value);
+		row.add(columnIndex, value);
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class TableRow implements Storeable {
 		if(columnIndex < 0 || columnIndex >= columnTypes.size()) {
 			throw new IndexOutOfBoundsException("Column index can not be less then 0 and more then types amount.");
 		}
-		if(classType.equals(this.columnTypes.get(columnIndex))) {
+		if(!classType.equals(this.columnTypes.get(columnIndex))) {
 			throw new ColumnFormatException("Requested class must be equal to column type");
 		}
 		return row.get(columnIndex);

@@ -15,14 +15,16 @@ public class RemoveCommand extends Command {
 		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
-		
-		
-		String key = argumentsList[1];
-		if(shell.getState().currentTable == null && (shell.getState().isMultiFileHashMap || shell.getState().isStoreable)) {
+
+		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
+				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
+		
+		String key = argumentsList[1];
 		String oldValue = null;
+		
 		if(!shell.getState().isStoreable) {
 			oldValue = shell.getState().currentTable.remove(key);
 		} else {
