@@ -132,6 +132,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             StorableTableImp table = new StorableTableImp (name, shape, this);
             try {
                 databaseKeeper.writeLock ().lock ();
+                table.setCurrentThreadValues ();
                 tables.put (name, table);
                 Files.createDirectory (location.resolve (name));
                 writeTableSignature (tableDirectory (name), columnTypes);
