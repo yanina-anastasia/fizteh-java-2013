@@ -60,14 +60,9 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
     @Override
     public int commit () {
         isClosedCheck ();
-        try {
-            tableKeeper.writeLock ().lock ();
-            tableProvider.commitTable (this);
-            return super.commit ();
-        }
-        finally {
-            tableKeeper.writeLock ().unlock ();
-        }
+        int commited = super.commit ();
+        tableProvider.commitTable (this);
+        return commited;
     }
 
     @Override
@@ -91,7 +86,7 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
 
     @Override
     public String toString () {
-       return getClass().getSimpleName () + "[" + tableProvider.tableDirectory (name) + "]";
+        return getClass ().getSimpleName () + "[" + tableProvider.tableDirectory (name) + "]";
     }
 
     private void isClosedCheck () {
