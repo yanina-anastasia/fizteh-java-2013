@@ -26,15 +26,15 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 
 	public StoreableTableProvider(File dir) throws IllegalArgumentException, IOException {
 		this.currentDirectory = dir;
-		if(!this.currentDirectory.exists()) {
-			if(!dir.mkdir()) {
+		if (!this.currentDirectory.exists()) {
+			if (!dir.mkdir()) {
 				throw new IOException("Table provider: Can not create working directory.");
 			}
-		} else if(!this.currentDirectory.isDirectory()) {
+		} else if (!this.currentDirectory.isDirectory()) {
 			throw new IllegalArgumentException("Given directory name does not correspond to directory.");
 		} else {
 			for(File f : dir.listFiles()) {
-				if(f.isDirectory()){
+				if (f.isDirectory()){
 					ChangesCountingTable newTable = null;
 					List<Class<?>> columnTypes = null;
 					try {
@@ -51,16 +51,16 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public void removeTable(String name) throws IOException, IllegalStateException, IllegalArgumentException {
-		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
+		if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty");
 		}
 		File tablePath = new File(this.currentDirectory, name);
-		if(tablePath.exists() && !tablePath.isDirectory()) {
+		if (tablePath.exists() && !tablePath.isDirectory()) {
 			throw new IllegalArgumentException("File with name '" + name + "' should be directory.");
 		}
 		
 		lock.writeLock().lock();
-		if(this.mapOfTables.get(name) == null) {
+		if (this.mapOfTables.get(name) == null) {
 			lock.writeLock().unlock();
 			throw new IllegalStateException();
 		}
@@ -84,22 +84,22 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 		} catch (JSONException e) {
 			throw new ParseException(e.getMessage(), 0);
 		}
-		if(valueJSON.length() != table.getColumnsCount()) {
+		if (valueJSON.length() != table.getColumnsCount()) {
 			throw new ParseException("Incorrect column count, expected " + table.getColumnsCount() + ".", 0);
 		}
 		Object o = null;
 		for(int i = 0; i < table.getColumnsCount(); ++i) {
 			o = valueJSON.get(i);
-			if(o.equals(JSONObject.NULL)) {
+			if (o.equals(JSONObject.NULL)) {
 				o = null;
 			}
-			if(o != null && table.getColumnType(i).equals(Long.class) && o.getClass().equals(Integer.class)) {
+			if (o != null && table.getColumnType(i).equals(Long.class) && o.getClass().equals(Integer.class)) {
 				o = Long.parseLong(o.toString());
 			}
-			if(o != null && table.getColumnType(i).equals(Byte.class) && o.getClass().equals(Integer.class)) {
+			if (o != null && table.getColumnType(i).equals(Byte.class) && o.getClass().equals(Integer.class)) {
 				o = Byte.parseByte(o.toString());
 			}
-			if(o != null && table.getColumnType(i).equals(Float.class) && o.getClass().equals(Double.class)) {
+			if (o != null && table.getColumnType(i).equals(Float.class) && o.getClass().equals(Double.class)) {
 				o = Float.parseFloat(o.toString());
 			}
 			try {
@@ -114,24 +114,24 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public String serialize(Table table, Storeable value) throws ColumnFormatException {
-		if(value == null) {
+		if (value == null) {
 			return null;
 		}
 		JSONArray valueJSON = new JSONArray();
 		Object o = null;
 		for(int i = 0; i < table.getColumnsCount(); ++i) {
 			o = value.getColumnAt(i);
-			if(o == null) {
+			if (o == null) {
 				valueJSON.put(JSONObject.NULL);
 				continue;
 			}
-			if(!o.getClass().equals(table.getColumnType(i))) {
+			if (!o.getClass().equals(table.getColumnType(i))) {
 				throw new ColumnFormatException("Incorrect column type.");
 			}
-			if(table.getColumnType(i).equals(Byte.class)) {
+			if (table.getColumnType(i).equals(Byte.class)) {
 				o = Integer.parseInt(o.toString());
 			}
-			if(table.getColumnType(i).equals(Float.class)) {
+			if (table.getColumnType(i).equals(Float.class)) {
 				o = Double.parseDouble(o.toString());
 			}
 			valueJSON.put(o);
@@ -159,11 +159,11 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
-		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
+		if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
 		File tablePath = new File(this.currentDirectory, name);
-		if(tablePath.exists() && !tablePath.isDirectory()) {
+		if (tablePath.exists() && !tablePath.isDirectory()) {
 			throw new IllegalArgumentException("File with name '" + name + "' should be directory.");
 		}
 		lock.readLock().lock();
@@ -174,18 +174,18 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public ChangesCountingTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
-		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
+		if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
-		if(columnTypes == null) {
+		if (columnTypes == null) {
 			throw new IllegalArgumentException("Null column types");
 		}
-		if(!Utils.testColumnTypes(columnTypes)) {
+		if (!Utils.testColumnTypes(columnTypes)) {
 			throw new IllegalArgumentException("Bad column types");
 		}
 		
 		lock.writeLock().lock();
-		if(this.mapOfTables.get(name) != null) {
+		if (this.mapOfTables.get(name) != null) {
 			lock.writeLock().unlock();
 			return null;
 		}

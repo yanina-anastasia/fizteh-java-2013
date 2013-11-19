@@ -21,12 +21,12 @@ public class Utils {
 	}
 	
 	public static void generateAnError(final String description, String commandName, boolean isInteractive) {
-		if(!commandName.equals("")){
+		if (!commandName.equals("")){
 			System.err.println("Error: " + commandName + ": " + description);
 		} else {
 			System.err.println("Error: " + description);
 		}
-		if(!isInteractive) {
+		if (!isInteractive) {
 			System.exit(1);
 		}
 	}
@@ -46,20 +46,20 @@ public class Utils {
 	}
 	
 	public static boolean createFile(File newFile) throws IOException {
-		if(!newFile.getParentFile().exists()) {
+		if (!newFile.getParentFile().exists()) {
 			return false;
 		}
-		if(!newFile.createNewFile()) {
+		if (!newFile.createNewFile()) {
 			return false;
 		}
 		return true;
 	}
 	
 	public static boolean copying(File filePath, File destination, String commandName, boolean isInteractive) throws IOException {
-		if(filePath.isDirectory()) {
+		if (filePath.isDirectory()) {
 			File newDestination = new File(destination + File.separator + filePath.getName());
 			try {
-				if(!newDestination.mkdirs()) {
+				if (!newDestination.mkdirs()) {
 					Utils.generateAnError("Directory with name \"" + filePath.getName() 
 							+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
 					return false;
@@ -76,7 +76,7 @@ public class Utils {
 			}
 		} else {
 			File newFile = new File(destination + File.separator + filePath.getName());
-			if(!Utils.createFile(newFile)) {
+			if (!Utils.createFile(newFile)) {
 				Utils.generateAnError("File with name \"" + filePath.getName() 
 						+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
 			}
@@ -87,7 +87,7 @@ public class Utils {
 	
 	public static boolean copyDirectoriesInSameDirectory (File filePath, File destination, String commandName, boolean isInteractive) throws IOException {
 		try {
-			if(!destination.mkdirs()) {
+			if (!destination.mkdirs()) {
 				Utils.generateAnError("Directory with name \"" + destination.getCanonicalPath() 
 						+ "\" can not be created in directory \"" + destination.getParentFile().getCanonicalPath() + "\"", commandName, isInteractive);
 				return false;
@@ -106,11 +106,11 @@ public class Utils {
 	}
 	
 	public static boolean remover(File filePath, String commandName, boolean isInteractive) throws IOException {
-		if(!filePath.exists()) {
+		if (!filePath.exists()) {
 			Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() + "\" does not exist", commandName, isInteractive);
 			return false;
 		}
-		if(filePath.isDirectory()) {
+		if (filePath.isDirectory()) {
 			File[] listOfFiles;
 			listOfFiles = filePath.listFiles();
 			for(File nextFile : listOfFiles) {
@@ -118,7 +118,7 @@ public class Utils {
 			}
 		}
 		try {
-			if(!filePath.delete()) {
+			if (!filePath.delete()) {
 				Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() + "\" can not be deleted", commandName, isInteractive);
 				return false;
 			}
@@ -134,7 +134,7 @@ public class Utils {
 		StringBuilder sb = new StringBuilder();
 		
 		for(Object o: items) {
-			if(!first) {
+			if (!first) {
 				sb.append(separator);
 			}
 			first = false;
@@ -178,7 +178,7 @@ public class Utils {
 	}
 	
 	public static boolean isEmpty(String s) {
-		if(s == null || s.equals("\n") || s.trim().isEmpty()) {
+		if (s == null || s.equals("\n") || s.trim().isEmpty()) {
 			return true;
 		} else {
 			return false;
@@ -220,11 +220,11 @@ public class Utils {
 	
 	public static List<Class<?>> getClassTypes(File f) throws IOException {
 		File signature = new File(f, "signature.tsv");
-		if(!signature.exists()) {
+		if (!signature.exists()) {
 			throw new IOException("Signature file does not exist.");
 		}
 		Scanner reader = new Scanner(new FileInputStream(signature));
-		if(!reader.hasNextLine()) {
+		if (!reader.hasNextLine()) {
 			reader.close();
 			throw new IOException("Signature file is empty.");
 		}
@@ -267,18 +267,18 @@ public class Utils {
 	public static List<Class<?>> parseColumnTypes(String[] argumentsList) throws IOException {
 		List<String> columnTypes = new ArrayList<String>();
 		for(int i = 2; i < argumentsList.length; i++) {
-			if(argumentsList[i].equals(")") || argumentsList[i].equals("(")) {
+			if (argumentsList[i].equals(")") || argumentsList[i].equals("(")) {
 				continue;
 			}
 			columnTypes.add(argumentsList[i]);
 		}
-		if(columnTypes.isEmpty()) {
+		if (columnTypes.isEmpty()) {
 			throw new IOException("Incorrect arguments amount");
 		}
-		if(columnTypes.get(0).startsWith("(")) {
+		if (columnTypes.get(0).startsWith("(")) {
 			columnTypes.set(0, columnTypes.get(0).substring(1));
 		}
-		if(columnTypes.get(columnTypes.size() - 1).endsWith(")")) {
+		if (columnTypes.get(columnTypes.size() - 1).endsWith(")")) {
 			String previous = columnTypes.get(columnTypes.size() - 1);
 			columnTypes.set(columnTypes.size() - 1, previous.substring(0, previous.length() - 1));
 		}
@@ -296,14 +296,14 @@ public class Utils {
 		permitTypes.add(String.class);
 		permitTypes.add(Boolean.class);
 			
-		if(columnTypes.isEmpty()) {
+		if (columnTypes.isEmpty()) {
 			return false;
 		}
 		for(Class<?> type : columnTypes) {
-			if(type == null) {
+			if (type == null) {
 				return false;
 			}
-			if(!permitTypes.contains(type)) {
+			if (!permitTypes.contains(type)) {
 				return false;
 			}
 		}

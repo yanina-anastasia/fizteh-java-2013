@@ -45,7 +45,7 @@ public class StoreableTable implements ChangesCountingTable {
 		}
 		
 		private void writeInFile(File currentFile, Set<String> keys) throws IOException {
-			if(!currentFile.createNewFile()) {
+			if (!currentFile.createNewFile()) {
 				throw new IOException("Can not create file '" + currentFile.getName() + "'.");
 			}
 			DataOutputStream writer = null;
@@ -68,10 +68,10 @@ public class StoreableTable implements ChangesCountingTable {
 		
 		private void writeSignature() throws IOException {
 			File signature = new File(StoreableTable.this.tablePath, "signature.tsv");
-			if(signature.exists()) {
+			if (signature.exists()) {
 				return;
 			} 
-			if(!signature.createNewFile()) {
+			if (!signature.createNewFile()) {
 				throw new IOException("Can not create 'signature.tsv' file.");
 			}
 			List<String> columnTypesNames = Utils.getColumnTypesNames(StoreableTable.this.columnTypes);
@@ -80,7 +80,7 @@ public class StoreableTable implements ChangesCountingTable {
 				writer = new BufferedWriter(new FileWriter(signature));
 				for(int i = 0; i < StoreableTable.this.getColumnsCount(); ++i) {
 					writer.write(columnTypesNames.get(i));
-					if(i != StoreableTable.this.getColumnsCount() - 1) {
+					if (i != StoreableTable.this.getColumnsCount() - 1) {
 						writer.write(" ");
 					}
 				}
@@ -94,7 +94,7 @@ public class StoreableTable implements ChangesCountingTable {
 			File directory;
 			for(int i = 0; i < MAX_DIRECTORIES_AMOUNT; ++i) {
 				directory = new File(tablePath, i + ".dir");
-				if(!directory.exists()) {
+				if (!directory.exists()) {
 					continue;
 				}
 				try {
@@ -121,11 +121,11 @@ public class StoreableTable implements ChangesCountingTable {
 			for(int i = 0; i < StoreableTable.this.MAX_DIRECTORIES_AMOUNT; ++i) {
 				directory = new File(StoreableTable.this.tablePath, i + ".dir");
 				for(int j = 0; j < StoreableTable.this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
-					if(keysDueTheirHash.get(i).get(j).size() == 0) {
+					if (keysDueTheirHash.get(i).get(j).size() == 0) {
 						continue;
 					}
-					if(!directory.exists()) {
-						if(!directory.mkdir()) {
+					if (!directory.exists()) {
+						if (!directory.mkdir()) {
 							throw new IOException("Can not create directory '" + i + ".dir'.");
 						}
 					}
@@ -174,54 +174,54 @@ public class StoreableTable implements ChangesCountingTable {
 		}
 		
 		public String getName() throws IllegalStateException {
-			if(StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
+			if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
 				throw new IllegalStateException("Table was removed.");
 			}
 			return StoreableTable.this.name;
 		}
 		
 		public Storeable get(String key) throws IllegalArgumentException, IllegalStateException {
-			if(StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
+			if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
 				throw new IllegalStateException("Table was removed.");
 			}
-			if(Utils.isEmpty(key)) {
+			if (Utils.isEmpty(key)) {
 				throw new IllegalArgumentException("Key can not be null");
 			}
 			return this.newDatabase.get(key);
 		}
 			
 		public Storeable put(String key, Storeable value) throws IllegalArgumentException, IllegalStateException {
-			if(StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
+			if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
 				throw new IllegalStateException("Table was removed.");
 			}
-			if(Utils.isEmpty(key) || value == null || P.matcher(key).find()) {
+			if (Utils.isEmpty(key) || value == null || P.matcher(key).find()) {
 				throw new IllegalArgumentException("Key and name can not be null or newline and key can not contain whitespace");
 			}
-			if(!this.checkColumnTypes(value)) {
+			if (!this.checkColumnTypes(value)) {
 				throw new ColumnFormatException("Incorrent column types in given storeable.");
 			}
 			return this.newDatabase.put(key, value);
 		}
 		
 		public Storeable remove(String key) throws IllegalArgumentException, IllegalStateException {
-			if(StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
+			if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
 				throw new IllegalStateException("Table was removed.");
 			}
-			if(Utils.isEmpty(key)) {
+			if (Utils.isEmpty(key)) {
 				throw new IllegalArgumentException("Key can not be null");
 			}
 			return this.newDatabase.remove(key);
 		}
 		
 		public int size() throws IllegalStateException {
-			if(StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
+			if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
 				throw new IllegalStateException("Table was removed.");
 			}
 			return this.newDatabase.size();
 		}
 		
 		public int commit() throws IOException, IllegalStateException {
-			if(StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
+			if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
 				throw new IllegalStateException("Table was removed.");
 			}
 			int changesCount = this.unsavedChangesCount();
@@ -232,7 +232,7 @@ public class StoreableTable implements ChangesCountingTable {
 		}
 		
 		public int rollback() throws IllegalStateException {
-			if(StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
+			if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
 				throw new IllegalStateException("Table was removed.");
 			}
 			int changesCount = this.unsavedChangesCount();
@@ -249,9 +249,9 @@ public class StoreableTable implements ChangesCountingTable {
 		for(String key : StoreableTable.this.originalDatabase.keySet()) {
 			originalValue = StoreableTable.this.originalDatabase.get(key);
 			newValue = this.newDatabase.get(key);
-			if(newValue != null) {
+			if (newValue != null) {
 				++intersectionSize;
-				if(!newValue.equals(originalValue)) {
+				if (!newValue.equals(originalValue)) {
 					++changesCount;
 				}
 			}
@@ -266,7 +266,7 @@ public class StoreableTable implements ChangesCountingTable {
 	
 	
 	private boolean checkHash(int directory, int database, String key) {
-		if(directory != Utils.getNDirectory(key) || database != Utils.getNFile(key)) {
+		if (directory != Utils.getNDirectory(key) || database != Utils.getNFile(key)) {
 			return false;
 		}
 		return true;
@@ -274,11 +274,11 @@ public class StoreableTable implements ChangesCountingTable {
 	
 	private void readFile(int directory, int database) throws IOException {
 		File currentFile = new File(this.tablePath, directory + ".dir");
-		if(!currentFile.isDirectory()) {
+		if (!currentFile.isDirectory()) {
 			throw new IOException("File '" + directory + ".dir' must be directory.");
 		}
 		currentFile = new File(currentFile, database + ".dat");
-		if(!currentFile.isFile()) {
+		if (!currentFile.isFile()) {
 			throw new IOException("File '" + database + ".dat' in directory '" + directory + ".dir' can not be be directory.");
 		}
 		
@@ -294,18 +294,18 @@ public class StoreableTable implements ChangesCountingTable {
 				try {
 					keyLength = reader.readInt();
 				} catch(EOFException e) {
-					if(count == 0) {
+					if (count == 0) {
 						throw new IOException("empty dat");
 					}
 					break;
 				}
 					++count;
-					if(keyLength <= 0 || keyLength >= 1000*1000) {
+					if (keyLength <= 0 || keyLength >= 1000*1000) {
 						throw new IOException("reader: Invalid key length.");
 					}
 					
 					valueLength = reader.readInt();
-					if(valueLength <= 0 || valueLength >= 1000*1000) {
+					if (valueLength <= 0 || valueLength >= 1000*1000) {
 						throw new IOException("reader: Invalid value length.");
 					}
 					
@@ -317,7 +317,7 @@ public class StoreableTable implements ChangesCountingTable {
 					reader.read(valueByteArray, 0, valueLength);
 					value = new String(valueByteArray);
 					
-					if(!this.checkHash(directory, database, key)) {
+					if (!this.checkHash(directory, database, key)) {
 						throw new IOException("Key " + key + " can not be in '" +
 								directory + ".dir/" + database + ".dat'.");
 					}
@@ -328,7 +328,7 @@ public class StoreableTable implements ChangesCountingTable {
 						throw new IOException(e.getMessage());
 					}
 					
-					if(this.originalDatabase.size() >= this.MAX_TABLE_SIZE) {
+					if (this.originalDatabase.size() >= this.MAX_TABLE_SIZE) {
 						throw new IOException("Table '" + this.name + "' is overly big.");
 					}
 				
@@ -344,27 +344,27 @@ public class StoreableTable implements ChangesCountingTable {
 		this.tableProvider = tableProvider;
 		this.columnTypes = columnTypes;
 		this.tablePath = new File(dir, name);
-		if(!this.tablePath.exists()) {
-			if(!this.tablePath.mkdir()) {
+		if (!this.tablePath.exists()) {
+			if (!this.tablePath.mkdir()) {
 				throw new IOException("Can not create directory for table " + this.name);
 			}
 		} else {
 			int i;
 			for(i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
 				File directory = new File(this.tablePath, i + ".dir");
-				if(!directory.exists()) {
+				if (!directory.exists()) {
 					continue;
 				}
 				int count = 0;
 				for(int j = 0; j < this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
 					File currentFile = new File(directory, j + ".dat");
-					if(!currentFile.exists()) {
+					if (!currentFile.exists()) {
 						continue;
 					}
 					++count;
 					this.readFile(i, j);
 				}
-				if(count == 0) {
+				if (count == 0) {
 					throw new IOException("empty dir");
 				}
 			}
@@ -489,7 +489,7 @@ public class StoreableTable implements ChangesCountingTable {
 		lock.readLock().lock();
 		Class<?> answer = null;
 		
-		if(columnIndex < 0 || columnIndex >= this.getColumnsCount()) {
+		if (columnIndex < 0 || columnIndex >= this.getColumnsCount()) {
 			lock.readLock().unlock();
 			throw new IndexOutOfBoundsException("Column index can not be less then 0 and more then types amount.");
 		}

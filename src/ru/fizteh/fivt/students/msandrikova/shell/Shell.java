@@ -57,10 +57,10 @@ public class Shell {
 		for(String instruction : instructionsList){
 			this.currentInstruction = instruction;
 			argumentsList = Utils.parseOfInstruction(instruction);
-			if(argumentsList[0].equals("")){
+			if (argumentsList[0].equals("")){
 				continue;
 			}
-			if(this.commandsList.containsKey(argumentsList[0])) {
+			if (this.commandsList.containsKey(argumentsList[0])) {
 				this.commandsList.get(argumentsList[0]).execute(argumentsList, this);
 			} else {
 				Utils.generateAnError("Illegal command's name: \"" + argumentsList[0] + "\"", "", isInteractive);
@@ -71,7 +71,7 @@ public class Shell {
 	
 	public Shell(Command[] commands, String currentDirectory) {
 		this.currentDirectory = new File(currentDirectory).getAbsoluteFile();
-		if(!this.currentDirectory.exists()) {
+		if (!this.currentDirectory.exists()) {
 			Utils.generateAnError("Given directory does not exist", "shell", false);
 		}
 		this.InitMap(commands);
@@ -79,7 +79,7 @@ public class Shell {
 	
 	public void execute(String[] args) {
 		String instructionLine = new String();
-		if(args.length == 0) {
+		if (args.length == 0) {
 			this.isInteractive = true;
 			Scanner scanner = new Scanner(System.in);
 			

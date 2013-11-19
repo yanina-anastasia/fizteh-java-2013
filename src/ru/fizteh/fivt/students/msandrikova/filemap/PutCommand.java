@@ -15,18 +15,18 @@ public class PutCommand extends Command {
 
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!shell.getState().isStoreable && !super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if (!shell.getState().isStoreable && !super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
-		if(shell.getState().isStoreable && argumentsList.length < 3) {
+		if (shell.getState().isStoreable && argumentsList.length < 3) {
 			Utils.generateAnError("Incorrect arguments amount.", this.getName(), shell.getIsInteractive());
 			return;
 		}
 		String key = argumentsList[1];
 		String JSONArgument = null;
 		
-		if(shell.getState().isStoreable) {
+		if (shell.getState().isStoreable) {
 			JSONArgument = shell.getCurrentInstruction().trim().substring(3).trim();
 			JSONArgument = JSONArgument.substring(key.length()).trim();
 			argumentsList[2] = JSONArgument;
@@ -35,12 +35,12 @@ public class PutCommand extends Command {
 		
 		String value = argumentsList[2];
 		
-		if(!Utils.testUTFSize(key) || !Utils.testUTFSize(value)) {
+		if (!Utils.testUTFSize(key) || !Utils.testUTFSize(value)) {
 			Utils.generateAnError("Key and value can not be grater than 1 MB.", this.getName(), shell.getIsInteractive());
 			return;
 		}
 		
-		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
+		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
 				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
@@ -48,7 +48,7 @@ public class PutCommand extends Command {
 		
 		String oldValue = null;
 		
-		if(!shell.getState().isStoreable) {
+		if (!shell.getState().isStoreable) {
 			oldValue = shell.getState().currentTable.put(key, value);
 		} else {
 			Storeable storeableValue = null;
@@ -67,7 +67,7 @@ public class PutCommand extends Command {
 			}
 		}
 
-		if(oldValue == null) {
+		if (oldValue == null) {
 			System.out.println("new");
 		} else {
 			System.out.println("overwrite");
