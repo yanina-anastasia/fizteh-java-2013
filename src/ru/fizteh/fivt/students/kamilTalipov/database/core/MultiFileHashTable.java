@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MultiFileHashTable implements Table {
     private final HashMap<String, Storeable> table;
-    private final ThreadLocal<HashMap<String, Storeable>> newValues;
+    private ThreadLocal<HashMap<String, Storeable>> newValues;
 
     private final ArrayList<Class<?>> types;
 
@@ -113,9 +113,6 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        if (readLock == null) {
-            throw new IllegalStateException("NULL!!!!");
-        }
         readLock.lock();
         try {
             checkState();
@@ -127,16 +124,10 @@ public class MultiFileHashTable implements Table {
                 throw new IllegalArgumentException("Key must be not empty");
             }
 
-            if (newValues == null || newValues.get() == null) {
-                throw new IllegalStateException("NULL!!!");
-            }
             if (newValues.get().containsKey(key)) {
                 return newValues.get().get(key);
             }
 
-            if (table == null) {
-                throw new IllegalStateException("NULL!");
-            }
             return table.get(key);
         } finally {
             readLock.unlock();
