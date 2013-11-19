@@ -20,7 +20,12 @@ public class MyTableProvider implements TableProvider {
     public MyTableProvider(String dir) throws RuntimeException, IOException {
         workingDirectory = dir;
         currTable = null;
-        multiFileMap = new HashMap<>();
+        multiFileMap = new ThreadLocal<HashMap<String, MyTable>>() {
+            @Override
+            public HashMap<String, MyTable> initialValue() {
+                return new HashMap<>();
+            }
+        };
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
         readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
@@ -30,7 +35,7 @@ public class MyTableProvider implements TableProvider {
 
     private String workingDirectory;
     private String currTable;
-    private HashMap<String, MyTable> multiFileMap;
+    private ThreadLocal<HashMap<String, MyTable>> multiFileMap;
     private HashMap<Class<?>, String> typeToString;
     private Lock readLock;
     private Lock writeLock;
@@ -51,7 +56,7 @@ public class MyTableProvider implements TableProvider {
     }
 
     public int getSize() throws IndexOutOfBoundsException {
-        return multiFileMap.get(currTable).size();
+        return multiFileMap.get().get(currTable).size();
     }
 
     public int changeCurrentTable(String newTable) {
@@ -101,7 +106,7 @@ public class MyTableProvider implements TableProvider {
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
-                    multiFileMap.put(table, newTable);
+                    multiFileMap.get().put(table, newTable);
                 }
                 for (String table : tables) {  /* CLEANING */
                     if (new File(workingDirectory + File.separator + table).isFile()) {
@@ -115,7 +120,7 @@ public class MyTableProvider implements TableProvider {
                     if (!(new File(workingDirectory, table)).mkdir()) {
                         throw new IOException("exit: can't make " + table + " directory");
                     }
-                    List<Class<?>> temp = multiFileMap.get(table).getTypeArray();
+                    List<Class<?>> temp = multiFileMap.get().get(table).getTypeArray();
                     writeTypesInFile(table, temp);
                 }
             }
@@ -138,10 +143,10 @@ public class MyTableProvider implements TableProvider {
 
 
     public void writeAll() throws IOException {
-        if (multiFileMap == null || multiFileMap.isEmpty()) {
+        if (multiFileMap == null || multiFileMap.get().isEmpty()) {
             return;
         }
-        Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
+        Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.get().entrySet();
         for (Map.Entry<String, MyTable> currItem : fileSet) {
             MyTable value = currItem.getValue();
             value.clearTable();
@@ -156,7 +161,7 @@ public class MyTableProvider implements TableProvider {
         }
         readLock.lock();
         try {
-            return multiFileMap.get(tableName);
+            return multiFileMap.get().get(tableName);
         } finally {
             readLock.unlock();
         }
@@ -170,7 +175,7 @@ public class MyTableProvider implements TableProvider {
         File newTable = new File(workingDirectory, tableName);
         readLock.lock();
         try {
-            if (multiFileMap.containsKey(tableName)) {
+            if (multiFileMap.get().containsKey(tableName)) {
                 return null;
             }
         } finally {
@@ -183,7 +188,7 @@ public class MyTableProvider implements TableProvider {
         try {
             writeTypesInFile(tableName, types);
             MyTable table = new MyTable(newTable, this);
-            multiFileMap.put(tableName, table);
+            multiFileMap.get().put(tableName, table);
             return table;
         } finally {
             writeLock.unlock();
@@ -195,12 +200,12 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
-        if (!multiFileMap.containsKey(tableName)) {
+        if (!multiFileMap.get().containsKey(tableName)) {
             throw new IllegalStateException(tableName + " not exists");
         } else {
             writeLock.lock();
             try {
-                multiFileMap.remove(tableName);
+                multiFileMap.get().remove(tableName);
                 Remove shell = new Remove();
                 ArrayList<String> myArgs = new ArrayList<>();
                 myArgs.add(workingDirectory + File.separator + tableName);
@@ -230,9 +235,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        multiFileMap.get(table.getName()).checkingValueForValid(value);
+        multiFileMap.get().get(table.getName()).checkingValueForValid(value);
         ArrayList<Object> temp = new ArrayList<>();
-        for (int i = 0; i < multiFileMap.get(table.getName()).getColumnsCount(); ++i) {
+        for (int i = 0; i < multiFileMap.get().get(table.getName()).getColumnsCount(); ++i) {
             temp.add(value.getColumnAt(i));
         }
         JSONArray jArr = new JSONArray(temp);
