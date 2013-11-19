@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.vyatkina.database.storable;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.vyatkina.WrappedIOException;
 import ru.fizteh.fivt.students.vyatkina.database.StorableTable;
 import ru.fizteh.fivt.students.vyatkina.database.superior.DatabaseUtils;
 import ru.fizteh.fivt.students.vyatkina.database.superior.Diff;
@@ -95,7 +96,7 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
     } */
 
     @Override
-    public int commit () throws IOException {
+    public int commit ()  {
         isClosedCheck ();
         Map<Path, List<DatabaseUtils.KeyValue>> databaseChanges = new HashMap<> ();
         Path tableLocation = tableProvider.tableDirectory (name);
@@ -123,6 +124,9 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
             }
             TableProviderUtils.writeTable (databaseChanges);
             return super.commit ();
+        }
+        catch (IOException e) {
+            throw new WrappedIOException (e);
         }
         finally {
             tableProvider.databaseKeeper.writeLock ().unlock ();
