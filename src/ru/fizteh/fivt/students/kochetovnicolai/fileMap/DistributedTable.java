@@ -282,7 +282,11 @@ public class DistributedTable extends FileManager implements Table {
         if (value == null) {
             throw new IllegalArgumentException("invalid value");
         }
-        TableRecord.checkStoreableTypes(value, types);
+        try {
+            TableRecord.checkStoreableTypes(value, types);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ColumnFormatException(e);
+        }
         Storeable old = get(key);
         changes.get().put(key, value);
         return old;
