@@ -127,10 +127,16 @@ public class MultiFileHashTable implements Table {
                 throw new IllegalArgumentException("Key must be not empty");
             }
 
+            if(newValues == null) {
+                throw new IllegalStateException("NULL!!!");
+            }
             if (newValues.get().containsKey(key)) {
                 return newValues.get().get(key);
             }
 
+            if(table == null) {
+                throw new IllegalStateException("NULL!");
+            }
             return table.get(key);
         } finally {
             readLock.unlock();
