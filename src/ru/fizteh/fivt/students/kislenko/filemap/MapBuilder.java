@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class MapBuilder {
-    private final long maxFileSize = 100000000;
+    private static final long MAX_FILE_SIZE = 100000000;
 
     public void buildMap(FilemapState state) throws IOException {
         File dbCreator = state.getPath().toFile();
@@ -15,7 +15,7 @@ public class MapBuilder {
             dbCreator.createNewFile();
         }
         RandomAccessFile database = new RandomAccessFile(state.getPath().toFile(), "r");
-        if (database.length() > maxFileSize) {
+        if (database.length() > MAX_FILE_SIZE) {
             database.close();
             throw new IOException("Too big database file.");
         }
@@ -51,7 +51,7 @@ public class MapBuilder {
         database.setLength(0);
         Set<String> keySet = state.getMap().keySet();
         for (String key : keySet) {
-            if (database.getFilePointer() > maxFileSize) {
+            if (database.getFilePointer() > MAX_FILE_SIZE) {
                 database.close();
                 throw new IOException("Too big database file.");
             }
