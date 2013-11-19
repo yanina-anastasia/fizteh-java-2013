@@ -66,31 +66,7 @@ public class StoreableTable implements ChangesCountingTable {
             }
         }
         
-        private void writeSignature() throws IOException {
-            File signature = new File(StoreableTable.this.tablePath, "signature.tsv");
-            if (signature.exists()) {
-                return;
-            } 
-            if (!signature.createNewFile()) {
-                throw new IOException("Can not create 'signature.tsv' file.");
-            }
-            List<String> columnTypesNames = Utils.getColumnTypesNames(StoreableTable.this.columnTypes);
-            BufferedWriter writer = null;
-            try {
-                writer = new BufferedWriter(new FileWriter(signature));
-                for (int i = 0; i < StoreableTable.this.getColumnsCount(); ++i) {
-                    writer.write(columnTypesNames.get(i));
-                    if (i != StoreableTable.this.getColumnsCount() - 1) {
-                        writer.write(" ");
-                    }
-                }
-            } finally {
-                writer.close();
-            }
-        }
-        
         private void write() throws IOException {
-            this.writeSignature();
             File directory;
             for (int i = 0; i < MAX_DIRECTORIES_AMOUNT; ++i) {
                 directory = new File(tablePath, i + ".dir");
@@ -267,8 +243,6 @@ public class StoreableTable implements ChangesCountingTable {
     }
     
     private ThreadLocal<TransactionHolder> transaction;
-        
-    
     
     private boolean checkHash(int directory, int database, String key) {
         if (directory != Utils.getNDirectory(key) || database != Utils.getNFile(key)) {
@@ -345,6 +319,29 @@ public class StoreableTable implements ChangesCountingTable {
         
     }
     
+    private void writeSignature() throws IOException {
+        File signature = new File(StoreableTable.this.tablePath, "signature.tsv");
+        if (signature.exists()) {
+            return;
+        } 
+        if (!signature.createNewFile()) {
+            throw new IOException("Can not create 'signature.tsv' file.");
+        }
+        List<String> columnTypesNames = Utils.getColumnTypesNames(StoreableTable.this.columnTypes);
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(signature));
+            for (int i = 0; i < StoreableTable.this.getColumnsCount(); ++i) {
+                writer.write(columnTypesNames.get(i));
+                if (i != StoreableTable.this.getColumnsCount() - 1) {
+                    writer.write(" ");
+                }
+            }
+        } finally {
+            writer.close();
+        }
+    }
+    
     public StoreableTable(File dir, String name, List<Class<?>> columnTypes, 
             TableProvider tableProvider) throws IOException {
         this.name = name;
@@ -355,6 +352,7 @@ public class StoreableTable implements ChangesCountingTable {
             if (!this.tablePath.mkdir()) {
                 throw new IOException("Can not create directory for table " + this.name);
             }
+            this.writeSignature();
         } else {
             int i;
             for (i = 0; i < StoreableTable.MAX_DIRECTORIES_AMOUNT; ++i) {
