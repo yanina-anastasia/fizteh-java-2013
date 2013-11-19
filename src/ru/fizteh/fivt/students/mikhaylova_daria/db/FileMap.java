@@ -50,15 +50,7 @@ public class FileMap {
         if (value == null) {
             throw new IllegalArgumentException("value is null");
         }
-        if (fileMapNewValue.get() == null) {
-            fileMapNewValue.set(new HashMap<String, Storeable>());
-        }
-        if (fileMapRemoveKey.get() == null) {
-            fileMapRemoveKey.set(new HashSet<String>());
-        }
-        if (table == null) {
-            throw new IllegalArgumentException("Table is null");
-        }
+        initialMap();
         try {
             table.manager.serialize(table, value);
         } catch (Exception e) {
@@ -76,6 +68,8 @@ public class FileMap {
 
         if (fileMapRemoveKey.get().contains(key)) {
             fileMapRemoveKey.get().remove(key);
+            fileMapNewValue.get().put(key, value);
+            return null;
         }
         if ((!fileMapInitial.containsKey(key)) || fileMapNewValue.get().containsKey(key)) {
             return fileMapNewValue.get().put(key, value);
