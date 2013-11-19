@@ -64,8 +64,8 @@ public class DataBaseMap {
         return map;
     }
 
-    public void commit(Map<String, Storeable> _newMap, Set<String> _removed) {
-        for (final String removed: _removed.toArray(new String[0])) {
+    public void commit(Map<String, Storeable> _newMap, Map<String, Boolean> _removed) {
+        for (final String removed: _removed.keySet()) {
             map.remove(removed);
         }
         for (final String added: _newMap.keySet()) {

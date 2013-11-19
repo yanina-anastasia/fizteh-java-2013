@@ -44,11 +44,11 @@ public class DataBase implements Table {
 
     private class Transaction {
         private Map<String, Storeable> transactionMap = null;
-        private Set<String> removedMap = null;
+        private Map<String, Boolean> removedMap = null;
 
         public Transaction() {
             transactionMap = new HashMap<String, Storeable>();
-            removedMap = new HashSet<String>();
+            removedMap = new HashMap<String, Boolean>();
         }
 
         public Storeable put(String key, Storeable value) {
@@ -60,7 +60,7 @@ public class DataBase implements Table {
                 returnValue = map.get(key);
             }
             transactionMap.put(key, value);
-            if (removedMap.contains(key)) {
+            if (removedMap.containsKey(key)) {
                 removedMap.remove(key);
             }
             return returnValue;
@@ -77,9 +77,10 @@ public class DataBase implements Table {
             Storeable removedValue = null;
             if (transactionMap.containsKey(key)) {
                 removedValue = transactionMap.get(key);
+                transactionMap.remove(key);
             } else if (map.getMap().containsKey(key)) {
                 removedValue = map.getMap().get(key);
-                removedMap.add(key);
+                removedMap.put(key, true);
             }
             return removedValue;
         }
