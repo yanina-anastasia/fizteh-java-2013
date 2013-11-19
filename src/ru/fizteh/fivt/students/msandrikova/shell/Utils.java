@@ -55,18 +55,21 @@ public class Utils {
 		return true;
 	}
 	
-	public static boolean copying(File filePath, File destination, String commandName, boolean isInteractive) throws IOException {
+	public static boolean copying(File filePath, File destination, String commandName, boolean isInteractive)
+			throws IOException {
 		if (filePath.isDirectory()) {
 			File newDestination = new File(destination + File.separator + filePath.getName());
 			try {
 				if (!newDestination.mkdirs()) {
 					Utils.generateAnError("Directory with name \"" + filePath.getName() 
-							+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
+							+ "\" can not be created in directory \"" 
+							+ destination.getCanonicalPath() + "\"", commandName, isInteractive);
 					return false;
 				};
 			} catch (SecurityException e) {
 				Utils.generateAnError("Directory with name \"" + filePath.getName() 
-						+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
+						+ "\" can not be created in directory \"" + destination.getCanonicalPath() 
+						+ "\"", commandName, isInteractive);
 				return false;
 			}
 			File[] listOfFiles;
@@ -78,23 +81,27 @@ public class Utils {
 			File newFile = new File(destination + File.separator + filePath.getName());
 			if (!Utils.createFile(newFile)) {
 				Utils.generateAnError("File with name \"" + filePath.getName() 
-						+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
+						+ "\" can not be created in directory \"" + destination.getCanonicalPath() 
+						+ "\"", commandName, isInteractive);
 			}
 			Utils.copyFiles(filePath, newFile);
 		}
 		return true;
 	}
 	
-	public static boolean copyDirectoriesInSameDirectory (File filePath, File destination, String commandName, boolean isInteractive) throws IOException {
+	public static boolean copyDirectoriesInSameDirectory (File filePath, File destination, 
+			String commandName, boolean isInteractive) throws IOException {
 		try {
 			if (!destination.mkdirs()) {
 				Utils.generateAnError("Directory with name \"" + destination.getCanonicalPath() 
-						+ "\" can not be created in directory \"" + destination.getParentFile().getCanonicalPath() + "\"", commandName, isInteractive);
+						+ "\" can not be created in directory \"" + destination.getParentFile().getCanonicalPath() 
+						+ "\"", commandName, isInteractive);
 				return false;
 			}
 		} catch (SecurityException e) {
 			Utils.generateAnError("Directory with name \"" + filePath.getName() 
-					+ "\" can not be created in directory \"" + destination.getCanonicalPath() + "\"", commandName, isInteractive);
+					+ "\" can not be created in directory \"" + destination.getCanonicalPath() 
+					+ "\"", commandName, isInteractive);
 			return false;
 		}
 		File[] listOfFiles;
@@ -105,9 +112,11 @@ public class Utils {
 		return true;
 	}
 	
-	public static boolean remover(File filePath, String commandName, boolean isInteractive) throws IOException {
+	public static boolean remover(File filePath, String commandName, boolean isInteractive)
+			throws IOException {
 		if (!filePath.exists()) {
-			Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() + "\" does not exist", commandName, isInteractive);
+			Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() 
+					+ "\" does not exist", commandName, isInteractive);
 			return false;
 		}
 		if (filePath.isDirectory()) {
@@ -119,11 +128,13 @@ public class Utils {
 		}
 		try {
 			if (!filePath.delete()) {
-				Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() + "\" can not be deleted", commandName, isInteractive);
+				Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() 
+						+ "\" can not be deleted", commandName, isInteractive);
 				return false;
 			}
 		} catch (SecurityException e) {
-			Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() + "\" can not be deleted", commandName, isInteractive);
+			Utils.generateAnError("File with path \"" + filePath.getCanonicalPath() 
+					+ "\" can not be deleted", commandName, isInteractive);
 			return false;
 		}
 		return true;

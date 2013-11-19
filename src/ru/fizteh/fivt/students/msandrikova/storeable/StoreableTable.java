@@ -52,7 +52,7 @@ public class StoreableTable implements ChangesCountingTable {
 			try {
 				writer = new DataOutputStream(new FileOutputStream(currentFile));
 				String value;
-				for(String key : keys) {
+				for (String key : keys) {
 					value = tableProvider.serialize(StoreableTable.this, this.newDatabase.get(key));
 					byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
 					byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
@@ -78,7 +78,7 @@ public class StoreableTable implements ChangesCountingTable {
 			BufferedWriter writer = null;
 			try {
 				writer = new BufferedWriter(new FileWriter(signature));
-				for(int i = 0; i < StoreableTable.this.getColumnsCount(); ++i) {
+				for (int i = 0; i < StoreableTable.this.getColumnsCount(); ++i) {
 					writer.write(columnTypesNames.get(i));
 					if (i != StoreableTable.this.getColumnsCount() - 1) {
 						writer.write(" ");
@@ -92,7 +92,7 @@ public class StoreableTable implements ChangesCountingTable {
 		private void write() throws IOException {
 			this.writeSignature();
 			File directory;
-			for(int i = 0; i < MAX_DIRECTORIES_AMOUNT; ++i) {
+			for (int i = 0; i < MAX_DIRECTORIES_AMOUNT; ++i) {
 				directory = new File(tablePath, i + ".dir");
 				if (!directory.exists()) {
 					continue;
@@ -104,23 +104,23 @@ public class StoreableTable implements ChangesCountingTable {
 				}
 			}
 			Map<Integer, Map<Integer, Set<String>>> keysDueTheirHash = new HashMap<Integer,Map<Integer, Set<String>>>();
-			for(int i = 0; i < StoreableTable.this.MAX_DIRECTORIES_AMOUNT; ++i) {
+			for (int i = 0; i < StoreableTable.this.MAX_DIRECTORIES_AMOUNT; ++i) {
 				keysDueTheirHash.put(i, new HashMap<Integer, Set<String>>());
-				for(int j = 0; j < StoreableTable.this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
+				for (int j = 0; j < StoreableTable.this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
 					keysDueTheirHash.get(i).put(j, new HashSet<String>());
 				}
 			}
 			int dir;
 			int dat;
-			for(String key : this.newDatabase.keySet()) {
+			for (String key : this.newDatabase.keySet()) {
 				dir = Utils.getNDirectory(key);
 				dat = Utils.getNFile(key);
 				keysDueTheirHash.get(dir).get(dat).add(key);
 			}
 			File currentFile;
-			for(int i = 0; i < StoreableTable.this.MAX_DIRECTORIES_AMOUNT; ++i) {
+			for (int i = 0; i < StoreableTable.this.MAX_DIRECTORIES_AMOUNT; ++i) {
 				directory = new File(StoreableTable.this.tablePath, i + ".dir");
-				for(int j = 0; j < StoreableTable.this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
+				for (int j = 0; j < StoreableTable.this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
 					if (keysDueTheirHash.get(i).get(j).size() == 0) {
 						continue;
 					}
@@ -136,7 +136,7 @@ public class StoreableTable implements ChangesCountingTable {
 		}
 		
 		private boolean checkColumnTypes(Storeable value) {
-			for(int i = 0; i < StoreableTable.this.getColumnsCount(); ++i) {
+			for (int i = 0; i < StoreableTable.this.getColumnsCount(); ++i) {
 				try {
 					switch(StoreableTable.this.columnTypes.get(i).getName()) {
 					case "java.lang.Integer":
@@ -246,7 +246,7 @@ public class StoreableTable implements ChangesCountingTable {
 		int intersectionSize = 0;
 		Storeable originalValue = null;
 		Storeable newValue = null;
-		for(String key : StoreableTable.this.originalDatabase.keySet()) {
+		for (String key : StoreableTable.this.originalDatabase.keySet()) {
 			originalValue = StoreableTable.this.originalDatabase.get(key);
 			newValue = this.newDatabase.get(key);
 			if (newValue != null) {
@@ -350,13 +350,13 @@ public class StoreableTable implements ChangesCountingTable {
 			}
 		} else {
 			int i;
-			for(i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
+			for (i = 0; i < this.MAX_DIRECTORIES_AMOUNT; ++i) {
 				File directory = new File(this.tablePath, i + ".dir");
 				if (!directory.exists()) {
 					continue;
 				}
 				int count = 0;
-				for(int j = 0; j < this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
+				for (int j = 0; j < this.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
 					File currentFile = new File(directory, j + ".dat");
 					if (!currentFile.exists()) {
 						continue;

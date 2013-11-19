@@ -33,7 +33,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 		} else if (!this.currentDirectory.isDirectory()) {
 			throw new IllegalArgumentException("Given directory name does not correspond to directory.");
 		} else {
-			for(File f : dir.listFiles()) {
+			for (File f : dir.listFiles()) {
 				if (f.isDirectory()){
 					ChangesCountingTable newTable = null;
 					List<Class<?>> columnTypes = null;
@@ -88,7 +88,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 			throw new ParseException("Incorrect column count, expected " + table.getColumnsCount() + ".", 0);
 		}
 		Object o = null;
-		for(int i = 0; i < table.getColumnsCount(); ++i) {
+		for (int i = 0; i < table.getColumnsCount(); ++i) {
 			o = valueJSON.get(i);
 			if (o.equals(JSONObject.NULL)) {
 				o = null;
@@ -119,7 +119,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 		}
 		JSONArray valueJSON = new JSONArray();
 		Object o = null;
-		for(int i = 0; i < table.getColumnsCount(); ++i) {
+		for (int i = 0; i < table.getColumnsCount(); ++i) {
 			o = value.getColumnAt(i);
 			if (o == null) {
 				valueJSON.put(JSONObject.NULL);
@@ -142,7 +142,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 	@Override
 	public Storeable createFor(Table table) {
 		List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-		for(int i = 0; i < table.getColumnsCount(); ++i) {
+		for (int i = 0; i < table.getColumnsCount(); ++i) {
 			columnTypes.add(table.getColumnType(i));
 		}
 		return new TableRow(columnTypes);
@@ -151,7 +151,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 	@Override
 	public Storeable createFor(Table table, List<?> values) throws IndexOutOfBoundsException {
 		Storeable row = this.createFor(table);
-		for(int i = 0; i < table.getColumnsCount(); ++i) {
+		for (int i = 0; i < table.getColumnsCount(); ++i) {
 			row.setColumnAt(i, values.get(i));
 		}
 		return row;
