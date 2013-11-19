@@ -1,8 +1,11 @@
 package ru.fizteh.fivt.students.vyatkina.database.superior;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -192,6 +195,16 @@ public class SuperTable<ValueType> {
             }
         }
         return result;
+    }
+
+    protected void removeNullValues () {
+        Iterator<Map.Entry <String, Diff <ValueType>>> it = values.entrySet ().iterator ();
+        while (it.hasNext ()) {
+            Map.Entry <String, Diff <ValueType>> entry = it.next ();
+            if (entry.getValue ().isRemoved ()) {
+                it.remove ();
+            }
+        }
     }
 
 }

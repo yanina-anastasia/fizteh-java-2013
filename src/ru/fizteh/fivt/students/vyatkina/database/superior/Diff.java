@@ -6,54 +6,77 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Diff<ValueType> {
 
-    private AtomicReference <ValueType> commitedValue = new AtomicReference<> ();
+    private AtomicReference <ValueType> committedValue = new AtomicReference<> ();
+    private ThreadLocal<Boolean> isChanged = new ThreadLocal<> ();
     private ThreadLocal<ValueType> value = new ThreadLocal<> ();
     private ReadWriteLock commitedValueKeeper = new ReentrantReadWriteLock ();
-    private ThreadLocal <Boolean> threadChangedValue = new ThreadLocal<> ();
 
-    public Diff (ValueType commitedValue, ValueType value) {
-        this.commitedValue.set (commitedValue);
-        this.value.set (value);
-        threadChangedValue.set (true);
+    public Diff (ValueType committedValue, ValueType value) {
+       this.committedValue.set (committedValue);
+        if (!areTheSame (committedValue,value)) {
+            this.value.set (value);
+            isChanged.set (true);
+        }
+    }
+
+    private boolean areTheSame (ValueType a, ValueType b) {
+        if (a == null) {
+            return b == null;
+        } else {
+            return a.equals (b);
+        }
     }
 
     public ValueType getValue () {
-
-        if (threadChangedValue.get () == null) {
+        if (isChanged.get () == null) {
             try {
                 commitedValueKeeper.readLock ().lock ();
-                value.set (commitedValue.get ());
+                return committedValue.get ();
             }
             finally {
-               commitedValueKeeper.readLock ().unlock ();
+              commitedValueKeeper.readLock ().unlock ();
             }
+        } else {
+            return value.get ();
         }
-        return value.get ();
     }
 
     public void setValue (ValueType value) {
-        threadChangedValue.set (true);
-        this.value.set (value);
-    }
-
-    public boolean isNeedToCommit () {
         try {
             commitedValueKeeper.readLock ().lock ();
-            if (commitedValue.get () == null) {
-                return !(getValue () == null);
+            if (areTheSame (committedValue.get (), value)) {
+                isChanged.set (null);
+            } else {
+                isChanged.set (true);
+                this.value.set (value);
             }
-            return !commitedValue.get ().equals (getValue ());
         }
         finally {
-            commitedValueKeeper.readLock ().unlock ();
+           commitedValueKeeper.readLock ().unlock ();
         }
     }
 
+    private void refreshIsChanged () {
+        try {
+            commitedValueKeeper.readLock ().lock ();
+            if ((isChanged.get () != null)
+                && (areTheSame (committedValue.get (),value.get ()))) {
+                isChanged.set (null);
+            }
+        }
+        finally {
+           commitedValueKeeper.readLock ().unlock ();
+        }
+    }
+    public boolean isNeedToCommit () {
+       refreshIsChanged ();
+        return isChanged.get() != null;
+    }
     public boolean commit () {
         try {
             commitedValueKeeper.writeLock ().lock ();
             if (isNeedToCommit ()) {
-                commitedValue.set (getValue ());
+                committedValue.set (value.get ());
                 return true;
             } else {
                 return false;
@@ -65,23 +88,19 @@ public class Diff<ValueType> {
     }
 
     public boolean rollback () {
-        try {
-            commitedValueKeeper.readLock ().lock ();
-            if (isNeedToCommit ()) {
-                value.set (commitedValue.get ());
-                return true;
-            } else {
-                return false;
-            }
-        }
-        finally {
-           commitedValueKeeper.readLock ().unlock ();
-        }
+       if (isNeedToCommit ()) {
+           isChanged.set (null);
+           return true;
+       } else {
+           return false;
+       }
     }
 
     public ValueType remove () {
         ValueType oldValue = getValue ();
-        setValue (null);
+        isChanged.set (true);
+        value.set (null);
+        refreshIsChanged ();
         return oldValue;
     }
 
