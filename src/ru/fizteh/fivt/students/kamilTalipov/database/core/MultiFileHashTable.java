@@ -113,6 +113,9 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
+        if (readLock == null) {
+            throw new IllegalStateException("NULL!!!!");
+        }
         readLock.lock();
         try {
             checkState();
