@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
@@ -11,8 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class FileStorage {
-	
-	public static Map<String, String> openDataFile(File file, int n){
+
+	public static Map<String, String> openDataFile(File file, int n) {
 		Map<String, String> data = null;		
 		if (file.exists()) {
 			try {

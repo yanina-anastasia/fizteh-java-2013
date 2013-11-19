@@ -4,8 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.*;
-
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -153,7 +156,7 @@ public class TableTest {
     }
 
     @Test (expected = ColumnFormatException.class)
-    public void incorrectStoreableSize() throws Exception{
+    public void incorrectStoreableSize() throws Exception {
         List<Object> list = new ArrayList<>();
         columnType.add(String.class);
         list.add(5);
@@ -166,7 +169,7 @@ public class TableTest {
     }
 
     @Test (expected = ColumnFormatException.class)
-    public void lessStoreableSize() throws Exception{
+    public void lessStoreableSize() throws Exception {
         List<Object> list = new ArrayList<>();
         columnType.remove(1);
         list.add(5);
@@ -177,7 +180,7 @@ public class TableTest {
     }
 
     @Test (expected = ColumnFormatException.class)
-    public void incorrectStoreableType() throws Exception{
+    public void incorrectStoreableType() throws Exception {
         List<Object> list = new ArrayList<>();
         columnType.set(1, String.class);
         list.add(5);

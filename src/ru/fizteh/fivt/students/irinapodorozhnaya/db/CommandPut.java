@@ -8,7 +8,7 @@ public class CommandPut extends AbstractCommand {
 	
 	private final DbState state;
 	public CommandPut(DbState state) {
-		super (2);
+		super(2);
 		this.state = state;
 	}
 

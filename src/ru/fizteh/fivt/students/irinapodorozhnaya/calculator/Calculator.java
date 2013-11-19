@@ -6,6 +6,10 @@ import java.util.Deque;
 
 public class Calculator {
 	private final static int RADIX = 18;
+	private static final int FIGURE = 4;
+	private static final int OPERATOR = 1;
+	private static final int LEFT_BRACKET = 2;
+	private static final int RIGHT_BRACKET = 3;
 	
 	public static void main(String[] argv) {
 		String res = "";
@@ -43,12 +47,7 @@ public class Calculator {
 		}
 	}
 	
-	private static boolean isCorrect (String[] argv) throws IOException {
-
-		final int FIGURE = 4;
-		final int OPERATOR = 1;
-		final int LEFT_BRACKET = 2;
-		final int RIGHT_BRACKET = 3;
+	private static boolean isCorrect(String[] argv) throws IOException {
 		int prev = 0;
 		boolean wasSpace = true;
 		for (String s: argv) {
@@ -86,7 +85,7 @@ public class Calculator {
 		return true;
 	}
 	
-	private static String dijkstraSortStation (String[] argv) throws IOException {
+	private static String dijkstraSortStation(String[] argv) throws IOException {
 		Deque<Character> operatorsStack = new ArrayDeque<Character>();
 		StringBuilder out = new StringBuilder();
 		for (String s: argv) {
@@ -96,8 +95,9 @@ public class Calculator {
 					out.append(token);
 				} else if (isOperator(token)) {
 					out.append(' ');
-					while (!operatorsStack.isEmpty() && operatorsStack.getFirst()!= '(') {
-						if (operatorPriority(token) <= operatorPriority(operatorsStack.getFirst())) {
+					while (!operatorsStack.isEmpty() && operatorsStack.getFirst() != '(') {
+						if (operatorPriority(token) 
+								<= operatorPriority(operatorsStack.getFirst())) {
 							out.append(operatorsStack.pop());	
 						} else { 
 							break;
@@ -130,7 +130,7 @@ public class Calculator {
 		return out.toString();
 	} 
 	
-	private static int calc (String postfixForm) throws IOException {
+	private static int calc(String postfixForm) throws IOException {
 		Deque<Integer> numbers = new ArrayDeque<>();
 		for (int i = 0; i < postfixForm.length(); ++i) {
 			char token = postfixForm.charAt(i);
@@ -153,27 +153,27 @@ public class Calculator {
 					if (Integer.MAX_VALUE - op1 < op2) {
 						throw new IOException("Too big value");
 					}
-					numbers.push (op1 + op2);
+					numbers.push(op1 + op2);
 				} else if (token == '*') {
 					if (op1 != 0 && Integer.MAX_VALUE / op1 < op2) {
 						throw new IOException("Too big value");
 					}
-					numbers.push (op1 * op2);
+					numbers.push(op1 * op2);
 				} else if (token == '-') {
 					if (Integer.MIN_VALUE + op1 > op2) {
 						throw new IOException("Too small value");
 					}
-					numbers.push (op2 - op1);
+					numbers.push(op2 - op1);
 				} else if (token == '/') {
-					numbers.push (op2 / op1);
+					numbers.push(op2 / op1);
 				}
 			}
 		}
 		return numbers.pop();
 	}
 	
-	private static boolean isFigure (char token) {
-		return (token >= '0' && token <= '9') || (token >= 'A' && token <= 'A'+ RADIX)
+	private static boolean isFigure(char token) {
+		return (token >= '0' && token <= '9') || (token >= 'A' && token <= 'A' + RADIX)
 				|| (token >= 'a' && token <= 'a' + RADIX);
 	}
 

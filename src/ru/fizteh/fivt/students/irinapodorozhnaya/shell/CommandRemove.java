@@ -21,11 +21,11 @@ public class CommandRemove extends AbstractCommand {
 		File f = state.getFileByName(args[1]);
 		if (f.exists()) {
 			if (f.getCanonicalPath().equals(state.getCurrentDir().getCanonicalPath())) {
-				throw new IOException("rm: '" + args[1]+ "' can't delete current directory");
+				throw new IOException("rm: '" + args[1] + "' can't delete current directory");
 			}
 			deleteRecursivly(f);
 		} else {
-			throw new IOException("rm: '" + args[1]+ "doesn't exist");
+			throw new IOException("rm: '" + args[1] + "doesn't exist");
 		}
 	}
 	
@@ -35,7 +35,7 @@ public class CommandRemove extends AbstractCommand {
 				deleteRecursivly(s);
 			}
 		}
-		if (!f.delete()){
+		if (!f.delete()) {
 			throw new IllegalStateException(f.getName() + ": can't delete file or directory");
 		}
 	}

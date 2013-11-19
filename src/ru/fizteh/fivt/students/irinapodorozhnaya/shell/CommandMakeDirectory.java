@@ -18,7 +18,7 @@ public class CommandMakeDirectory extends AbstractCommand {
 		if (!f.exists()) {
 			f.mkdir();	
 		} else {
-			throw new IOException("mkdir: '" + args[1] +"' already exist");
+			throw new IOException("mkdir: '" + args[1] + "' already exist");
 		}
 	}
 	

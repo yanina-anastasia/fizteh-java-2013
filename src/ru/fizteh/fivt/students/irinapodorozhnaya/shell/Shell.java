@@ -16,6 +16,7 @@ public class Shell {
 					Mode.interactiveMode(st);
 				}
 		} catch (ExitRuntimeException e) {
+			//exit
 		} catch (IOException e) {
 			code = 1;
 		}

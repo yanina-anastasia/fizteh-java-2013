@@ -96,7 +96,7 @@ public abstract class GenericTable<ValueType> {
         }
         try {
             hardDiskLock.writeLock().lock();
-            Map <Integer, Map<String, ValueType>> database = new HashMap<>();
+            Map<Integer, Map<String, ValueType>> database = new HashMap<>();
             try {
                 lock.readLock().lock();
                 for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
@@ -207,7 +207,7 @@ public abstract class GenericTable<ValueType> {
         }
     }
 
-    private void checkKey(String key ) throws IllegalArgumentException {
+    private void checkKey(String key) throws IllegalArgumentException {
         if (key == null || key.matches("(.*\\s+.*)*")) {
             throw new IllegalArgumentException("key or value null or empty or contain spaces");
         }

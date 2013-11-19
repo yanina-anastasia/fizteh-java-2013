@@ -120,7 +120,7 @@ public class StoreableState extends State implements MultiDbState {
 
     @Override
     public void create(String name, List<Class<?>> columnType) throws IOException {
-        try{
+        try {
             if (provider.createTable(name, columnType) == null) {
                 throw new IOException(name + " exists");
             }
@@ -131,7 +131,7 @@ public class StoreableState extends State implements MultiDbState {
     
     @Override
     public void use(String name) throws IOException {
-        try{
+        try {
             ExtendTable table = provider.getTable(name);
             if (table == null) {
                 throw new IOException(name + " not exists");

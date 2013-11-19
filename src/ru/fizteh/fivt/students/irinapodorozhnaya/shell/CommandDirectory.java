@@ -7,7 +7,7 @@ public class CommandDirectory extends AbstractCommand {
 	
 	private final StateShell state;
 	
-	CommandDirectory (StateShell state) {
+	CommandDirectory(StateShell state) {
 		super(0);
 		this.state = state;
 	}

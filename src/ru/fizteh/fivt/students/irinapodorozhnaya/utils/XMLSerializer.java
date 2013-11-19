@@ -74,7 +74,7 @@ public class XMLSerializer {
             if (reader.isStartElement() && reader.getName().getLocalPart().equals("col")) {
                 reader.next();
                 if (reader.isCharacters()) {
-                    try{
+                    try {
                         storeable.setColumnAt(i, Types.parse(reader.getText(), table.getColumnType(i++)));
                     } catch (NumberFormatException e) {
                         throw new ParseException(e.getMessage(), i);

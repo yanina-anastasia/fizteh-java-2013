@@ -12,6 +12,7 @@ public class StateShell extends State {
 		try {
 			setCurrentDir(new File("."));
 		} catch (IOException e) {
+			//can't be thrown
 		}
 		add(new CommandDirectory(this));
 		add(new CommandChangeDirectory(this));
@@ -28,7 +29,7 @@ public class StateShell extends State {
 		if (f.isAbsolute()) {
 			return f;
 		} else {
-			return new File (this.getCurrentDir(), path);
+			return new File(this.getCurrentDir(), path);
 		}
 	}
 }

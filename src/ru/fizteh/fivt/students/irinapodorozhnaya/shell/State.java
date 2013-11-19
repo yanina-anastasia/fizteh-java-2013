@@ -19,7 +19,7 @@ public abstract class State implements StateInterface {
 		commands = new HashMap<String, Command>();
 	}
 	
-	public void add (Command com) {
+	public void add(Command com) {
 		commands.put(com.getName(), com);
 	}
 

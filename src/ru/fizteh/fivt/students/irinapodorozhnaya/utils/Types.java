@@ -44,7 +44,7 @@ public enum Types {
     public abstract Object parseValue(String value);
 
     public static Class<?> getTypeByName(String typeName) {
-        Types types = typesByName.get(typeName);
+        Types types = TYPES_BY_NAME.get(typeName);
         if (types == null) {
             throw new IllegalArgumentException("unknown type");
         }
@@ -52,7 +52,7 @@ public enum Types {
     }
 
     public static String getSimpleName(Class<?> type) {
-        Types typesFormatter = typesByClass.get(type);
+        Types typesFormatter = TYPES_BY_CLASS.get(type);
         if (typesFormatter == null) {
             throw new IllegalArgumentException("unknown type");
         }
@@ -61,7 +61,7 @@ public enum Types {
 
 
     public static Object parse(String value, Class<?> type) {
-        Types types = typesByClass.get(type);
+        Types types = TYPES_BY_CLASS.get(type);
         if (types == null) {
             throw new IllegalArgumentException("unknown type");
         }
@@ -76,13 +76,13 @@ public enum Types {
         this.type = type;
     }
 
-    private static final Map<String, Types> typesByName = new HashMap<>();
-    private static final Map<Class<?>, Types> typesByClass = new HashMap<>();
+    private static final Map<String, Types> TYPES_BY_NAME = new HashMap<>();
+    private static final Map<Class<?>, Types> TYPES_BY_CLASS = new HashMap<>();
 
     static {
         for (Types value : values()) {
-            typesByName.put(value.typeName, value);
-            typesByClass.put(value.type, value);
+            TYPES_BY_NAME.put(value.typeName, value);
+            TYPES_BY_CLASS.put(value.type, value);
         }
     }
 }

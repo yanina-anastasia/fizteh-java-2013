@@ -43,6 +43,11 @@ public class MyStoreable implements Storeable{
     }
 
     @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+    
+    @Override
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
 
