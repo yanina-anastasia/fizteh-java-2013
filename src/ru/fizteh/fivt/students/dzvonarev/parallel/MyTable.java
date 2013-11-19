@@ -23,27 +23,32 @@ public class MyTable implements Table {
     }
 
     public MyTable(File dirTable, MyTableProvider currentProvider) throws IOException, RuntimeException {
-        tableProvider = currentProvider;
-        tableFile = dirTable;
-        tableName = dirTable.getName();
-        fileMap = new HashMap<>();
-        changesMap = new ThreadLocal<HashMap<String, ValueNode>>() {
-            @Override
-            public HashMap<String, ValueNode> initialValue() {
-                return new HashMap<>();
-            }
-        };
-        type = new ArrayList<>();
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
         readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
-        List<String> temp = new ArrayList<>();  //init types of table
-        readTypes(temp);
-        Parser myParser = new Parser();
+        readLock.lock();
         try {
-            type = myParser.parseTypeList(temp);
-        } catch (ParseException e) {
-            throw new IOException(e);
+            tableProvider = currentProvider;
+            tableFile = dirTable;
+            tableName = dirTable.getName();
+            fileMap = new HashMap<>();
+            changesMap = new ThreadLocal<HashMap<String, ValueNode>>() {
+                @Override
+                public HashMap<String, ValueNode> initialValue() {
+                    return new HashMap<>();
+                }
+            };
+            type = new ArrayList<>();
+            List<String> temp = new ArrayList<>();  //init types of table
+            readTypes(temp);
+            Parser myParser = new Parser();
+            try {
+                type = myParser.parseTypeList(temp);
+            } catch (ParseException e) {
+                throw new IOException(e);
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
@@ -359,18 +364,13 @@ public class MyTable implements Table {
     }
 
     public void addChanges(String key, Storeable value) {
-        writeLock.lock();
-        try {
-            if (changesMap.get().containsKey(key)) {
-                changesMap.get().get(key).newValue = value;
-            } else {
-                ValueNode valueNode = new ValueNode();
-                valueNode.oldValue = fileMap.get(key);
-                valueNode.newValue = value;
-                changesMap.get().put(key, valueNode);
-            }
-        } finally {
-            writeLock.unlock();
+        if (changesMap.get().containsKey(key)) {
+            changesMap.get().get(key).newValue = value;
+        } else {
+            ValueNode valueNode = new ValueNode();
+            valueNode.oldValue = fileMap.get(key);
+            valueNode.newValue = value;
+            changesMap.get().put(key, valueNode);
         }
     }
 
@@ -379,10 +379,15 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
-        checkingValueForValid(value);
-        Storeable oldValue = get(key);
-        addChanges(key, value);
-        return oldValue;
+        writeLock.lock();
+        try {
+            checkingValueForValid(value);
+            Storeable oldValue = get(key);
+            addChanges(key, value);
+            return oldValue;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
@@ -390,11 +395,16 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        Storeable oldValue = get(key);
-        if (oldValue != null) {
-            addChanges(key, null);
+        writeLock.lock();
+        try {
+            Storeable oldValue = get(key);
+            if (oldValue != null) {
+                addChanges(key, null);
+            }
+            return oldValue;
+        } finally {
+            writeLock.unlock();
         }
-        return oldValue;
     }
 
     @Override
