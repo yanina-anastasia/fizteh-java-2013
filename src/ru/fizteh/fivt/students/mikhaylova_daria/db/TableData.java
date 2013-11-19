@@ -5,6 +5,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.*;
 
@@ -14,6 +16,9 @@ public class TableData implements Table {
     DirDataBase[] dirArray = new DirDataBase[16];
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock myWriteLock = readWriteLock.writeLock();
+    private final Lock myReadLock = readWriteLock.readLock();
 
     private static ArrayList<Class<?>> normList(List<Class<?>> arg) {
         HashMap<String, Class<?>> types = new HashMap<>();
@@ -137,6 +142,7 @@ public class TableData implements Table {
         if (signatures.length == 0) {
             throw new IllegalArgumentException(sign.toString() + " Empty type list");
         }
+
         for (int i = 0; i < signatures.length; ++i) {
             if (signatures[i].equals("int")) {
                 columnTypes.add(Integer.class);
@@ -236,12 +242,16 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = b / 16 % 16;
         Storeable removedValue;
+        myReadLock.lock();
         try {
-            dirArray[nDirectory].startWorking();
-            removedValue = dirArray[nDirectory].fileArray[nFile].remove(key, this);
-            dirArray[nDirectory].deleteEmptyDir();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+            try {
+                dirArray[nDirectory].startWorking();
+                removedValue = dirArray[nDirectory].fileArray[nFile].remove(key, this);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        } finally {
+            myReadLock.unlock();
         }
         return removedValue;
     }
@@ -255,12 +265,17 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = (b / 16) % 16;
         Storeable getValue;
+        myReadLock.lock();
         try {
-            dirArray[nDirectory].startWorking();
-            getValue = dirArray[nDirectory].fileArray[nFile].get(key, this);
-            dirArray[nDirectory].deleteEmptyDir();
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+            try {
+                dirArray[nDirectory].startWorking();
+                getValue = dirArray[nDirectory].fileArray[nFile].get(key, this);
+                dirArray[nDirectory].deleteEmptyDir();
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        } finally {
+            myReadLock.unlock();
         }
         return getValue;
     }
@@ -275,16 +290,26 @@ public class TableData implements Table {
 
     public int size() {
         int numberOfKeys = 0;
-        for (int i = 0; i < 16; ++i) {
-            numberOfKeys += dirArray[i].size();
+        myReadLock.lock();
+        try {
+            for (int i = 0; i < 16; ++i) {
+                numberOfKeys += dirArray[i].size();
+            }
+        } finally {
+            myReadLock.unlock();
         }
         return numberOfKeys;
     }
 
     public int commit() {
         int numberOfChanges = 0;
-        for (int i = 0; i < 16; ++i) {
-            numberOfChanges += dirArray[i].commit();
+        myWriteLock.lock();
+        try {
+            for (int i = 0; i < 16; ++i) {
+                numberOfChanges += dirArray[i].commit();
+            }
+        } finally {
+            myWriteLock.unlock();
         }
         return numberOfChanges;
     }
@@ -310,4 +335,3 @@ public class TableData implements Table {
     }
 
 }
-
