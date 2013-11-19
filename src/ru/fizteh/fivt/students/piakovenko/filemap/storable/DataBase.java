@@ -51,69 +51,33 @@ public class DataBase implements Table {
             removedMap = new HashMap<String, Boolean>();
         }
 
-        public Storeable put(String key, Storeable value) {
-            Storeable returnValue = null;
-            if (transactionMap.containsKey(key)) {
-                returnValue = transactionMap.get(key);
-                transactionMap.remove(key);
-            } else if (map.getMap().containsKey(key)) {
-                returnValue = map.get(key);
-            }
+        public void put(String key, Storeable value) {
             transactionMap.put(key, value);
-            if (removedMap.containsKey(key)) {
-                removedMap.remove(key);
-            }
-            return returnValue;
         }
 
         public Storeable get(String key) {
             if (transactionMap.containsKey(key)) {
                 return transactionMap.get(key);
             }
-            return map.getMap().get(key);
+            return map.get(key);
         }
 
-        public Storeable remove(String key) {
-            Storeable removedValue = null;
-            if (transactionMap.containsKey(key)) {
-                removedValue = transactionMap.get(key);
-                transactionMap.remove(key);
-            } else if (map.getMap().containsKey(key)) {
-                removedValue = map.getMap().get(key);
-                removedMap.put(key, true);
-            }
-            return removedValue;
-        }
 
-        public int changesCount() {
-            int changes = 0;
-            changes += removedMap.size();
-            for (final String key: transactionMap.keySet()) {
-                if (!map.getMap().containsKey(key)) {
-                    ++changes;
-                } else {
-                    if (!map.getMap().get(key).equals(transactionMap.get(key))) {
-                        ++changes;
-                    }
-                }
-            }
-            return changes;
-        }
-
-        public void commit() {
-            map.commit(transactionMap, removedMap);
-            transactionMap.clear();
-            removedMap.clear();
+        public int commit() {
+            return map.commit(transactionMap);
         }
 
         public int size() {
-            return transactionMap.size() + map.getMap().size() - removedMap.size();
+            return map.currentSize(transactionMap);
         }
 
-        public void rollback() {
+        public int rollback() {
+            int changes = map.changesCount(transactionMap);
             transactionMap.clear();
-            removedMap.clear();
+            return changes;
         }
+
+
     }
 
     public void checkAlienStoreable(Storeable storeable) {
@@ -471,16 +435,18 @@ public class DataBase implements Table {
             throw new IllegalArgumentException("Value cannot be null");
         }
         checkAlienStoreable(value);
-        Storeable putValue = transaction.get().put(key, value);
-        return putValue;
+        Storeable oldValue = transaction.get().get(key);
+        transaction.get().put(key, value);
+        return oldValue;
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
         }
-        Storeable removed = transaction.get().remove(key);
-        return removed;
+        Storeable oldValue = transaction.get().get(key);
+        transaction.get().put(key, null);
+        return oldValue;
     }
 
     public File returnFiledirectory() {
@@ -493,10 +459,10 @@ public class DataBase implements Table {
     }
 
     public int commit () {
-        int tempChanged = transaction.get().changesCount();
-        transaction.get().commit();
+
         try {
             lock.lock();
+            int tempChanged = transaction.get().commit();
             saveDataBase();
             System.out.println(tempChanged);
             return tempChanged;
@@ -510,14 +476,9 @@ public class DataBase implements Table {
     }
 
     public int rollback () {
-        int tempChanged = transaction.get().changesCount();
-        transaction.get().rollback();
+        int tempChanged = transaction.get().rollback();
         System.out.println(tempChanged);
         return tempChanged;
-    }
-
-    public int numberOfChanges () {
-        return transaction.get().changesCount();
     }
 
     public int getColumnsCount() {
