@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MultiFileHashTable implements Table {
     private final HashMap<String, Storeable> table;
-    private ThreadLocal<HashMap<String, Storeable>> newValues;
+    private final ThreadLocal<HashMap<String, Storeable>> newValues;
 
     private final ArrayList<Class<?>> types;
 
@@ -90,7 +90,12 @@ public class MultiFileHashTable implements Table {
         writeSignatureFile();
 
         table = new HashMap<>();
-        newValues = new ThreadLocal<>();
+        newValues = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            protected HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
         readTable();
     }
 
