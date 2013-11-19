@@ -482,9 +482,14 @@ public class DataBase implements Table {
     }
 
     public int rollback () {
-        int tempChanged = transaction.get().rollback();
-        System.out.println(tempChanged);
-        return tempChanged;
+        try {
+            lock.lock();
+            int tempChanged = transaction.get().rollback();
+            System.out.println(tempChanged);
+            return tempChanged;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public int getColumnsCount() {
