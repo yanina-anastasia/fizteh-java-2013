@@ -220,9 +220,7 @@ public class StoreableTable implements ChangesCountingTable {
             int size = StoreableTable.this.originalDatabase.size();
             
             for(String key : this.updates.keySet()) {
-                if(StoreableTable.this.originalDatabase.get(key) == null 
-                        || !this.equalsStoreable(this.updates.get(key), 
-                                StoreableTable.this.originalDatabase.get(key))) {
+                if(StoreableTable.this.originalDatabase.get(key) == null) {
                     ++size;
                 }
             }
