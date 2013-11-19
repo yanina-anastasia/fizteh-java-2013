@@ -162,11 +162,7 @@ public class MultiFileHashTable implements Table {
             }
 
             Storeable oldValue = get(key);
-            if (isEqualStoreable(value, table.get(key))) {
-                newValues.get().remove(key);
-            } else {
-                newValues.get().put(key, value);
-            }
+            newValues.get().put(key, value);
 
             return oldValue;
         } finally {
