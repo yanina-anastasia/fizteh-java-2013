@@ -190,7 +190,7 @@ public class Utils {
     }
     
     public static boolean isEmpty(String s) {
-        if (s.trim().isEmpty()) {
+        if (s == null || s.trim().isEmpty()) {
             return true;
         } else {
             return false;
