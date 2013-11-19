@@ -12,15 +12,15 @@ import ru.fizteh.fivt.students.msandrikova.multifilehashmap.State;
 
 public class Shell {
 
-	private Map < String, Command > commandsList;
+	private Map<String, Command> commandsList;
 	private File currentDirectory = new File("").getAbsoluteFile();
 	private boolean isInteractive = false;
 	private State myState;
 	private String currentInstruction;
 	
-	private void InitMap(Command[] commands) {
-		Map< String, Command > m = new HashMap<String, Command>();
-		for (Command c : commands){
+	private void initMap(Command[] commands) {
+		Map<String, Command> m = new HashMap<String, Command>();
+		for (Command c : commands) {
 			m.put(c.getName(), c);
 		}
 		this.commandsList = Collections.unmodifiableMap(m);
@@ -54,16 +54,17 @@ public class Shell {
 		String[] instructionsList = new String[]{};
 		String[] argumentsList;
 		instructionsList = Utils.parseOfInstructionLine(instructionLine);
-		for (String instruction : instructionsList){
+		for (String instruction : instructionsList) {
 			this.currentInstruction = instruction;
 			argumentsList = Utils.parseOfInstruction(instruction);
-			if (argumentsList[0].equals("")){
+			if (argumentsList[0].equals("")) {
 				continue;
 			}
 			if (this.commandsList.containsKey(argumentsList[0])) {
 				this.commandsList.get(argumentsList[0]).execute(argumentsList, this);
 			} else {
-				Utils.generateAnError("Illegal command's name: \"" + argumentsList[0] + "\"", "", isInteractive);
+				Utils.generateAnError("Illegal command's name: \"" + argumentsList[0] 
+						+ "\"", "", isInteractive);
 				continue;
 			}
 		}	
@@ -74,7 +75,7 @@ public class Shell {
 		if (!this.currentDirectory.exists()) {
 			Utils.generateAnError("Given directory does not exist", "shell", false);
 		}
-		this.InitMap(commands);
+		this.initMap(commands);
 	}
 	
 	public void execute(String[] args) {

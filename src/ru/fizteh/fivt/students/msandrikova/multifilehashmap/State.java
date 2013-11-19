@@ -20,8 +20,8 @@ public class State {
 		this.isStoreable = isStoreable;
 		if (this.isMultiFileHashMap) {
 			this.currentTable = null;
-			ru.fizteh.fivt.students.msandrikova.multifilehashmap.ChangesCountingTableProviderFactory factory 
-			= new MyTableProviderFactory();
+			ru.fizteh.fivt.students.msandrikova.multifilehashmap.ChangesCountingTableProviderFactory 
+			factory = new MyTableProviderFactory();
 			try { 
 				this.tableProvider = factory.create(dir);
 			} catch (IllegalArgumentException e) {
@@ -29,8 +29,8 @@ public class State {
 			}
 		} else if (this.isStoreable) {
 			 this.currentStoreableTable = null;
-			 ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTableProviderFactory storeableFactory 
-			 = new StoreableTableProviderFactory();
+			 ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTableProviderFactory 
+			 storeableFactory = new StoreableTableProviderFactory();
 				try {
 					this.storeableTableProvider = storeableFactory.create(dir);
 				} catch (IllegalArgumentException | IOException e) {

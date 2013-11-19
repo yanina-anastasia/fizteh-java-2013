@@ -17,7 +17,9 @@ public class PrintWorkingDirectoryCommand extends Command {
 		try {
 			String filePath = myShell.getCurrentDirectory().getCanonicalPath();
 			System.out.println(filePath);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			Utils.generateAnError("Input or output error", this.getName(), false);
+		}
 		return;
 	}
 	

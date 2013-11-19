@@ -21,7 +21,9 @@ public class RemoveFileOrDirectoryCommand extends Command {
 			if (!Utils.remover(filePath, this.getName(), myShell.getIsInteractive())) {
 				return;
 			}
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			Utils.generateAnError("Input or output error", this.getName(), false);
+		}
 	}
 
 }

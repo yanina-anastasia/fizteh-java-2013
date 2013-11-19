@@ -50,9 +50,10 @@ public class UseCommand extends Command {
 				}
 				shell.getState().currentTable = shell.getState().tableProvider.getTable(name);
 			} else {
+				int unsavedChanges = shell.getState().currentStoreableTable.unsavedChangesCount();
 				if (shell.getState().currentStoreableTable != null 
-						&& shell.getState().currentStoreableTable.unsavedChangesCount() != 0) {
-					Utils.generateAnError(shell.getState().currentStoreableTable.unsavedChangesCount() 
+						&& unsavedChanges != 0) {
+					Utils.generateAnError(unsavedChanges 
 							+ " unsaved changes", this.getName(), shell.getIsInteractive());
 					return;
 				}

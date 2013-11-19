@@ -27,11 +27,13 @@ public class CopyFileOrDirectoryCommand extends Command {
 		filePath = filePath.getAbsoluteFile();
 		
 		if (filePath.equals(destination)) {
-			Utils.generateAnError("Source and destination should be different", this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError("Source and destination should be different", this.getName(),
+					myShell.getIsInteractive());
 			return;
 		}
 		if (!filePath.exists()) {
-			Utils.generateAnError("\"" + argumentsList[1] + "\": No such file or directory", this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError("\"" + argumentsList[1] + "\": No such file or directory",
+					this.getName(), myShell.getIsInteractive());
 			return;
 		}
 		
@@ -42,44 +44,57 @@ public class CopyFileOrDirectoryCommand extends Command {
 				try {
 					if (newFile.exists()) {
 						Utils.generateAnError("File or directory \"" + argumentsList[1] 
-								+ "\" already exists in directory \""+ argumentsList[2] + "\"", this.getName(), myShell.getIsInteractive());
+								+ "\" already exists in directory \"" + argumentsList[2] + "\"",
+								this.getName(), myShell.getIsInteractive());
 						return;
 					}
-					if (!Utils.copying(filePath, destination, this.getName(), myShell.getIsInteractive())) {
+					if (!Utils.copying(filePath, destination, this.getName(), 
+							myShell.getIsInteractive())) {
 						return;
 					}
-				} catch (IOException e) {}
+				} catch (IOException e) {
+					Utils.generateAnError("Input or output error", this.getName(), false);
+				}
 				return;
 			} else {
-				Utils.generateAnError("Can not copy in existing file.", this.getName(), myShell.getIsInteractive());
+				Utils.generateAnError("Can not copy in existing file.", this.getName(),
+						myShell.getIsInteractive());
 				return;
 			}
 		} else {
 			boolean destinationIsDirectory = argumentsList[2].endsWith(File.separator);
 			if (destinationIsDirectory) {
-				Utils.generateAnError("Destination directory does not exist", this.getName(), myShell.getIsInteractive());
+				Utils.generateAnError("Destination directory does not exist", this.getName(),
+						myShell.getIsInteractive());
 				return;
 			} else {
 				if (destination.getParentFile().exists()) {
 					if (destinationIsDirectory == filePath.isDirectory()) {
 						if (destinationIsDirectory) {
 							try {
-								if (!Utils.copyDirectoriesInSameDirectory(filePath, destination, this.getName(), myShell.getIsInteractive())) {
+								if (!Utils.copyDirectoriesInSameDirectory(filePath, destination,
+										this.getName(), myShell.getIsInteractive())) {
 									return;
 								} 
-							} catch (IOException e) {}  
+							} catch (IOException e) {
+								Utils.generateAnError("Input or output error", this.getName(), false);
+							}  
 						} else {
 							try {
 								Utils.copyFiles(filePath, destination);
-							} catch (IOException e) {}
+							} catch (IOException e) {
+								Utils.generateAnError("Input or output error", this.getName(), false);
+							}
 							return;
 						}
 					} else {
-						Utils.generateAnError("Can not copy file and get directory or copy directory and get file.", this.getName(), myShell.getIsInteractive());
+						Utils.generateAnError("Can not copy file and get directory or copy"
+								+ " directory and get file.", this.getName(), myShell.getIsInteractive());
 						return;
 					}
 				} else {
-					Utils.generateAnError("Parent file for destination file does not exist", this.getName(), myShell.getIsInteractive());
+					Utils.generateAnError("Parent file for destination file does not exist", 
+							this.getName(), myShell.getIsInteractive());
 					return;
 				}
 			}
