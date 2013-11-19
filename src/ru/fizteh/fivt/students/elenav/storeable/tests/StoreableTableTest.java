@@ -22,20 +22,20 @@ import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class StoreableTableTest {
     
-    private static final File tablePath = new File("D:/TableTest");
+    private static final File TABLE_PATH = new File("D:/TableTest");
 
     private static TableProvider provider;
     private static Table testTable;
 
     @BeforeClass
     public static void initDir() {
-        tablePath.mkdir();
+        TABLE_PATH.mkdir();
     }
 
     @AfterClass
     public static void clearDir() {
         try {
-            Functions.deleteRecursively(tablePath);
+            Functions.deleteRecursively(TABLE_PATH);
         } catch (IOException e) {
             // do nothing
         }
@@ -46,7 +46,7 @@ public class StoreableTableTest {
         List<Class<?>> columns = new ArrayList<>();
         columns.add(Integer.class);
         columns.add(String.class);
-        provider = new StoreableTableProvider(tablePath, System.err);
+        provider = new StoreableTableProvider(TABLE_PATH, System.err);
         testTable = provider.createTable("first", columns);
     }
 

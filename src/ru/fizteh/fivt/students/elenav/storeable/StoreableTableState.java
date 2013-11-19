@@ -412,7 +412,7 @@ public class StoreableTableState extends FilesystemState implements Table {
         try {
             return Serializer.run(this, get(key));
         } catch (XMLStreamException e) {
-            System.err.println("can't serialize "+key+"'s value to get it");
+            System.err.println("can't serialize " + key + "'s value to get it");
             return null;
         }
     }

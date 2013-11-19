@@ -15,7 +15,7 @@ public class CreateTableCommand extends AbstractCommand {
         super(s, "create", -1);
     }
 
-    public void execute(String args[]) throws IOException {
+    public void execute(String[] args) throws IOException {
         if (args.length < 3) {
             throw new IllegalArgumentException("wrong type (too few args)");
         }

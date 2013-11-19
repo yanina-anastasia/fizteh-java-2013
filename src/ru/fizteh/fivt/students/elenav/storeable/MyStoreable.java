@@ -22,7 +22,7 @@ public class MyStoreable implements Storeable {
             listValues.add(null);
         }
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == null) {
@@ -30,6 +30,11 @@ public class MyStoreable implements Storeable {
         }
         MyStoreable st = (MyStoreable) o;
         return st.listTypes.equals(listTypes) && st.listValues.equals(listValues);
+    }
+    
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
     public MyStoreable(List<Class<?>> classes) {

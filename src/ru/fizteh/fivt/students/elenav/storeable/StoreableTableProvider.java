@@ -22,7 +22,7 @@ import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class StoreableTableProvider implements TableProvider, Provider {
 
-    private final String CORRECT_FORMAT = "[a-zA-Zа-яА-Я0-9]+";
+    private static final String CORRECT_FORMAT = "[a-zA-Zа-яА-Я0-9]+";
     private File workingDirectory = null;
     private PrintStream stream;
     private ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -56,7 +56,7 @@ public class StoreableTableProvider implements TableProvider, Provider {
             }
             String stringType = type.getSimpleName();
             if (!stringType.equals("Integer") && !stringType.equals("Long") && !stringType.equals("Byte") 
-            		&& !stringType.equals("Float") && !stringType.equals("Double") && !stringType.equals("Boolean") 
+                    && !stringType.equals("Float") && !stringType.equals("Double") && !stringType.equals("Boolean") 
                         && !stringType.equals("String")) {
                 return false;
             }
