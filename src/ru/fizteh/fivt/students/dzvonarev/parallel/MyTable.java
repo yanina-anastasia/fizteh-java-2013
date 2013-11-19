@@ -359,13 +359,18 @@ public class MyTable implements Table {
     }
 
     public void addChanges(String key, Storeable value) {
-        if (changesMap.get().containsKey(key)) {
-            changesMap.get().get(key).newValue = value;
-        } else {
-            ValueNode valueNode = new ValueNode();
-            valueNode.oldValue = fileMap.get(key);
-            valueNode.newValue = value;
-            changesMap.get().put(key, valueNode);
+        writeLock.lock();
+        try {
+            if (changesMap.get().containsKey(key)) {
+                changesMap.get().get(key).newValue = value;
+            } else {
+                ValueNode valueNode = new ValueNode();
+                valueNode.oldValue = fileMap.get(key);
+                valueNode.newValue = value;
+                changesMap.get().put(key, valueNode);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
