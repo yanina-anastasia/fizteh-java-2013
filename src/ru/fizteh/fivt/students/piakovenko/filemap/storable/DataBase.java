@@ -64,7 +64,9 @@ public class DataBase implements Table {
 
 
         public int commit() {
-            return map.commit(transactionMap);
+            int changes = map.commit(transactionMap);
+            transactionMap.clear();
+            return changes;
         }
 
         public int size() {
