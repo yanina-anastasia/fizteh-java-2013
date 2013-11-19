@@ -275,13 +275,14 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     @Override
-    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key == null || !isValidKey(key)) {
             throw new IllegalArgumentException("invalid key");
         }
-        if (value == null || !isValidValue(value)) {
+        if (value == null) {
             throw new IllegalArgumentException("invalid value");
         }
+        TableRecord.checkStoreableTypes(value, types);
         Storeable old = get(key);
         changes.get().put(key, value);
         return old;
