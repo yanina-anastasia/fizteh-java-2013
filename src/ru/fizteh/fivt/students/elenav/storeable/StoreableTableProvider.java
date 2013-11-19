@@ -22,198 +22,199 @@ import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class StoreableTableProvider implements TableProvider, Provider {
 
-	private final String CORRECT_FORMAT = "[a-zA-Zа-яА-Я0-9]+";
-	private File workingDirectory = null;
-	private PrintStream stream;
-	private ReadWriteLock lock = new ReentrantReadWriteLock();
-	public HashMap<String, StoreableTableState> tables = new HashMap<>();
-	
-	public StoreableTableProvider(File dir, PrintStream out) throws IOException {
-		if (dir == null) {
-			throw new IllegalArgumentException("wrong type (null table)");
-		}
-		if (!dir.isDirectory()) {
-			throw new IllegalArgumentException("wrong type (null table)");
-		}
-		try {
-			lock.writeLock().lock();
-			for (File f : dir.listFiles()) {
-				if (f.isDirectory()) {
-					tables.put(f.getName(), new StoreableTableState(f.getName(), f, out, this));
-				}
-			}
-			setWorkingDirectory(dir);
-			setStream(out);
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
+    private final String CORRECT_FORMAT = "[a-zA-Zа-яА-Я0-9]+";
+    private File workingDirectory = null;
+    private PrintStream stream;
+    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    public HashMap<String, StoreableTableState> tables = new HashMap<>();
+    
+    public StoreableTableProvider(File dir, PrintStream out) throws IOException {
+        if (dir == null) {
+            throw new IllegalArgumentException("wrong type (null table)");
+        }
+        if (!dir.isDirectory()) {
+            throw new IllegalArgumentException("wrong type (null table)");
+        }
+        try {
+            lock.writeLock().lock();
+            for (File f : dir.listFiles()) {
+                if (f.isDirectory()) {
+                    tables.put(f.getName(), new StoreableTableState(f.getName(), f, out, this));
+                }
+            }
+            setWorkingDirectory(dir);
+            setStream(out);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 
-	private boolean isCorrectColumnType(List<Class<?>> columnTypes) {
-		for (Class<?> type : columnTypes) {
-			if (type == null) {
-				return false;
-			}
-			String stringType = type.getSimpleName();
-			if (!stringType.equals("Integer") && !stringType.equals("Long") && !stringType.equals("Byte") &&
-					!stringType.equals("Float") && !stringType.equals("Double") && !stringType.equals("Boolean") 
-						&& !stringType.equals("String")) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	@Override
-	public Table getTable(String name) {
-		if (name == null || name.trim().isEmpty()) {
-			throw new IllegalArgumentException("wrong type (null name)");
-		}
-		if (!name.matches(CORRECT_FORMAT)) {
-			throw new IllegalArgumentException("wrong type ("+name+")");
-		}
-		try {
-			lock.readLock().lock();
-			return tables.get(name);
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
+    private boolean isCorrectColumnType(List<Class<?>> columnTypes) {
+        for (Class<?> type : columnTypes) {
+            if (type == null) {
+                return false;
+            }
+            String stringType = type.getSimpleName();
+            if (!stringType.equals("Integer") && !stringType.equals("Long") && !stringType.equals("Byte") 
+            		&& !stringType.equals("Float") && !stringType.equals("Double") && !stringType.equals("Boolean") 
+                        && !stringType.equals("String")) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    @Override
+    public Table getTable(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("wrong type (null name)");
+        }
+        if (!name.matches(CORRECT_FORMAT)) {
+            throw new IllegalArgumentException("wrong type (" + name + ")");
+        }
+        try {
+            lock.readLock().lock();
+            return tables.get(name);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 
-	@Override
-	public StoreableTableState createTable(String name, List<Class<?>> columnTypes) throws IOException {
-		if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
-			throw new IllegalArgumentException("wrong type (null or invalid name)");
-		}
-		if (columnTypes == null || columnTypes.isEmpty()) {
-			throw new IllegalArgumentException("wrong type (null or empty columnTypes)");
-		}
-		if (!isCorrectColumnType(columnTypes)) {
-			throw new IllegalArgumentException("wrong type (invalid columnTypes)");
-		}
-		File f = new File(getWorkingDirectory(), name);
-		try {
-			lock.writeLock().lock();
-			if (f.exists()) {
-				return null;
-			}
-			if (!f.mkdir()) {
-				throw new IOException("can't create table: unknown error");
-			}
-			setSignature(f, columnTypes);
-			StoreableTableState table = new StoreableTableState(name, f, getStream(), this);
-			tables.put(name, table);
-			return table;
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
+    @Override
+    public StoreableTableState createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
+            throw new IllegalArgumentException("wrong type (null or invalid name)");
+        }
+        if (columnTypes == null || columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("wrong type (null or empty columnTypes)");
+        }
+        if (!isCorrectColumnType(columnTypes)) {
+            throw new IllegalArgumentException("wrong type (invalid columnTypes)");
+        }
+        File f = new File(getWorkingDirectory(), name);
+        try {
+            lock.writeLock().lock();
+            if (f.exists()) {
+                return null;
+            }
+            if (!f.mkdir()) {
+                throw new IOException("can't create table: unknown error");
+            }
+            setSignature(f, columnTypes);
+            StoreableTableState table = new StoreableTableState(name, f, getStream(), this);
+            tables.put(name, table);
+            return table;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 
-	private void setSignature(File f, List<Class<?>> types) {
-		File signature = new File(f, "signature.tsv");
-		try {
-			lock.writeLock().lock();
-			f.createNewFile();
-			PrintStream s = new PrintStream(signature);
-			for (int i = 0; i < types.size(); ++i) {
-				s.append(TypeClass.getNameWithType(types.get(i)));
-				s.append(" ");
-			}
-			s.close();
-		} catch (IOException e) {
-			throw new RuntimeException("can't set signature for file "+f.getName());
-		} finally {
-			lock.writeLock().unlock();
-		}
-			
-	}
+    private void setSignature(File f, List<Class<?>> types) {
+        File signature = new File(f, "signature.tsv");
+        try {
+            lock.writeLock().lock();
+            f.createNewFile();
+            PrintStream s = new PrintStream(signature);
+            for (int i = 0; i < types.size(); ++i) {
+                s.append(TypeClass.getNameWithType(types.get(i)));
+                s.append(" ");
+            }
+            s.close();
+        } catch (IOException e) {
+            throw new RuntimeException("can't set signature for file " + f.getName());
+        } finally {
+            lock.writeLock().unlock();
+        }
+            
+    }
 
-	@Override
-	public void removeTable(String name) throws IOException {
-		if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
+    @Override
+    public void removeTable(String name) throws IOException {
+        if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
             throw new IllegalArgumentException("wrong type (invalid name)");
         }
-		if (tables.get(name) == null) {
-			throw new IllegalStateException("can't remove table: table not exist");
-		}
-		try {
-			lock.writeLock().lock();
-			Functions.deleteRecursively(tables.get(name).getWorkingDirectory());
-			tables.remove(name);
-		} catch (IOException e) {
-			throw new IOException(e);
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
+        if (tables.get(name) == null) {
+            throw new IllegalStateException("can't remove table: table not exist");
+        }
+        try {
+            lock.writeLock().lock();
+            Functions.deleteRecursively(tables.get(name).getWorkingDirectory());
+            tables.remove(name);
+        } catch (IOException e) {
+            throw new IOException(e);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 
-	@Override
-	public Storeable deserialize(Table table, String value) throws ParseException {
-		if (table == null || value == null) {
-			throw new IllegalArgumentException("wrong type (null table or value)");
-		}
-		try {
-			return Deserializer.run(table, value);
-		} catch (XMLStreamException e) {
-			throw new ParseException(e.getMessage(), 0);
-		}
-	}
+    @Override
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        if (table == null || value == null) {
+            throw new IllegalArgumentException("wrong type (null table or value)");
+        }
+        try {
+            return Deserializer.run(table, value);
+        } catch (XMLStreamException e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
+    }
 
-	@Override
-	public String serialize(Table table, Storeable value) throws ColumnFormatException {
-		if (table == null || value == null) {
-			throw new IllegalArgumentException("can't serialize: null table or value");
-		}
-		try {
-			return Serializer.run(table, value);
-		} catch (XMLStreamException e) {
-			throw new ColumnFormatException(e);
-		}
-	}
+    @Override
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (table == null || value == null) {
+            throw new IllegalArgumentException("can't serialize: null table or value");
+        }
+        try {
+            return Serializer.run(table, value);
+        } catch (XMLStreamException e) {
+            throw new ColumnFormatException(e);
+        }
+    }
 
-	@Override
-	public Storeable createFor(Table table) {
-		return new MyStoreable(table);
-	}
+    @Override
+    public Storeable createFor(Table table) {
+        return new MyStoreable(table);
+    }
 
-	@Override
-	public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-		Storeable storeable = new MyStoreable(table);
-		for (int i = 0; i < table.getColumnsCount(); ++i) {
-			storeable.setColumnAt(i, values.get(i));
-		}
-		return storeable;
-	}
+    @Override
+    public Storeable createFor(Table table, List<?> values) 
+            throws ColumnFormatException, IndexOutOfBoundsException {
+        Storeable storeable = new MyStoreable(table);
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            storeable.setColumnAt(i, values.get(i));
+        }
+        return storeable;
+    }
 
-	public File getWorkingDirectory() {
-		return workingDirectory;
-	}
+    public File getWorkingDirectory() {
+        return workingDirectory;
+    }
 
-	public void setWorkingDirectory(File workingDirectory) {
-		this.workingDirectory = workingDirectory;
-	}
+    public void setWorkingDirectory(File workingDirectory) {
+        this.workingDirectory = workingDirectory;
+    }
 
-	public PrintStream getStream() {
-		return stream;
-	}
+    public PrintStream getStream() {
+        return stream;
+    }
 
-	public void setStream(PrintStream stream) {
-		this.stream = stream;
-	}
+    public void setStream(PrintStream stream) {
+        this.stream = stream;
+    }
 
-	@Override
-	public FilesystemState createTable(String string) {
-		System.err.println("Command can't be executed");
-		return null;
-	}
+    @Override
+    public FilesystemState createTable(String string) {
+        System.err.println("Command can't be executed");
+        return null;
+    }
 
-	@Override
-	public void use(FilesystemState table) throws IOException {
-		List<Class<?>> list = new ArrayList<>();
-		StoreableTableState.class.cast(table).setColumnTypes(list);
-		StoreableTableState.class.cast(table).getColumnTypes();
-		
-	}
+    @Override
+    public void use(FilesystemState table) throws IOException {
+        List<Class<?>> list = new ArrayList<>();
+        StoreableTableState.class.cast(table).setColumnTypes(list);
+        StoreableTableState.class.cast(table).getColumnTypes();
+        
+    }
 
-	
+    
 }

@@ -21,10 +21,10 @@ import ru.fizteh.fivt.students.elenav.storeable.StoreableTableProvider;
 import ru.fizteh.fivt.students.elenav.utils.Functions;
 
 public class StoreableTableTest {
-	
-	private static final File tablePath = new File("D:/TableTest");
+    
+    private static final File tablePath = new File("D:/TableTest");
 
-	private static TableProvider provider;
+    private static TableProvider provider;
     private static Table testTable;
 
     @BeforeClass
@@ -152,7 +152,8 @@ public class StoreableTableTest {
     @Test
     public void testRollback() throws Exception {
         for (int i = 0; i < 7; ++i) {
-            testTable.put("rollbackKey" + i, provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
+            testTable.put("rollbackKey" + i, 
+                    provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>"));
         }
         testTable.commit();
         testTable.put("rollbackKey4", provider.deserialize(testTable, "<row><col>5</col><col>value222</col></row>"));
@@ -165,12 +166,12 @@ public class StoreableTableTest {
     
     @Test
     public void testCommitRollback() throws ColumnFormatException, ParseException, IOException {
-    	Storeable st = provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>");
-    	testTable.put("Key1", st);
-    	testTable.commit();
-    	testTable.rollback();
-    	Assert.assertEquals(st, testTable.get("Key1"));
-    	Assert.assertEquals(st, testTable.put("Key1", st));
+        Storeable st = provider.deserialize(testTable, "<row><col>5</col><col>value</col></row>");
+        testTable.put("Key1", st);
+        testTable.commit();
+        testTable.rollback();
+        Assert.assertEquals(st, testTable.get("Key1"));
+        Assert.assertEquals(st, testTable.put("Key1", st));
     }
-	
+    
 }
