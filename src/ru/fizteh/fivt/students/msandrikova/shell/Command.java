@@ -19,11 +19,13 @@ public abstract class Command {
 	}
 	
 	protected boolean getArgsAcceptor(int argNum, boolean isInteractive) {
-		if(this.argNum != argNum) {
-			if(this.argNum == 1){
-				Utils.generateAnError("You should enter " + this.argNum + " argument", this.getName(), isInteractive);
+		if (this.argNum != argNum) {
+			if (this.argNum == 1) {
+				Utils.generateAnError("You should enter " + this.argNum 
+						+ " argument", this.getName(), isInteractive);
 			} else {
-				Utils.generateAnError("You should enter " + this.argNum + " arguments", this.getName(), isInteractive);
+				Utils.generateAnError("You should enter " + this.argNum 
+						+ " arguments", this.getName(), isInteractive);
 			}
 			return false;
 		}

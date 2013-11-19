@@ -48,7 +48,9 @@ public class MoveFileOrDirectoryCommand extends Command {
 					if (!Utils.remover(filePath, this.getName(), myShell.getIsInteractive())) {
 						return;
 					}
-				} catch (IOException e) {}
+				} catch (IOException e) {
+					Utils.generateAnError("Input or output error", this.getName(), false);
+				}
 			} else {
 				Utils.generateAnError("Can not move in existing file: \"" 
 			+ argumentsList[2] + "\"", this.getName(), myShell.getIsInteractive());
@@ -64,12 +66,14 @@ public class MoveFileOrDirectoryCommand extends Command {
 						filePath.renameTo(destination);
 					} else {
 						Utils.generateAnError("Can not rename file and get directory or rename "
-								+ "directory and get file.", this.getName(), myShell.getIsInteractive());
+								+ "directory and get file.", this.getName(), 
+								myShell.getIsInteractive());
 						return;
 					}
 				} else {
 					Utils.generateAnError("Destination does not exist and does not locate in "
-							+ "the same directory with source.", this.getName(), myShell.getIsInteractive());
+							+ "the same directory with source.", this.getName(), 
+							myShell.getIsInteractive());
 					return;
 				}
 			} catch (IOException e) {

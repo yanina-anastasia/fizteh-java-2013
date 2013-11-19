@@ -20,7 +20,8 @@ public class ChangeDirectoryCommand extends Command {
 			filePath = new File(myShell.getCurrentDirectory() + File.separator + argumentsList[1]);
 		}
 		if (!filePath.exists() || !filePath.isDirectory()) {
-			Utils.generateAnError("\"" + argumentsList[1] + "\": No such directory.", this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError("\"" + argumentsList[1] + "\": No such directory.", this.getName(),
+					myShell.getIsInteractive());
 			return;
 		}
 		myShell.setCurrentDirectory(filePath);

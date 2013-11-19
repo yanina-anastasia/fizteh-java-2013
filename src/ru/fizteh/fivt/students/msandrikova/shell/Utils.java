@@ -21,7 +21,7 @@ public class Utils {
 	}
 	
 	public static void generateAnError(final String description, String commandName, boolean isInteractive) {
-		if (!commandName.equals("")){
+		if (!commandName.equals("")) {
 			System.err.println("Error: " + commandName + ": " + description);
 		} else {
 			System.err.println("Error: " + description);

@@ -44,7 +44,8 @@ public class CopyFileOrDirectoryCommand extends Command {
 				try {
 					if (newFile.exists()) {
 						Utils.generateAnError("File or directory \"" + argumentsList[1] 
-								+ "\" already exists in directory \"" + argumentsList[2] + "\"",
+								+ "\" already exists in directory \"" 
+								+ argumentsList[2] + "\"",
 								this.getName(), myShell.getIsInteractive());
 						return;
 					}
@@ -72,24 +73,28 @@ public class CopyFileOrDirectoryCommand extends Command {
 					if (destinationIsDirectory == filePath.isDirectory()) {
 						if (destinationIsDirectory) {
 							try {
-								if (!Utils.copyDirectoriesInSameDirectory(filePath, destination,
+								if (!Utils.copyDirectoriesInSameDirectory(filePath,
+										destination,
 										this.getName(), myShell.getIsInteractive())) {
 									return;
 								} 
 							} catch (IOException e) {
-								Utils.generateAnError("Input or output error", this.getName(), false);
+								Utils.generateAnError("Input or output error", this.getName(),
+										false);
 							}  
 						} else {
 							try {
 								Utils.copyFiles(filePath, destination);
 							} catch (IOException e) {
-								Utils.generateAnError("Input or output error", this.getName(), false);
+								Utils.generateAnError("Input or output error", this.getName(),
+										false);
 							}
 							return;
 						}
 					} else {
 						Utils.generateAnError("Can not copy file and get directory or copy"
-								+ " directory and get file.", this.getName(), myShell.getIsInteractive());
+								+ " directory and get file.", this.getName()
+								, myShell.getIsInteractive());
 						return;
 					}
 				} else {
