@@ -6,18 +6,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class StoreableTableProviderFactoryTest {
-	StoreableTableProviderFactory tableProviderFactory;
+    StoreableTableProviderFactory tableProviderFactory;
 
-	@Before
-	public void setUp() throws Exception {
-		tableProviderFactory = new StoreableTableProviderFactory();
-	}
+    @Before
+    public void setUp() throws Exception {
+        tableProviderFactory = new StoreableTableProviderFactory();
+    }
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testCreate() {
-		try {
-			tableProviderFactory.create(null);
-		} catch (IOException e) {}
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreate() throws IOException {
+        tableProviderFactory.create(null);
+    }
 
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public interface ChangesCountingTableProviderFactory extends TableProviderFactory {
-	public ChangesCountingTableProvider create(String dir) throws IllegalArgumentException, IOException;
+    
+    ChangesCountingTableProvider create(String dir) throws IllegalArgumentException, IOException;
 
 }
