@@ -11,14 +11,14 @@ public class ExitCommand extends Command {
 	
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
-		if(shell.getState().isMultiFileHashMap && shell.getState().currentTable != null) {
+		if (shell.getState().isMultiFileHashMap && shell.getState().currentTable != null) {
 			shell.getState().currentTable.commit();
 		}
-		if(shell.getState().isStoreable && shell.getState().currentStoreableTable != null) {
+		if (shell.getState().isStoreable && shell.getState().currentStoreableTable != null) {
 			try {
 				shell.getState().currentStoreableTable.commit();
 			} catch (IOException e) {

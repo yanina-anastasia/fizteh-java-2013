@@ -11,37 +11,37 @@ public class MoveFileOrDirectoryCommand extends Command {
 	
 	@Override
 	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
 			return;
 		}
 
 		File destination = new File(argumentsList[2]);
-		if(!destination.isAbsolute()) {
+		if (!destination.isAbsolute()) {
 			destination = new File(myShell.getCurrentDirectory() + File.separator + destination);
 		}
 		destination = destination.getAbsoluteFile();
 		File filePath = new File(argumentsList[1]);
-		if(!filePath.isAbsolute()) {
+		if (!filePath.isAbsolute()) {
 			filePath = new File(myShell.getCurrentDirectory() + File.separator + filePath);
 		}
 		filePath = filePath.getAbsoluteFile();
 		
-		if(filePath.equals(destination)) {
+		if (filePath.equals(destination)) {
 			Utils.generateAnError("Source and destination should be different", this.getName(), myShell.getIsInteractive());
 			return;
 		}
-		if(!filePath.exists()) {
+		if (!filePath.exists()) {
 			Utils.generateAnError("\"" + argumentsList[1] + "\": No such file or directory", this.getName(), myShell.getIsInteractive());
 			return;
 		}
 		
-		if(destination.exists()) {
-			if(destination.isDirectory()) {
+		if (destination.exists()) {
+			if (destination.isDirectory()) {
 				try {
-					if(!Utils.copying(filePath, destination, this.getName(), myShell.getIsInteractive())) {
+					if (!Utils.copying(filePath, destination, this.getName(), myShell.getIsInteractive())) {
 						return;
 					}
-					if(!Utils.remover(filePath, this.getName(), myShell.getIsInteractive())) {
+					if (!Utils.remover(filePath, this.getName(), myShell.getIsInteractive())) {
 						return;
 					}
 				} catch (IOException e) {}
@@ -52,9 +52,9 @@ public class MoveFileOrDirectoryCommand extends Command {
 			
 		} else {
 			try {
-				if(destination.getCanonicalFile().getParentFile().equals(filePath.getCanonicalFile().getParentFile())) {
+				if (destination.getCanonicalFile().getParentFile().equals(filePath.getCanonicalFile().getParentFile())) {
 					boolean destinationIsDirectory = argumentsList[2].endsWith(File.separator);
-					if(destinationIsDirectory == filePath.isDirectory()) {
+					if (destinationIsDirectory == filePath.isDirectory()) {
 						filePath.renameTo(destination);
 					} else {
 						Utils.generateAnError("Can not rename file and get directory or rename directory and get file.", this.getName(), myShell.getIsInteractive());

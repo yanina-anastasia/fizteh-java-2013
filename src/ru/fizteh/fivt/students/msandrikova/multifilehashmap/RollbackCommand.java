@@ -11,18 +11,18 @@ public class RollbackCommand extends Command {
 
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
-		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
+		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
 				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
 		
 		int changesCount = 0;
-		if(!shell.getState().isStoreable) {
+		if (!shell.getState().isStoreable) {
 			changesCount = shell.getState().currentTable.rollback();
 		} else {
 			changesCount = shell.getState().currentStoreableTable.rollback();

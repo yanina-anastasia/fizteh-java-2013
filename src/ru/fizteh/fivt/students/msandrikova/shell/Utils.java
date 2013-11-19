@@ -71,7 +71,7 @@ public class Utils {
 			}
 			File[] listOfFiles;
 			listOfFiles = filePath.listFiles();
-			for(File nextFile : listOfFiles) {
+			for (File nextFile : listOfFiles) {
 				copying(nextFile, newDestination, commandName, isInteractive);
 			}
 		} else {
@@ -99,7 +99,7 @@ public class Utils {
 		}
 		File[] listOfFiles;
 		listOfFiles = filePath.listFiles();
-		for(File nextFile : listOfFiles) {
+		for (File nextFile : listOfFiles) {
 			copying(nextFile, destination, commandName, isInteractive);
 		}
 		return true;
@@ -113,7 +113,7 @@ public class Utils {
 		if (filePath.isDirectory()) {
 			File[] listOfFiles;
 			listOfFiles = filePath.listFiles();
-			for(File nextFile : listOfFiles) {
+			for (File nextFile : listOfFiles) {
 				remover(nextFile, commandName, isInteractive);
 			}
 		}
@@ -133,7 +133,7 @@ public class Utils {
 		boolean first = true;
 		StringBuilder sb = new StringBuilder();
 		
-		for(Object o: items) {
+		for (Object o: items) {
 			if (!first) {
 				sb.append(separator);
 			}
@@ -188,7 +188,7 @@ public class Utils {
 	
 	public static List<Class<?>> classTypesFromList(List<String> columnTypes) throws IOException {
 		List<Class<?>> answer = new ArrayList<Class<?>>();
-		for(String columnType : columnTypes) {
+		for (String columnType : columnTypes) {
 			switch(columnType) {
 			case "int":
 				answer.add(Integer.class);
@@ -236,7 +236,7 @@ public class Utils {
 	
 	public static List<String> getColumnTypesNames(List<Class<?>> columnTypes) {
 		List<String> answer = new ArrayList<String>();
-		for(int i = 0; i < columnTypes.size(); ++i) {
+		for (int i = 0; i < columnTypes.size(); ++i) {
 			switch(columnTypes.get(i).getName()) {
 			case "java.lang.Integer":
 				answer.add("int");
@@ -266,7 +266,7 @@ public class Utils {
 	
 	public static List<Class<?>> parseColumnTypes(String[] argumentsList) throws IOException {
 		List<String> columnTypes = new ArrayList<String>();
-		for(int i = 2; i < argumentsList.length; i++) {
+		for (int i = 2; i < argumentsList.length; i++) {
 			if (argumentsList[i].equals(")") || argumentsList[i].equals("(")) {
 				continue;
 			}
@@ -299,7 +299,7 @@ public class Utils {
 		if (columnTypes.isEmpty()) {
 			return false;
 		}
-		for(Class<?> type : columnTypes) {
+		for (Class<?> type : columnTypes) {
 			if (type == null) {
 				return false;
 			}

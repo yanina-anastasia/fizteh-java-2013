@@ -16,7 +16,7 @@ public class MyTableProviderTest {
 
 	@After
 	public void clear() throws Exception {
-		if(path.exists()) {
+		if (path.exists()) {
 			try {
 				Utils.remover(path, "test", false);
 			} catch (Exception e) {

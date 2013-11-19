@@ -20,7 +20,7 @@ public class Shell {
 	
 	private void InitMap(Command[] commands) {
 		Map< String, Command > m = new HashMap<String, Command>();
-		for(Command c : commands){
+		for (Command c : commands){
 			m.put(c.getName(), c);
 		}
 		this.commandsList = Collections.unmodifiableMap(m);
@@ -54,7 +54,7 @@ public class Shell {
 		String[] instructionsList = new String[]{};
 		String[] argumentsList;
 		instructionsList = Utils.parseOfInstructionLine(instructionLine);
-		for(String instruction : instructionsList){
+		for (String instruction : instructionsList){
 			this.currentInstruction = instruction;
 			argumentsList = Utils.parseOfInstruction(instruction);
 			if (argumentsList[0].equals("")){
@@ -83,7 +83,7 @@ public class Shell {
 			this.isInteractive = true;
 			Scanner scanner = new Scanner(System.in);
 			
-			while(!Thread.currentThread().isInterrupted()) {
+			while (!Thread.currentThread().isInterrupted()) {
 				System.out.print("$ ");
 				instructionLine = scanner.nextLine();
 				this.executeOfInstructionLine(instructionLine);

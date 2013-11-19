@@ -12,7 +12,7 @@ public class DescriptionOfDirectoryCommand extends Command {
 	
 	@Override
 	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
 			return;
 		}
 		
@@ -22,14 +22,14 @@ public class DescriptionOfDirectoryCommand extends Command {
 		Arrays.sort(listOfFiles, new Comparator<File>() {
 			@Override
 			public int compare(File file1, File file2) {
-				if(file1.isDirectory()) {
-					if(file2.isDirectory()) {
+				if (file1.isDirectory()) {
+					if (file2.isDirectory()) {
 						return file1.compareTo(file2);
 					} else {
 						return -1;
 					}
 				} else {
-					if(file2.isDirectory()) {
+					if (file2.isDirectory()) {
 						return 1;
 					} else {
 						return file1.compareTo(file2);
@@ -37,7 +37,7 @@ public class DescriptionOfDirectoryCommand extends Command {
 				}
 			}
 		});
-		for(File fileName : listOfFiles) {
+		for (File fileName : listOfFiles) {
 			System.out.println(fileName.getName());
 		}
 	}

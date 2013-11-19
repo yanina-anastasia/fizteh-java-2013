@@ -10,7 +10,7 @@ public class PrintWorkingDirectoryCommand extends Command {
 
 	@Override
 	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
 			return;
 		}
 

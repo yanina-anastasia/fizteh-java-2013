@@ -11,41 +11,41 @@ public class CopyFileOrDirectoryCommand extends Command {
 	
 	@Override
 	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
 			return;
 		}
 		
 		File destination = new File(argumentsList[2]);
-		if(!destination.isAbsolute()) {
+		if (!destination.isAbsolute()) {
 			destination = new File(myShell.getCurrentDirectory() + File.separator + destination);
 		}
 		destination = destination.getAbsoluteFile();
 		File filePath = new File(argumentsList[1]);
-		if(!filePath.isAbsolute()) {
+		if (!filePath.isAbsolute()) {
 			filePath = new File(myShell.getCurrentDirectory() + File.separator + filePath);
 		}
 		filePath = filePath.getAbsoluteFile();
 		
-		if(filePath.equals(destination)) {
+		if (filePath.equals(destination)) {
 			Utils.generateAnError("Source and destination should be different", this.getName(), myShell.getIsInteractive());
 			return;
 		}
-		if(!filePath.exists()) {
+		if (!filePath.exists()) {
 			Utils.generateAnError("\"" + argumentsList[1] + "\": No such file or directory", this.getName(), myShell.getIsInteractive());
 			return;
 		}
 		
 		
-		if(destination.exists()) {
-			if(destination.isDirectory()) {
+		if (destination.exists()) {
+			if (destination.isDirectory()) {
 				File newFile = new File(destination + File.separator + argumentsList[1]);
 				try {
-					if(newFile.exists()) {
+					if (newFile.exists()) {
 						Utils.generateAnError("File or directory \"" + argumentsList[1] 
 								+ "\" already exists in directory \""+ argumentsList[2] + "\"", this.getName(), myShell.getIsInteractive());
 						return;
 					}
-					if(!Utils.copying(filePath, destination, this.getName(), myShell.getIsInteractive())) {
+					if (!Utils.copying(filePath, destination, this.getName(), myShell.getIsInteractive())) {
 						return;
 					}
 				} catch (IOException e) {}
@@ -56,15 +56,15 @@ public class CopyFileOrDirectoryCommand extends Command {
 			}
 		} else {
 			boolean destinationIsDirectory = argumentsList[2].endsWith(File.separator);
-			if(destinationIsDirectory) {
+			if (destinationIsDirectory) {
 				Utils.generateAnError("Destination directory does not exist", this.getName(), myShell.getIsInteractive());
 				return;
 			} else {
-				if(destination.getParentFile().exists()) {
-					if(destinationIsDirectory == filePath.isDirectory()) {
-						if(destinationIsDirectory) {
+				if (destination.getParentFile().exists()) {
+					if (destinationIsDirectory == filePath.isDirectory()) {
+						if (destinationIsDirectory) {
 							try {
-								if(!Utils.copyDirectoriesInSameDirectory(filePath, destination, this.getName(), myShell.getIsInteractive())) {
+								if (!Utils.copyDirectoriesInSameDirectory(filePath, destination, this.getName(), myShell.getIsInteractive())) {
 									return;
 								} 
 							} catch (IOException e) {}  
