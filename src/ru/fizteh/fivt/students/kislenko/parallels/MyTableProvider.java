@@ -53,9 +53,9 @@ public class MyTableProvider implements TableProvider {
                 //    System.out.println(Thread.currentThread().getName() + " exit with bad column list");
                 throw new IllegalArgumentException("Incorrect column types in creating table.");
             }
-            if (columnType != Integer.class && columnType != Long.class && columnType != Byte.class &&
-                    columnType != Float.class && columnType != Double.class && columnType != Boolean.class &&
-                    columnType != String.class) {
+            if (columnType != Integer.class && columnType != Long.class && columnType != Byte.class
+                    && columnType != Float.class && columnType != Double.class && columnType != Boolean.class
+                    && columnType != String.class) {
                 //    System.out.println(Thread.currentThread().getName() + " exit with bad column list");
                 throw new IllegalArgumentException("Incorrect column types in creating table.");
             }
@@ -77,7 +77,8 @@ public class MyTableProvider implements TableProvider {
         nameOfCurrentCreatingTable = name;
         if (tables.containsKey(name)) {
             lock.writeLock().unlock();
-            //System.out.println(Thread.currentThread().getName() + " exit with name that doesn't contains in name list");
+            //System.out.println(Thread.currentThread().getName()
+            // + " exit with name that doesn't contains in name list");
             return null;
         }
         MyTable table = new MyTable(name, columnTypes, this);
@@ -97,7 +98,8 @@ public class MyTableProvider implements TableProvider {
         lock.writeLock().lock();
         if (!tables.containsKey(name)) {
             lock.writeLock().unlock();
-            //    System.out.println(Thread.currentThread().getName() + " exit remove, because haven't table with that name");
+            //    System.out.println(Thread.currentThread().getName()
+            // + " exit remove, because haven't table with that name");
             throw new IllegalStateException("Have no table to remove.");
         }
         tables.remove(name);
@@ -114,7 +116,8 @@ public class MyTableProvider implements TableProvider {
             throw new ParseException("Very strange string in input.", -1);
         }
         if (array.length() != table.getColumnsCount()) {
-            throw new ParseException("Incorrect count of columns in input.", Math.min(array.length(), table.getColumnsCount()));
+            throw new ParseException("Incorrect count of columns in input.",
+                    Math.min(array.length(), table.getColumnsCount()));
         }
         List<Object> values = new ArrayList<Object>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
@@ -122,8 +125,8 @@ public class MyTableProvider implements TableProvider {
                 values.add(null);
             } else if (array.get(i).getClass() == table.getColumnType(i)) {
                 values.add(array.get(i));
-            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class) &&
-                    table.getColumnType(i) == Long.class) {
+            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class)
+                    && table.getColumnType(i) == Long.class) {
                 values.add(array.getLong(i));
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
                 Integer a = array.getInt(i);

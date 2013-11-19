@@ -10,7 +10,7 @@ import java.text.ParseException;
 import java.util.*;
 
 public class Utils {
-    static public List<Class<?>> readColumnTypes(String pathToTable) throws IOException, ClassNotFoundException {
+    public static List<Class<?>> readColumnTypes(String pathToTable) throws IOException, ClassNotFoundException {
         File columnTypesFile = new File(pathToTable, "signature.tsv");
         Scanner scanner = new Scanner(columnTypesFile);
         List<Class<?>> types = new ArrayList<Class<?>>();
@@ -42,7 +42,7 @@ public class Utils {
         return types;
     }
 
-    static public void writeColumnTypes(String pathToTable, String[] types) throws IOException {
+    public static void writeColumnTypes(String pathToTable, String[] types) throws IOException {
         File signature = new File(pathToTable, "signature.tsv");
         signature.createNewFile();
         RandomAccessFile output = new RandomAccessFile(signature, "rw");
@@ -58,7 +58,7 @@ public class Utils {
         output.close();
     }
 
-    static public void readTable(MyTable table) throws IOException, ParseException {
+    public static void readTable(MyTable table) throws IOException, ParseException {
         File tableDir = new File(table.getName());
         if (tableDir.listFiles() != null) {
             for (File dir : tableDir.listFiles()) {

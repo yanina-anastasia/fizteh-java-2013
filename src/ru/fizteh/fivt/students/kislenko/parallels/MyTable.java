@@ -122,8 +122,8 @@ public class MyTable implements Table {
         lock.readLock().lock();
         try {
             resetTable();
-            if ((!changes.get().containsKey(key) && !storage.containsKey(key)) ||
-                    (changes.get().containsKey(key) && changes.get().get(key) == null)) {
+            if ((!changes.get().containsKey(key) && !storage.containsKey(key))
+                    || (changes.get().containsKey(key) && changes.get().get(key) == null)) {
                 count.set(count.get() + 1);
             }
             TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
@@ -298,8 +298,8 @@ public class MyTable implements Table {
             } else if (!storage.containsKey(key)) {
                 tempMap.put(key, changes.get().get(key));
                 count.set(count.get() + 1);
-            } else if (storage.containsKey(key) && !(storage.get(key) != null &&
-                    provider.serialize(this, changes.get().get(key)).equals(provider.serialize(this, storage.get(key))))) {
+            } else if (storage.containsKey(key) && !(storage.get(key) != null && provider.
+                    serialize(this, changes.get().get(key)).equals(provider.serialize(this, storage.get(key))))) {
                 tempMap.put(key, changes.get().get(key));
             }
         }

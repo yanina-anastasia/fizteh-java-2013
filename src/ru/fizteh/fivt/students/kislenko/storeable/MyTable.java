@@ -30,8 +30,9 @@ public class MyTable implements Table {
         byteSize = 0;
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j)
+            for (int j = 0; j < 16; ++j) {
                 uses[i][j] = false;
+            }
         }
         count = storage.size();
         types = new ArrayList<Class<?>>(columnTypes);
@@ -76,8 +77,8 @@ public class MyTable implements Table {
         if (!tryToGetUnnecessaryColumn(value)) {
             throw new ColumnFormatException("Incorrect value to put.");
         }
-        if ((!changes.containsKey(key) && !storage.containsKey(key)) ||
-                (changes.containsKey(key) && changes.get(key) == null)) {
+        if ((!changes.containsKey(key) && !storage.containsKey(key))
+                || (changes.containsKey(key) && changes.get(key) == null)) {
             ++count;
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(key);
