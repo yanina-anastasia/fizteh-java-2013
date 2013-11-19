@@ -6,45 +6,45 @@ import java.util.Stack;
 import java.util.Vector;
 
 public class Calculator {
-	
+    
     private static final int RAD = 17;
-	
-	private static boolean isMathSymbol(char s) {
+    
+    private static boolean isMathSymbol(char s) {
         return (s == '+' || s == '-' || s == '*' || s == '/');
     }
-	
+    
     private static boolean isBracket(char s) {
         return (s == '(' || s == ')');
     }
-	
+    
     public static void main(String[] args) { 
         Queue<String> polishNotation = new LinkedList<String>();
         Stack<String> tempForPolishNotation = new Stack<String>();
         String token = new String();
         String expression = new String();
-		
+        
         if (args.length == 0) {
             System.err.println("Error: Your should enter at least one argument");
             System.exit(1);
         }
-		
+        
         StringBuilder sb = new StringBuilder();
         for (String s : args) {
             sb.append(s);
         }
         expression = sb.toString();
-		
+        
         expression = expression.replace(" ", "");
-		
+        
         Vector<String> tokens = new Vector<String>();
-		
-		
+        
+        
         for (int i = 0; i < expression.length(); i++) {
             if (Calculator.isBracket(expression.charAt(i)) 
                     || (Calculator.isMathSymbol(expression.charAt(i)) 
-                    		&& !(expression.charAt(i) == '-' 
-                    		&& (i == 0 || expression.charAt(i - 1) == '(')))) {
-            	if (token.length() != 0) {
+                            && !(expression.charAt(i) == '-' 
+                            && (i == 0 || expression.charAt(i - 1) == '(')))) {
+                if (token.length() != 0) {
                     tokens.add(token);
                     token = "";
                 }
@@ -60,7 +60,7 @@ public class Calculator {
             tokens.add(token);
             token = "";
         }
-		
+        
         for (String s : tokens) {
             token = s;
             if (!token.matches("[*+-/)(]")) {
@@ -94,7 +94,7 @@ public class Calculator {
                 } 
             }
         }
-				
+                
         while (!tempForPolishNotation.empty() && tempForPolishNotation.peek().matches("[*+-/]")) {
             polishNotation.add(tempForPolishNotation.pop());
         }
@@ -102,7 +102,7 @@ public class Calculator {
             System.out.println("Error: Brackets isn't balanced");
             return;
         }
-		
+        
         Stack<Integer> calcOfPolishNotation = new Stack<Integer>();
         while (polishNotation.peek() != null) {
             token = polishNotation.remove();
