@@ -5,6 +5,8 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vyatkina.database.StorableTable;
 import ru.fizteh.fivt.students.vyatkina.database.superior.DatabaseUtils;
+import ru.fizteh.fivt.students.vyatkina.database.superior.TableChecker;
+import ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderChecker;
 import ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils;
 
 import java.io.IOException;
@@ -51,6 +53,7 @@ public class StorableTableImp2 implements StorableTable {
 
     @Override
     public Storeable get(String key) {
+        TableChecker.keyValidCheck(key);
         if (localMap.get().containsKey(key)) {
             return localMap.get().get(key);
         } else {
@@ -66,6 +69,11 @@ public class StorableTableImp2 implements StorableTable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+
+        TableChecker.keyValidCheck(key);
+        TableChecker.valueIsNullCheck(value);
+        TableProviderChecker.storableForThisTableCheck(this, value);
+
         Storeable oldValue = null;
         try {
             tableKeeper.readLock().lock();
@@ -84,6 +92,7 @@ public class StorableTableImp2 implements StorableTable {
 
     @Override
     public Storeable remove(String key) {
+        TableChecker.keyValidCheck(key);
         Storeable oldValue = null;
         try {
             tableKeeper.readLock().lock();
