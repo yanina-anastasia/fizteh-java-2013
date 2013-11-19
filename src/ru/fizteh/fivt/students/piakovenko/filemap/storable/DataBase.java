@@ -74,13 +74,35 @@ public class DataBase implements Table {
         }
 
         public int rollback() {
-            int changes = map.changesCount(transactionMap);
+            int changes = changesCount();
             transactionMap.clear();
             return changes;
         }
 
         public int numberOfChanges() {
             return map.changesCount(transactionMap);
+        }
+
+        public int changesCount() {
+            int count = 0;
+            for (final String key: transactionMap.keySet()) {
+                Storeable tempValue = transactionMap.get(key);
+                if (wasChanged(tempValue, map.get(key))) {
+                    ++count;
+                }
+            }
+            return count;
+        }
+
+
+        private boolean wasChanged(Storeable value1, Storeable value2) {
+            if (value1 == null && value2 == null) {
+                return false;
+            }
+            if (value1 == null || value2 == null) {
+                return true;
+            }
+            return !value1.equals(value2);
         }
 
 
