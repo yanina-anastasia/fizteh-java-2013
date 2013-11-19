@@ -56,8 +56,8 @@ public class DatabaseMap implements ChangesCountingTable {
 	
 	@Override
 	public int size() {
-		return this.originalDatabase.size() + this.updates.size() - 
-				this.removedFromOriginalDatabase.size();
+		return this.originalDatabase.size() + this.updates.size() 
+				- this.removedFromOriginalDatabase.size();
 	}
 	
 	public DatabaseMap(File currentDirectory, String name) {
@@ -65,7 +65,8 @@ public class DatabaseMap implements ChangesCountingTable {
 		this.currentFile = new File(currentDirectory, name);
 		if (this.currentFile.exists()) {
 			if (this.currentFile.isDirectory()) {
-				Utils.generateAnError("Table \"" + name + "\" can not be a directory.", "DatabaseMap", false);
+				Utils.generateAnError("Table \"" + name 
+						+ "\" can not be a directory.", "DatabaseMap", false);
 			}
 			try {
 				this.readFile();
@@ -78,12 +79,12 @@ public class DatabaseMap implements ChangesCountingTable {
 		}
 	}
 	
-	public boolean checkHash(int dirNumber, int DBNumber) {
+	public boolean checkHash(int dirNumber, int datNumber) {
 		Set<String> keySet = this.originalDatabase.keySet();
 		for (String key : keySet) {
 			int ndirectory = Utils.getNDirectory(key);
 			int nfile = Utils.getNFile(key);
-			if (dirNumber != ndirectory || DBNumber != nfile) {
+			if (dirNumber != ndirectory || datNumber != nfile) {
 				return false;
 			}
 		}
@@ -98,10 +99,10 @@ public class DatabaseMap implements ChangesCountingTable {
 		DataInputStream reader = null;
 		try {
 			reader = new DataInputStream(new FileInputStream(this.currentFile));
-			while(true) {
+			while (true) {
 				try {
 					keyLength = reader.readInt();
-				} catch(EOFException e) {
+				} catch (EOFException e) {
 					break;
 				}
 					if (keyLength <= 0 || keyLength >= 1000 * 1000) {

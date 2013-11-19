@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.msandrikova.filemap;
 
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
+import ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTable;
 
 public class GetCommand extends Command {
 
@@ -29,8 +30,8 @@ public class GetCommand extends Command {
 			value = shell.getState().currentTable.get(key);
 		} else {
 			try {
-				value = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, 
-						shell.getState().currentStoreableTable.get(key));
+				ChangesCountingTable curTable = shell.getState().currentStoreableTable;
+				value = shell.getState().storeableTableProvider.serialize(curTable, curTable.get(key));
 			} catch (IllegalArgumentException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
 				return;

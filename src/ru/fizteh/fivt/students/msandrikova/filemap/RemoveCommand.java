@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.msandrikova.filemap;
 
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
+import ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTable;
 
 public class RemoveCommand extends Command {
 
@@ -16,8 +17,8 @@ public class RemoveCommand extends Command {
 			return;
 		}
 
-		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
-				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
+		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) 
+				|| (shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
@@ -29,14 +30,15 @@ public class RemoveCommand extends Command {
 			oldValue = shell.getState().currentTable.remove(key);
 		} else {
 			try {
-				oldValue = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, shell.getState().currentStoreableTable.remove(key));
+				ChangesCountingTable curTable = shell.getState().currentStoreableTable;
+				oldValue = shell.getState().storeableTableProvider.serialize(curTable, curTable.remove(key));
 			} catch (IllegalArgumentException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
 				return;
 			}
 		}
 
-		if (oldValue == null){
+		if (oldValue == null) {
 			System.out.println("not found");
 		} else {
 			System.out.println("removed");
