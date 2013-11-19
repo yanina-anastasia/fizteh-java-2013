@@ -28,13 +28,7 @@ public class XMLSerializer implements Closeable {
             } else {
                 xmlStreamWriter.writeStartElement("col");
 
-                String stringValue = null;
-
-                try {
-                    stringValue = value.toString();
-                } catch (Exception e) {
-                    System.out.println("ps");
-                }
+                String stringValue = value.toString();
 
                 xmlStreamWriter.writeCharacters(stringValue);
                 xmlStreamWriter.writeEndElement();
