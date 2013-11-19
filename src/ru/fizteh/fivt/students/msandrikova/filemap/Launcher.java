@@ -17,7 +17,7 @@ public class Launcher {
 
 	public static void main(String[] args) {
 		String currentDirectory = System.getProperty("fizteh.db.dir");
-		if(currentDirectory == null) {
+		if (currentDirectory == null) {
 			Utils.generateAnError("Incorrect work getProperty().", "Launcher", false);
 		}
 		State myState = new State(false, false, currentDirectory);

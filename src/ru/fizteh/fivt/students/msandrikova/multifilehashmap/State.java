@@ -18,7 +18,7 @@ public class State {
 	public State(boolean isMultiHashFileMap, boolean isStoreable, String dir) {
 		this.isMultiFileHashMap = isMultiHashFileMap;
 		this.isStoreable = isStoreable;
-		if(this.isMultiFileHashMap) {
+		if (this.isMultiFileHashMap) {
 			this.currentTable = null;
 			ru.fizteh.fivt.students.msandrikova.multifilehashmap.ChangesCountingTableProviderFactory factory = new MyTableProviderFactory();
 			try { 
@@ -26,7 +26,7 @@ public class State {
 			} catch (IllegalArgumentException e) {
 				Utils.generateAnError(e.getMessage(), "state", false);
 			}
-		} else if(this.isStoreable) {
+		} else if (this.isStoreable) {
 			 this.currentStoreableTable = null;
 			 ru.fizteh.fivt.students.msandrikova.storeable.ChangesCountingTableProviderFactory storeableFactory = new StoreableTableProviderFactory();
 				try {

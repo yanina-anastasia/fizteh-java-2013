@@ -12,11 +12,11 @@ public class RemoveCommand extends Command {
 	
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 
-		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
+		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
 				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
@@ -25,7 +25,7 @@ public class RemoveCommand extends Command {
 		String key = argumentsList[1];
 		String oldValue = null;
 		
-		if(!shell.getState().isStoreable) {
+		if (!shell.getState().isStoreable) {
 			oldValue = shell.getState().currentTable.remove(key);
 		} else {
 			try {
@@ -36,7 +36,7 @@ public class RemoveCommand extends Command {
 			}
 		}
 
-		if(oldValue == null){
+		if (oldValue == null){
 			System.out.println("not found");
 		} else {
 			System.out.println("removed");

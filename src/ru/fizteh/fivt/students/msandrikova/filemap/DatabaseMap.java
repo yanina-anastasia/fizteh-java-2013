@@ -34,7 +34,7 @@ public class DatabaseMap implements ChangesCountingTable {
 		} catch (IOException e) {
 			Utils.generateAnError("Fatal error during writing", "commit", false);
 		}
-		if(this.size() == 0) {
+		if (this.size() == 0) {
 			this.currentFile.delete();
 		}
 		return answer;
@@ -63,8 +63,8 @@ public class DatabaseMap implements ChangesCountingTable {
 	public DatabaseMap(File currentDirectory, String name) {
 		this.name = name;
 		this.currentFile = new File(currentDirectory, name);
-		if(this.currentFile.exists()) {
-			if(this.currentFile.isDirectory()) {
+		if (this.currentFile.exists()) {
+			if (this.currentFile.isDirectory()) {
 				Utils.generateAnError("Table \"" + name + "\" can not be a directory.", "DatabaseMap", false);
 			}
 			try {
@@ -72,7 +72,7 @@ public class DatabaseMap implements ChangesCountingTable {
 			} catch (IOException e) {
 				Utils.generateAnError("Fatal error during reading", "use", false);
 			}
-			if(this.size() == 0) {
+			if (this.size() == 0) {
 				this.delete();
 			}
 		}
@@ -83,7 +83,7 @@ public class DatabaseMap implements ChangesCountingTable {
 		for(String key : keySet) {
 			int ndirectory = Utils.getNDirectory(key);
 			int nfile = Utils.getNFile(key);
-			if(dirNumber != ndirectory || DBNumber != nfile) {
+			if (dirNumber != ndirectory || DBNumber != nfile) {
 				return false;
 			}
 		}
@@ -104,12 +104,12 @@ public class DatabaseMap implements ChangesCountingTable {
 				} catch(EOFException e) {
 					break;
 				}
-					if(keyLength <= 0 || keyLength >= 10*10*10*10*10*10) {
+					if (keyLength <= 0 || keyLength >= 10*10*10*10*10*10) {
 						Utils.generateAnError("Incorrect length of key.", "DatabaseMap", false);
 					}
 					
 					valueLength = reader.readInt();
-					if(valueLength <= 0 || valueLength >= 10*10*10*10*10*10) {
+					if (valueLength <= 0 || valueLength >= 10*10*10*10*10*10) {
 						Utils.generateAnError("Incorrect length of value.", "DatabaseMap", false);
 					}
 					
@@ -162,24 +162,24 @@ public class DatabaseMap implements ChangesCountingTable {
 		String currentValue = this.updates.get(key);
 		boolean isRemoved = this.removedFromOriginalDatabase.contains(key);
 		this.updates.put(key, value);
-		if(originalValue == null) {
-			if(currentValue == null) {
+		if (originalValue == null) {
+			if (currentValue == null) {
 				this.changesCount++;
 			}
 		} else {
-			if(currentValue == null) {
-				if(!isRemoved) {
+			if (currentValue == null) {
+				if (!isRemoved) {
 					this.changesCount++;
 					this.removedFromOriginalDatabase.add(key);
 				}
 			}
 		}
-		if(originalValue != null && originalValue.equals(value)) {
+		if (originalValue != null && originalValue.equals(value)) {
 			this.updates.remove(key);
 			this.removedFromOriginalDatabase.remove(key);
 			this.changesCount--;
 		}
-		if(currentValue == null && !isRemoved) {
+		if (currentValue == null && !isRemoved) {
 			return originalValue;
 		} else {
 			return currentValue;
@@ -189,7 +189,7 @@ public class DatabaseMap implements ChangesCountingTable {
 	@Override
 	public String get(String key) {
 		String answer = this.updates.get(key);
-		if(answer == null && !this.removedFromOriginalDatabase.contains(key)) {
+		if (answer == null && !this.removedFromOriginalDatabase.contains(key)) {
 			answer = this.originalDatabase.get(key);
 		}
 		return answer;
@@ -200,16 +200,16 @@ public class DatabaseMap implements ChangesCountingTable {
 		String originalValue = this.originalDatabase.get(key);
 		String currentValue = this.updates.get(key);
 		boolean isRemoved = this.removedFromOriginalDatabase.contains(key);
-		if(originalValue == null) {
-			if(currentValue != null) {
+		if (originalValue == null) {
+			if (currentValue != null) {
 				this.updates.remove(key);
 				this.changesCount--;
 			}
 		} else {
-			if(currentValue != null) {
+			if (currentValue != null) {
 				this.updates.remove(key);
 			} else {
-				if(!isRemoved) {
+				if (!isRemoved) {
 					currentValue = originalValue;
 					this.removedFromOriginalDatabase.add(key);
 					this.changesCount++;
