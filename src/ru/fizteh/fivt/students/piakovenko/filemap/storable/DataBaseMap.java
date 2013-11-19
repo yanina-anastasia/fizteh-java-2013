@@ -95,14 +95,12 @@ public class DataBaseMap {
     public int currentSize(Map<String, Storeable> _newMap) {
         int count = map.size();
         for (final String key: _newMap.keySet()) {
-            Storeable tempValue = _newMap.get(key);
-            if (wasChanged(tempValue, map.get(key))) {
-                if (tempValue == null) {
-                   --count;
-                }
-                else {
-                   ++count;
-                }
+            Storeable newValue = _newMap.get(key);
+            Storeable oldValue = map.get(key);
+            if (newValue == null && oldValue != null) {
+                --count;
+            } else if (newValue != null && oldValue == null) {
+                ++count;
             }
         }
         return count;
