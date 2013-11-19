@@ -52,80 +52,60 @@ public class StoreableTableProviderTest {
 	}
 
 	@Test
-	public void testRemoveTable() {
-		try {
-			tableProvider.createTable("tableName", columnTypes);
-		} catch (IOException e) {}
-		try {
-			tableProvider.removeTable("tableName");
-		} catch (IllegalStateException | IllegalArgumentException | IOException e) {}
+	public void testRemoveTable() throws IllegalArgumentException, IOException {
+		tableProvider.createTable("tableName", columnTypes);
+		tableProvider.removeTable("tableName");
 		assertNull(tableProvider.getTable("tableName"));
 	}
 	
 	@Test(expected = IllegalStateException.class)
-	public void testRemoveNotExistTable() {
-		try {
-			tableProvider.removeTable("NotExist");
-		} catch (IllegalArgumentException | IOException e) {}
+	public void testRemoveNotExistTable() throws IllegalArgumentException, IOException {
+		tableProvider.removeTable("NotExist");
 	}
 
 	@Test(expected = ParseException.class)
-	public void testDeserialize() throws ParseException {
+	public void testDeserialize() throws ParseException, IOException {
 		Table table = null;
-		try {
-			 table = tableProvider.createTable("tableName", columnTypes);
-		} catch (IOException e) {}
+		table = tableProvider.createTable("tableName", columnTypes);
 		tableProvider.deserialize(table, "[\"exception\", 1]");
 	}
 
 	@Test
-	public void testSerialize() {
+	public void testSerialize() throws IOException, ParseException {
 		Table table = null;
 		Storeable value = null;
-		try {
-			 table = tableProvider.createTable("tableName", columnTypes);
-		} catch (IOException e) {}
-		try {
-			value = tableProvider.deserialize(table, "[1, true, null]");
-		} catch (ParseException e) {}
+		table = tableProvider.createTable("tableName", columnTypes);
+		value = tableProvider.deserialize(table, "[1, true, null]");
 		assertEquals(tableProvider.serialize(table, value), "[1,true,null]");
 	}
 	
 	@Test(expected = ColumnFormatException.class)
-	public void testSerializeException() {
+	public void testSerializeException() throws ColumnFormatException, IOException, ParseException {
 		Table table = null;
 		Table table2 = null;
 		List<Class<?>> columnTypes2 = new ArrayList<Class<?>>();
 		columnTypes2.add(Float.class);
 		Storeable value = null;
-		try {
-			 table = tableProvider.createTable("tableName", columnTypes);
-			 table2 = tableProvider.createTable("tableName2", columnTypes2);
-		} catch (IOException e) {}
-		try {
-			value = tableProvider.deserialize(table, "[1, true, null]");
-		} catch (ParseException e) {}
+		table = tableProvider.createTable("tableName", columnTypes);
+		table2 = tableProvider.createTable("tableName2", columnTypes2);
+		value = tableProvider.deserialize(table, "[1, true, null]");
 		tableProvider.serialize(table2, value);
 	}
 
 
 	@Test
-	public void testGetTable() {
+	public void testGetTable() throws IOException{
 		assertNull(tableProvider.getTable("tableName"));
 		Table table = null;
-		try {
-			table = tableProvider.createTable("tableName", columnTypes);
-		} catch (IOException e) {}
+		table = tableProvider.createTable("tableName", columnTypes);
 		assertNotNull(tableProvider.getTable("tableName"));
 		assertSame(table, tableProvider.getTable("tableName"));
 	}
 
 	@Test
-	public void testCreateTable() {
-		try {
-			assertNotNull(tableProvider.createTable("tableName", columnTypes));
-			assertNull(tableProvider.createTable("tableName", columnTypes));
-		} catch (IOException e) {}
+	public void testCreateTable() throws IOException {
+		assertNotNull(tableProvider.createTable("tableName", columnTypes));
+		assertNull(tableProvider.createTable("tableName", columnTypes));
 	}
 
 }
