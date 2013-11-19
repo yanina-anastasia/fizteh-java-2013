@@ -41,9 +41,10 @@ public class Calculator {
 		
         for (int i = 0; i < expression.length(); i++) {
             if (Calculator.isBracket(expression.charAt(i)) 
-                    || (Calculator.isMathSymbol(expression.charAt(i)) && 
-                            !(expression.charAt(i) == '-' && (i == 0 || expression.charAt(i-1) == '(')))) {
-                if (token.length() != 0) {
+                    || (Calculator.isMathSymbol(expression.charAt(i)) 
+                    		&& !(expression.charAt(i) == '-' 
+                    		&& (i == 0 || expression.charAt(i - 1) == '(')))) {
+            	if (token.length() != 0) {
                     tokens.add(token);
                     token = "";
                 }
@@ -72,7 +73,7 @@ public class Calculator {
                 while (!tempForPolishNotation.empty() && !tempForPolishNotation.peek().equals("(")) {
                     polishNotation.add(tempForPolishNotation.pop());
                 }
-                if (tempForPolishNotation.empty()){
+                if (tempForPolishNotation.empty()) {
                     System.err.println("Error: Brackets isn't balanced");
                     System.exit(1);
                 } else {
@@ -113,7 +114,9 @@ public class Calculator {
                     System.exit(1);
                 }
             } else {
-                Integer a = 0, b = 0, res = 0;
+                Integer a = 0;
+                Integer b = 0; 
+                Integer res = 0;
                 a = calcOfPolishNotation.pop();
                 b = calcOfPolishNotation.pop();
                 switch(token) {
@@ -139,7 +142,7 @@ public class Calculator {
                     res = b / a;
                     break;
                     case "*":
-                    if ((a > 0 && b > 0 && (double) Integer.MAX_VALUE/ (double) a < (double) b)
+                    if ((a > 0 && b > 0 && (double) Integer.MAX_VALUE / (double) a < (double) b)
                             || (a > 0 && b < 0 && (double) Integer.MIN_VALUE / (double) a > (double) b) 
                             || (a < 0 && b > 0 && (double) Integer.MIN_VALUE / (double) a < (double) b)
                             || (a < 0 && b < 0 && (double) Integer.MAX_VALUE / (double) a > (double) b)) {
@@ -147,6 +150,8 @@ public class Calculator {
                         System.exit(1);
                     }
                     res = b * a;
+                    break;
+                default:
                     break;
                 }
                 calcOfPolishNotation.push(res);
