@@ -38,10 +38,18 @@ public class StoreableTable implements ChangesCountingTable {
     private static final int MAX_TABLE_SIZE = 1000 * 1000 * 100;
     private static final Pattern P = Pattern.compile("\\s+");
     public class TransactionHolder {
-        private Map<String, Storeable> newDatabase;
+        private Map<String, Storeable> updates;
+        private Set<String> removed;
         
         public TransactionHolder() {
-            this.newDatabase = new HashMap<String, Storeable>(StoreableTable.this.originalDatabase);
+            this.updates = new HashMap<String, Storeable>();
+            this.removed = new HashSet<String>();
+        }
+        
+        private boolean equalsStoreable(Storeable first, Storeable second) {
+            String firstSer = StoreableTable.this.tableProvider.serialize(StoreableTable.this, first);
+            String secondSer = StoreableTable.this.tableProvider.serialize(StoreableTable.this, second);
+            return firstSer.equals(secondSer);
         }
         
         private void writeInFile(File currentFile, Set<String> keys) throws IOException {
@@ -53,7 +61,8 @@ public class StoreableTable implements ChangesCountingTable {
                 writer = new DataOutputStream(new FileOutputStream(currentFile));
                 String value;
                 for (String key : keys) {
-                    value = tableProvider.serialize(StoreableTable.this, this.newDatabase.get(key));
+                    value = tableProvider.serialize(StoreableTable.this, 
+                            StoreableTable.this.originalDatabase.get(key));
                     byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
                     byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
                     writer.writeInt(keyBytes.length);
@@ -89,7 +98,7 @@ public class StoreableTable implements ChangesCountingTable {
             }
             int dir;
             int dat;
-            for (String key : this.newDatabase.keySet()) {
+            for (String key : StoreableTable.this.originalDatabase.keySet()) {
                 dir = Utils.getNDirectory(key);
                 dat = Utils.getNFile(key);
                 keysDueTheirHash.get(dir).get(dat).add(key);
@@ -150,14 +159,7 @@ public class StoreableTable implements ChangesCountingTable {
             }
             return false;
         }
-        
-        public String getName() throws IllegalStateException {
-            if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-                throw new IllegalStateException("Table was removed.");
-            }
-            return StoreableTable.this.name;
-        }
-        
+       
         public Storeable get(String key) throws IllegalArgumentException, IllegalStateException {
             if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
                 throw new IllegalStateException("Table was removed.");
@@ -165,7 +167,16 @@ public class StoreableTable implements ChangesCountingTable {
             if (Utils.isEmpty(key)) {
                 throw new IllegalArgumentException("Key can not be null");
             }
-            return this.newDatabase.get(key);
+            
+            if(this.updates.get(key) != null) {
+                return this.updates.get(key);
+            }
+            
+            if(this.removed.contains(key)) {
+                return null;
+            }
+            
+            return StoreableTable.this.originalDatabase.get(key);
         }
             
         public Storeable put(String key, Storeable value) 
@@ -180,7 +191,10 @@ public class StoreableTable implements ChangesCountingTable {
             if (!this.checkColumnTypes(value)) {
                 throw new ColumnFormatException("Incorrent column types in given storeable.");
             }
-            return this.newDatabase.put(key, value);
+            Storeable oldValue = this.get(key);
+            this.updates.put(key, value);
+            this.removed.remove(key);
+            return oldValue;
         }
         
         public Storeable remove(String key) throws IllegalArgumentException, IllegalStateException {
@@ -190,14 +204,36 @@ public class StoreableTable implements ChangesCountingTable {
             if (Utils.isEmpty(key)) {
                 throw new IllegalArgumentException("Key can not be null");
             }
-            return this.newDatabase.remove(key);
+            
+            Storeable removedValue = this.get(key);
+            this.updates.remove(key);
+            this.removed.add(key);
+            
+            return removedValue;
         }
         
         public int size() throws IllegalStateException {
             if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
                 throw new IllegalStateException("Table was removed.");
             }
-            return this.newDatabase.size();
+            
+            int size = StoreableTable.this.originalDatabase.size();
+            
+            for(String key : this.updates.keySet()) {
+                if(StoreableTable.this.originalDatabase.get(key) == null 
+                        || !this.equalsStoreable(this.updates.get(key), 
+                                StoreableTable.this.originalDatabase.get(key))) {
+                    ++size;
+                }
+            }
+            
+            for(String key : this.removed) {
+                if(StoreableTable.this.originalDatabase.get(key) != null ) {
+                    --size;
+                }
+            }
+            
+            return size;
         }
         
         public int commit() throws IOException, IllegalStateException {
@@ -205,9 +241,16 @@ public class StoreableTable implements ChangesCountingTable {
                 throw new IllegalStateException("Table was removed.");
             }
             int changesCount = this.unsavedChangesCount();
+            for(String key : this.updates.keySet()) {
+                StoreableTable.this.originalDatabase.put(key, this.updates.get(key));
+            }
+            
+            for(String key : this.removed) {
+                StoreableTable.this.originalDatabase.remove(key);
+            }
+            this.removed.clear();
+            this.updates.clear();
             this.write();
-            StoreableTable.this.originalDatabase.clear();
-            StoreableTable.this.originalDatabase.putAll(this.newDatabase);
             return changesCount;
         }
         
@@ -216,30 +259,28 @@ public class StoreableTable implements ChangesCountingTable {
                 throw new IllegalStateException("Table was removed.");
             }
             int changesCount = this.unsavedChangesCount();
-            this.newDatabase.clear();
-            this.newDatabase.putAll(StoreableTable.this.originalDatabase);
+            this.removed.clear();
+            this.updates.clear();
             return changesCount;
         }
         
         public int unsavedChangesCount() {
-        int changesCount  = 0;
-        int intersectionSize = 0;
-        Storeable originalValue = null;
-        Storeable newValue = null;
-        for (String key : StoreableTable.this.originalDatabase.keySet()) {
-            originalValue = StoreableTable.this.originalDatabase.get(key);
-            newValue = this.newDatabase.get(key);
-            if (newValue != null) {
-                ++intersectionSize;
-                if (!newValue.equals(originalValue)) {
+            int changesCount  = 0;
+            for(String key : this.updates.keySet()) {
+                if(StoreableTable.this.originalDatabase.get(key) == null 
+                        || !this.equalsStoreable(this.updates.get(key), 
+                                StoreableTable.this.originalDatabase.get(key))) {
                     ++changesCount;
                 }
             }
+            
+            for(String key : this.removed) {
+                if(StoreableTable.this.originalDatabase.get(key) != null ) {
+                    ++changesCount;
+                }
+            }
+            return changesCount;
         }
-        changesCount += StoreableTable.this.originalDatabase.size() + this.newDatabase.size() 
-                - 2 * intersectionSize;
-        return changesCount;
-    }
     }
     
     private ThreadLocal<TransactionHolder> transaction;
@@ -385,14 +426,12 @@ public class StoreableTable implements ChangesCountingTable {
     @Override
     public String getName() throws IllegalStateException { 
         lock.readLock().lock();
-        String answer = null;
-        try {
-            answer = this.transaction.get().getName();
-        } catch (IllegalStateException e) {
-            throw e;
-        } finally {
+        if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
             lock.readLock().unlock();
+            throw new IllegalStateException("Table was removed.");
         }
+        String answer = StoreableTable.this.name;
+        lock.readLock().unlock();
         return answer;
     }
 
