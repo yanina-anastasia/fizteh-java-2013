@@ -93,13 +93,13 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
 			if(o.equals(JSONObject.NULL)) {
 				o = null;
 			}
-			if(table.getColumnType(i).equals(Long.class) && o.getClass().equals(Integer.class)) {
+			if(o != null && table.getColumnType(i).equals(Long.class) && o.getClass().equals(Integer.class)) {
 				o = Long.parseLong(o.toString());
 			}
-			if(table.getColumnType(i).equals(Byte.class) && o.getClass().equals(Integer.class)) {
+			if(o != null && table.getColumnType(i).equals(Byte.class) && o.getClass().equals(Integer.class)) {
 				o = Byte.parseByte(o.toString());
 			}
-			if(table.getColumnType(i).equals(Float.class) && o.getClass().equals(Double.class)) {
+			if(o != null && table.getColumnType(i).equals(Float.class) && o.getClass().equals(Double.class)) {
 				o = Float.parseFloat(o.toString());
 			}
 			try {
