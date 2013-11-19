@@ -24,7 +24,8 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 	@Override
 	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
 		if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
-			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
+			throw new IllegalArgumentException("Table name can not be null or empty "
+					+ "or contain bad symbols");
 		}
 		if (this.mapOfTables.get(name) == null) {
 			File tablePath = new File(this.currentDirectory, name);
@@ -33,7 +34,8 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 					ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {
-					throw new IllegalArgumentException("File with name '" + name + "' must be directory.");
+					throw new IllegalArgumentException("File with name '" + name 
+							+ "' must be directory.");
 				}
 			}
 		}
@@ -43,7 +45,8 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 	@Override
 	public ChangesCountingTable createTable(String name) throws IllegalArgumentException {
 		if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
-			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
+			throw new IllegalArgumentException("Table name can not be null or "
+					+ "empty or contain bad symbols");
 		}
 		if (this.mapOfTables.get(name) != null) {
 			return null;
@@ -69,13 +72,14 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 			throw new IllegalArgumentException("Table name can not be null or empty");
 		}
 		File tablePath = new File(this.currentDirectory, name);
-		if (this.mapOfTables.get(name) == null){
+		if (this.mapOfTables.get(name) == null) {
 			if (tablePath.exists()) {
 				if (tablePath.isDirectory()) {
 					ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {
-					Utils.generateAnError("File with name \"" + name + "\" exists and is not directory.", "drop", false);
+					Utils.generateAnError("File with name \"" + name 
+							+ "\" exists and is not directory.", "drop", false);
 				}
 			} else {
 				throw new IllegalStateException();

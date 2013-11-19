@@ -42,17 +42,22 @@ public class UseCommand extends Command {
 			System.out.println(name + " not exists");
 		} else {
 			if (!shell.getState().isStoreable) {
-				if (shell.getState().currentTable != null && shell.getState().currentTable.unsavedChangesCount() != 0) {
-					Utils.generateAnError(shell.getState().currentTable.unsavedChangesCount() + " unsaved changes", this.getName(), shell.getIsInteractive());
+				if (shell.getState().currentTable != null 
+						&& shell.getState().currentTable.unsavedChangesCount() != 0) {
+					Utils.generateAnError(shell.getState().currentTable.unsavedChangesCount() 
+							+ " unsaved changes", this.getName(), shell.getIsInteractive());
 					return;
 				}
 				shell.getState().currentTable = shell.getState().tableProvider.getTable(name);
 			} else {
-				if (shell.getState().currentStoreableTable != null && shell.getState().currentStoreableTable.unsavedChangesCount() != 0) {
-					Utils.generateAnError(shell.getState().currentStoreableTable.unsavedChangesCount() + " unsaved changes", this.getName(), shell.getIsInteractive());
+				if (shell.getState().currentStoreableTable != null 
+						&& shell.getState().currentStoreableTable.unsavedChangesCount() != 0) {
+					Utils.generateAnError(shell.getState().currentStoreableTable.unsavedChangesCount() 
+							+ " unsaved changes", this.getName(), shell.getIsInteractive());
 					return;
 				}
-				shell.getState().currentStoreableTable = shell.getState().storeableTableProvider.getTable(name);
+				shell.getState().currentStoreableTable 
+				= shell.getState().storeableTableProvider.getTable(name);
 			}
 			System.out.println("using " + name);
 		}

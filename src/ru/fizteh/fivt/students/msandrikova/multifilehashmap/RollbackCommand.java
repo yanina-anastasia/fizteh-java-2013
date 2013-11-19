@@ -15,8 +15,8 @@ public class RollbackCommand extends Command {
 			return;
 		}
 		
-		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
-				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
+		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) 
+				|| (shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}

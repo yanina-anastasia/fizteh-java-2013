@@ -31,7 +31,8 @@ public class RemoveCommand extends Command {
 		} else {
 			try {
 				ChangesCountingTable curTable = shell.getState().currentStoreableTable;
-				oldValue = shell.getState().storeableTableProvider.serialize(curTable, curTable.remove(key));
+				oldValue = shell.getState().storeableTableProvider.serialize(curTable, 
+						curTable.remove(key));
 			} catch (IllegalArgumentException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
 				return;

@@ -15,11 +15,12 @@ public class CreateCommand extends Command {
 
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!shell.getState().isStoreable && !super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if (!shell.getState().isStoreable && !super.getArgsAcceptor(argumentsList.length - 1,
+				shell.getIsInteractive())) {
 			return;
 		}
 		
-		if(shell.getState().isStoreable && argumentsList.length < 4) {
+		if (shell.getState().isStoreable && argumentsList.length < 4) {
 			System.out.println("wrong type (Incorrect arguments amount)");
 			return;
 		}
@@ -27,7 +28,7 @@ public class CreateCommand extends Command {
 		Object newTable = null;
 		String name = argumentsList[1];
 		
-		if(!shell.getState().isStoreable) {
+		if (!shell.getState().isStoreable) {
 			try {
 				newTable = shell.getState().tableProvider.createTable(name);
 			} catch (IllegalArgumentException e) {
@@ -44,7 +45,7 @@ public class CreateCommand extends Command {
 			}
 			try {
 				newTable = shell.getState().storeableTableProvider.createTable(name, columnTypes);
-			} catch(IOException e) {
+			} catch (IOException e) {
 				Utils.generateAnError(e.getMessage(), this.getName(), false);
 				return;
 			} catch (IllegalArgumentException e) {
@@ -53,7 +54,7 @@ public class CreateCommand extends Command {
 			}
 		}
 		
-		if(newTable == null) {
+		if (newTable == null) {
 			System.out.println(name + " exists");
 		} else {
 			System.out.println("created");

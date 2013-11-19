@@ -11,18 +11,18 @@ public class SizeCommand extends Command {
 
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
-		if((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
-				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
+		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) 
+				|| (shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
 		
 		int size = 0;
-		if(!shell.getState().isStoreable) {
+		if (!shell.getState().isStoreable) {
 			size = shell.getState().currentTable.size();
 		} else {
 			size = shell.getState().currentStoreableTable.size();

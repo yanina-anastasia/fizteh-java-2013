@@ -12,8 +12,8 @@ public class MyTable implements ChangesCountingTable {
 	private String name;
 	private File tablePath;
 	private Map<Integer, DatabaseDirectory> mapOfDirectories = new HashMap<Integer, DatabaseDirectory>();
-	private int MAX_DIRECTORIES_AMOUNT = 16;
-	private int MAX_TABLE_SIZE = 1000*1000*100;
+	private final int MAX_DIRECTORIES_AMOUNT = 16;
+	private final int MAX_TABLE_SIZE = 1000 * 1000 * 100;
 	
 	private void getDirectory(int nameNumber) {
 		String name = Integer.toString(nameNumber) + ".dir";
@@ -37,7 +37,8 @@ public class MyTable implements ChangesCountingTable {
 			this.tablePath.mkdir();
 		} else {
 			if (!this.tablePath.isDirectory()) {
-				Utils.generateAnError("Table with name \"" + this.name + "\"should be directory.", "create", false);
+				Utils.generateAnError("Table with name \"" + this.name 
+						+ "\"should be directory.", "create", false);
 			}
 			for (int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; i++) {
 				this.getDirectory(i);
@@ -87,7 +88,8 @@ public class MyTable implements ChangesCountingTable {
 			try {
 				currentDirectory = this.createDirectory(ndirectory);
 			} catch (IOException e) {
-				Utils.generateAnError("Can not open or use required data base directory.", "put", false);
+				Utils.generateAnError("Can not open or use required data base directory.",
+						"put", false);
 			}
 		}
 		answer = currentDirectory.put(key, value);

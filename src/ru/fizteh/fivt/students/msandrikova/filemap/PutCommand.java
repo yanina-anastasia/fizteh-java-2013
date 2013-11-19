@@ -55,16 +55,16 @@ public class PutCommand extends Command {
 			oldValue = shell.getState().currentTable.put(key, value);
 		} else {
 			Storeable storeableValue = null;
+			ChangesCountingTable curTable = shell.getState().currentStoreableTable;
 			try {
-				ChangesCountingTable curTable = shell.getState().currentStoreableTable;
 				storeableValue = shell.getState().storeableTableProvider.deserialize(curTable, value);
 			} catch (ParseException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
 				return;
 			}
 			try {
-				oldValue = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, 
-						shell.getState().currentStoreableTable.put(key, storeableValue));
+				oldValue = shell.getState().storeableTableProvider.serialize(curTable, 
+						curTable.put(key, storeableValue));
 			} catch (IllegalArgumentException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
 				return;

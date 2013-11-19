@@ -12,7 +12,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	private String name;
 	private File directoryPath;
 	private Map<Integer, DatabaseMap> mapOfDatabases = new HashMap<Integer, DatabaseMap>();
-	private int MAX_DATABASE_AMOUNT = 16;
+	private final int MAX_DATABASE_AMOUNT = 16;
 	
 	private void getDatabase(int nameNumber) {
 		String name = Integer.toString(nameNumber) + ".dat";
@@ -20,7 +20,8 @@ public class DatabaseDirectory implements ChangesCountingTable {
 		if (databasePath.exists()) {
 			DatabaseMap newDatabase = new DatabaseMap(this.directoryPath, name);
 			if (!newDatabase.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
-				Utils.generateAnError("Incorrect keys in directory \"" + this.name + "\" in data base \"" + name + "\".", "use", false);
+				Utils.generateAnError("Incorrect keys in directory \"" + this.name 
+						+ "\" in data base \"" + name + "\".", "use", false);
 			}
 			if (newDatabase.size() == 0) {
 				this.mapOfDatabases.put(nameNumber, newDatabase);
@@ -33,7 +34,8 @@ public class DatabaseDirectory implements ChangesCountingTable {
 		this.directoryPath = new File(tableDirectory, name);
 		if (this.directoryPath.exists()) {
 			if (!this.directoryPath.isDirectory()) {
-				Utils.generateAnError("File \"" + this.name + "\" should be directory.", "DatabaseDirectory", false);
+				Utils.generateAnError("File \"" + this.name + "\" should be directory.",
+						"DatabaseDirectory", false);
 			}
 			for (int i = 0; i < this.MAX_DATABASE_AMOUNT; i++) {
 				this.getDatabase(i);
