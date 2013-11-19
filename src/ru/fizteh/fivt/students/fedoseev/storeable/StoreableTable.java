@@ -167,12 +167,14 @@ public class StoreableTable implements Table {
                 stringContentsValue = tp.serialize(this, contents.get(key));
             }
 
-            if (dataAlreadyExists.get().containsKey(key) && !stringValue.equals(stringExistingDataValue)) {
-                dataAlreadyExists.get().remove(key);
-            }
-            if (contents.get(key) != null && stringValue.equals(stringContentsValue)) {
-                dataAlreadyExists.get().put(key, value);
-                diff.get().remove(key);
+            if (stringValue != null && stringExistingDataValue != null && stringContentsValue != null) {
+                if (dataAlreadyExists.get().containsKey(key) && !stringValue.equals(stringExistingDataValue)) {
+                    dataAlreadyExists.get().remove(key);
+                }
+                if (contents.get(key) != null && stringValue.equals(stringContentsValue)) {
+                    dataAlreadyExists.get().put(key, value);
+                    diff.get().remove(key);
+                }
             }
 
             return prevValue;
@@ -252,7 +254,7 @@ public class StoreableTable implements Table {
                     prevSize++;
 
                     contents.remove(existingDataKey);
-                } else if (stringContentsValue != null) {
+                } else if (stringContentsValue != null && stringExistingDataValue != null) {
                     if (!stringContentsValue.equals(stringExistingDataValue)
                             && dataAlreadyExists.get().get(existingDataKey) != null) {
                         prevSize++;
@@ -489,10 +491,12 @@ public class StoreableTable implements Table {
                 if (!contents.containsKey(key)) {
                     number.set(number.get() + 1);
                 }
-                if (!contents.containsKey(key)
-                        || contents.containsKey(key)
-                        && (contents.get(key) == null || !diffValue.equals(contentsValue))) {
-                    diff.get().put(key, diff.get().get(key));
+                if (diffValue != null && contentsValue != null) {
+                    if (!contents.containsKey(key)
+                            || contents.containsKey(key)
+                            && (contents.get(key) == null || !diffValue.equals(contentsValue))) {
+                        diff.get().put(key, diff.get().get(key));
+                    }
                 }
             }
         } else {
@@ -517,10 +521,12 @@ public class StoreableTable implements Table {
                     if (!contents.containsKey(diffKey)) {
                         number.set(number.get() + 1);
                     }
-                    if (!contents.containsKey(diffKey)
-                            || contents.containsKey(diffKey)
-                            && (contents.get(diffKey) == null || !diffValue.equals(contentsValue))) {
-                        newDiff.put(diffKey, diff.get().get(diffKey));
+                    if (diffValue != null && contentsValue != null) {
+                        if (!contents.containsKey(diffKey)
+                                || contents.containsKey(diffKey)
+                                && (contents.get(diffKey) == null || !diffValue.equals(contentsValue))) {
+                            newDiff.put(diffKey, diff.get().get(diffKey));
+                        }
                     }
                 }
             }
