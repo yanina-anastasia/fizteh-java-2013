@@ -98,10 +98,10 @@ public class DataBaseMap {
             Storeable tempValue = _newMap.get(key);
             if (wasChanged(tempValue, map.get(key))) {
                 if (tempValue == null) {
-                   ++count;
+                   --count;
                 }
                 else {
-                   --count;
+                   ++count;
                 }
             }
         }
