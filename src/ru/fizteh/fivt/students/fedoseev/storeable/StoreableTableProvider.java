@@ -12,16 +12,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StoreableTableProvider implements TableProvider {
-
     private Map<String, StoreableTable> databaseTables = new HashMap<>();
+    private ReadWriteLock locker = new ReentrantReadWriteLock();
 
     @Override
     public StoreableTable getTable(String tableName) {
         checkTableName(tableName);
 
-        return databaseTables.get(tableName);
+        locker.readLock().lock();
+
+        try {
+            return databaseTables.get(tableName);
+        } finally {
+            locker.readLock().unlock();
+        }
     }
 
     @Override
@@ -36,15 +44,21 @@ public class StoreableTableProvider implements TableProvider {
         }
         checkTableName(tableName);
 
-        if (databaseTables.containsKey(tableName)) {
-            return null;
+        locker.writeLock().lock();
+
+        try {
+            if (databaseTables.get(tableName) != null) {
+                return null;
+            } else {
+                StoreableTable newTable = new StoreableTable(tableName, columnTypes, this);
+
+                databaseTables.put(tableName, newTable);
+
+                return newTable;
+            }
+        } finally {
+            locker.writeLock().unlock();
         }
-
-        StoreableTable newTable = new StoreableTable(tableName, columnTypes, this);
-
-        databaseTables.put(tableName, newTable);
-
-        return newTable;
     }
 
     @Override
@@ -55,7 +69,13 @@ public class StoreableTableProvider implements TableProvider {
             throw new IllegalStateException("REMOVE TABLE ERROR: not existing table");
         }
 
-        databaseTables.remove(tableName);
+        locker.writeLock().lock();
+
+        try {
+            databaseTables.remove(tableName);
+        } finally {
+            locker.writeLock().unlock();
+        }
     }
 
     @Override
@@ -171,9 +191,9 @@ public class StoreableTableProvider implements TableProvider {
             throw new RuntimeException("GET | CREATE | REMOVE ERROR: illegal symbol in table name");
         }
 
-        String NAME_FORMAT = "[а-яА-яa-zA-Z0-9]+";
+        String nameFormat = "[а-яА-яa-zA-Z0-9]+";
 
-        if (!new File(tableName).toPath().getFileName().toString().matches(NAME_FORMAT)) {
+        if (!new File(tableName).toPath().getFileName().toString().matches(nameFormat)) {
             throw new IllegalArgumentException("GET | CREATE | REMOVE TABLE ERROR: invalid table name");
         }
     }

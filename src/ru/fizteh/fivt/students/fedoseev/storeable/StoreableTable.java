@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StoreableTable implements Table {
     private static final int MAX_TABLE_SIZE = 4 * 1024 * 1024;
@@ -21,25 +23,64 @@ public class StoreableTable implements Table {
 
     private String tableName;
     private Map<String, Storeable> contents;
-    private Map<String, Storeable> diff;
     private long tableSize;
     private boolean[] boolUsedDirs;
     private boolean[][] boolUsedFiles;
-    private int number;
     private StoreableTableProvider tp;
-    private ArrayList<Class<?>> columnTypes;
+    private List<Class<?>> columnTypes;
+    private int controlFigures;
+    private ThreadLocal<boolean[]> localBoolUsedDirs;
+    private ThreadLocal<boolean[][]> localBoolUsedFiles;
+    private ThreadLocal<Map<String, Storeable>> diff;
+    private ThreadLocal<Map<String, Storeable>> dataAlreadyExists;
+    private ThreadLocal<Integer> localControlFigures;
+    private ThreadLocal<Integer> number;
+    private ReadWriteLock locker;
 
     public StoreableTable(String tableName, List<Class<?>> columnTypes, StoreableTableProvider prev) {
         this.tableName = tableName;
         tableSize = 0;
         tp = prev;
-
         boolUsedDirs = new boolean[DIRS_NUMBER];
         boolUsedFiles = new boolean[DIRS_NUMBER][DIR_FILES_NUMBER];
         contents = new HashMap<>();
-        diff = new HashMap<>();
-
-        number = contents.size();
+        localBoolUsedDirs = new ThreadLocal<boolean[]>() {
+            @Override
+            public boolean[] initialValue() {
+                return new boolean[DIRS_NUMBER];
+            }
+        };
+        localBoolUsedFiles = new ThreadLocal<boolean[][]>() {
+            @Override
+            public boolean[][] initialValue() {
+                return new boolean[DIRS_NUMBER][DIR_FILES_NUMBER];
+            }
+        };
+        diff = new ThreadLocal<Map<String, Storeable>>() {
+            @Override
+            public Map<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+        dataAlreadyExists = new ThreadLocal<Map<String, Storeable>>() {
+            @Override
+            public Map<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+        localControlFigures = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return 0;
+            }
+        };
+        number = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return 0;
+            }
+        };
+        locker = new ReentrantReadWriteLock();
         this.columnTypes = new ArrayList<>(columnTypes);
     }
 
@@ -52,11 +93,19 @@ public class StoreableTable implements Table {
     public Storeable get(String key) {
         checkKeyFormat(key);
 
-        if (diff.containsKey(key)) {
-            return diff.get(key);
-        }
+        locker.readLock().lock();
 
-        return contents.get(key);
+        try {
+            updateControlFigures(key);
+
+            if (diff.get().containsKey(key)) {
+                return diff.get().get(key);
+            }
+
+            return contents.get(key);
+        } finally {
+            locker.readLock().unlock();
+        }
     }
 
     @Override
@@ -65,6 +114,7 @@ public class StoreableTable implements Table {
         if (value == null) {
             throw new IllegalArgumentException("PUT ERROR: invalid value");
         }
+
         try {
             for (int i = 0; i < columnTypes.size(); i++) {
                 Object v = value.getColumnAt(i);
@@ -89,76 +139,165 @@ public class StoreableTable implements Table {
             }
         }
 
-        if (!diff.containsKey(key) && !contents.containsKey(key) || diff.containsKey(key) && diff.get(key) == null) {
-            number++;
+        locker.readLock().lock();
+
+        try {
+            updateControlFigures(key);
+
+            if (!diff.get().containsKey(key) && !contents.containsKey(key)
+                    || diff.get().containsKey(key) && diff.get().get(key) == null) {
+                number.set(number.get() + 1);
+            }
+
+            localBoolUsedDirs.get()[dirHash(key)] = true;
+            localBoolUsedFiles.get()[dirHash(key)][fileHash(key)] = true;
+
+            Storeable prevValue = get(key);
+
+            diff.get().put(key, value);
+
+            String stringExistingDataValue = null;
+            String stringValue = tp.serialize(this, value);
+            String stringContentsValue = null;
+
+            if (dataAlreadyExists.get().containsKey(key)) {
+                stringExistingDataValue = tp.serialize(this, dataAlreadyExists.get().get(key));
+            }
+            if (contents.get(key) != null) {
+                stringContentsValue = tp.serialize(this, contents.get(key));
+            }
+
+            if (dataAlreadyExists.get().containsKey(key) && !stringValue.equals(stringExistingDataValue)) {
+                dataAlreadyExists.get().remove(key);
+            }
+            if (contents.get(key) != null && stringValue.equals(stringContentsValue)) {
+                dataAlreadyExists.get().put(key, value);
+                diff.get().remove(key);
+            }
+
+            return prevValue;
+        } finally {
+            locker.readLock().unlock();
         }
-
-        getBoolUsedDirs()[dirHash(key)] = true;
-        getBoolUsedFiles()[dirHash(key)][fileHash(key)] = true;
-
-        Storeable prevValue = get(key);
-
-        diff.put(key, value);
-
-        if (value.equals(contents.get(key))) {
-            diff.remove(key);
-        }
-
-        return prevValue;
     }
 
     @Override
     public Storeable remove(String key) {
         checkKeyFormat(key);
 
-        if (!diff.containsKey(key) && contents.get(key) != null || diff.get(key) != null) {
-            number--;
+        locker.readLock().lock();
+
+        try {
+            updateControlFigures(null);
+
+            if (!diff.get().containsKey(key) && contents.get(key) != null || diff.get().get(key) != null) {
+                number.set(number.get() - 1);
+            }
+
+            localBoolUsedDirs.get()[dirHash(key)] = true;
+            localBoolUsedFiles.get()[dirHash(key)][fileHash(key)] = true;
+
+            Storeable prevValue = get(key);
+
+            diff.get().put(key, null);
+
+            if (dataAlreadyExists.get().get(key) != null && dataAlreadyExists.get().containsKey(key)) {
+                dataAlreadyExists.get().remove(key);
+            }
+            if (contents.get(key) == null) {
+                dataAlreadyExists.get().put(key, null);
+                diff.get().remove(key);
+            }
+
+            return prevValue;
+        } finally {
+            locker.readLock().unlock();
         }
-
-        getBoolUsedDirs()[dirHash(key)] = true;
-        getBoolUsedFiles()[dirHash(key)][fileHash(key)] = true;
-
-        Storeable prevValue = get(key);
-
-        diff.put(key, null);
-
-        if (contents.get(key) == null) {
-            diff.remove(key);
-        }
-
-        return prevValue;
     }
 
     @Override
     public int size() {
-        return number;
+        locker.readLock().lock();
+
+        try {
+            updateControlFigures(null);
+
+            return number.get();
+        } finally {
+            locker.readLock().unlock();
+        }
     }
 
     @Override
     public int commit() {
-        for (String key : diff.keySet()) {
-            if (diff.get(key) == null) {
-                contents.remove(key);
-            } else {
-                contents.put(key, diff.get(key));
+        locker.writeLock().lock();
+
+        try {
+            updateControlFigures(null);
+
+            int prevSize = diff.get().size();
+
+            for (String existingDataKey : dataAlreadyExists.get().keySet()) {
+                String stringExistingDataValue = null;
+                String stringContentsValue = null;
+
+                if (dataAlreadyExists.get().get(existingDataKey) != null) {
+                    stringExistingDataValue = tp.serialize(this, dataAlreadyExists.get().get(existingDataKey));
+                }
+                if (contents.get(existingDataKey) != null) {
+                    stringContentsValue = tp.serialize(this, contents.get(existingDataKey));
+                }
+
+                if (contents.get(existingDataKey) != null && dataAlreadyExists.get().get(existingDataKey) == null) {
+                    prevSize++;
+
+                    contents.remove(existingDataKey);
+                } else if (stringContentsValue != null) {
+                    if (!stringContentsValue.equals(stringExistingDataValue)
+                            && dataAlreadyExists.get().get(existingDataKey) != null) {
+                        prevSize++;
+
+                        contents.put(existingDataKey, dataAlreadyExists.get().get(existingDataKey));
+                    }
+                }
             }
+            for (String diffKey : diff.get().keySet()) {
+                if (diff.get().get(diffKey) == null) {
+                    contents.remove(diffKey);
+                } else {
+                    contents.put(diffKey, diff.get().get(diffKey));
+                }
+            }
+
+            updateBoolUsed();
+            localControlFigures.set(++controlFigures);
+
+            dataAlreadyExists.get().clear();
+            diff.get().clear();
+
+            return prevSize;
+        } finally {
+            locker.writeLock().unlock();
         }
-
-        int prevSize = diff.size();
-
-        diff.clear();
-
-        return prevSize;
     }
 
     @Override
     public int rollback() {
-        int prevSize = diff.size();
+        locker.readLock().lock();
 
-        diff.clear();
-        number = contents.size();
+        try {
+            updateControlFigures(null);
 
-        return prevSize;
+            int prevSize = diff.get().size();
+
+            dataAlreadyExists.get().clear();
+            diff.get().clear();
+            number.set(contents.size());
+
+            return prevSize;
+        } finally {
+            locker.readLock().unlock();
+        }
     }
 
     public void checkTable() throws IOException {
@@ -198,7 +337,7 @@ public class StoreableTable implements Table {
     }
 
     public int getDiffSize() {
-        return diff.size();
+        return diff.get().size();
     }
 
     public Map<String, Storeable> getMapContents() {
@@ -211,7 +350,7 @@ public class StoreableTable implements Table {
 
     public void clearContentAndDiff() {
         contents.clear();
-        diff.clear();
+        diff.get().clear();
     }
 
     public int dirHash(String key) {
@@ -282,7 +421,7 @@ public class StoreableTable implements Table {
         return columnTypes.get(columnIndex);
     }
 
-    public ArrayList<Class<?>> getColumnTypes() {
+    public List<Class<?>> getColumnTypes() {
         return columnTypes;
     }
 
@@ -294,6 +433,99 @@ public class StoreableTable implements Table {
 
         if (fileHash(key) != fileNumber || dirHash(key) != dirNumber) {
             throw new IOException("ERROR: wrong key placement");
+        }
+    }
+
+    public void updateControlFigures(String key) {
+        if (controlFigures != localControlFigures.get()) {
+            number.set(contents.size());
+            localControlFigures.set(controlFigures);
+            updateLocalBoolUsed();
+            updateDiff(key);
+        }
+    }
+
+    public void updateLocalBoolUsed() {
+        for (int i = 0; i < DIRS_NUMBER; i++) {
+            localBoolUsedDirs.get()[i] = boolUsedDirs[i];
+        }
+
+        for (int i = 0; i < DIRS_NUMBER; i++) {
+            for (int j = 0; j < DIR_FILES_NUMBER; j++) {
+                localBoolUsedFiles.get()[i][j] = boolUsedFiles[i][j];
+            }
+        }
+    }
+
+    public void updateBoolUsed() {
+        for (int i = 0; i < DIRS_NUMBER; i++) {
+            boolUsedDirs[i] = localBoolUsedDirs.get()[i];
+        }
+
+        for (int i = 0; i < DIRS_NUMBER; i++) {
+            for (int j = 0; j < DIR_FILES_NUMBER; j++) {
+                boolUsedFiles[i][j] = localBoolUsedFiles.get()[i][j];
+            }
+        }
+    }
+
+    public void updateDiff(String key) {
+        if (key != null) {
+            if (diff.get().get(key) == null) {
+                if (contents.containsKey(key)) {
+                    number.set(number.get() - 1);
+                    diff.get().put(key, null);
+                } else {
+                    diff.get().remove(key);
+                }
+            } else {
+                String diffValue = tp.serialize(this, diff.get().get(key));
+                String contentsValue = null;
+
+                if (contents.get(key) != null) {
+                    contentsValue = tp.serialize(this, contents.get(key));
+                }
+
+                if (!contents.containsKey(key)) {
+                    number.set(number.get() + 1);
+                }
+                if (!contents.containsKey(key)
+                        || contents.containsKey(key)
+                        && (contents.get(key) == null || !diffValue.equals(contentsValue))) {
+                    diff.get().put(key, diff.get().get(key));
+                }
+            }
+        } else {
+            Map<String, Storeable> newDiff = new HashMap<>();
+
+            for (String diffKey : diff.get().keySet()) {
+                if (diff.get().get(diffKey) == null) {
+                    if (contents.containsKey(diffKey)) {
+                        number.set(number.get() - 1);
+                        newDiff.put(diffKey, null);
+                    } else {
+                        diff.get().remove(diffKey);
+                    }
+                } else {
+                    String diffValue = tp.serialize(this, diff.get().get(diffKey));
+                    String contentsValue = null;
+
+                    if (contents.get(diffKey) != null) {
+                        contentsValue = tp.serialize(this, contents.get(diffKey));
+                    }
+
+                    if (!contents.containsKey(diffKey)) {
+                        number.set(number.get() + 1);
+                    }
+                    if (!contents.containsKey(diffKey)
+                            || contents.containsKey(diffKey)
+                            && (contents.get(diffKey) == null || !diffValue.equals(contentsValue))) {
+                        newDiff.put(diffKey, diff.get().get(diffKey));
+                    }
+                }
+            }
+
+            diff.set(newDiff);
         }
     }
 }

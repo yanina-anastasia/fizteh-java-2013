@@ -65,7 +65,7 @@ public class StoreableCreateCommand extends AbstractCommand<StoreableState> {
         }
     }
 
-    private String[] checkInput(String input[], File curTableDir) {
+    private String[] checkInput(String[] input, File curTableDir) {
         if (input.length < 2) {
             ifWrongType(curTableDir);
         }

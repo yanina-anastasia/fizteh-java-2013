@@ -34,9 +34,9 @@ public class StoreableMain {
             AbstractStoreable storable = new AbstractStoreable(dbDir);
 
             if (args.length != 0) {
-                storable.BatchMode(args);
+                storable.batchMode(args);
             } else {
-                storable.InteractiveMode();
+                storable.interactiveMode();
             }
         } catch (NullPointerException e) {
             System.err.println("ERROR: cannot get property");

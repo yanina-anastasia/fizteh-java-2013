@@ -19,7 +19,7 @@ public interface Frame {
     void runCommands(String cmd, int end)
             throws IOException, InterruptedException, ClassNotFoundException, ParseException;
 
-    void BatchMode(String[] args);
+    void batchMode(String[] args);
 
-    void InteractiveMode() throws InterruptedException;
+    void interactiveMode() throws InterruptedException;
 }

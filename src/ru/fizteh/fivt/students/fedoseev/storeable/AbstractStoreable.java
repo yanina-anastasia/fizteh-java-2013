@@ -36,29 +36,31 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
     @Override
     public Map<String, AbstractCommand> getCommands() {
-        final StoreableCreateCommand CREATE = new StoreableCreateCommand();
-        final MultiFileHashMapDropCommand DROP = new MultiFileHashMapDropCommand();
-        final MultiFileHashMapUseCommand USE = new MultiFileHashMapUseCommand();
-        final FileMapPutCommand PUT = new FileMapPutCommand();
-        final FileMapGetCommand GET = new FileMapGetCommand();
-        final FileMapRemoveCommand REMOVE = new FileMapRemoveCommand();
-        final FileMapExitCommand EXIT = new FileMapExitCommand();
-        final MultiFileHashMapSizeCommand SIZE = new MultiFileHashMapSizeCommand();
-        final MultiFileHashMapCommitCommand COMMIT = new MultiFileHashMapCommitCommand();
-        final MultiFileHashMapRollbackCommand ROLLBACK = new MultiFileHashMapRollbackCommand();
+        final StoreableCreateCommand create = new StoreableCreateCommand();
+        final MultiFileHashMapDropCommand drop = new MultiFileHashMapDropCommand();
+        final MultiFileHashMapUseCommand use = new MultiFileHashMapUseCommand();
+        final FileMapPutCommand put = new FileMapPutCommand();
+        final FileMapGetCommand get = new FileMapGetCommand();
+        final FileMapRemoveCommand remove = new FileMapRemoveCommand();
+        final FileMapExitCommand exit = new FileMapExitCommand();
+        final MultiFileHashMapSizeCommand size = new MultiFileHashMapSizeCommand();
+        final MultiFileHashMapCommitCommand commit = new MultiFileHashMapCommitCommand();
+        final MultiFileHashMapRollbackCommand rollback = new MultiFileHashMapRollbackCommand();
 
-        return new HashMap<String, AbstractCommand>() {{
-            put(CREATE.getCmdName(), CREATE);
-            put(DROP.getCmdName(), DROP);
-            put(USE.getCmdName(), USE);
-            put(PUT.getCmdName(), PUT);
-            put(GET.getCmdName(), GET);
-            put(REMOVE.getCmdName(), REMOVE);
-            put(EXIT.getCmdName(), EXIT);
-            put(SIZE.getCmdName(), SIZE);
-            put(COMMIT.getCmdName(), COMMIT);
-            put(ROLLBACK.getCmdName(), ROLLBACK);
-        }};
+        return new HashMap<String, AbstractCommand>() {
+            {
+                put(create.getCmdName(), create);
+                put(drop.getCmdName(), drop);
+                put(use.getCmdName(), use);
+                put(put.getCmdName(), put);
+                put(get.getCmdName(), get);
+                put(remove.getCmdName(), remove);
+                put(exit.getCmdName(), exit);
+                put(size.getCmdName(), size);
+                put(commit.getCmdName(), commit);
+                put(rollback.getCmdName(), rollback);
+            }
+        };
     }
 
     public static void readTableOff(StoreableTable curTable) throws IOException, ParseException {
@@ -186,7 +188,6 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
         File[] directories = new File[curTable.getDirsNumber()];
         Map<Integer, File> files = new HashMap<>();
-        Map<Integer, RandomAccessFile> RAFiles = new HashMap<>();
         Set<String> keySet = curTable.getMapContents().keySet();
 
         curTable.setUsedDirs();
@@ -263,16 +264,6 @@ public class AbstractStoreable extends AbstractFrame<StoreableState> {
 
         curTable.clearUsedDirs();
         curTable.clearUsedFiles();
-
-        for (int i : RAFiles.keySet()) {
-            try {
-                RAFiles.get(i).close();
-            } catch (IOException e) {
-                System.out.println("SAVE TABLE ERROR: closing file failed");
-
-                throw e;
-            }
-        }
 
         for (int i : files.keySet()) {
             if (files.get(i).length() == 0) {

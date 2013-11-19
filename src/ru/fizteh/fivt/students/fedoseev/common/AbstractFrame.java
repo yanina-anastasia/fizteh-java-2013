@@ -22,15 +22,15 @@ public abstract class AbstractFrame<State> implements Frame {
         AbstractCommand command = commands.get(cmd.substring(0, end));
 
         if (Utils.getCommandArguments(cmd).length != command.getArgsCount() && command.getArgsCount() != -1) {
-            throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName() +
-                    "\" command receives " + command.getArgsCount() + " arguments");
+            throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName()
+                    + "\" command receives " + command.getArgsCount() + " arguments");
         }
 
         command.execute(Utils.getCommandArguments(cmd), state);
     }
 
     @Override
-    public void BatchMode(String[] args) {
+    public void batchMode(String[] args) {
         String[] input = Utils.join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
@@ -54,7 +54,7 @@ public abstract class AbstractFrame<State> implements Frame {
     }
 
     @Override
-    public void InteractiveMode() throws InterruptedException {
+    public void interactiveMode() throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
 
         while (!Thread.currentThread().isInterrupted()) {

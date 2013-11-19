@@ -21,8 +21,8 @@ public class XMLDeserializer {
             if (!xmlStreamReader.hasNext()) {
                 throw new ParseException("DESERIALIZE ERROR: empty xml stream", 0);
             }
-            if (xmlStreamReader.next() != XMLStreamConstants.START_ELEMENT ||
-                    !xmlStreamReader.getName().getLocalPart().equals("row")) {
+            if (xmlStreamReader.next() != XMLStreamConstants.START_ELEMENT
+                    || !xmlStreamReader.getName().getLocalPart().equals("row")) {
                 throw new ParseException("DESERIALIZE ERROR: invalid format", 0);
             }
         } catch (XMLStreamException e) {
@@ -42,8 +42,8 @@ public class XMLDeserializer {
                 return null;
             }
 
-            if (eventType != XMLStreamConstants.START_ELEMENT ||
-                    !xmlStreamReader.getName().getLocalPart().equals("col")) {
+            if (eventType != XMLStreamConstants.START_ELEMENT
+                    || !xmlStreamReader.getName().getLocalPart().equals("col")) {
                 throw new ParseException("DESERIALIZE ERROR: invalid format", 0);
             }
 

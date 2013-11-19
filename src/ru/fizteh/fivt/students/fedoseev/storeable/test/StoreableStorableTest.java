@@ -1,19 +1,15 @@
 package ru.fizteh.fivt.students.fedoseev.storeable.test;
 
 import junit.framework.Assert;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.fedoseev.storeable.ColumnTypes;
-import ru.fizteh.fivt.students.fedoseev.storeable.StoreableStorable;
 import ru.fizteh.fivt.students.fedoseev.storeable.StoreableTable;
 import ru.fizteh.fivt.students.fedoseev.storeable.StoreableTableProvider;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class StoreableStorableTest {
     private Storeable storable;

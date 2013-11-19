@@ -9,7 +9,6 @@ public class MultiFileHashMapState implements State<MultiFileHashMapTable> {
     private File dbDir;
     private MultiFileHashMapTable curTable;
     private MultiFileHashMapTableProvider tables;
-    private final boolean USING_TABLES = true;
 
     public MultiFileHashMapState(File dir) throws IOException {
         dbDir = dir;
