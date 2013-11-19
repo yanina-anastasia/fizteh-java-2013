@@ -77,6 +77,10 @@ public class DataBase implements Table {
             return changes;
         }
 
+        public int numberOfChanges() {
+            return map.changesCount(transactionMap);
+        }
+
 
     }
 
@@ -483,6 +487,9 @@ public class DataBase implements Table {
 
     public int getColumnsCount() {
         return storeableClasses.size();
+    }
+    public int numberOfChanges() {
+        return transaction.get().numberOfChanges();
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
