@@ -32,7 +32,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
 
     private volatile Map<String, StorableTableImp> tables = new HashMap<> ();
     private final Path location;
-    private final ReadWriteLock databaseKeeper = new ReentrantReadWriteLock (true);
+    final ReadWriteLock databaseKeeper = new ReentrantReadWriteLock (true);
     private AtomicBoolean isClosed = new AtomicBoolean (false);
 
     public StorableTableProviderImp (Path location) {
@@ -102,7 +102,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
 
     }
 
-    void commitTable (StorableTableImp table) {
+    /*void commitTable (StorableTableImp table) {
         Path tableDirectory = tableDirectory (table.getName ());
         try {
             databaseKeeper.writeLock ().lock ();
@@ -117,7 +117,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             databaseKeeper.writeLock ().unlock ();
         }
 
-    }
+    }*/
 
     @Override
     public Table createTable (String name, List<Class<?>> columnTypes) throws IOException {
@@ -276,9 +276,18 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     }
 
     @Override
-    public void saveChangesOnExit () {
-        for (StorableTableImp table : tables.values ()) {
-            commitTable (table);
+    public void saveChangesOnExit (){
+        try {
+            databaseKeeper.writeLock ().lock ();
+            for (StorableTableImp table : tables.values ()) {
+                table.commit ();
+            }
+        }
+        catch (IOException e) {
+            throw new WrappedIOException (e);
+        }
+        finally {
+        databaseKeeper.writeLock ().unlock ();
         }
     }
 

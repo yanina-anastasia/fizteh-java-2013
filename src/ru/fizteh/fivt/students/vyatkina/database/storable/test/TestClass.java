@@ -40,7 +40,7 @@ public class TestClass {
                     System.out.println ("thread 1 table.get(key0) = " + table.get ("key0"));
                     System.out.println ("table.size () = " + table.size ());
                     try {
-                        table.commit ();
+                        System.out.println ("thread 1 table.commit () = " + table.commit ());
                     }
                     catch (IOException e) {
                         e.printStackTrace ();  //To change body of catch statement use File | Settings | File Templates.
@@ -85,13 +85,15 @@ public class TestClass {
         ArrayList<Class<?>> types = new ArrayList<> ();
         types.add (Integer.class);
         Table table = t.tableProvider.createTable ("table", types);
+        if (table == null) {
+            table = t.tableProvider.getTable ("table");
+        }
 
-        Storeable storeable = t.tableProvider.createFor (table);
-        storeable.setColumnAt (0, 0);
-        table.put ("key0", storeable);
-        table.commit ();
+        //Storeable storeable = t.tableProvider.createFor (table);
+        //storeable.setColumnAt (0, 0);
+        //table.put ("key0", storeable);
+        //table.commit ();
         ExecutorService service = Executors.newCachedThreadPool ();
-
 
         service.execute (t.thread1);
         service.execute (t.thread2);

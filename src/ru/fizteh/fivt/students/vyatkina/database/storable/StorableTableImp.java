@@ -2,11 +2,24 @@ package ru.fizteh.fivt.students.vyatkina.database.storable;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vyatkina.database.StorableTable;
+import ru.fizteh.fivt.students.vyatkina.database.superior.DatabaseUtils;
 import ru.fizteh.fivt.students.vyatkina.database.superior.Diff;
 import ru.fizteh.fivt.students.vyatkina.database.superior.SuperTable;
 import ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderChecker;
+import ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils;
+
+import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.createFileForKeyIfNotExists;
+import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.deleteFileForKey;
+import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.fileForKey;
 
 import java.io.Closeable;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StorableTableImp extends SuperTable<Storeable> implements StorableTable, Closeable {
@@ -62,7 +75,7 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
         return super.rollback ();
     }
 
-    @Override
+    /*@Override
     public int commit () {
         isClosedCheck ();
         int commited = 0;
@@ -79,6 +92,42 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
             tableKeeper.writeLock ().unlock ();
         }
         return commited;
+    } */
+
+    @Override
+    public int commit () throws IOException {
+        isClosedCheck ();
+        Map<Path, List<DatabaseUtils.KeyValue>> databaseChanges = new HashMap<> ();
+        Path tableLocation = tableProvider.tableDirectory (name);
+        try {
+            tableKeeper.writeLock ().lock ();
+            tableProvider.databaseKeeper.writeLock ().lock ();
+            for (Map.Entry<String, Diff<Storeable>> entry : values.entrySet ()) {
+                if (entry.getValue ().isNeedToCommit ()) {
+                    Path fileKeyIn = fileForKey (entry.getKey (), tableLocation);
+                    if (!databaseChanges.containsKey (fileKeyIn)) {
+                        Files.deleteIfExists (fileKeyIn);
+                        createFileForKeyIfNotExists (entry.getKey (), tableLocation);
+                        databaseChanges.put (fileKeyIn, new ArrayList<DatabaseUtils.KeyValue> ());
+                    }
+                }
+            }
+
+            for (Map.Entry<String, Diff<Storeable>> entry : values.entrySet ()) {
+                Path fileKeyIn = fileForKey (entry.getKey (), tableLocation);
+                if (databaseChanges.containsKey (fileKeyIn) && !entry.getValue ().isRemoved ()) {
+                    String value = tableProvider.serialize (this, entry.getValue ().getValue ());
+                    DatabaseUtils.KeyValue keyValue = new DatabaseUtils.KeyValue (entry.getKey (),value);
+                    databaseChanges.get (fileKeyIn).add (keyValue);
+                }
+            }
+            TableProviderUtils.writeTable (databaseChanges);
+            return super.commit ();
+        }
+        finally {
+            tableProvider.databaseKeeper.writeLock ().unlock ();
+            tableKeeper.writeLock ().unlock ();
+        }
     }
 
     @Override

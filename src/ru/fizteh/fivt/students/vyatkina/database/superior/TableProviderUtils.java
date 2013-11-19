@@ -83,15 +83,15 @@ public class TableProviderUtils implements TableProviderConstants {
 
         for (File directory : directories) {
 
-           if (directory.isFile ()) {
-               if (directory.getName ().equals (SIGNATURE_FILE) || directory.getName ().equals (MAC_DS_FILE)) {
-                   continue;
-               } else {
-                 throw new WrappedIOException ("Some file in database: " + directory);
-               }
-           }
+            if (directory.isFile ()) {
+                if (directory.getName ().equals (SIGNATURE_FILE) || directory.getName ().equals (MAC_DS_FILE)) {
+                    continue;
+                } else {
+                    throw new WrappedIOException ("Some file in database: " + directory);
+                }
+            }
 
-           if (!TableProviderChecker.isValidDatabaseDirectoryName (directory.getName ())) {
+            if (!TableProviderChecker.isValidDatabaseDirectoryName (directory.getName ())) {
                 throw new WrappedIOException ("Invalid database name: " + directory.getName ());
             }
             File[] files = directory.listFiles ();
@@ -179,6 +179,21 @@ public class TableProviderUtils implements TableProviderConstants {
         }
     }
 
+    public static void writeTable (Map<Path, List<DatabaseUtils.KeyValue>> fileMap) throws IOException {
+        for (Path file : fileMap.keySet ()) {
+            try (DataOutputStream out = new DataOutputStream (new BufferedOutputStream
+                    (new FileOutputStream (file.toFile (), true)))) {
+                List<DatabaseUtils.KeyValue> entries = fileMap.get (file);
+                for (int i = 0; i < entries.size (); ++i) {
+                    DatabaseUtils.writeKeyValue (entries.get (i), out);
+                }
+            }
+            catch (IOException e) {
+                throw new IOException ("Unable to write to file: " + e.getMessage ());
+            }
+        }
+    }
+
     public static List<Class<?>> readTableSignature (Path path) throws IllegalArgumentException, IOException {
         List<Class<?>> classes = new ArrayList<> ();
         try (Scanner in = new Scanner (new BufferedInputStream
@@ -207,7 +222,7 @@ public class TableProviderUtils implements TableProviderConstants {
             boolean first_element = true;
             for (Class<?> aClass : classes) {
                 if (!first_element) {
-                     out.print (" ");
+                    out.print (" ");
                 } else {
                     first_element = false;
                 }
@@ -221,7 +236,7 @@ public class TableProviderUtils implements TableProviderConstants {
 
     public static String dbDirPropertyCheck () {
         String databaseLocation = System.getProperty (PROPERTY_DIRECTORY);
-        if (databaseLocation == null){
+        if (databaseLocation == null) {
             throw new TimeToFinishException ("Unknown database location");
         }
         return databaseLocation;

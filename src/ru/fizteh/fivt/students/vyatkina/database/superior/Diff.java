@@ -1,24 +1,36 @@
 package ru.fizteh.fivt.students.vyatkina.database.superior;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Diff<ValueType> {
 
-    private volatile ValueType commitedValue;
+    private AtomicReference <ValueType> commitedValue = new AtomicReference<> ();
     private ThreadLocal<ValueType> value = new ThreadLocal<> ();
     private ReadWriteLock commitedValueKeeper = new ReentrantReadWriteLock ();
+    private ThreadLocal <Boolean> threadChangedValue = new ThreadLocal<> ();
 
     public Diff (ValueType commitedValue, ValueType value) {
-        this.commitedValue = commitedValue;
+        this.commitedValue.set (commitedValue);
         this.value.set (value);
     }
 
     public ValueType getValue () {
+        if (threadChangedValue.get () == null) {
+            try {
+                commitedValueKeeper.readLock ().lock ();
+                value.set (commitedValue.get ());
+            }
+            finally {
+               commitedValueKeeper.readLock ().unlock ();
+            }
+        }
         return value.get ();
     }
 
     public void setValue (ValueType value) {
+        threadChangedValue.set (true);
         this.value.set (value);
     }
 
@@ -26,9 +38,9 @@ public class Diff<ValueType> {
         try {
             commitedValueKeeper.readLock ().lock ();
             if (commitedValue == null) {
-                return !(value.get () == null);
+                return !(getValue () == null);
             }
-            return !commitedValue.equals (value.get ());
+            return !commitedValue.get ().equals (getValue ());
         }
         finally {
             commitedValueKeeper.readLock ().unlock ();
@@ -39,7 +51,7 @@ public class Diff<ValueType> {
         try {
             commitedValueKeeper.writeLock ().lock ();
             if (isNeedToCommit ()) {
-                commitedValue = (value.get ());
+                commitedValue.set (getValue ());
                 return true;
             } else {
                 return false;
@@ -54,7 +66,7 @@ public class Diff<ValueType> {
         try {
             commitedValueKeeper.readLock ().lock ();
             if (isNeedToCommit ()) {
-                value.set (commitedValue);
+                value.set (commitedValue.get ());
                 return true;
             } else {
                 return false;

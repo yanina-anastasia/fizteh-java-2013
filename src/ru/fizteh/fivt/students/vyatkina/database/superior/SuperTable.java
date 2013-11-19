@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.vyatkina.database.superior;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,15 +29,15 @@ public class SuperTable<ValueType> {
         try {
             tableKeeper.readLock ().lock ();
             diff = values.get (key);
+            ValueType value = null;
+            if (diff != null) {
+                value = diff.getValue ();
+            }
+            return value;
         }
         finally {
             tableKeeper.readLock ().unlock ();
         }
-        ValueType value = null;
-        if (diff != null) {
-            value = diff.getValue ();
-        }
-        return value;
     }
 
     public ValueType put (String key, ValueType value) {
@@ -84,19 +85,12 @@ public class SuperTable<ValueType> {
         }
     }
 
-    public int commit () {
+    public int commit () throws IOException {
         int commited = 0;
-
-        try {
-            tableKeeper.writeLock ().lock ();
-            for (Diff<ValueType> value : values.values ()) {
-                if (value.commit ()) {
-                    ++commited;
-                }
+        for (Diff<ValueType> value : values.values ()) {
+            if (value.commit ()) {
+                ++commited;
             }
-        }
-        finally {
-            tableKeeper.writeLock ().unlock ();
         }
         return commited;
     }
