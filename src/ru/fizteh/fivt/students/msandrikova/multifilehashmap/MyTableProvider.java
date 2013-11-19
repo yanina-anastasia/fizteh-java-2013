@@ -14,22 +14,22 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 
 	public MyTableProvider(File dir) throws IllegalArgumentException {
 		this.currentDirectory = dir;
-		if(!this.currentDirectory.exists()) {
+		if (!this.currentDirectory.exists()) {
 			throw new IllegalArgumentException("Given directory does not exist.");
-		} else if(!this.currentDirectory.isDirectory()) {
+		} else if (!this.currentDirectory.isDirectory()) {
 			throw new IllegalArgumentException("Given directory name does not correspond to directory.");
 		}
 	}
 
 	@Override
 	public ChangesCountingTable getTable(String name) throws IllegalArgumentException {
-		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
+		if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
-		if(this.mapOfTables.get(name) == null) {
+		if (this.mapOfTables.get(name) == null) {
 			File tablePath = new File(this.currentDirectory, name);
-			if(tablePath.exists()) {
-				if(tablePath.isDirectory()) {
+			if (tablePath.exists()) {
+				if (tablePath.isDirectory()) {
 					ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {
@@ -42,15 +42,15 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public ChangesCountingTable createTable(String name) throws IllegalArgumentException {
-		if(Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
+		if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty or contain bad symbols");
 		}
-		if(this.mapOfTables.get(name) != null) {
+		if (this.mapOfTables.get(name) != null) {
 			return null;
 		}
 		File tablePath = new File(this.currentDirectory, name);
-		if(tablePath.exists()) {
-			if(tablePath.isDirectory()) {
+		if (tablePath.exists()) {
+			if (tablePath.isDirectory()) {
 				ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 				this.mapOfTables.put(name, newTable);
 				return newTable;
@@ -65,13 +65,13 @@ public class MyTableProvider implements ChangesCountingTableProvider {
 
 	@Override
 	public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-		if(Utils.isEmpty(name)) {
+		if (Utils.isEmpty(name)) {
 			throw new IllegalArgumentException("Table name can not be null or empty");
 		}
 		File tablePath = new File(this.currentDirectory, name);
-		if(this.mapOfTables.get(name) == null){
-			if(tablePath.exists()) {
-				if(tablePath.isDirectory()) {
+		if (this.mapOfTables.get(name) == null){
+			if (tablePath.exists()) {
+				if (tablePath.isDirectory()) {
 					ChangesCountingTable newTable = new MyTable(this.currentDirectory, name);
 					this.mapOfTables.put(name, newTable);
 				} else {

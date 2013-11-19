@@ -14,20 +14,20 @@ public class DropCommand extends Command {
 
 	@Override
 	public void execute(String[] argumentsList, Shell shell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
+		if (!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
 		String name = argumentsList[1];
 		
-		if(!shell.getState().isStoreable && shell.getState().currentTable != null && shell.getState().currentTable.getName().equals(name)) {
+		if (!shell.getState().isStoreable && shell.getState().currentTable != null && shell.getState().currentTable.getName().equals(name)) {
 			shell.getState().currentTable = null;
 		} 
-		if(shell.getState().isStoreable && shell.getState().currentStoreableTable != null && shell.getState().currentStoreableTable.getName().equals(name)) {
+		if (shell.getState().isStoreable && shell.getState().currentStoreableTable != null && shell.getState().currentStoreableTable.getName().equals(name)) {
 			shell.getState().currentStoreableTable = null;
 		} 
 		
-		if(!shell.getState().isStoreable) {
+		if (!shell.getState().isStoreable) {
 			try {
 				shell.getState().tableProvider.removeTable(name);
 			} catch (IllegalArgumentException e) {

@@ -18,13 +18,13 @@ public class MyTable implements ChangesCountingTable {
 	private void getDirectory(int nameNumber) {
 		String name = Integer.toString(nameNumber) + ".dir";
 		File dirPath = new File(this.tablePath, name);
-		if(dirPath.exists()) {
-			if(!dirPath.isDirectory()) {
+		if (dirPath.exists()) {
+			if (!dirPath.isDirectory()) {
 				Utils.generateAnError("File \"" + name + "\"should be directory in table \"" 
 						+ this.name + ".", "create", false);
 			}
 			DatabaseDirectory newDirectory = new DatabaseDirectory(this.tablePath, name);
-			if(newDirectory.size() != 0) {
+			if (newDirectory.size() != 0) {
 				this.mapOfDirectories.put(nameNumber, newDirectory);
 			}
 		}
@@ -33,17 +33,17 @@ public class MyTable implements ChangesCountingTable {
 	public MyTable(File parentDirectory, String name) {
 		this.name = name;
 		this.tablePath = new File(parentDirectory, name);
-		if(!tablePath.exists()) {
+		if (!tablePath.exists()) {
 			this.tablePath.mkdir();
 		} else {
-			if(!this.tablePath.isDirectory()) {
+			if (!this.tablePath.isDirectory()) {
 				Utils.generateAnError("Table with name \"" + this.name + "\"should be directory.", "create", false);
 			}
-			for(int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; i++) {
+			for (int i = 0; i < this.MAX_DIRECTORIES_AMOUNT; i++) {
 				this.getDirectory(i);
 			}
 		}
-		if(this.size() > this.MAX_TABLE_SIZE) {
+		if (this.size() > this.MAX_TABLE_SIZE) {
 			Utils.generateAnError("Table \"" + this.name + "\" is overly big.", "use", false);
 		}
 	}
@@ -63,13 +63,13 @@ public class MyTable implements ChangesCountingTable {
 
 	@Override
 	public String get(String key) throws IllegalArgumentException {
-		if(Utils.isEmpty(key)) {
+		if (Utils.isEmpty(key)) {
 			throw new IllegalArgumentException("Key can not be null");
 		}
 		int ndirectory = Utils.getNDirectory(key);
 		String answer = null;
 		DatabaseDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
-		if(currentDirectory != null) {
+		if (currentDirectory != null) {
 			answer = currentDirectory.get(key);
 		}
 		return answer;
@@ -77,13 +77,13 @@ public class MyTable implements ChangesCountingTable {
 
 	@Override
 	public String put(String key, String value) throws IllegalArgumentException {
-		if(Utils.isEmpty(key) || Utils.isEmpty(value)) {
+		if (Utils.isEmpty(key) || Utils.isEmpty(value)) {
 			throw new IllegalArgumentException("Key and name can not be null or newline");
 		}
 		int ndirectory = Utils.getNDirectory(key);
 		String answer = null;
 		DatabaseDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
-		if(currentDirectory == null) {
+		if (currentDirectory == null) {
 			try {
 				currentDirectory = this.createDirectory(ndirectory);
 			} catch (IOException e) {
@@ -91,8 +91,8 @@ public class MyTable implements ChangesCountingTable {
 			}
 		}
 		answer = currentDirectory.put(key, value);
-		if(answer == null) {
-			if(this.size() > this.MAX_TABLE_SIZE) {
+		if (answer == null) {
+			if (this.size() > this.MAX_TABLE_SIZE) {
 				Utils.generateAnError("Table \"" + this.name + "\" is overly big.", "use", false);
 			}
 		}
@@ -101,13 +101,13 @@ public class MyTable implements ChangesCountingTable {
 
 	@Override
 	public String remove(String key) throws IllegalArgumentException {
-		if(Utils.isEmpty(key)) {
+		if (Utils.isEmpty(key)) {
 			throw new IllegalArgumentException();
 		}
 		int ndirectory = Utils.getNDirectory(key);
 		String answer = null;
 		DatabaseDirectory currentDirectory = this.mapOfDirectories.get(ndirectory);
-		if(currentDirectory != null) {
+		if (currentDirectory != null) {
 			answer = currentDirectory.remove(key);
 		}
 		return answer;
@@ -117,7 +117,7 @@ public class MyTable implements ChangesCountingTable {
 	@Override
 	public int size() {
 		int answer = 0;
-		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+		for (DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
 			answer += databaseDirectory.size();
 		}
 		return answer;
@@ -126,7 +126,7 @@ public class MyTable implements ChangesCountingTable {
 	@Override
 	public int commit() {
 		int answer = 0;
-		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+		for (DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
 			answer += databaseDirectory.commit();
 		}
 		return answer;
@@ -135,7 +135,7 @@ public class MyTable implements ChangesCountingTable {
 	@Override
 	public int rollback() {
 		int answer = 0;
-		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+		for (DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
 			answer += databaseDirectory.rollback();
 		}
 		return answer;
@@ -144,7 +144,7 @@ public class MyTable implements ChangesCountingTable {
 	@Override
 	public int unsavedChangesCount() {
 		int answer = 0;
-		for(DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
+		for (DatabaseDirectory databaseDirectory : this.mapOfDirectories.values()) {
 			answer += databaseDirectory.unsavedChangesCount();
 		}
 		return answer;

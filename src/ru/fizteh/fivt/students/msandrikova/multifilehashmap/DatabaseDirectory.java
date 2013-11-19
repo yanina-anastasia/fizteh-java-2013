@@ -17,12 +17,12 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	private void getDatabase(int nameNumber) {
 		String name = Integer.toString(nameNumber) + ".dat";
 		File databasePath = new File(this.directoryPath, name);
-		if(databasePath.exists()) {
+		if (databasePath.exists()) {
 			DatabaseMap newDatabase = new DatabaseMap(this.directoryPath, name);
-			if(!newDatabase.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
+			if (!newDatabase.checkHash(Utils.getNameNumber(this.name), nameNumber)) {
 				Utils.generateAnError("Incorrect keys in directory \"" + this.name + "\" in data base \"" + name + "\".", "use", false);
 			}
-			if(newDatabase.size() == 0) {
+			if (newDatabase.size() == 0) {
 				this.mapOfDatabases.put(nameNumber, newDatabase);
 			}
 		}
@@ -31,14 +31,14 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	public DatabaseDirectory(File tableDirectory, String name) {
 		this.name = name;
 		this.directoryPath = new File(tableDirectory, name);
-		if(this.directoryPath.exists()) {
-			if(!this.directoryPath.isDirectory()) {
+		if (this.directoryPath.exists()) {
+			if (!this.directoryPath.isDirectory()) {
 				Utils.generateAnError("File \"" + this.name + "\" should be directory.", "DatabaseDirectory", false);
 			}
-			for(int i = 0; i < this.MAX_DATABASE_AMOUNT; i++) {
+			for (int i = 0; i < this.MAX_DATABASE_AMOUNT; i++) {
 				this.getDatabase(i);
 			}
-			if(this.size() == 0) {
+			if (this.size() == 0) {
 				this.delete();
 			}
 		}
@@ -47,7 +47,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	@Override
 	public int size() {
 		int answer = 0;
-		for(DatabaseMap database : this.mapOfDatabases.values()) {
+		for (DatabaseMap database : this.mapOfDatabases.values()) {
 			answer += database.size();
 		}
 		return answer;
@@ -71,7 +71,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 		int nfile = Utils.getNFile(key);
 		String answer = null;
 		DatabaseMap currentDatabase = this.mapOfDatabases.get(nfile);
-		if(currentDatabase != null) {
+		if (currentDatabase != null) {
 			answer = currentDatabase.get(key);
 		}
 		return answer;
@@ -82,7 +82,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 		int nfile = Utils.getNFile(key);
 		String answer = null;
 		DatabaseMap currentDatabase = this.mapOfDatabases.get(nfile);
-		if(currentDatabase == null) {
+		if (currentDatabase == null) {
 			try {
 				currentDatabase = this.createDatabase(nfile);
 			} catch (IOException e) {
@@ -98,7 +98,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 		int nfile = Utils.getNFile(key);
 		String answer = null;
 		DatabaseMap currentDatabase = this.mapOfDatabases.get(nfile);
-		if(currentDatabase != null) {
+		if (currentDatabase != null) {
 			answer = currentDatabase.remove(key);
 		}
 		return answer;
@@ -107,14 +107,14 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	@Override
 	public int commit() {
 		int answer = 0;
-		if(this.directoryPath.exists()) {
+		if (this.directoryPath.exists()) {
 			this.delete();
 		}
 		this.directoryPath.mkdir();
-		for(DatabaseMap database : this.mapOfDatabases.values()) {
+		for (DatabaseMap database : this.mapOfDatabases.values()) {
 			answer += database.commit();
 		}
-		if(this.size() == 0) {
+		if (this.size() == 0) {
 			this.delete();
 		}
 		return answer;
@@ -131,7 +131,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	@Override
 	public int rollback() {
 		int answer = 0;
-		for(DatabaseMap database : this.mapOfDatabases.values()) {
+		for (DatabaseMap database : this.mapOfDatabases.values()) {
 			answer += database.rollback();
 		}
 		return answer;
@@ -140,7 +140,7 @@ public class DatabaseDirectory implements ChangesCountingTable {
 	@Override
 	public int unsavedChangesCount() {
 		int answer = 0;
-		for(DatabaseMap database : this.mapOfDatabases.values()) {
+		for (DatabaseMap database : this.mapOfDatabases.values()) {
 			answer += database.unsavedChangesCount();
 		}
 		return answer;
