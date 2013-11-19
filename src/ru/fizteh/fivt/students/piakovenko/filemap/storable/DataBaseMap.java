@@ -107,15 +107,12 @@ public class DataBaseMap {
     }
 
     private boolean wasChanged(Storeable value1, Storeable value2) {
-        boolean flag = false;
-        if (value1 == null && value2 == null){
+        if (value1 == null && value2 == null) {
             return false;
-        } else if (value1 == null) {
-            return true;
-        } else if (value2 == null) {
+        }
+        if (value1 == null || value2 == null) {
             return true;
         }
-        flag = !value1.equals(value2);
-        return flag;
+        return !value1.equals(value2);
     }
 }
