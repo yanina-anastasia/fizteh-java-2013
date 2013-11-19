@@ -139,8 +139,8 @@ public class MyTable implements Table {
                     && !provider.serialize(this, fuckingDiff.get().get(key)).equals(provider.serialize(this, value))) {
                 fuckingDiff.get().remove(key);
             }
-            if (storage.get(key) != null &&
-                    provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
+            if (storage.get(key) != null
+                    && provider.serialize(this, value).equals(provider.serialize(this, storage.get(key)))) {
                 changes.get().remove(key);
                 fuckingDiff.get().put(copyOfKey, copyOfValue);
             }

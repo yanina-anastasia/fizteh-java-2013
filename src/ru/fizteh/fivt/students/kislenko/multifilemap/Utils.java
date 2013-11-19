@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class Utils {
-    final private static int MAXTABLESIZE = 100 * 1024 * 1024;
-    final private static int MAXFILESIZE = 50 * 1024 * 1024;
+    private static final int maxTableSize = 100 * 1024 * 1024;
+    private static final int maxFileSize = 50 * 1024 * 1024;
 
     public static void loadFile(MyTable table, TwoLayeredString key) throws IOException {
         byte nDirectory = getDirNumber(key);
@@ -33,11 +33,11 @@ public class Utils {
         String key;
         String value;
         table.setSize(table.getSize() + datafile.length());
-        if (table.getSize() > MAXTABLESIZE) {
+        if (table.getSize() > maxTableSize) {
             dumpTable(table);
             table.getMap().clear();
         }
-        if (datafile.length() > MAXFILESIZE) {
+        if (datafile.length() > maxFileSize) {
             datafile.close();
             throw new IOException("Too big datafile.");
         }
