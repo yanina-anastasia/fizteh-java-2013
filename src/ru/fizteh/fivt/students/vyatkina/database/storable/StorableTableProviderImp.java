@@ -283,9 +283,6 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
                 table.commit ();
             }
         }
-        catch (IOException e) {
-            throw new WrappedIOException (e);
-        }
         finally {
         databaseKeeper.writeLock ().unlock ();
         }
