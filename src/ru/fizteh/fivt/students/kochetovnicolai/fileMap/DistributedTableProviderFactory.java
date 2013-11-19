@@ -26,7 +26,7 @@ public class DistributedTableProviderFactory implements TableProviderFactory {
         }
         String directory = path.getAbsolutePath();
         if (!providers.containsKey(directory)) {
-            providers.put(directory, new DistributedTableProvider(path));
+            providers.put(directory, new DistributedTableProvider(path.toPath()));
         }
         return providers.get(directory);
     }

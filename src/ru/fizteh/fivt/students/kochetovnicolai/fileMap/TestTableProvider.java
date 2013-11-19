@@ -187,8 +187,8 @@ public class TestTableProvider {
         Thread thread1 = new Thread() {
             public void run() {
                 Table table = provider.getTable("table");
-                Storeable storeable = provider.createFor(table);
                 for (int i = 0; i < 100; i++) {
+                    Storeable storeable = provider.createFor(table);
                     storeable.setColumnAt(0, i);
                     table.put("key" + i, storeable);
                     if (i % 5 == 0) {

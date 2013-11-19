@@ -1,29 +1,43 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.ParseException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DistributedTable extends FileManager implements Table {
 
-    protected File currentFile;
+    protected Path currentFile;
+    protected Path currentPath;
     protected String tableName;
-    protected HashMap<String, String> cache;
-    protected HashMap<String, String> changes;
-    protected int recordNumber;
-    protected int oldRecordNumber;
+    protected HashMap<String, Storeable> cache;
+    protected ThreadLocal<HashMap<String, Storeable>> changes;
 
     protected final int partsNumber = 16;
-    protected File[] directoriesList = new File[partsNumber];
-    protected File[][] filesList = new File[partsNumber][partsNumber];
+    protected Path[] directoriesList = new Path[partsNumber];
+    protected Path[][] filesList = new Path[partsNumber][partsNumber];
+    protected Path signature;
+    protected List<Class<?>> types;
 
-    protected ReentrantReadWriteLock lock;
+    protected ReentrantReadWriteLock cacheLock;
 
     @Override
     public String getName() {
@@ -38,33 +52,47 @@ public class DistributedTable extends FileManager implements Table {
         return key != null && !key.equals("") && !key.matches(".*[\\s].*");
     }
 
-    public boolean isValidValue(String value) {
-        return isValidKey(value);
-    }
-
-    public ReentrantReadWriteLock getLock() {
-        return lock;
+    public boolean isValidValue(Storeable value) {
+        try {
+            TableRecord.checkStoreableTypes(value, types);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        } catch (ColumnFormatException e) {
+            return false;
+        }
+        return true;
     }
 
     private int getCurrentFileLength(int dirNumber, int fileNumber) throws IOException {
         int fileRecordNumber = 0;
         currentFile = filesList[dirNumber][fileNumber];
-        if (currentFile.length() == 0) {
-            throw new IOException(currentFile.getPath() + ": empty file");
+        if (Files.size(currentFile) == 0) {
+            throw new IOException(currentFile + ": empty file");
         }
-        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile.toFile()))) {
             String[] pair;
             try {
                 while ((pair = readNextPair(inputStream)) != null) {
                     byte firstByte = getFirstByte(pair[0]);
                     if (firstByte % partsNumber != dirNumber || (firstByte / partsNumber) % partsNumber != fileNumber) {
-                        throw new IOException("invalid key format");
+                        throw new IOException("invalid key in file " + currentFile);
                     }
-                    cache.put(pair[0], pair[1]);
+                    if (!isValidKey(pair[0])) {
+                        throw new IOException("invalid key format in file " + currentFile);
+                    }
+                    try {
+                        Storeable value = DistributedTableProvider.deserialiseByTypesList(types, pair[1]);
+                        if (!isValidValue(value)) {
+                            throw new IOException("invalid value format in file " + currentFile);
+                        }
+                        cache.put(pair[0], value);
+                    } catch (ParseException e) {
+                        throw new IOException("invalid value format in file " + currentFile, e);
+                    }
                     fileRecordNumber++;
                 }
             } catch (IOException e) {
-                throw new IOException(currentFile.getPath() + ": " + e.getMessage());
+                throw new IOException(currentFile + ": " + e.getMessage());
             }
         }
         return fileRecordNumber;
@@ -73,229 +101,290 @@ public class DistributedTable extends FileManager implements Table {
     protected int readTable() throws IOException {
         int directoriesNumber = 0;
         int tableSize = 0;
-        File signature = new File(currentPath.getPath() + File.separator + "signature.tsv");
-        if (signature.exists()) {
+        if (Files.exists(signature)) {
             directoriesNumber++;
         }
         for (int i = 0; i < partsNumber; i++) {
-            if (directoriesList[i].exists()) {
+            if (Files.exists(directoriesList[i])) {
                 directoriesNumber++;
                 int filesNumber = 0;
                 for (int j = 0; j < partsNumber; j++) {
-                    if (filesList[i][j].exists()) {
+                    if (Files.exists(filesList[i][j])) {
                         filesNumber++;
                         tableSize += getCurrentFileLength(i, j);
                     }
                 }
-                int filesFoundNumber = directoriesList[i].list().length;
-                if (filesFoundNumber == 0 || directoriesList[i].list().length != filesNumber) {
-                    throw new IOException(directoriesList[i].getPath() + ": contains unknown files or directories");
+                int filesFoundNumber = directoriesList[i].toFile().list().length;
+                if (filesFoundNumber == 0 || directoriesList[i].toFile().list().length != filesNumber) {
+                    throw new IOException(directoriesList[i] + ": contains unknown files or directories");
                 }
             }
         }
-        if (directoriesNumber != currentPath.list().length) {
+        if (directoriesNumber != currentPath.toFile().list().length) {
             throw new IOException("redundant files into table directory");
         }
         return tableSize;
     }
 
-    public DistributedTable(File tableDirectory, String name) throws IOException {
-        currentPath = new File(tableDirectory.getPath() + File.separator + name);
+    protected void createSignature(Path tableDirectory) throws IOException {
+        signature = tableDirectory.resolve("signature.tsv");
+        if (!Files.exists(signature)) {
+            Files.createFile(signature);
+        }
+        try (PrintWriter output = new PrintWriter(new FileOutputStream(signature.toFile()))) {
+            for (int i = 0; i < types.size(); i++) {
+                if (i > 0) {
+                    output.write(' ');
+                }
+                output.write(TableRecord.SUPPORTED_CLASSES.get(types.get(i)));
+            }
+            output.write(System.lineSeparator());
+        }
+    }
+
+    protected List<Class<?>> getSignature(Path tableDirectory) throws IOException {
+        signature = tableDirectory.resolve("signature.tsv");
+        /*
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        если упадут тесты, заменить на  .toFile().isFile()
+
+
+         */
+        if (!Files.exists(signature) || Files.isDirectory(signature)) {
+            throw new IOException(signature + ": file doesn't exists");
+        }
+        String string;
+        try (BufferedReader input = new BufferedReader(new FileReader(signature.toFile()))) {
+            string = input.readLine();
+            if (input.read() != -1 || string == null) {
+                throw new IOException(signature + ": invalid file format");
+            }
+        }
+        String[] typesNames = string.trim().split("[\\s]+");
+        ArrayList<Class<?>> typeList = new ArrayList<>(typesNames.length);
+        for (String nextType : typesNames) {
+            if (!TableRecord.SUPPORTED_TYPES.containsKey(nextType)) {
+                throw new IOException(signature + ": invalid file format: unsupported type");
+            }
+            typeList.add(TableRecord.SUPPORTED_TYPES.get(nextType));
+        }
+        return typeList;
+    }
+
+    protected void checkTableName(String name) {
+        if (name == null || name.matches(".*[ \\s\\\\/].*")) {
+            throw new IllegalArgumentException("invalid table name");
+        }
+    }
+
+    protected void initialiseTable(Path tableDirectory, String name) throws IOException {
+        currentPath = tableDirectory;
         tableName = name;
-        if (!currentPath.exists()) {
-            if (!currentPath.mkdir()) {
-                throw new IOException(currentPath.getAbsolutePath() + ": couldn't create directory");
-            }
-        }
         for (int i = 0; i < partsNumber; i++) {
-            directoriesList[i] = new File(currentPath.getPath() + File.separator + i + ".dir");
+            directoriesList[i] = currentPath.resolve(i + ".dir");
             for (int j = 0; j < partsNumber; j++) {
-                filesList[i][j] = new File(directoriesList[i].getPath() + File.separator + j + ".dat");
+                filesList[i][j] = directoriesList[i].resolve(j + ".dat");
             }
         }
-        lock = new ReentrantReadWriteLock(true);
+        cacheLock = new ReentrantReadWriteLock(true);
         cache = new HashMap<>();
-        changes = new HashMap<>();
-        oldRecordNumber = readTable();
-        rollback();
+        changes = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            protected HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+        readTable();
     }
 
-    @Override
-    public int rollback() {
-        int canceled = findDifference();
-        recordNumber = oldRecordNumber;
-        changes.clear();
-        return canceled;
+    public DistributedTable(Path tableDirectory, String name, List<Class<?>> columnTypes)
+            throws IOException {
+        checkTableName(name);
+        TableRecord.checkTypesList(columnTypes);
+        if (tableDirectory == null) {
+            throw new IllegalArgumentException("table directory shouldn't be null");
+        }
+        if (!Files.exists(tableDirectory)) {
+            Files.createDirectory(tableDirectory);
+        } else if (!Files.isDirectory(tableDirectory) || tableDirectory.toFile().list().length != 0) {
+            throw new IOException(tableDirectory + ": not a directory or is not empty");
+        }
+        types = columnTypes;
+        createSignature(tableDirectory);
+        initialiseTable(tableDirectory, name);
     }
 
-    @Override
-     public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException();
+    public DistributedTable(Path tableDirectory, String name) throws IOException {
+        checkTableName(name);
+        if (tableDirectory == null) {
+            throw new IllegalArgumentException("table directory shouldn't be null");
         }
-        if (changes.containsKey(key)) {
-            return changes.get(key);
-        } else {
-            return cache.get(key);
+        if (!Files.exists(tableDirectory) || !Files.isDirectory(tableDirectory)) {
+            throw new IOException(tableDirectory + ": invalid directory");
         }
+        types = getSignature(tableDirectory);
+        initialiseTable(tableDirectory, name);
     }
 
-    @Override
-    public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || value == null) {
-            throw new IllegalArgumentException();
-        }
-        if (get(key) == null) {
-            recordNumber++;
-        }
-        return changes.put(key, value);
-    }
-
-    protected int findDifference() {
+    public int changesSize() {
         int diff = 0;
-        for (String key : changes.keySet()) {
-            if (changes.get(key) == null) {
-                if (cache.containsKey(key) && cache.get(key) != null) {
+        for (String key : changes.get().keySet()) {
+            if (changes.get().get(key) == null) {
+                if (cache.containsKey(key)) {
                     diff++;
                 }
             } else {
-                if (!cache.containsKey(key) || !changes.get(key).equals(cache.get(key))) {
+                if (!cache.containsKey(key) || !changes.get().get(key).equals(cache.get(key))) {
                     diff++;
                 }
             }
         }
-        System.out.println();
         return diff;
     }
 
     @Override
-    public int commit() {
-        int updated = findDifference();
-        for (String key : changes.keySet()) {
-            cache.put(key, changes.get(key));
-        }
-        changes.clear();
-        for (String key : cache.keySet()) {
-            changes.put(key, cache.get(key));
-        }
-        boolean isClosed = true;
-        DataInputStream[][] inputStreams = new DataInputStream[partsNumber][partsNumber];
-        DataOutputStream[][] outputStreams = new DataOutputStream[partsNumber][partsNumber];
+    public int rollback() {
+        int canceled;
         try {
-            for (int i = 0; i < partsNumber; i++) {
-                if (!directoriesList[i].exists()) {
-                    if (!directoriesList[i].mkdir()) {
-                        throw new IOException(directoriesList[i].getPath() + ": couldn't create directory");
-                    }
-                }
-                for (int j = 0; j < partsNumber; j++) {
-                    if (!filesList[i][j].exists()) {
-                        if (!filesList[i][j].createNewFile()) {
-                            throw new IOException(filesList[i][j].getAbsolutePath() + ": couldn't create file");
-                        }
-                    }
-                    if (!filesList[i][j].renameTo(new File(filesList[i][j].getPath() + "~"))) {
-                        throw new IOException(filesList[i][j].getAbsolutePath() + ": couldn't rename file");
-                    }
-                    inputStreams[i][j] = new DataInputStream(new FileInputStream(filesList[i][j].getPath() + "~"));
-                    outputStreams[i][j] = new DataOutputStream(new FileOutputStream(filesList[i][j]));
-                    DataInputStream inputStream = inputStreams[i][j];
-                    DataOutputStream outputStream = outputStreams[i][j];
-                    String nextKey;
-                    String nextValue;
-                    String[] pair;
-                    while ((pair = readNextPair(inputStream)) != null) {
-                        nextKey = pair[0];
-                        nextValue = pair[1];
-                        if (changes.containsKey(nextKey)) {
-                            nextValue = changes.get(nextKey);
-                            changes.remove(nextKey);
-                        }
-                        if (nextValue != null) {
-                            writeNextPair(outputStream, nextKey, nextValue);
-                        }
-                    }
-                }
-            }
-            Set<Map.Entry<String, String>> entries = changes.entrySet();
-            for (Map.Entry<String, String> entry : entries) {
-                if (entry.getValue() != null) {
-                    byte firstByte = getFirstByte(entry.getKey());
-                    DataOutputStream outputStream = outputStreams[firstByte % partsNumber]
-                            [(firstByte / partsNumber) % partsNumber];
-                    try {
-                        writeNextPair(outputStream, entry.getKey(), entry.getValue());
-                    } catch (IOException e) {
-                        throw new IllegalStateException(e.getMessage());
-                    }
-                }
-            }
-            for (int i = 0; i < partsNumber; i++) {
-                for (int j = 0; j < partsNumber; j++) {
-                    inputStreams[i][j].close();
-                    outputStreams[i][j].close();
-                    if (!(new File(filesList[i][j].getPath() + "~")).delete()) {
-                        throw new IllegalStateException(filesList[i][j].getPath() + "~: couldn't delete file");
-                    }
-                    if (filesList[i][j].length() == 0) {
-                        if (!filesList[i][j].delete()) {
-                            throw new IllegalStateException(filesList[i][j].getPath() + ": couldn't delete file");
-                        }
-                    }
-                }
-            }
-            changes.clear();
-            oldRecordNumber = recordNumber;
-            for (File directory : directoriesList) {
-                if (directory.list().length == 0) {
-                    if (!directory.delete()) {
-                        throw new IllegalStateException(directory.getAbsolutePath() + ": couldn't delete directory");
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage(), e);
+            cacheLock.readLock().lock();
+            canceled = changesSize();
         } finally {
-            for (int i = 0; i < partsNumber; i++) {
-                for (int j = 0; j < partsNumber; j++) {
-                    try {
-                        if (inputStreams[i][j] != null) {
-                            inputStreams[i][j].close();
-                        }
-                    } catch (Exception e) {
-                        isClosed = false;
-                    }
-                    try {
-                        if (outputStreams[i][j] != null) {
-                            outputStreams[i][j].close();
-                        }
-                    } catch (Exception e) {
-                        isClosed = false;
-                    }
-                }
-            }
+            cacheLock.readLock().unlock();
         }
-        if (!isClosed) {
-            throw new IllegalStateException("couldn't close some files");
-        }
-        return updated;
+        changes.get().clear();
+        return canceled;
     }
 
     @Override
-    public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException();
+     public Storeable get(String key) throws IllegalArgumentException {
+        if (key == null || !isValidKey(key)) {
+            throw new IllegalArgumentException("invalid key");
         }
-        if (get(key) != null) {
-            recordNumber--;
-            changes.put(key, null);
+        if (changes.get().containsKey(key)) {
+            return changes.get().get(key);
+        } else {
+            try {
+                cacheLock.readLock().lock();
+                return cache.get(key);
+            } finally {
+                cacheLock.readLock().unlock();
+            }
         }
-        return get(key);
     }
+
+    @Override
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        if (key == null || !isValidKey(key)) {
+            throw new IllegalArgumentException("invalid key");
+        }
+        if (value == null || !isValidValue(value)) {
+            throw new IllegalArgumentException("invalid value");
+        }
+        Storeable old = get(key);
+        changes.get().put(key, value);
+        return old;
+    }
+
+    @Override
+    public Storeable remove(String key) throws IllegalArgumentException {
+        if (key == null || !isValidKey(key)) {
+            throw new IllegalArgumentException("invalid key");
+        }
+        Storeable old = get(key);
+        changes.get().put(key, null);
+        return old;
+    }
+
 
     @Override
     public int size() {
-        return recordNumber;
+        try {
+            cacheLock.readLock().lock();
+            int size = cache.size();
+            for (String key : changes.get().keySet()) {
+                if (changes.get().get(key) == null) {
+                    if (cache.containsKey(key)) {
+                        size--;
+                    }
+                } else {
+                    if (!cache.containsKey(key)) {
+                        size++;
+                    }
+                }
+            }
+            return size;
+        } finally {
+            cacheLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int commit() throws IOException {
+        try {
+            cacheLock.writeLock().lock();
+            int difference = changesSize();
+            for (String key : changes.get().keySet()) {
+                if (changes.get().get(key) == null) {
+                    if (cache.containsKey(key)) {
+                        cache.remove(key);
+                    }
+                } else {
+                    cache.put(key, changes.get().get(key));
+                }
+            }
+            changes.get().clear();
+            HashMap<Byte, HashMap<String, String>> serealized = new HashMap<>();
+            for (String key : cache.keySet()) {
+                byte first = getFirstByte(key);
+                if (!serealized.containsKey(first)) {
+                    serealized.put(first, new HashMap<String, String>());
+                }
+                serealized.get(first).put(key, DistributedTableProvider.serializeByTypesList(types, cache.get(key)));
+            }
+            for (int i = 0; i < partsNumber; i++) {
+                if (!Files.exists(directoriesList[i])) {
+                    Files.createDirectory(directoriesList[i]);
+                }
+                for (int j = 0; j < partsNumber; j++) {
+                    if (Files.exists(filesList[i][j])) {
+                        Files.delete(filesList[i][j]);
+                    }
+                    byte first = (byte) (i + partsNumber * j);
+                    if (serealized.containsKey(first)) {
+                        Files.createFile(filesList[i][j]);
+                        HashMap<String, String> map = serealized.get(first);
+                        try (DataOutputStream outputStream
+                                     = new DataOutputStream(new FileOutputStream(filesList[i][j].toFile()))) {
+                            for (String key : map.keySet()) {
+                                writeNextPair(outputStream, key, map.get(key));
+                            }
+                        }
+                    }
+                }
+                if (directoriesList[i].toFile().list().length == 0) {
+                    Files.delete(directoriesList[i]);
+                }
+            }
+            return difference;
+        } finally {
+            cacheLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return types.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        return types.get(columnIndex);
+    }
+
+    public List<Class<?>> getTypes() {
+        return types;
     }
 
     protected void writeNextPair(DataOutputStream outputStream, String key, String value) throws IOException {
@@ -335,10 +424,10 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     protected String readValue(String key) throws IOException {
-        if (currentFile == null || !currentFile.exists()) {
+        if (currentFile == null || !Files.exists(currentFile)) {
             return null;
         }
-        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile))) {
+        try (DataInputStream inputStream = new DataInputStream(new FileInputStream(currentFile.toFile()))) {
             String[] pair;
             while ((pair = readNextPair(inputStream)) != null) {
                 if (pair[0].equals(key)) {
@@ -353,13 +442,15 @@ public class DistributedTable extends FileManager implements Table {
     public void clear() throws IOException {
         for (int i = 0; i < partsNumber; i++) {
             for (int j = 0; j < partsNumber; j++) {
-                if (filesList[i][j].exists() && !filesList[i][j].delete()) {
-                    throw new IOException(filesList[i][j].getPath() + ": couldn't remove file");
+                if (Files.exists(filesList[i][j]) && !Files.exists(filesList[i][j])) {
+                    throw new IOException(filesList[i][j] + ": couldn't remove file");
                 }
             }
-            if (directoriesList[i].exists() && !directoriesList[i].delete()) {
-                throw new IOException(directoriesList[i].getPath() + ": couldn't remove directory");
+            if (Files.exists(directoriesList[i]) && !Files.exists(directoriesList[i])) {
+                throw new IOException(directoriesList[i] + ": couldn't remove directory");
             }
         }
+        Files.delete(signature);
+        Files.delete(currentPath);
     }
 }
