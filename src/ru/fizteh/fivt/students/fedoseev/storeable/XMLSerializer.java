@@ -30,10 +30,6 @@ public class XMLSerializer implements Closeable {
 
                 String stringValue = value.toString();
 
-                if (stringValue.trim().isEmpty()) {
-                    throw new ParseException("ERROR: invalid value", 0);
-                }
-
                 xmlStreamWriter.writeCharacters(stringValue);
                 xmlStreamWriter.writeEndElement();
             }
