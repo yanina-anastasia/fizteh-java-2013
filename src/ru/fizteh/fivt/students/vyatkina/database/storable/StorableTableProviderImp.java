@@ -113,6 +113,7 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
         }
         StorableRowShape shape = new StorableRowShape(columnTypes);
         StorableTable table = new StorableTableImp2(name, shape, this);
+        table.putValuesFromDisk(new HashMap<String, Storeable>());
         try {
             databaseKeeper.writeLock().lock();
             tables.put(name, table);
