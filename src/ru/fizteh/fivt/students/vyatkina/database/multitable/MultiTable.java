@@ -7,14 +7,14 @@ public class MultiTable extends SuperTable<String> implements StringTable {
 
     private MultiTableProvider tableProvider;
 
-    public MultiTable (String name, MultiTableProvider tableProvider) {
-        super (name);
+    public MultiTable(String name, MultiTableProvider tableProvider) {
+        super(name);
         this.tableProvider = tableProvider;
     }
 
     @Override
-    public int commit () {
-        tableProvider.commitTable (this);
-        return super.commit ();
+    public int commit() {
+        tableProvider.commitTable(this);
+        return super.commit();
     }
 }

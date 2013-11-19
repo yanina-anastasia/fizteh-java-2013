@@ -12,22 +12,22 @@ import static ru.fizteh.fivt.students.vyatkina.database.superior.SuperTableProvi
 
 public class StorableTableProviderFactory implements TableProviderFactory, Closeable {
 
-    private AtomicBoolean isClosed = new AtomicBoolean (false);
+    private AtomicBoolean isClosed = new AtomicBoolean(false);
 
-    private void isClosedCheck () {
-        if (isClosed.get ()) {
-            throw new IllegalStateException ("TableProviderFactory is closed");
+    private void isClosedCheck() {
+        if (isClosed.get()) {
+            throw new IllegalStateException("TableProviderFactory is closed");
         }
     }
 
     @Override
-    public TableProvider create (String path) throws IOException {
-        isClosedCheck ();
-        return new StorableTableProviderImp (directoryCheck (path));
+    public TableProvider create(String path) throws IOException {
+        isClosedCheck();
+        return new StorableTableProviderImp(directoryCheck(path));
     }
 
     @Override
-    public void close () throws IOException {
-        isClosed.set (true);
+    public void close() throws IOException {
+        isClosed.set(true);
     }
 }

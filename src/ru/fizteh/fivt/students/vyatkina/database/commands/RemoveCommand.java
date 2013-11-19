@@ -7,30 +7,30 @@ import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
 public class RemoveCommand extends DatabaseCommand {
 
-    public RemoveCommand (DatabaseState state) {
-        super (state);
+    public RemoveCommand(DatabaseState state) {
+        super(state);
         this.name = "remove";
         this.argsCount = 1;
     }
 
     @Override
-    public void execute (String[] args) {
-        if (!tableIsSelected ()) {
+    public void execute(String[] args) {
+        if (!tableIsSelected()) {
             return;
         }
         String key = args[0];
 
         String result = null;
         try {
-            result = state.databaseAdapter.remove (key);
+            result = state.databaseAdapter.remove(key);
         }
         catch (WrappedIOException e) {
-           throw new CommandExecutionException (e.getMessage ());
+            throw new CommandExecutionException(e.getMessage());
         }
         if (result == null) {
-            state.printUserMessage ("not found");
+            state.printUserMessage("not found");
         } else {
-            state.printUserMessage ("removed");
+            state.printUserMessage("removed");
         }
     }
 

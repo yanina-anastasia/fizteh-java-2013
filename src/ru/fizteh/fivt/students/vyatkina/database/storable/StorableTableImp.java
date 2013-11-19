@@ -9,11 +9,6 @@ import ru.fizteh.fivt.students.vyatkina.database.superior.SuperTable;
 import ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderChecker;
 import ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils;
 
-import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.createFileForKeyIfNotExists;
-import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.deleteFileForKey;
-import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.fileForKey;
-
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,125 +18,124 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class StorableTableImp extends SuperTable<Storeable> implements StorableTable, Closeable {
+import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.createFileForKeyIfNotExists;
+import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUtils.fileForKey;
+
+public class StorableTableImp extends SuperTable<Storeable> implements StorableTable {
 
     private final StorableTableProviderImp tableProvider;
     private final StorableRowShape shape;
-    private AtomicBoolean isClosed = new AtomicBoolean (false);
+    private AtomicBoolean isClosed = new AtomicBoolean(false);
 
-    public StorableTableImp (String name, StorableRowShape shape, StorableTableProviderImp tableProvider) {
-        super (name);
+    public StorableTableImp(String name, StorableRowShape shape, StorableTableProviderImp tableProvider) {
+        super(name);
         this.shape = shape;
         this.tableProvider = tableProvider;
     }
 
     @Override
-    public String getName () {
-        isClosedCheck ();
-        return super.getName ();
+    public String getName() {
+        isClosedCheck();
+        return super.getName();
     }
 
-    void setCurrentThreadValues () {
-        rollback ();
-    }
-
-    @Override
-    public Storeable get (String key) {
-        isClosedCheck ();
-        return super.get (key);
+    void setCurrentThreadValues() {
+        rollback();
     }
 
     @Override
-    public Storeable put (String key, Storeable storeable) {
-        isClosedCheck ();
-        TableProviderChecker.storableForThisTableCheck (this, storeable);
-        return super.put (key, storeable);
+    public Storeable get(String key) {
+        isClosedCheck();
+        return super.get(key);
     }
 
     @Override
-    public Storeable remove (String key) {
-        isClosedCheck ();
-        return super.remove (key);
+    public Storeable put(String key, Storeable storeable) {
+        isClosedCheck();
+        TableProviderChecker.storableForThisTableCheck(this, storeable);
+        return super.put(key, storeable);
     }
 
     @Override
-    public int size () {
-        isClosedCheck ();
-        return super.size ();
+    public Storeable remove(String key) {
+        isClosedCheck();
+        return super.remove(key);
     }
 
     @Override
-    public int rollback () {
-        isClosedCheck ();
-        return super.rollback ();
+    public int size() {
+        isClosedCheck();
+        return super.size();
     }
 
     @Override
-    public int commit ()  {
-        isClosedCheck ();
-        Map<Path, List<DatabaseUtils.KeyValue>> databaseChanges = new HashMap<> ();
-        Path tableLocation = tableProvider.tableDirectory (name);
+    public int rollback() {
+        isClosedCheck();
+        return super.rollback();
+    }
+
+    @Override
+    public int commit() {
+        isClosedCheck();
+        Map<Path, List<DatabaseUtils.KeyValue>> databaseChanges = new HashMap<>();
+        Path tableLocation = tableProvider.tableDirectory(name);
         try {
-            tableKeeper.writeLock ().lock ();
-            tableProvider.databaseKeeper.writeLock ().lock ();
-            for (Map.Entry<String, Diff<Storeable>> entry : values.entrySet ()) {
-                if (entry.getValue ().isNeedToCommit ()) {
-                    Path fileKeyIn = fileForKey (entry.getKey (), tableLocation);
-                    if (!databaseChanges.containsKey (fileKeyIn)) {
-                        Files.deleteIfExists (fileKeyIn);
-                        createFileForKeyIfNotExists (entry.getKey (), tableLocation);
-                        databaseChanges.put (fileKeyIn, new ArrayList<DatabaseUtils.KeyValue> ());
+            tableKeeper.writeLock().lock();
+            tableProvider.databaseKeeper.writeLock().lock();
+            for (Map.Entry<String, Diff<Storeable>> entry : values.entrySet()) {
+                if (entry.getValue().isNeedToCommit()) {
+                    Path fileKeyIn = fileForKey(entry.getKey(), tableLocation);
+                    if (!databaseChanges.containsKey(fileKeyIn)) {
+                        Files.deleteIfExists(fileKeyIn);
+                        createFileForKeyIfNotExists(entry.getKey(), tableLocation);
+                        databaseChanges.put(fileKeyIn, new ArrayList<DatabaseUtils.KeyValue>());
                     }
                 }
             }
 
-            for (Map.Entry<String, Diff<Storeable>> entry : values.entrySet ()) {
-                Path fileKeyIn = fileForKey (entry.getKey (), tableLocation);
-                if (databaseChanges.containsKey (fileKeyIn) && !entry.getValue ().isRemoved ()) {
-                    String value = tableProvider.serialize (this, entry.getValue ().getValue ());
-                    DatabaseUtils.KeyValue keyValue = new DatabaseUtils.KeyValue (entry.getKey (),value);
-                    databaseChanges.get (fileKeyIn).add (keyValue);
+            for (Map.Entry<String, Diff<Storeable>> entry : values.entrySet()) {
+                Path fileKeyIn = fileForKey(entry.getKey(), tableLocation);
+                if (databaseChanges.containsKey(fileKeyIn) && !entry.getValue().isRemoved()) {
+                    String value = tableProvider.serialize(this, entry.getValue().getValue());
+                    DatabaseUtils.KeyValue keyValue = new DatabaseUtils.KeyValue(entry.getKey(), value);
+                    databaseChanges.get(fileKeyIn).add(keyValue);
                 }
             }
-            TableProviderUtils.writeTable (databaseChanges);
-            return super.commit ();
+            TableProviderUtils.writeTable(databaseChanges);
+            return super.commit();
         }
         catch (IOException e) {
-            throw new WrappedIOException (e);
+            throw new WrappedIOException(e);
         }
         finally {
-            tableProvider.databaseKeeper.writeLock ().unlock ();
-            tableKeeper.writeLock ().unlock ();
+            tableProvider.databaseKeeper.writeLock().unlock();
+            tableKeeper.writeLock().unlock();
         }
     }
 
+
     @Override
-    public int getColumnsCount () {
-        isClosedCheck ();
-        return shape.getColumnsCount ();
+    public int getColumnsCount() {
+        isClosedCheck();
+        return shape.getColumnsCount();
     }
 
     @Override
-    public Class<?> getColumnType (int columnIndex) throws IndexOutOfBoundsException {
-        isClosedCheck ();
-        return shape.getColumnType (columnIndex);
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        isClosedCheck();
+        return shape.getColumnType(columnIndex);
     }
 
     @Override
-    public void close () {
-        rollback ();
-        tableProvider.removeReference (this);
-        isClosed.set (true);
+    public void close() {
+        rollback();
+        tableProvider.removeReference(this);
+        isClosed.set(true);
     }
 
-    @Override
-    public String toString () {
-        return getClass ().getSimpleName () + "[" + tableProvider.tableDirectory (name) + "]";
-    }
-
-    private void isClosedCheck () {
-        if (isClosed.get ()) {
-            throw new IllegalStateException ("Table " + name + "is closed");
+    private void isClosedCheck() {
+        if (isClosed.get()) {
+            throw new IllegalStateException("Table " + name + "is closed");
         }
     }
 }
