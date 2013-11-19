@@ -18,15 +18,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class DataBasesFactory implements TableProviderFactory {
     private Shell shell = null;
-    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public TableProvider create (String dir) throws IllegalArgumentException, IOException {
         if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("Directory path is invalid");
         }
         File fileMapStorage = null;
-        try {
-            lock.writeLock().lock();
             fileMapStorage = new File(dir);
             if (!fileMapStorage.exists()) {
                 throw new IOException("no such file!" + fileMapStorage.getCanonicalPath());
@@ -35,9 +32,6 @@ public class DataBasesFactory implements TableProviderFactory {
                 throw new IllegalArgumentException("try create provider on file");
             }
             shell = new Shell();
-        } finally {
-            lock.writeLock().unlock();
-        }
         return new DataBasesCommander(shell,fileMapStorage);
     }
 
