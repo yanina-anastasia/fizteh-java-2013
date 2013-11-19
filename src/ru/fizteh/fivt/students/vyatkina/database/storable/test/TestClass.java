@@ -75,7 +75,7 @@ public class TestClass {
             catch (IOException e) {
                 e.printStackTrace ();  //To change body of catch statement use File | Settings | File Templates.
             }
-
+            System.out.println ("thread 2 commited table.get(key0) = " + table.get ("key0"));
         }
     };
 

@@ -53,7 +53,7 @@ public class SuperTable<ValueType> {
 
             if (oldValue == null) {
                 Diff<ValueType> newValue = new Diff (null, value);
-                values.put (key, newValue);
+                values.put (key,newValue);
                 oldStringValue = null;
 
             } else {

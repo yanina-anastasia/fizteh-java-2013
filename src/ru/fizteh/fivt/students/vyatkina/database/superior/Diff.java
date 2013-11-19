@@ -14,9 +14,11 @@ public class Diff<ValueType> {
     public Diff (ValueType commitedValue, ValueType value) {
         this.commitedValue.set (commitedValue);
         this.value.set (value);
+        threadChangedValue.set (true);
     }
 
     public ValueType getValue () {
+
         if (threadChangedValue.get () == null) {
             try {
                 commitedValueKeeper.readLock ().lock ();
@@ -37,7 +39,7 @@ public class Diff<ValueType> {
     public boolean isNeedToCommit () {
         try {
             commitedValueKeeper.readLock ().lock ();
-            if (commitedValue == null) {
+            if (commitedValue.get () == null) {
                 return !(getValue () == null);
             }
             return !commitedValue.get ().equals (getValue ());

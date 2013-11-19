@@ -39,6 +39,21 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
         this.location = location.toAbsolutePath ();
     }
 
+    @Override
+    public Table getTable (String name) {
+        isClosedCheck ();
+        validTableNameCheck (name);
+        loadTable (name);
+        try {
+            databaseKeeper.readLock ().lock ();
+            return tables.get (name);
+        }
+        finally {
+            databaseKeeper.readLock ().unlock ();
+        }
+
+    }
+    
     public void loadTable (String tableName) {
         try {
             databaseKeeper.readLock ().lock ();
@@ -81,43 +96,6 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             throw new WrappedIOException ("Bad database: table without signature file");
         }
     }
-
-    @Override
-    public Table getTable (String name) {
-        isClosedCheck ();
-        validTableNameCheck (name);
-        loadTable (name);
-        try {
-            databaseKeeper.readLock ().lock ();
-            StorableTableImp table = tables.get (name);
-            if (table == null) {
-                return null;
-            }
-            table.setCurrentThreadValues ();
-            return table;
-        }
-        finally {
-            databaseKeeper.readLock ().unlock ();
-        }
-
-    }
-
-    /*void commitTable (StorableTableImp table) {
-        Path tableDirectory = tableDirectory (table.getName ());
-        try {
-            databaseKeeper.writeLock ().lock ();
-            Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
-            Set<Path> filesThatChanged = deleteFilesThatChanged (tableDirectory, keysThatValuesHaveChanged);
-            rewriteFilesThatChanged (tableDirectory, entriesToWrite (table), filesThatChanged);
-        }
-        catch (IOException e) {
-            throw new WrappedIOException ();
-        }
-        finally {
-            databaseKeeper.writeLock ().unlock ();
-        }
-
-    }*/
 
     @Override
     public Table createTable (String name, List<Class<?>> columnTypes) throws IOException {
@@ -308,15 +286,6 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             }
         }
         return classes;
-    }
-
-
-    Map<String, String> entriesToWrite (StorableTableImp table) {
-        Map<String, String> serialized = new HashMap<> ();
-        for (Map.Entry<String, Storeable> entry : table.entriesThatChanged ().entrySet ()) {
-            serialized.put (entry.getKey (), serialize (table, entry.getValue ()));
-        }
-        return serialized;
     }
 
     @Override

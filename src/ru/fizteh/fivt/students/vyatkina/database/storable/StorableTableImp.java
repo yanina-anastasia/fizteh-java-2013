@@ -76,25 +76,6 @@ public class StorableTableImp extends SuperTable<Storeable> implements StorableT
         return super.rollback ();
     }
 
-    /*@Override
-    public int commit () {
-        isClosedCheck ();
-        int commited = 0;
-        try {
-            tableKeeper.writeLock ().lock ();
-            tableProvider.commitTable (this);
-            for (Diff<Storeable> value : values.values ()) {
-                if (value.commit ()) {
-                    ++commited;
-                }
-            }
-        }
-        finally {
-            tableKeeper.writeLock ().unlock ();
-        }
-        return commited;
-    } */
-
     @Override
     public int commit ()  {
         isClosedCheck ();
