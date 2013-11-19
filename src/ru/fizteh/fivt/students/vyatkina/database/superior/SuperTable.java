@@ -85,7 +85,7 @@ public class SuperTable<ValueType> {
         }
     }
 
-    public int commit () throws IOException {
+    public int commit ()  {
         int commited = 0;
         for (Diff<ValueType> value : values.values ()) {
             if (value.commit ()) {
