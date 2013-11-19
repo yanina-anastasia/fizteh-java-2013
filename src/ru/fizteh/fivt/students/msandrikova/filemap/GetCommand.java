@@ -16,8 +16,8 @@ public class GetCommand extends Command {
 		}
 		
 
-		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) || 
-				(shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
+		if ((shell.getState().isMultiFileHashMap && shell.getState().currentTable == null) 
+				|| (shell.getState().isStoreable && shell.getState().currentStoreableTable == null)) {
 			System.out.println("no table");
 			return;
 		}
@@ -29,14 +29,15 @@ public class GetCommand extends Command {
 			value = shell.getState().currentTable.get(key);
 		} else {
 			try {
-				value = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, shell.getState().currentStoreableTable.get(key));
+				value = shell.getState().storeableTableProvider.serialize(shell.getState().currentStoreableTable, 
+						shell.getState().currentStoreableTable.get(key));
 			} catch (IllegalArgumentException e) {
 				System.out.println("wrong type (" + e.getMessage() + ")");
 				return;
 			}
 		}
 		
-		if (value == null){
+		if (value == null) {
 			System.out.println("not found");
 		} else {
 			System.out.println("found");

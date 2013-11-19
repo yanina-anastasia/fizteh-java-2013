@@ -80,7 +80,7 @@ public class DatabaseMap implements ChangesCountingTable {
 	
 	public boolean checkHash(int dirNumber, int DBNumber) {
 		Set<String> keySet = this.originalDatabase.keySet();
-		for(String key : keySet) {
+		for (String key : keySet) {
 			int ndirectory = Utils.getNDirectory(key);
 			int nfile = Utils.getNFile(key);
 			if (dirNumber != ndirectory || DBNumber != nfile) {
@@ -104,13 +104,14 @@ public class DatabaseMap implements ChangesCountingTable {
 				} catch(EOFException e) {
 					break;
 				}
-					if (keyLength <= 0 || keyLength >= 10*10*10*10*10*10) {
+					if (keyLength <= 0 || keyLength >= 1000 * 1000) {
 						Utils.generateAnError("Incorrect length of key.", "DatabaseMap", false);
 					}
 					
 					valueLength = reader.readInt();
-					if (valueLength <= 0 || valueLength >= 10*10*10*10*10*10) {
-						Utils.generateAnError("Incorrect length of value.", "DatabaseMap", false);
+					if (valueLength <= 0 || valueLength >= 1000 * 1000) {
+						Utils.generateAnError("Incorrect length of value.",
+								"DatabaseMap", false);
 					}
 					
 					byte[] keyByteArray = new byte[keyLength];
@@ -131,7 +132,7 @@ public class DatabaseMap implements ChangesCountingTable {
 	
 	public void writeFile() throws IOException {
 		this.currentFile.createNewFile();
-		for(String key : this.removedFromOriginalDatabase) {
+		for (String key : this.removedFromOriginalDatabase) {
 			this.originalDatabase.remove(key);
 		}
 		this.originalDatabase.putAll(this.updates);
@@ -142,7 +143,7 @@ public class DatabaseMap implements ChangesCountingTable {
 			writer = new DataOutputStream(new FileOutputStream(this.currentFile));
 			Set<String> keySet = originalDatabase.keySet();
 			String value;
-			for(String key : keySet) {
+			for (String key : keySet) {
 				value = originalDatabase.get(key);
 				byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
 				byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);

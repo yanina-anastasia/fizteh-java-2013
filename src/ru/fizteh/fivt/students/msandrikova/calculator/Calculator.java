@@ -7,14 +7,14 @@ import java.util.Vector;
 
 public class Calculator {
 	
-    private final static int RAD = 17;
+    private static final int RAD = 17;
 	
 	private static boolean isMathSymbol(char s) {
-        return(s == '+' || s == '-' || s == '*' || s == '/');
+        return (s == '+' || s == '-' || s == '*' || s == '/');
     }
 	
     private static boolean isBracket(char s) {
-        return(s == '(' || s == ')');
+        return (s == '(' || s == ')');
     }
 	
     public static void main(String[] args) { 
@@ -23,13 +23,13 @@ public class Calculator {
         String token = new String();
         String expression = new String();
 		
-        if(args.length == 0) {
+        if (args.length == 0) {
             System.err.println("Error: Your should enter at least one argument");
             System.exit(1);
         }
 		
         StringBuilder sb = new StringBuilder();
-        for(String s : args) {
+        for (String s : args) {
             sb.append(s);
         }
         expression = sb.toString();
@@ -39,11 +39,11 @@ public class Calculator {
         Vector<String> tokens = new Vector<String>();
 		
 		
-        for(int i = 0; i < expression.length(); i++) {
-            if(Calculator.isBracket(expression.charAt(i)) 
+        for (int i = 0; i < expression.length(); i++) {
+            if (Calculator.isBracket(expression.charAt(i)) 
                     || (Calculator.isMathSymbol(expression.charAt(i)) && 
                             !(expression.charAt(i) == '-' && (i == 0 || expression.charAt(i-1) == '(')))) {
-                if(token.length() != 0) {
+                if (token.length() != 0) {
                     tokens.add(token);
                     token = "";
                 }
@@ -55,24 +55,24 @@ public class Calculator {
                 token += expression.charAt(i);
             }
         }
-        if(token.length() != 0) {
+        if (token.length() != 0) {
             tokens.add(token);
             token = "";
         }
 		
-        for(String s : tokens) {
+        for (String s : tokens) {
             token = s;
-            if(!token.matches("[*+-/)(]")) {
+            if (!token.matches("[*+-/)(]")) {
                 polishNotation.add(token);
                 continue;
-            } else if(token.equals("(")) {
+            } else if (token.equals("(")) {
                 tempForPolishNotation.add(token);
                 continue;
-            } else if(token.equals(")")) {
-                while(!tempForPolishNotation.empty() && !tempForPolishNotation.peek().equals("(")) {
+            } else if (token.equals(")")) {
+                while (!tempForPolishNotation.empty() && !tempForPolishNotation.peek().equals("(")) {
                     polishNotation.add(tempForPolishNotation.pop());
                 }
-                if(tempForPolishNotation.empty()){
+                if (tempForPolishNotation.empty()){
                     System.err.println("Error: Brackets isn't balanced");
                     System.exit(1);
                 } else {
@@ -80,13 +80,13 @@ public class Calculator {
                 }
                 continue;
             } else {
-                if(token.matches("[+-]")) {
-                    while(!tempForPolishNotation.empty() && tempForPolishNotation.peek().matches("[*+-/]")) {
+                if (token.matches("[+-]")) {
+                    while (!tempForPolishNotation.empty() && tempForPolishNotation.peek().matches("[*+-/]")) {
                         polishNotation.add(tempForPolishNotation.pop());
                     }
                     tempForPolishNotation.push(token);
-                } else if(token.matches("[*/]")) {
-                    while(!tempForPolishNotation.empty() && tempForPolishNotation.peek().matches("[*/]")) {
+                } else if (token.matches("[*/]")) {
+                    while (!tempForPolishNotation.empty() && tempForPolishNotation.peek().matches("[*/]")) {
                         polishNotation.add(tempForPolishNotation.pop());
                     }
                     tempForPolishNotation.push(token);
@@ -94,22 +94,22 @@ public class Calculator {
             }
         }
 				
-        while(!tempForPolishNotation.empty() && tempForPolishNotation.peek().matches("[*+-/]")) {
+        while (!tempForPolishNotation.empty() && tempForPolishNotation.peek().matches("[*+-/]")) {
             polishNotation.add(tempForPolishNotation.pop());
         }
-        if(!tempForPolishNotation.empty()) {
+        if (!tempForPolishNotation.empty()) {
             System.out.println("Error: Brackets isn't balanced");
             return;
         }
 		
         Stack<Integer> calcOfPolishNotation = new Stack<Integer>();
-        while(polishNotation.peek() != null) {
+        while (polishNotation.peek() != null) {
             token = polishNotation.remove();
-            if(!token.matches("[*+-/)(]")) {
+            if (!token.matches("[*+-/)(]")) {
                 try {
                     calcOfPolishNotation.push(Integer.parseInt(token, RAD));
                 } catch (NumberFormatException e) {
-                    System.err.println("Error: Illegal symbol in \"" + token + "\"" );
+                    System.err.println("Error: Illegal symbol in \"" + token + "\"");
                     System.exit(1);
                 }
             } else {
@@ -118,31 +118,31 @@ public class Calculator {
                 b = calcOfPolishNotation.pop();
                 switch(token) {
                 case "+":
-                    if((a > 0 && Integer.MAX_VALUE - a < b) || (a < 0 && Integer.MIN_VALUE - a > b)) {
+                    if ((a > 0 && Integer.MAX_VALUE - a < b) || (a < 0 && Integer.MIN_VALUE - a > b)) {
                         System.err.println("Error: Arithmetic overflow");
                         System.exit(1);
                     }
                     res = b + a;
                     break;
                 case "-":
-                    if((a < 0 && Integer.MAX_VALUE + a < b) || (a > 0 && Integer.MIN_VALUE + a > b)) {
+                    if ((a < 0 && Integer.MAX_VALUE + a < b) || (a > 0 && Integer.MIN_VALUE + a > b)) {
                         System.err.println("Error: Arithmetic overflow");
                         System.exit(1);
                     }
                     res = b - a;
                     break;
                 case "/":
-                    if(a.equals(0)) {
+                    if (a.equals(0)) {
                         System.err.println("Error: Incorret expression: division by zero");
                         System.exit(1);
                     }
                     res = b / a;
                     break;
                     case "*":
-                    if( (a > 0 && b > 0 && (double)Integer.MAX_VALUE/ (double) a < (double) b)
-                            || (a > 0 && b < 0 && (double)Integer.MIN_VALUE/ (double) a > (double) b) 
-                            || (a < 0 && b > 0 && (double)Integer.MIN_VALUE/ (double) a < (double) b)
-                            || (a < 0 && b < 0 && (double)Integer.MAX_VALUE/ (double) a > (double) b) ) {
+                    if ((a > 0 && b > 0 && (double) Integer.MAX_VALUE/ (double) a < (double) b)
+                            || (a > 0 && b < 0 && (double) Integer.MIN_VALUE / (double) a > (double) b) 
+                            || (a < 0 && b > 0 && (double) Integer.MIN_VALUE / (double) a < (double) b)
+                            || (a < 0 && b < 0 && (double) Integer.MAX_VALUE / (double) a > (double) b)) {
                         System.err.println("Error: Arithmetic overflow");
                         System.exit(1);
                     }
