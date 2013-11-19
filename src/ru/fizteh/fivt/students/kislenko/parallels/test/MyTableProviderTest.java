@@ -94,6 +94,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagFirst = (provider.createTable("myFirstParallelTable", typeList) == null);
                 } catch (IOException ignored) {
+
                 }
             }
         });
@@ -103,6 +104,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagSecond = (provider.createTable("myFirstParallelTable", typeList) == null);
                 } catch (IOException ignored) {
+                    // Maybe some comment will help me avoid this stupid checking...
                 }
             }
         });
@@ -124,6 +126,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagFirst = (provider.createTable("myFirstParallelTable", typeList) != null);
                 } catch (IOException ignored) {
+                    System.out.println("Or some output...");
                 }
             }
         });
