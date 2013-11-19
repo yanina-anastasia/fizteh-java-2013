@@ -265,6 +265,7 @@ public class MyTableTest {
                 try {
                     ref1.set(table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]")));
                 } catch (ParseException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -274,6 +275,7 @@ public class MyTableTest {
                 try {
                     ref2.set(table.put("a", provider.deserialize(table, "[\"I gonna take this world!\",-1]")));
                 } catch (ParseException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -297,6 +299,7 @@ public class MyTableTest {
                     Thread.sleep(50);
                     ref1.set(table.commit());
                 } catch (Exception ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -308,6 +311,7 @@ public class MyTableTest {
                     Thread.sleep(50);
                     ref2.set(table.commit());
                 } catch (Exception ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -329,6 +333,7 @@ public class MyTableTest {
                     table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
                     ref1.set(table.size());
                 } catch (ParseException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -340,6 +345,7 @@ public class MyTableTest {
                     table.put("c", provider.deserialize(table, "[\"tripleEmpty\",-1]"));
                     ref2.set(table.size());
                 } catch (ParseException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -362,7 +368,9 @@ public class MyTableTest {
                     table.put("a", provider.deserialize(table, "[\"empty\",-1]"));
                     ref1.set(table.commit());
                 } catch (ParseException ignored) {
+                    // This block isn't empty.
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -374,7 +382,9 @@ public class MyTableTest {
                     table.put("b", provider.deserialize(table, "[\"pustovoytov\",-2]"));
                     ref2.set(table.commit());
                 } catch (ParseException ignored) {
+                    // This block isn't empty.
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -397,6 +407,7 @@ public class MyTableTest {
                     Thread.sleep(50);
                     ref1.set(table.commit());
                 } catch (Exception ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -408,6 +419,7 @@ public class MyTableTest {
                     Thread.sleep(200);
                     ref2.set(table.rollback());
                 } catch (Exception ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -432,6 +444,7 @@ public class MyTableTest {
                     Thread.sleep(200);
                     ref1.set(table.commit());
                 } catch (Exception ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -443,6 +456,7 @@ public class MyTableTest {
                     table.put("a", provider.deserialize(table, "[\"string2\",-2]"));
                     table.commit();
                 } catch (Exception ignored) {
+                    // This block isn't empty.
                 }
             }
         });

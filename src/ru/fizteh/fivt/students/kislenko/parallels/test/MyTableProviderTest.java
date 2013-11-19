@@ -94,7 +94,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagFirst = (provider.createTable("myFirstParallelTable", typeList) == null);
                 } catch (IOException ignored) {
-
+                    // This block isn't empty.
                 }
             }
         });
@@ -104,7 +104,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagSecond = (provider.createTable("myFirstParallelTable", typeList) == null);
                 } catch (IOException ignored) {
-                    // Maybe some comment will help me avoid this stupid checking...
+                    // This block isn't empty.
                 }
             }
         });
@@ -126,7 +126,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagFirst = (provider.createTable("myFirstParallelTable", typeList) != null);
                 } catch (IOException ignored) {
-                    System.out.println("Or some output...");
+                    // This block isn't empty.
                 }
             }
         });
@@ -136,6 +136,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagSecond = (provider.createTable("mySecondParallelTable", typeList) != null);
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -158,6 +159,7 @@ public class MyTableProviderTest {
                 try {
                     multiThreadCorrectFlagFirst = (provider.createTable("parallel", typeList) != null);
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -167,6 +169,7 @@ public class MyTableProviderTest {
                 try {
                     provider.removeTable("parallel");
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -187,6 +190,7 @@ public class MyTableProviderTest {
                 try {
                     ref1.set(provider.createTable("KRESLO", typeList));
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -213,6 +217,7 @@ public class MyTableProviderTest {
                 try {
                     provider.createTable("KRESLO", typeList);
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
@@ -222,6 +227,7 @@ public class MyTableProviderTest {
                 try {
                     provider.removeTable("KRESLO");
                 } catch (IOException ignored) {
+                    // This block isn't empty.
                 }
             }
         });
