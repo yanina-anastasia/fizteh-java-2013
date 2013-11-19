@@ -3,9 +3,12 @@ package ru.fizteh.fivt.students.piakovenko.filemap;
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.piakovenko.filemap.storable.JSON.JSONSerializer;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -104,6 +107,13 @@ public class GlobalFileMapState {
 
     public void put (String key, String value) throws IOException{
         if (isStoreableMode) {
+            Storeable putValue = null;
+            try {
+                putValue = JSONSerializer.deserialize(tableStoreable, value);
+            } catch (ParseException e) {
+                throw new IOException(e.getCause());
+            }
+            tableStoreable.put(key, putValue);
         } else {
             tableStrings.put(key, value);
         }

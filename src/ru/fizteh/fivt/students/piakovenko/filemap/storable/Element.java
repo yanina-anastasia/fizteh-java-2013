@@ -19,42 +19,41 @@ public class Element implements Storeable {
     private List<Object> storage = null;
 
     private boolean columnChecker(int columnIndex) {
-        if (columnIndex < 0 || columnIndex >= storage.size()) {
+        if (columnIndex < 0 || columnIndex >= storageClasses.size()) {
             return false;
         }
         return true;
     }
 
-    private boolean classChecker(int columnIndex, Object value) {
-        if (storageClasses.get(columnIndex).equals(value.getClass())) {
-            return true;
+    private void classChecker(int columnIndex, Class<?> value) {
+        if (!value.isAssignableFrom(storageClasses.get(columnIndex))) {
+            throw new ColumnFormatException(String.format("Incorrect type: expected %s, but is %s",
+                    storageClasses.get(columnIndex).getName(), value.getName()));
         }
-        return false;
-    }
-
-    public Element () {
-        storageClasses = new ArrayList<Class<?>>();
-        storage = new ArrayList<Object>();
     }
 
 
     public Element(List<Class<?>> classes) {
-        storageClasses = new ArrayList<Class<?>>(classes.size());
-        storage = new ArrayList<Object>(classes.size());
-        for (int i = 0; i < classes.size(); ++i) {
-            storageClasses.add(classes.get(i));
+        storageClasses = new ArrayList<Class<?>>(classes);
+        storage = new ArrayList<Object>();
+        for (int i = 0; i < storageClasses.size(); ++i) {
+            storage.add(null);
         }
     }
 
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
+        classChecker(columnIndex, value.getClass());
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("setColumnAt - wrong index!");
         }
-        if (storageClasses.size() <= columnIndex) {
-            storageClasses.set(columnIndex, value.getClass());
-        }
-        if (!classChecker(columnIndex, value)) {
-            throw new ColumnFormatException("setColumnAt - wrong type of class!");
+        if (value != null) {
+            classChecker(columnIndex, value.getClass());
+            if ((value.getClass().getName().equals("java.lang.String"))
+                    && ((String) value).trim().isEmpty()) {
+                storage.set(columnIndex, value);
+                return;
+            }
+            classChecker(columnIndex,value.getClass());
         }
         storage.set(columnIndex, value);
     }
@@ -70,9 +69,7 @@ public class Element implements Storeable {
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("getIntAt - wrong index!");
         }
-        if (!classChecker(columnIndex, Integer.class)) {
-            throw new ColumnFormatException("getIntAt - wrong type of class!");
-        }
+        classChecker(columnIndex, Integer.class);
         return (Integer)storage.get(columnIndex);
     }
 
@@ -80,9 +77,7 @@ public class Element implements Storeable {
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("getLongAt - wrong index!");
         }
-        if (!classChecker(columnIndex, Long.class)) {
-            throw new ColumnFormatException("getLongAt - wrong type of class!");
-        }
+        classChecker(columnIndex, Long.class);
         return (Long)storage.get(columnIndex);
     }
 
@@ -90,9 +85,7 @@ public class Element implements Storeable {
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("getByteAt - wrong index!");
         }
-        if (!classChecker(columnIndex, Byte.class)) {
-            throw new ColumnFormatException("getByteAt - wrong type of class!");
-        }
+        classChecker(columnIndex, Byte.class);
         return (Byte)storage.get(columnIndex);
     }
 
@@ -100,9 +93,7 @@ public class Element implements Storeable {
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("getFloatAt - wrong index!");
         }
-        if (!classChecker(columnIndex, Float.class)) {
-            throw new ColumnFormatException("getFloatAt - wrong type of class!");
-        }
+        classChecker(columnIndex, Float.class);
         return (Float)storage.get(columnIndex);
     }
 
@@ -110,9 +101,7 @@ public class Element implements Storeable {
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("getDoubleAt - wrong index!");
         }
-        if (!classChecker(columnIndex, Double.class)) {
-            throw new ColumnFormatException("getDoubleAt - wrong type of class!");
-        }
+        classChecker(columnIndex, Double.class);
         return (Double)storage.get(columnIndex);
     }
 
@@ -120,9 +109,7 @@ public class Element implements Storeable {
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("getBooleanAt - wrong index!");
         }
-        if (!classChecker(columnIndex, Boolean.class)) {
-            throw new ColumnFormatException("getBooleanAt - wrong type of class!");
-        }
+        classChecker(columnIndex, Boolean.class);
         return (Boolean)storage.get(columnIndex);
     }
 
@@ -130,9 +117,7 @@ public class Element implements Storeable {
         if (!columnChecker(columnIndex)) {
             throw  new IndexOutOfBoundsException("getStringAt - wrong index!");
         }
-        if (!classChecker(columnIndex, Double.class)) {
-            throw new ColumnFormatException("getStringAt - wrong type of class!");
-        }
+        classChecker(columnIndex, String.class);
         return (String)storage.get(columnIndex);
     }
 

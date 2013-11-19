@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.piakovenko.filemap.storable;
 
 
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -112,6 +113,28 @@ public class DataBase implements Table {
             transactionMap.clear();
             removedMap.clear();
         }
+    }
+
+    public void checkAlienStoreable(Storeable storeable) {
+        for (int index = 0; index < getColumnsCount(); ++index) {
+            try {
+                Object o = storeable.getColumnAt(index);
+                if (o == null) {
+                    continue;
+                }
+                if (!o.getClass().equals(getColumnType(index))) {
+                    throw new ColumnFormatException("Alien storeable with incompatible types");
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("Alien storeable with less columns");
+            }
+        }
+        try {
+            storeable.getColumnAt(getColumnsCount());
+        } catch (IndexOutOfBoundsException e) {
+            return;
+        }
+        throw new ColumnFormatException("Alien storeable with more columns");
     }
 
     private boolean isValidNameDirectory(String name){
@@ -338,35 +361,12 @@ public class DataBase implements Table {
         String types = reader.readLine();
         Class<?> temp = null;
         for (String type : types.trim().split("\\s")){
-            temp = Utils.classByString(type);
+            temp = ColumnTypes.fromNameToType(type);
             if (temp == null) {
                 throw new IOException("wrong type!");
             } else {
                 storeableClasses.add(temp);
             }
-        }
-    }
-
-    private void saveClasses() {
-        try{
-            int curLength = 0;
-            File fileWithClasses = new File(dataBaseStorage, nameOfFileWithTypes);
-            if (!fileWithClasses.exists()) {
-                fileWithClasses.createNewFile();
-            }
-            FileWriter writer = new FileWriter(fileWithClasses);
-            String temp = null;
-            for (int i = 0; i < storeableClasses.size() - 1; ++i) {
-                temp = Utils.stringByClass(storeableClasses.get(i)) + " ";
-                writer.write(temp);
-                curLength += temp.length();
-            }
-            temp = Utils.stringByClass(storeableClasses.get(storeableClasses.size() - 1));
-            writer.write(temp);
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("Error! " + e.getMessage());
-            System.exit(1);
         }
     }
 
@@ -378,7 +378,6 @@ public class DataBase implements Table {
         changed = 0;
         parent = _parent;
         storeableClasses = columnTypes;
-        saveClasses();
         transaction = new ThreadLocal<Transaction>() {
            @Override
            protected Transaction initialValue() {
@@ -454,23 +453,30 @@ public class DataBase implements Table {
     }
 
     public Storeable get (String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("key equals NULL");
+        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
+            throw new IllegalArgumentException("Table name cannot be null");
         }
        return transaction.get().get(key);
     }
 
     public Storeable put (String key, Storeable value) throws IllegalArgumentException {
-        if (key == null || value == null || key.trim().equals("")) {
-            throw new IllegalArgumentException("key or value equals NULL");
+        if ((key == null) || (key.trim().isEmpty())) {
+            throw new IllegalArgumentException("Key can not be null");
         }
+        if (key.matches("\\s*") || key.split("\\s+").length != 1) {
+            throw new IllegalArgumentException("Key contains whitespaces");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
+        checkAlienStoreable(value);
         Storeable putValue = transaction.get().put(key, value);
         return putValue;
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("key equals null");
+        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
+            throw new IllegalArgumentException("Key name cannot be null");
         }
         Storeable removed = transaction.get().remove(key);
         return removed;
