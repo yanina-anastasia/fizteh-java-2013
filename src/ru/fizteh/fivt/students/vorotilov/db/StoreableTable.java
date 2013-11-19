@@ -46,9 +46,24 @@ public class StoreableTable implements Table {
     private TableFile[][] tableFiles = new TableFile[16][16];
     private HashMap<String, Storeable> tableOnDisk;
 
-    private ThreadLocal<HashMap<String, Storeable>> localTable = new ThreadLocal<>();
-    private ThreadLocal<List<LogEntry>> changes = new ThreadLocal<>();
-    private ThreadLocal<Integer> localCommitNumber = new ThreadLocal<>();
+    private final ThreadLocal<HashMap<String, Storeable>> localTable = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        protected HashMap<String, Storeable> initialValue() {
+            return new HashMap<>();
+        }
+    };
+    private final ThreadLocal<List<LogEntry>> changes = new ThreadLocal<List<LogEntry>>() {
+        @Override
+        protected List<LogEntry> initialValue() {
+            return new ArrayList<>();
+        }
+    };
+    private final ThreadLocal<Integer> localCommitNumber = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return new Integer(0);
+        }
+    };
     private AtomicInteger lastCommitNumber = new AtomicInteger(0);
 
     private ReadWriteLock tableLock = new ReentrantReadWriteLock();
@@ -139,10 +154,7 @@ public class StoreableTable implements Table {
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
         columnTypes = classes;
-        localTable.set(new HashMap<String, Storeable>());
-        changes.set(new ArrayList<LogEntry>());
         lastCommitNumber.set(0);
-        localCommitNumber.set(lastCommitNumber.get());
         try {
             SignatureFile.createSignature(tableRootDir, columnTypes);
         } catch (IOException e) {
@@ -161,10 +173,7 @@ public class StoreableTable implements Table {
         }
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
-        localTable.set(new HashMap<String, Storeable>());
-        changes.set(new ArrayList<LogEntry>());
         lastCommitNumber.set(0);
-        localCommitNumber.set(lastCommitNumber.get());
         try {
             columnTypes = SignatureFile.readSignature(tableRootDir);
         } catch (IOException e) {
@@ -456,11 +465,7 @@ public class StoreableTable implements Table {
     }
 
     private void useLatestTable() {
-        if (localCommitNumber.get() == null) {
-            localCommitNumber.set(lastCommitNumber.get());
-            localTable.set(new HashMap<String, Storeable>(tableOnDisk));
-            changes.set(new ArrayList<LogEntry>());
-        } else if (lastCommitNumber.get() != localCommitNumber.get()) {
+        if (lastCommitNumber.get() != localCommitNumber.get()) {
             localTable.get().clear();
             localTable.get().putAll(tableOnDisk);
             for (LogEntry i : changes.get()) {
