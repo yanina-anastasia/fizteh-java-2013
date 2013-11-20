@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantLock;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import ru.fizteh.fivt.storage.structured.*;
@@ -22,6 +23,7 @@ public class DbState extends State {
     private Table table;
     private int foldNum;
     private int fileNum;
+    private ReentrantLock commitLock;
     
     public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
                                                       throws ParseException, IOException {
@@ -30,6 +32,7 @@ public class DbState extends State {
         provider = prov;
         table = newTable;
         path = dbPath;
+        commitLock = new ReentrantLock(true);
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -186,13 +189,11 @@ public class DbState extends State {
     }  
 
     public void commit() throws IOException {
-        assignInitial();
-        if (initial.size() == 0) {
-            return;
-        }
         dbFile = null;
+        commitLock.lock();
         try {
             fileCheck();
+            assignInitial();
             if (size() == 0) {
                 (new File(path)).delete();
                 return;
@@ -218,6 +219,7 @@ public class DbState extends State {
                 }
             }
         } finally {
+            commitLock.unlock();
             if (dbFile != null) {
                 try {
                   dbFile.close();
@@ -237,24 +239,19 @@ public class DbState extends State {
     }
     
     public Storeable put(String key, Storeable value) {
-        try {
-            Storeable change = changes.get().get(key);
-            boolean exist = changes.get().containsKey(key);
-            if (!value.equals(initial.get(key))) {
-                changes.get().put(key, value);
-            } else {
-                changes.get().remove(key);
-            }
-            
-            if (exist) {
-                return change;
-            } else {
-                return initial.get(key);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Storeable change = changes.get().get(key);
+        boolean exist = changes.get().containsKey(key);
+        if (!value.equals(initial.get(key))) {
+            changes.get().put(key, value);
+        } else {
+            changes.get().remove(key);
         }
-        return null;
+        
+        if (exist) {
+            return change;
+        } else {
+            return initial.get(key);
+        }
     }
     
     public Storeable get(String key) {

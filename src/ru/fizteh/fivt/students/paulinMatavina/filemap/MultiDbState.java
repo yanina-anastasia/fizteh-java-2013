@@ -22,14 +22,11 @@ public class MultiDbState extends State implements Table {
     public ShellState shell;
     private String rootPath;
     public boolean isDropped;
-    private int dbSize;
-    private int primaryDbSize;
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
     
     private void init(String dbName) throws IOException, ParseException {          
-        dbSize = 0;
         isDropped = false;
         
         data = new DbState[folderNum][fileInFolderNum];
@@ -134,7 +131,6 @@ public class MultiDbState extends State implements Table {
     
     private void loadData() throws IOException, ParseException {
         checkDbDir(shell.currentDir.getAbsolutePath());
-        dbSize = 0;
         data = new DbState[folderNum][fileInFolderNum];
         for (int i = 0; i < folderNum; i++) {
             String fold = Integer.toString(i) + ".dir";
@@ -151,10 +147,8 @@ public class MultiDbState extends State implements Table {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
                 data[i][j] = new DbState(filePath, i, j, provider, this);
-                dbSize += data[i][j].size();
             }
         }
-        primaryDbSize = dbSize;
     }
     
     public void dropped() {
@@ -185,7 +179,6 @@ public class MultiDbState extends State implements Table {
             }
         }
         
-        primaryDbSize = dbSize;
         return chNum;
     }
     
@@ -233,9 +226,6 @@ public class MultiDbState extends State implements Table {
         int file = getFileNum(key);
         Storeable result;
         result = data[folder][file].put(key, value);
-        if (result == null) {
-            dbSize++;
-        }
         return result;  
     }
     
@@ -262,9 +252,6 @@ public class MultiDbState extends State implements Table {
         int folder = getFolderNum(key);
         int file = getFileNum(key);
         Storeable result = data[folder][file].remove(key);
-        if (result != null) {
-            dbSize--;
-        }
         return result;  
     }
     
@@ -282,7 +269,6 @@ public class MultiDbState extends State implements Table {
     @Override
     public int rollback() {
         int chNum = changesNum();
-        dbSize = primaryDbSize;
         for (int i = 0; i < folderNum; i++) {
             for (int j = 0; j < fileInFolderNum; j++) {
                 data[i][j].assignData();
