@@ -22,23 +22,15 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Pavel
- * Date: 12.10.13
- * Time: 22:45
- * To change this template use File | Settings | File Templates.
- */
+
 public class DataBase implements Table {
     private String name;
     private RandomAccessFile raDataBaseFile = null;
     private DataBaseMap map = null;
     private Shell shell = null;
     private File dataBaseStorage = null;
-    private int changed;
     private List<Class<?>> storeableClasses;
     private final String nameOfFileWithTypes = "signature.tsv";
-    private TableProvider parent = null;
     private ThreadLocal<Transaction> transaction;
     protected final Lock lock = new ReentrantLock(true);
 
@@ -68,9 +60,9 @@ public class DataBase implements Table {
                 Storeable value = currentTable.get(key);
                 if (transactionHasChanges(value, map.getMap().get(key))) {
                     if (value == null) {
-                        map.getMap().remove(key);
+                        map.remove(key);
                     } else {
-                        map.getMap().put(key, value);
+                        map.put(key, value);
                     }
                     ++count;
                 }
@@ -400,8 +392,6 @@ public class DataBase implements Table {
         shell  = sl;
         dataBaseStorage = storage;
         name = storage.getName();
-        changed = 0;
-        parent = _parent;
         storeableClasses = columnTypes;
         transaction = new ThreadLocal<Transaction>() {
            @Override
@@ -416,8 +406,6 @@ public class DataBase implements Table {
         shell  = sl;
         dataBaseStorage = storage;
         name = storage.getName();
-        changed = 0;
-        parent = _parent;
         transaction = new ThreadLocal<Transaction>() {
             @Override
             protected Transaction initialValue() {
@@ -437,7 +425,6 @@ public class DataBase implements Table {
         shell  = new Shell();
         dataBaseStorage = new File (System.getProperty("fizteh.db.dir"));
         name = dataBaseStorage.getName();
-        changed = 0;
     }
 
     public void load () throws IOException {
