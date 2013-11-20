@@ -14,9 +14,9 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DBTable implements Table {
-
     private File tableDirectory;
     private HashMap<String, Storeable> originalTable = new HashMap<>();
+    int originalSize;
     private List<Class<?>> columnTypes;
     private TableProvider tableProvider;
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
@@ -57,6 +57,7 @@ public class DBTable implements Table {
                 throw new IOException(e);
             }
         }
+        originalSize = originalTable.size();
     }
 
     @Override
@@ -172,31 +173,7 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        int count = 0;
-        try {
-            readLock.lock();
-            count = originalTable.size();
-            for (String currentKey : removedKeys.get()) {
-                if (!originalTable.containsKey(currentKey)) {
-                    continue;
-                }
-                if (tableOfChanges.get().containsKey(currentKey)) {
-                    Storeable currentValue = tableOfChanges.get().get(currentKey);
-                    if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
-                        continue;
-                    }
-                }
-                count--;
-            }
-            for (String currentKey : tableOfChanges.get().keySet()) {
-                if (!originalTable.containsKey(currentKey)) {
-                    count++;
-                }
-            }
-            return count;
-        } finally {
-            readLock.unlock();
-        }
+        return originalSize - removedKeys.get().size() + tableOfChanges.get().size();
     }
 
     //@return Количество сохранённых ключей.
@@ -220,6 +197,7 @@ public class DBTable implements Table {
                 serializedTable.put(keys.get(i), serializedValue);
             }
             FileManager.writeTableOnDisk(tableDirectory, serializedTable);
+            originalSize = originalTable.size();
         } finally {
             writeLock.unlock();
         }

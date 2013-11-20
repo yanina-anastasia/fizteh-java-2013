@@ -50,7 +50,6 @@ public class ParallelTableTest {
                     table.commit();
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
-                    return;
                 }
             }
         });
