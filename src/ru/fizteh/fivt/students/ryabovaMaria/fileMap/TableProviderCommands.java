@@ -107,7 +107,7 @@ public class TableProviderCommands implements TableProvider {
                 }
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("Illegal signature.tsv");
+            throw new IllegalArgumentException("Illegal signature.tsv", e);
         }
     }
     
@@ -170,7 +170,7 @@ public class TableProviderCommands implements TableProvider {
             deleteTable.delete(table.toPath());
             names.remove(name);
         } catch (Exception e) {
-            throw new IllegalStateException(name + " cannot be deleted");
+            throw new IllegalStateException(name + " cannot be deleted", e);
         }
     }
 
@@ -199,7 +199,7 @@ public class TableProviderCommands implements TableProvider {
                     throw new IllegalArgumentException();
                 }
             } catch (Exception e) {
-                throw new IllegalArgumentException("incorrect types");
+                throw new IllegalArgumentException("incorrect types", e);
             }
         }
     }
@@ -328,14 +328,14 @@ public class TableProviderCommands implements TableProvider {
         try {
             text = new JSONArray();
         } catch (Exception e) {
-            throw new ColumnFormatException(e.getMessage());
+            throw new ColumnFormatException(e.getMessage(), e);
         }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             Class<?> type = null;
             try {
                 type = table.getColumnType(i);
             } catch (Exception e) {
-                throw new ColumnFormatException(e.getMessage());
+                throw new ColumnFormatException(e.getMessage(), e);
             }
             Object current = null;
             try {
@@ -371,12 +371,12 @@ public class TableProviderCommands implements TableProvider {
                         throw new Exception("illegal value type");
                 }
             } catch (Exception e) {
-                throw new ColumnFormatException("column " + i + " " + type.getSimpleName().toString());
+                throw new ColumnFormatException("column " + i + " " + type.getSimpleName().toString(), e);
             }
             try {
                 text.put(current);
             } catch (Exception e) {
-                throw new ColumnFormatException(e.getMessage());
+                throw new ColumnFormatException(e.getMessage(), e);
             }
         }
         int i = table.getColumnsCount();
@@ -386,7 +386,7 @@ public class TableProviderCommands implements TableProvider {
             try {
                 return text.toString();
             } catch (Exception ex) {
-                throw new ColumnFormatException(ex.getMessage());
+                throw new ColumnFormatException(ex.getMessage(), ex);
             }
         }
         throw new ColumnFormatException("incorrect number of columns");
@@ -425,11 +425,7 @@ public class TableProviderCommands implements TableProvider {
             throw new IllegalArgumentException("bad values");
         }
         List<Class<?>> curTypes;
-        try {
-            curTypes = getTypeList(table);
-        } catch (Exception e) {
-            return null;
-        }
+        curTypes = getTypeList(table);
         return new StoreableCommands((List<Object>) values, curTypes);
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -214,7 +215,7 @@ public class TableCommands implements Table {
             diff[numberOfDir][numberOfFile].put(key, stringValue);
             return answer;
         } catch (Exception e) {
-            throw new IllegalArgumentException("incorrect args", e);
+            throw new ColumnFormatException("incorrect args", e);
         }
     }
 
