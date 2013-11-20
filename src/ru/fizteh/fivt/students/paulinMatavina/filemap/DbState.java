@@ -14,8 +14,8 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import ru.fizteh.fivt.storage.structured.*;
 
 public class DbState extends State {
-    public HashMap<String, Storeable> initial;
-    private HashMap<String, Storeable> changes;
+    private HashMap<String, Storeable> initial;
+    private ThreadLocal<HashMap<String, Storeable>> changes;
     public RandomAccessFile dbFile;
     public String path;
     private TableProvider provider;
@@ -52,18 +52,18 @@ public class DbState extends State {
     }
     
     public void assignInitial() {
-        for (Map.Entry<String, Storeable> s : changes.entrySet()) {
+        for (Map.Entry<String, Storeable> s : changes.get().entrySet()) {
             if (s.getValue() != null) {
                 initial.put(s.getKey(), s.getValue());
             } else {
                 initial.remove(s.getKey());
             }
         }
-        changes.clear();
+        changes.get().clear();
     }
     
     public void assignData() {
-        changes = new HashMap<String, Storeable>();
+        changes.set(new HashMap<String, Storeable>());
     }
     
     private String byteVectToStr(Vector<Byte> byteVect) throws IOException {
@@ -109,7 +109,7 @@ public class DbState extends State {
     
     public int loadData() throws IOException, ParseException {
         initial = new HashMap<String, Storeable>();
-        changes = new HashMap<String, Storeable>();
+        changes.set(new HashMap<String, Storeable>());
         assignInitial();
         File dbTempFile = new File(path);
         if (!dbTempFile.exists()) {
@@ -175,7 +175,7 @@ public class DbState extends State {
     }
   
     public int getChangeNum() {
-        return changes.size();
+        return changes.get().size();
     }  
 
     public void commit() throws IOException {
@@ -230,12 +230,12 @@ public class DbState extends State {
     }
     
     public Storeable put(String key, Storeable value) {
-        Storeable change = changes.get(key);
-        boolean exist = changes.containsKey(key);
+        Storeable change = changes.get().get(key);
+        boolean exist = changes.get().containsKey(key);
         if (!value.equals(initial.get(key))) {
-            changes.put(key, value);
+            changes.get().put(key, value);
         } else {
-            changes.remove(key);
+            changes.get().remove(key);
         }
         
         if (exist) {
@@ -246,8 +246,8 @@ public class DbState extends State {
     }
     
     public Storeable get(String key) {
-        Storeable change = changes.get(key);
-        boolean exist = changes.containsKey(key);
+        Storeable change = changes.get().get(key);
+        boolean exist = changes.get().containsKey(key);
         if (exist) {
             return change;
         } else {
@@ -256,12 +256,12 @@ public class DbState extends State {
     }
     
     public Storeable remove(String key) {
-        Storeable change = changes.get(key);
-        boolean exist = changes.containsKey(key);
+        Storeable change = changes.get().get(key);
+        boolean exist = changes.get().containsKey(key);
         if (!initial.containsKey(key)) {
-            changes.remove(key);
+            changes.get().remove(key);
         } else {
-            changes.put(key, null);
+            changes.get().put(key, null);
         }
         
         if (exist) {
@@ -273,7 +273,7 @@ public class DbState extends State {
     
     public int size() {
         int result = initial.size();
-        for (Map.Entry<String, Storeable> entry : changes.entrySet()) {
+        for (Map.Entry<String, Storeable> entry : changes.get().entrySet()) {
             if (entry.getValue() != null) {
                 if (!initial.containsKey(entry.getKey())) {
                     result++;
