@@ -206,21 +206,12 @@ public class TableCommands implements Table {
         }
         try {
             getUsingDatFile(key);
-            update.put(numberOfDir*16 + numberOfFile, " ");
+            update.put(numberOfDir * 16 + numberOfFile, " ");
             String stringValue = tableProvider.serialize(this, value);
-            String lastValue;
-            if (diff[numberOfDir][numberOfFile].containsKey(key)) {
-                lastValue = diff[numberOfDir][numberOfFile].put(key, stringValue);
-                if (lastValue == null) {
-                    lastValue = lastList[numberOfDir][numberOfFile].get(key);
-                }
-            } else {
-                lastValue = lastList[numberOfDir][numberOfFile].get(key);
-                diff[numberOfDir][numberOfFile].put(key, stringValue);
-            }
-            Storeable answer = tableProvider.deserialize(this, lastValue);
+            Storeable answer = get(key);
+            diff[numberOfDir][numberOfFile].put(key, stringValue);
             return answer;
-        } catch (ParseException | NullPointerException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("incorrect args ");
         }
     }
