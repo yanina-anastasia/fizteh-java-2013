@@ -28,6 +28,12 @@ public class DatabaseTableProviderFactory implements TableProviderFactory {
                 throw new IOException("provider is unavailable");
             }
         }
+
+        File file = new File("/home/judge/fizteh-java-2013/src/ru/fizteh/fivt");
+        for (File subfile : file.listFiles()) {
+            System.out.println(subfile.getAbsolutePath());
+        }
+
         return new DatabaseTableProvider(databaseDirectory.getAbsolutePath());
     }
 }
