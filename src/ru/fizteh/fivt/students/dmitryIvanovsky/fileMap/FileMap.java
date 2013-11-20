@@ -602,12 +602,22 @@ public class FileMap implements Table {
             for (String key : changeTable.get().keySet()) {
                 Storeable value = changeTable.get().get(key);
                 if (value == null) {
+                    if (tableData.containsKey(key)) {
+                        ++count;
+                    }
                     tableData.remove(key);
                 } else {
+                    Storeable oldValue = tableData.get(key);
+                    if (oldValue == null) {
+                        ++count;
+                    } else {
+                        if (!parent.serialize(this, value).equals(parent.serialize(this, oldValue))) {
+                            ++count;
+                        }
+                    }
                     tableData.put(key, changeTable.get().get(key));
                 }
             }
-            count = changeTable.get().size();
             changeTable.get().clear();
             try {
                 unloadTable();
@@ -624,9 +634,26 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        int res = changeTable.get().size();
+        int count = 0;
+        for (String key : changeTable.get().keySet()) {
+            Storeable diffValue = changeTable.get().get(key);
+            if (diffValue == null) {
+                if (tableData.containsKey(key)) {
+                    ++count;
+                }
+            } else {
+                Storeable value = tableData.get(key);
+                if (value == null) {
+                    ++count;
+                } else {
+                    if (!parent.serialize(this, diffValue).equals(parent.serialize(this, value))) {
+                        ++count;
+                    }
+                }
+            }
+        }
         changeTable.get().clear();
-        return res;
+        return count;
     }
 
     @Override
