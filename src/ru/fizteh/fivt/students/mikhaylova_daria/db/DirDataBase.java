@@ -32,13 +32,10 @@ public class DirDataBase {
     }
 
     void startWorking() throws Exception {
-        if (!isReady) {
-            if (!dir.exists()) {
-                if (!dir.mkdir()) {
-                    throw new Exception(dir.toString() + ": Creating directory error");
-                }
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
+                throw new Exception(dir.toString() + ": Creating directory error");
             }
-            isReady = true;
         }
     }
 
@@ -72,7 +69,6 @@ public class DirDataBase {
 
     int commit() {
         int numberOfChanges = 0;
-
         for (int i = 0; i < 16; ++i) {
             int changesInFile = fileArray[i].numberOfChangesCounter(this.table);
             if (changesInFile != 0) {

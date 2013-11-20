@@ -256,3 +256,4 @@ public class TestStoreable {
         assertNull("Значение null в String", st.getStringAt(6));
     }
 }
+

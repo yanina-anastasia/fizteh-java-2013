@@ -386,7 +386,8 @@ public class TableManager implements TableProvider {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
         if (numberColumn != table.getColumnsCount()) {
-            throw new ParseException("wrong type (Wrong number of columns)", 0);
+            throw new ParseException("wrong type (Wrong number of columns:" + numberColumn + "but expected "
+                    + table.getColumnsCount() + ")", 0);
         }
         return storeableVal;
     }
