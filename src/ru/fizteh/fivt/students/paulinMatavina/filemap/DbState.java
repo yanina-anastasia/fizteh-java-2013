@@ -231,13 +231,14 @@ public class DbState extends State {
     
     public Storeable put(String key, Storeable value) {
         Storeable change = changes.get(key);
+        boolean exist = changes.containsKey(key);
         if (!value.equals(initial.get(key))) {
             changes.put(key, value);
         } else {
             changes.remove(key);
         }
         
-        if (change != null) {
+        if (exist) {
             return change;
         } else {
             return initial.get(key);
@@ -246,8 +247,8 @@ public class DbState extends State {
     
     public Storeable get(String key) {
         Storeable change = changes.get(key);
-        
-        if (change != null) {
+        boolean exist = changes.containsKey(key);
+        if (exist) {
             return change;
         } else {
             return initial.get(key);
@@ -256,13 +257,14 @@ public class DbState extends State {
     
     public Storeable remove(String key) {
         Storeable change = changes.get(key);
+        boolean exist = changes.containsKey(key);
         if (!initial.containsKey(key)) {
             changes.remove(key);
         } else {
             changes.put(key, null);
         }
         
-        if (change != null) {
+        if (exist) {
             return change;
         } else {
             return initial.get(key);
