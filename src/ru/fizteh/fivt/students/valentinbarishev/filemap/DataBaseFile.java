@@ -54,7 +54,7 @@ public class DataBaseFile {
                         + " in file " + fileName);
             }
             try {
-                provider.deserialize(table, old.get(node.getValue()));
+                provider.deserialize(table, node.getValue());
             } catch (ParseException e) {
                 throw new IOException("Invalid file format! (parse exception error!)");
             }
