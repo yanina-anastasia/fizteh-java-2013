@@ -16,12 +16,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class DBTable implements Table {
     private File tableDirectory;
     private HashMap<String, Storeable> originalTable = new HashMap<>();
-    int originalSize;
     private List<Class<?>> columnTypes;
     private TableProvider tableProvider;
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
+    ThreadLocal<Integer> originalSize = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return 0;
+        }
+
+    };
     private ThreadLocal<HashMap<String, Storeable>> tableOfChanges = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
@@ -57,7 +63,7 @@ public class DBTable implements Table {
                 throw new IOException(e);
             }
         }
-        originalSize = originalTable.size();
+        originalSize.set(originalTable.size());
     }
 
     @Override
@@ -173,7 +179,7 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        return originalSize - removedKeys.get().size() + tableOfChanges.get().size();
+        return originalSize.get() - removedKeys.get().size() + tableOfChanges.get().size();
     }
 
     //@return Количество сохранённых ключей.
@@ -183,16 +189,16 @@ public class DBTable implements Table {
         try {
             writeLock.lock();
             count = countTheNumberOfChanges();
+            originalSize.set(originalSize.get() - removedKeys.get().size());
             for (String delString : removedKeys.get()) {
                 if (originalTable.containsKey(delString)) {
                     originalTable.remove(delString);
-                    originalSize--;
                 }
             }
+            originalSize.set(originalSize.get() + tableOfChanges.get().size());
             for (String currentKey : tableOfChanges.get().keySet()) {
                 if (!originalTable.containsKey(currentKey)) {
                     originalTable.put(currentKey, tableOfChanges.get().get(currentKey));
-                    originalSize++;
                 }
             }
             List<String> keys = new ArrayList<>(originalTable.keySet());
