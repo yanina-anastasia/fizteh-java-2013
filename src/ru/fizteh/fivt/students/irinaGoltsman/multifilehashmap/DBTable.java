@@ -186,9 +186,15 @@ public class DBTable implements Table {
             for (String delString : removedKeys.get()) {
                 if (originalTable.containsKey(delString)) {
                     originalTable.remove(delString);
+                    originalSize--;
                 }
             }
-            originalTable.putAll(tableOfChanges.get());
+            for (String currentKey : tableOfChanges.get().keySet()) {
+                if (!originalTable.containsKey(currentKey)) {
+                    originalTable.put(currentKey, tableOfChanges.get().get(currentKey));
+                    originalSize++;
+                }
+            }
             List<String> keys = new ArrayList<>(originalTable.keySet());
             List<Storeable> values = new ArrayList<>(originalTable.values());
             HashMap<String, String> serializedTable = new HashMap<>();
@@ -197,7 +203,6 @@ public class DBTable implements Table {
                 serializedTable.put(keys.get(i), serializedValue);
             }
             FileManager.writeTableOnDisk(tableDirectory, serializedTable);
-            originalSize = originalTable.size();
         } finally {
             writeLock.unlock();
         }
