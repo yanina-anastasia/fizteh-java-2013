@@ -120,7 +120,7 @@ public class DataBase implements Table {
             if (newValue == null || oldValue == null) {
                 return true;
             }
-            return Equals(oldValue, newValue);
+            return !oldValue.equals(newValue);
         }
 
         public boolean Equals(Storeable first, Storeable second) {
@@ -509,16 +509,12 @@ public class DataBase implements Table {
             lock.lock();
             int changesCount = transaction.get().transactionCommit();
             transaction.get().transactionClearChanges();
-            saveDataBase();
+            //saveDataBase();
             return changesCount;
-        } catch (IOException e) {
-            System.err.println("Error!" + e.getMessage());
-            System.exit(1);
         }
         finally {
             lock.unlock();
         }
-        return 0;
     }
 
     public int rollback () {
