@@ -6,7 +6,6 @@ import java.io.RandomAccessFile;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -132,11 +131,11 @@ public class TableCommands implements Table {
                         db.readFully(byteValue);
                         String lastValue = new String(byteValue, "UTF-8");
                         db.seek(curPointer);
-                        if (list[numOfDir][numOfFile].containsKey(lastKey)) {
+                        if (lastList[numOfDir][numOfFile].containsKey(lastKey)) {
                             System.err.println(lastKey + " meets twice in db.dat");
                             System.exit(1);
                         }
-                        list[numOfDir][numOfFile].put(lastKey, lastValue);
+                        lastList[numOfDir][numOfFile].put(lastKey, lastValue);
                     }
                     lastOffset = offset;
                     lastKey = currentKey;
@@ -151,10 +150,11 @@ public class TableCommands implements Table {
             db.seek(lastOffset);
             db.readFully(byteValue);
             String lastValue = new String(byteValue, "UTF-8");
-            if (list[numOfDir][numOfFile].containsKey(lastKey)) {
+            if (lastList[numOfDir][numOfFile].containsKey(lastKey)) {
                 throw new IllegalArgumentException("Incorrect file" + dbFile.toString());
             }
-            list[numOfDir][numOfFile].put(lastKey, lastValue);
+            lastList[numOfDir][numOfFile].put(lastKey, lastValue);
+            db.close();
         } catch(Exception e) {
             if (db != null) {
                 try {
@@ -373,6 +373,7 @@ public class TableCommands implements Table {
                 db.write(value.getBytes("UTF-8"));
                 ++counter;
             }*/
+            db.close();
         } catch (Exception e) {
             if (db != null) {
                 try {
@@ -390,6 +391,9 @@ public class TableCommands implements Table {
         for (Integer file : update.keySet()) {
             numberOfFile = file % 16;
             numberOfDir = (file - numberOfFile) / 16;
+            if (isWrite) {
+                writeIntoFile(numberOfDir, numberOfFile);
+            }
             for (Map.Entry entry : list[numberOfDir][numberOfFile].entrySet()) {
                 String key = (String) entry.getKey();
                 String value = (String) entry.getValue();
@@ -402,9 +406,6 @@ public class TableCommands implements Table {
                         ++result;
                     }
                 }
-            }
-            if (isWrite) {
-                writeIntoFile(numberOfDir, numberOfFile);
             }
         }
         return result;
@@ -424,12 +425,13 @@ public class TableCommands implements Table {
     @Override
     public int commit() throws IOException {
         int result = countChanges(true);
-        assigment(lastList, list);
+        //assigment(lastList, list);
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 list[i][j].clear();
             }
         }
+        isCorrectTable();
         return result;
     }
 
