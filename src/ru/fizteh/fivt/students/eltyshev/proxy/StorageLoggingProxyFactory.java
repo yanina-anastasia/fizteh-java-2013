@@ -1,5 +1,5 @@
 package ru.fizteh.fivt.students.eltyshev.proxy;
-    /*
+
 import ru.fizteh.fivt.storage.structured.LoggingProxyFactory;
 
 import java.io.Writer;
@@ -13,4 +13,4 @@ public class StorageLoggingProxyFactory implements LoggingProxyFactory {
                 implementation.getClass().getInterfaces(),
                 new StorateProxyInvocationHandler(writer, implementation, interfaceClass));
     }
-}        */
+}
