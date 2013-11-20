@@ -221,17 +221,25 @@ public class DataBaseFile {
     }
 
     private void normalize() {
-        for (String key : diff.keySet()) {
-            if (diff.get(key).equals(old.get(key)) || deleted.contains(key)) {
+        Set<String> newDeleted = new HashSet<>();
+
+        for (String key : old.keySet()) {
+            if (old.get(key).equals(diff.get(key))) {
                 diff.remove(key);
+            }
+            if (deleted.contains(key)) {
+                newDeleted.add(key);
             }
         }
 
         for (String key : deleted) {
-            if (!old.containsKey(key)) {
-                deleted.remove(key);
+            if (diff.containsKey(key)) {
+                diff.remove(key);
             }
         }
+
+        deleted.clear();
+        deleted = newDeleted;
     }
 
     public int getNewKeys() {
