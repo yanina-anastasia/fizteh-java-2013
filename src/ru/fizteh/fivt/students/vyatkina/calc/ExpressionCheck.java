@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.vyatkina.calc;
 
 import java.util.Scanner;
-import java.lang.IllegalArgumentException;
 
 public class ExpressionCheck {
 

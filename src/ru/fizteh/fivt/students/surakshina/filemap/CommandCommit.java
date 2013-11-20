@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
+import java.io.IOException;
+
 public class CommandCommit extends DataBaseCommand {
     public CommandCommit(TableState state) {
         super(state);
@@ -10,8 +12,13 @@ public class CommandCommit extends DataBaseCommand {
     @Override
     public void executeProcess(String[] input) {
         if (state.getTable() != null) {
-            int count = state.getTable().commit();
-            System.out.println(count);
+            try {
+                int count = state.getTable().commit();
+                System.out.println(count);
+            } catch (IOException e) {
+                state.printError(e.getMessage());
+                return;
+            }
         } else {
             System.out.println("no table");
         }

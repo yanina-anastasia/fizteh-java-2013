@@ -1,34 +1,38 @@
 package ru.fizteh.fivt.students.dubovpavel.strings;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
-import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.DispatcherMultiFileHashMap;
+import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
-public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMultiFileHashMap implements Table {
-    DispatcherMultiFileHashMap dispatcher;
+public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMultiFileHashMap<V> {
+    private Dispatcher dispatcher;
+    private static final Pattern whitespacePattern;
+    static {
+        whitespacePattern = Pattern.compile("\\s");
+    }
 
-    public WrappedMindfulDataBaseMultiFileHashMap(File path, DispatcherMultiFileHashMap dispatcherMultiFileHashMap) {
-        super(path);
-        dispatcher = dispatcherMultiFileHashMap;
+    public WrappedMindfulDataBaseMultiFileHashMap(File path, Dispatcher dispatcher, ObjectTransformer<V> transformer) {
+        super(path, transformer);
+        this.dispatcher = dispatcher;
     }
     @Override
-    public String get(String key) {
+    public V get(String key) {
         if(key == null) {
             throw new IllegalArgumentException();
         }
         return super.get(key);
     }
     @Override
-    public String put(String key, String value) {
-        if(key == null || value == null || key.isEmpty() || key.contains("\n") || value.contains("\n")) {
+    public V put(String key, V value) {
+        if(key == null || key.isEmpty() || whitespacePattern.matcher(key).find()) {
             throw new IllegalArgumentException();
         }
         return super.put(key, value);
     }
     @Override
-    public String remove(String key) {
+    public V remove(String key) {
         if(key == null) {
             throw new IllegalArgumentException();
         }
@@ -38,7 +42,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap extends MindfulDataBaseMulti
     public int commit() {
         try {
             return super.commit();
-        } catch (DataBaseException e) {
+        } catch (DataBaseHandler.DataBaseException e) {
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                     String.format("Database %s: %s", getName(), e.getMessage()));
         }

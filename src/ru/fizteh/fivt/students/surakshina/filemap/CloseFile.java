@@ -10,7 +10,7 @@ public class CloseFile {
                 file.close();
             }
         } catch (IOException e2) {
-            throw new IOException(e2.getMessage(), e2);
+            throw new IOException("Can't close file ", e2);
         }
     }
 }

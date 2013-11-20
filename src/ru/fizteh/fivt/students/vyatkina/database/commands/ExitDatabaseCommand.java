@@ -1,10 +1,9 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
+import ru.fizteh.fivt.students.vyatkina.TimeToFinishException;
+import ru.fizteh.fivt.students.vyatkina.WrappedIOException;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 public class ExitDatabaseCommand extends DatabaseCommand {
 
@@ -15,17 +14,15 @@ public class ExitDatabaseCommand extends DatabaseCommand {
     }
 
     @Override
-    public void execute (String[] args) throws ExecutionException {
+    public void execute (String[] args) {
         try {
-            if (state.getTable () == null) {
-                System.exit (0);
-            } else {
-                state.getTable ().commit ();
-            }
+            state.databaseAdapter.saveChangesOnExit ();
         }
-        catch (IllegalArgumentException e) {
-            throw new ExecutionException (e.fillInStackTrace ());
+        catch (WrappedIOException e) {
+            state.printErrorMessage (e.getMessage ());
         }
-        System.exit (0);
+        finally {
+            throw new TimeToFinishException ();
+        }
     }
 }

@@ -10,7 +10,9 @@ import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.CommandUtils;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableDataValue;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableTableProvider;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,8 @@ public class StoreableTableTest {
     private File testedFile = new File(TESTED_DIRECTORY);
     private List<Class<?>> types;
     private StoreableTableProvider tableProvider;
+    private static boolean firstThreadFlag = true;
+    private static boolean secondThreadFlag = true;
 
     @Before
     public void setUp() throws Exception {
@@ -145,4 +149,42 @@ public class StoreableTableTest {
         dataTable.getColumnType(35);
     }
 
+    @Test
+    public void putSameValueFromDifferentThreadsCommit() throws Exception {
+        firstThreadFlag = true;
+        secondThreadFlag = true;
+        Thread firstThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    dataTable.put("key", tableProvider.deserialize(dataTable,
+                            "<row><col>5</col><col>text</col></row>"));
+                    firstThreadFlag = (dataTable.commit() == 1);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        });
+        Thread secondThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    dataTable.put("key", tableProvider.deserialize(dataTable,
+                            "<row><col>5</col><col>text</col></row>"));
+                    secondThreadFlag = (dataTable.commit() == 1);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        });
+        firstThread.start();
+        secondThread.start();
+        firstThread.join();
+        secondThread.join();
+        Assert.assertTrue(firstThreadFlag ^ secondThreadFlag);
+    }
 }

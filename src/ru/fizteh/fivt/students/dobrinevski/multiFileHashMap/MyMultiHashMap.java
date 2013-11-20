@@ -1,24 +1,23 @@
 package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import java.io.File;
-import java.lang.Exception;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.nio.ByteBuffer;
 import java.io.FileInputStream;
-
 
 public class MyMultiHashMap {
     public File curTable = null;
     public HashMap<Integer, HashMap<String, String>> dataBase = null;
     public boolean[] check;
 
-    MyMultiHashMap() {
+    public MyMultiHashMap() {
         dataBase = new HashMap<Integer, HashMap<String, String>>();
-        check = new boolean[256]; //
+        check = new boolean[256];
         for (int i = 0; i < 256; i++) {
             dataBase.put(i, new HashMap<String, String>());
             check[i] = false;
@@ -78,23 +77,22 @@ public class MyMultiHashMap {
         }
     }
 
-
     public void writeOut() throws Exception {
-        for (Integer i = 0; i < 16; i++) {
-            for (Integer j = 0; j < 16; j++) {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
                 if (check[i * 16 + j]) {
                     File dir = new File(curTable.getCanonicalPath()
-                            + File.separator + i.toString() + ".dir" + File.separator + j.toString() + ".dat");
+                            + File.separator + i + ".dir" + File.separator + j + ".dat");
                     if (dir.exists()) {
                         if (dir.isDirectory()) {
                             throw new Exception("Bad table");
                         }
-                        if(!dir.delete()) {
-                            throw new Exception("Failed in delete");
+                        if (!dir.delete()) {
+                            throw new Exception("Failed in delete" + dir.getCanonicalPath());
                         }
                     }
                     if (dataBase.get(i * 16 + j).isEmpty()) {
-                        dir = new File(curTable.getCanonicalPath() + File.separator + i.toString() + ".dir");
+                        dir = new File(curTable.getCanonicalPath() + File.separator + i + ".dir");
                         if (dir.exists()) {
                             String[] child = dir.list();
                             if (child.length == 0) {
@@ -103,7 +101,7 @@ public class MyMultiHashMap {
                         }
                     } else {
                         String way = curTable.getCanonicalPath()
-                                + File.separator + i.toString() + ".dir";
+                                + File.separator + i + ".dir";
                         File workFile = new File(way);
                         if (workFile.isFile()) {
                             throw new Exception("Bad table");
@@ -113,7 +111,7 @@ public class MyMultiHashMap {
                                 throw new Exception("Directory wasn't created");
                             }
                         }
-                        File workFile2 = new File(way + File.separator + j.toString() + ".dat");
+                        File workFile2 = new File(way + File.separator + j + ".dat");
                         try (FileOutputStream fstream = new FileOutputStream(workFile2)) {
                             for (Map.Entry<String, String> entry : dataBase.get(16 * i + j).entrySet()) {
                                 writeEntry(entry, fstream);
@@ -128,8 +126,8 @@ public class MyMultiHashMap {
     }
 
     private static void writeEntry(Map.Entry<String, String> e, FileOutputStream fstream) throws IOException {
-        byte[] keyBuf = e.getKey().getBytes("UTF-8");
-        byte[] valueBuf = e.getValue().getBytes("UTF-8");
+        byte[] keyBuf = e.getKey().getBytes(StandardCharsets.UTF_8);
+        byte[] valueBuf = e.getValue().getBytes(StandardCharsets.UTF_8);
         fstream.write(ByteBuffer.allocate(4).putInt(keyBuf.length).array());
         fstream.write(ByteBuffer.allocate(4).putInt(valueBuf.length).array());
         fstream.write(keyBuf);

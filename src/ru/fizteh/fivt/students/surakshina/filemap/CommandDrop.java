@@ -13,8 +13,9 @@ public class CommandDrop extends DataBaseCommand {
         try {
             state.getTableProvider().removeTable(name);
             System.out.println("dropped");
-        } catch (IllegalArgumentException|IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             state.printError(e.getMessage());
+            return;
         }
     }
 

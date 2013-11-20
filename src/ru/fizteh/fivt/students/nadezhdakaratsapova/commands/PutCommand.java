@@ -22,7 +22,8 @@ public class PutCommand implements Command {
         if (curState.getCurTable() != null) {
             Object value = curState.getCurTable().get(args[1]);
             try {
-                curState.getCurTable().put(args[1], (Storeable) curState.getCurTable().valueConverter.convertStringToValueType(args[2]));
+                curState.getCurTable().put(args[1],
+                        (Storeable) curState.getCurTable().valueConverter.convertStringToValueType(args[2]));
 
                 if (value == null) {
                     System.out.println("new");
