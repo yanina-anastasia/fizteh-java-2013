@@ -59,6 +59,7 @@ public class DbState extends State {
                 initial.remove(s.getKey());
             }
         }
+        changes.clear();
     }
     
     public void assignData() {
@@ -108,6 +109,7 @@ public class DbState extends State {
     
     public int loadData() throws IOException, ParseException {
         initial = new HashMap<String, Storeable>();
+        changes = new HashMap<String, Storeable>();
         assignInitial();
         File dbTempFile = new File(path);
         if (!dbTempFile.exists()) {
