@@ -29,7 +29,7 @@ public class DatabaseTableProviderFactory implements TableProviderFactory {
             }
         }
 
-        File file = new File("/home/judge/fizteh-java-2013/src/ru/fizteh/fivt");
+        File file = new File("/home/judge/fizteh-java-2013/src/ru/fizteh/fivt/storage");
         for (File subfile : file.listFiles()) {
             System.out.println(subfile.getAbsolutePath());
         }
