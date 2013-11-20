@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.eltyshev.storable.database;
 
-import ru.fizteh.fivt.storage.structured.*;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.eltyshev.filemap.base.AbstractStorage;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.DistributedLoader;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.DistributedSaver;
@@ -82,11 +84,15 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
 
     @Override
     public int getColumnsCount() {
+        state.checkOperationsAllowed();
+
         return columnTypes.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        state.checkOperationsAllowed();
+
         if (columnIndex < 0 || columnIndex > getColumnsCount()) {
             throw new IndexOutOfBoundsException();
         }
@@ -104,6 +110,12 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     @Override
     protected void save() throws IOException {
         DistributedSaver.save(new StoreableTableBuilder(provider, this));
+    }
+
+    @Override
+    public void close() throws Exception {
+        provider.removeTable(getName());
+        super.close();
     }
 
     private void checkTableDirectory() throws IOException {
@@ -125,7 +137,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         signatureFile.createNewFile();
         BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
         List<String> formattedColumnTypes = StoreableUtils.formatColumnTypes(columnTypes);
-        String signature = StoreableUtils.join(formattedColumnTypes);
+        String signature = StoreableUtils.join(formattedColumnTypes, true, " ");
         writer.write(signature);
         writer.close();
     }
@@ -164,5 +176,10 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
 
     Set<String> rawGetKeys() {
         return oldData.keySet();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", getClass().getSimpleName(), getDirectory());
     }
 }

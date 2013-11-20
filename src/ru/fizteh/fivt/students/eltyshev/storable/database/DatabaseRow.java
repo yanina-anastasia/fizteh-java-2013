@@ -138,6 +138,6 @@ public class DatabaseRow implements Storeable {
 
     @Override
     public String toString() {
-        return StoreableUtils.join(columns);
+        return StoreableUtils.join(columns, false, ",");
     }
 }

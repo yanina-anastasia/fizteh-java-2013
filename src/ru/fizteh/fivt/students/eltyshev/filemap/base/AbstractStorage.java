@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class AbstractStorage<Key, Value> {
+public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
     class TransactionChanges {
         HashMap<Key, Value> modifiedData;
         int size;
@@ -105,6 +105,7 @@ public abstract class AbstractStorage<Key, Value> {
 
     final private String tableName;
     private String directory;
+    protected ContainerState state;
 
     // Strategy
     protected abstract void load() throws IOException;
@@ -116,14 +117,17 @@ public abstract class AbstractStorage<Key, Value> {
         this.directory = directory;
         this.tableName = tableName;
         oldData = new HashMap<Key, Value>();
+        state = ContainerState.NOT_INITIALIZED;
         try {
             load();
         } catch (IOException e) {
             throw new IllegalArgumentException("invalid file format");
         }
+        state = ContainerState.WORKING;
     }
 
     public int getUncommittedChangesCount() {
+        state.checkOperationsAllowed();
         return transactionChanges.get().getUncommittedChanges();
     }
 
@@ -133,6 +137,8 @@ public abstract class AbstractStorage<Key, Value> {
     }
 
     public Value storageGet(Key key) throws IllegalArgumentException {
+        state.checkOperationsAllowed();
+
         if (key == null) {
             throw new IllegalArgumentException("key cannot be null!");
         }
@@ -140,6 +146,8 @@ public abstract class AbstractStorage<Key, Value> {
     }
 
     public Value storagePut(Key key, Value value) throws IllegalArgumentException {
+        state.checkOperationsAllowed();
+
         if (key == null || value == null) {
             String message = key == null ? "key " : "value ";
             throw new IllegalArgumentException(message + "cannot be null");
@@ -152,6 +160,8 @@ public abstract class AbstractStorage<Key, Value> {
     }
 
     public Value storageRemove(Key key) throws IllegalArgumentException {
+        state.checkOperationsAllowed();
+
         if (key == null) {
             throw new IllegalArgumentException("key cannot be null");
         }
@@ -166,10 +176,14 @@ public abstract class AbstractStorage<Key, Value> {
     }
 
     public int storageSize() {
+        state.checkOperationsAllowed();
+
         return transactionChanges.get().getSize();
     }
 
     public int storageCommit() {
+        state.checkOperationsAllowed();
+
         try {
             transactionLock.lock();
             int recordsCommitted = transactionChanges.get().applyChanges();
@@ -189,6 +203,8 @@ public abstract class AbstractStorage<Key, Value> {
     }
 
     public int storageRollback() {
+        state.checkOperationsAllowed();
+
         int recordsDeleted = transactionChanges.get().countChanges();
         transactionChanges.get().clear();
         return recordsDeleted;
@@ -205,6 +221,12 @@ public abstract class AbstractStorage<Key, Value> {
     Value rawGet(Key key) {
         return oldData.get(key);
     }
+
+    @Override
+    public void close() throws Exception {
+        state.checkOperationsAllowed();
+        storageRollback();
+        state = ContainerState.CLOSED;
+    }
+
 }
-
-

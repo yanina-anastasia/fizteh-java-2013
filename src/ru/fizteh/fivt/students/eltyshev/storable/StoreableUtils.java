@@ -22,16 +22,18 @@ public class StoreableUtils {
         return values;
     }
 
-    public static String join(List<?> list) {
+    public static String join(List<?> list, boolean nameNulls, String delimiter) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         for (final Object listEntry : list) {
             if (!first) {
-                sb.append(" ");
+                sb.append(delimiter);
             }
             first = false;
             if (listEntry == null) {
-                sb.append("null");
+                if (nameNulls) {
+                    sb.append("null");
+                }
             } else {
                 sb.append(listEntry.toString());
             }
