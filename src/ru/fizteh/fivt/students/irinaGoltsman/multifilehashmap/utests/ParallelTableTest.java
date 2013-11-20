@@ -72,5 +72,36 @@ public class ParallelTableTest {
         Assert.assertEquals(2, table.commit());
     }
 
-
+    @Test
+    public void commitRollback() throws IOException {
+        Storeable row = new DBStoreable(columnTypes);
+        row.setColumnAt(0, 123);
+        table.put("old", row);
+        table.put("oldWhichWillRemoved", row);
+        table.commit();
+        Thread thread1 = new Thread(new Runnable() {
+            public void run() {
+                Storeable row = new DBStoreable(columnTypes);
+                row.setColumnAt(0, 1);
+                //overwrite
+                table.put("old", row);
+                Assert.assertEquals(2, table.size());
+                table.put("12345", row);
+                Assert.assertEquals(3, table.size());
+                table.remove("oldWhichWillRemoved");
+                Assert.assertEquals(2, table.size());
+                table.rollback();
+                Assert.assertEquals(2, table.size());
+            }
+        });
+        thread1.start();
+        try {
+            thread1.join();
+        } catch (InterruptedException e) {
+            //
+        }
+        table.remove("old");
+        table.remove("oldWhichWillRemoved");
+        table.commit();
+    }
 }

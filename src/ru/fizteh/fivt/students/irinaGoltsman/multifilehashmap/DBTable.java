@@ -180,17 +180,18 @@ public class DBTable implements Table {
                 if (!originalTable.containsKey(currentKey)) {
                     continue;
                 }
-                if (tableOfChanges.get().containsKey(currentKey)) {
-                    Storeable currentValue = tableOfChanges.get().get(currentKey);
-                    if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
-                        continue;
-                    }
+                if (tableOfChanges.get().containsKey(currentKey)
+                        && originalTable.get(currentKey).equals(tableOfChanges.get().get(currentKey))) {
+                    continue;
                 }
                 count--;
             }
             for (String currentKey : tableOfChanges.get().keySet()) {
-                if (!originalTable.containsKey(currentKey)) {
-                    count++;
+                //Если этот ключ был среди удалённых, то его уже рассмотрели
+                if (!removedKeys.get().contains(currentKey)) {
+                    if (!originalTable.containsKey(currentKey)) {
+                        count++;
+                    }
                 }
             }
             return count;
