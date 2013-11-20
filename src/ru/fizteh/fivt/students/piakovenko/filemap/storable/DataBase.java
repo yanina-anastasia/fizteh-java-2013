@@ -51,7 +51,7 @@ public class DataBase implements Table {
             if (currentTable.containsKey(key)) {
                 return currentTable.get(key);
             }
-            return map.getMap().get(key);
+            return map.get(key);
         }
 
         public int transactionCommit() {
@@ -91,7 +91,7 @@ public class DataBase implements Table {
             int count = 0;
             for (String key : currentTable.keySet()) {
                 Storeable newValue = currentTable.get(key);
-                if (transactionHasChanges(newValue, map.getMap().get(key))) {
+                if (transactionHasChanges(newValue, map.get(key))) {
                     ++count;
                 }
             }
@@ -122,14 +122,6 @@ public class DataBase implements Table {
             return !oldValue.equals(newValue);
         }
 
-        public boolean Equals (Storeable first, Storeable another) {
-            for (int i = 0; i < storeableClasses.size(); ++i) {
-                if (!first.getColumnAt(i).equals(another.getColumnAt(i))) {
-                    return false;
-                }
-            }
-            return true;
-        }
     }
 
     public void checkAlienStoreable(Storeable storeable) {
