@@ -2,12 +2,15 @@ package ru.fizteh.fivt.students.kamilTalipov.database.test;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.DatabaseException;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProvider;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class TableProviderTester {
     @Rule
@@ -60,25 +63,71 @@ public class TableProviderTester {
     public void removeNullTest() {
         provider.removeTable(null);
     }
-    
-    /*
-    @Test
-    public void parallelCreateTableTest() {
 
+    @Test
+    public void parallelCreateTableTest() throws ExecutionException, InterruptedException {
+        Callable<Boolean> task = new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws IOException {
+                List<Class<?>> types = new ArrayList<>();
+                types.add(Integer.class);
+                return provider.createTable("ParallelCreateTest", types) == null;
+            }
+        };
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        Future<Boolean> result1 = executor.submit(task);
+        Future<Boolean> result2 = executor.submit(task);
+        Assert.assertEquals(true, result1.get() || result2.get());
+        Assert.assertEquals(false, result1.get() == result2.get());
     }
 
     @Test
-    public void parallelCreateTableGetTableTest() {
+    public void parallelCreateTableGetTableTest() throws ExecutionException, InterruptedException {
+        Callable<Table> task = new Callable<Table>() {
+            @Override
+            public Table call() throws IOException {
+                List<Class<?>> types = new ArrayList<>();
+                types.add(Integer.class);
+                Table result = provider.createTable("Table123", types);
+                if (result == null) {
+                    return provider.getTable("Table123");
+                }
+                return result;
+            }
+        };
 
-    }
 
-    @Test
-    public void parallelGetRemoveTest() {
-
+        ExecutorService executor = Executors.newCachedThreadPool();
+        Future<Table> result1 = executor.submit(task);
+        Future<Table> result2 = executor.submit(task);
+        Assert.assertEquals("Table123", result1.get().getName());
+        Assert.assertEquals("Table123", result2.get().getName());
     }
 
     @Test(expected = IllegalStateException.class)
-    public void parallelRemoveTableCreateShouldFailedTest() {
+    public void parallelRemoveTest() throws IOException {
+        List<Class<?>> types = new ArrayList<>();
+        types.add(Integer.class);
+        provider.createTable("Table2", types);
 
-    }*/
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (provider) {
+                    provider.removeTable("Table2");
+                }
+            }
+        };
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        executor.submit(task);
+        executor.submit(task);
+        executor.submit(task);
+        executor.submit(task);
+
+        synchronized (provider) {
+            provider.removeTable("Table2");
+        }
+    }
 }
