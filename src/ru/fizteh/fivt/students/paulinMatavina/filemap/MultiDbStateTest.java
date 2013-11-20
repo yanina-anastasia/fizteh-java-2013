@@ -38,7 +38,8 @@ public class MultiDbStateTest {
     public void initializationOk() throws IOException {
         rootFolder.create();
         root = rootFolder.newFolder("root");
-        file = rootFolder.newFile("file");
+        file = new File(root.getAbsolutePath() + File.separator + "file");
+        file.createNewFile();
         factory = new MyTableProviderFactory();
         provider = factory.create(root.getAbsolutePath());
         list = new ArrayList<Class<?>>();
@@ -77,25 +78,10 @@ public class MultiDbStateTest {
         correctValues = provider.createFor(table, correct);
     }  
     
-    //tests for TableProviderFactory 
-    @Test
-    public void testFactoryCreateWrong() {
-        try {
-            provider = factory.create("wrong-path");
-        } catch (IOException e) {
-            return;
-        }
-        fail();
-    }  
-    
-    @Test
-    public void testFactoryCreateOnFile() {
-        try {
-            provider = factory.create("file");
-        } catch (IOException e) {
-            return;
-        }
-        fail();
+    //tests for TableProviderFactory     
+    @Test(expected = IllegalArgumentException.class)
+    public void testFactoryCreateOnFile() throws IOException {
+        provider = factory.create(file.getAbsolutePath());
     }  
     
     @Test(expected = IllegalArgumentException.class)

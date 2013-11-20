@@ -30,6 +30,7 @@ public class DbState extends State {
         provider = prov;
         table = newTable;
         path = dbPath;
+        changes = new ThreadLocal<HashMap<String, Storeable>>();
         loadData();
     }
     

@@ -90,9 +90,14 @@ public class MyTableProvider extends State implements TableProvider {
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, DbWrongTypeException {
         validate(name);
         checkNameIsCorrect(name);      
-        if (fileExist(name)) {
+        if (fileExist(name) && new File(shell.makeNewSource(name)).isDirectory()) {
             return null;
-        }   
+        }
+        
+        if (fileExist(name) && !new File(shell.makeNewSource(name)).isDirectory()) {
+            throw new IOException(name + " exists and is not a directory");
+        }
+        
         if (columnTypes == null || columnTypes.size() == 0) {
             throw new IllegalArgumentException("no column types provided");
         }
@@ -172,7 +177,8 @@ public class MyTableProvider extends State implements TableProvider {
             }
             JSONArray array = new JSONArray(value);
             if (columnCount != array.length()) {
-                throw new ParseException("wrong array size " + columnCount, 0);
+                throw new ParseException("wrong array size " + columnCount 
+                        + ": expected " + array.length(), 0);
             }
             
             Storeable newList = new MyStoreable(columnTypes);
@@ -182,7 +188,6 @@ public class MyTableProvider extends State implements TableProvider {
             }
             return newList;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new ParseException("error when parsing string: " + e.getMessage(), 0);
         }
     }

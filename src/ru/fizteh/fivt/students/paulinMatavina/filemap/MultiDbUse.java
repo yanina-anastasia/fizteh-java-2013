@@ -12,7 +12,6 @@ public class MultiDbUse implements Command {
         try {
             table = multiState.tryToGetTable(dbName);
         } catch (Throwable e) {
-            //e.printStackTrace();
             System.err.println("use: " + e.getMessage());
             return 1;
         }
