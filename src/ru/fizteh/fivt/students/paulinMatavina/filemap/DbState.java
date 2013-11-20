@@ -31,6 +31,7 @@ public class DbState extends State {
         table = newTable;
         path = dbPath;
         changes = new ThreadLocal<HashMap<String, Storeable>>();
+        changes.set(new HashMap<String, Storeable>());
         loadData();
     }
     
@@ -64,7 +65,7 @@ public class DbState extends State {
     }
     
     public void assignData() {
-        changes.set(new HashMap<String, Storeable>());
+        changes.get().clear();
     }
     
     private String byteVectToStr(Vector<Byte> byteVect) throws IOException {
