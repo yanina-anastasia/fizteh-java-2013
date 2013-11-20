@@ -16,6 +16,9 @@ public class DataBaseSize implements CommandInterface {
     private MyTableProvider tableProvider;
 
     public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
+        if (tableProvider == null) {
+            throw new IOException("can't get size of table");
+        }
         String tableName = tableProvider.getCurrentTable();
         if (tableName == null) {
             throw new IOException("no table");

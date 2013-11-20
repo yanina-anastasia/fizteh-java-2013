@@ -98,6 +98,7 @@ public class MyTable implements Table {
         while (myScanner.hasNext()) {
             arr.add(myScanner.next());
         }
+        myScanner.close();
     }
 
     public void readFileMap() throws RuntimeException, IOException, ParseException {
@@ -306,7 +307,7 @@ public class MyTable implements Table {
     public void closeFile(RandomAccessFile file) throws IOException {
         try {
             file.close();
-        } catch (NullPointerException | IOException e) {
+        } catch (IOException e) {
             throw new IOException(e.getMessage() + " error in closing file", e);
         }
     }

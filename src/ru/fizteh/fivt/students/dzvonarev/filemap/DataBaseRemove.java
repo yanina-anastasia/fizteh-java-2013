@@ -16,6 +16,9 @@ public class DataBaseRemove implements CommandInterface {
     private MyTableProvider tableProvider;
 
     public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
+        if (tableProvider == null) {
+            throw new IOException("can't remove data");
+        }
         String tableName = tableProvider.getCurrentTable();
         if (tableName == null) {
             throw new IOException("no table");
