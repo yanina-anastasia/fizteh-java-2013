@@ -175,13 +175,7 @@ public class DataBaseFile {
             }
         }
 
-        if (!value.equals(result)) {
-            diff.put(key, value);
-        }
-
-        if (value.equals(old.get(key))) {
-            diff.remove(key);
-        }
+        diff.put(key, value);
 
         return result;
     }
