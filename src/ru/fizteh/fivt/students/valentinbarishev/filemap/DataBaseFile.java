@@ -47,14 +47,14 @@ public class DataBaseFile {
     }
 
     public boolean check() throws IOException {
-        for (String key : old.keySet()) {
-            int zeroByte = Math.abs(key.getBytes()[0]);
+        for (Map.Entry<String, String> node : old.entrySet()) {
+            int zeroByte = Math.abs(node.getKey().getBytes(StandardCharsets.UTF_8)[0]);
             if (!((zeroByte % 16 == direcotryNumber) && ((zeroByte / 16) % 16 == fileNumber))) {
                 throw new IOException("Wrong file format key[0] =  " + String.valueOf(zeroByte)
                         + " in file " + fileName);
             }
             try {
-                provider.deserialize(table, key);
+                provider.deserialize(table, old.get(node.getValue()));
             } catch (ParseException e) {
                 throw new IOException("Invalid file format! (parse exception error!)");
             }
