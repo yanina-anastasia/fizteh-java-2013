@@ -206,11 +206,7 @@ public class DataBaseFile {
         if (diff.containsKey(key)) {
             result = diff.get(key);
             diff.remove(key);
-
-            if (old.containsKey(key)) {
-                deleted.add(key);
-            }
-
+            deleted.add(key);
             return result;
         }
 
