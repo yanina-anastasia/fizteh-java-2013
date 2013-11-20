@@ -43,49 +43,77 @@ public class DataBase implements Table {
     protected final Lock lock = new ReentrantLock(true);
 
     private class Transaction {
-        private Map<String, Storeable> transactionMap = null;
-        private Map<String, Boolean> removedMap = null;
+        private Map<String, Storeable> currentTable;
+        private int changesCount;
 
         public Transaction() {
-            transactionMap = new HashMap<String, Storeable>();
-            removedMap = new HashMap<String, Boolean>();
+            this.currentTable = new HashMap<String, Storeable>();
+            this.changesCount = 0;
         }
 
-        public void put(String key, Storeable value) {
-            transactionMap.put(key, value);
+        public void transactionPut(String key, Storeable value) {
+            currentTable.put(key, value);
         }
 
-        public Storeable get(String key) {
-            if (transactionMap.containsKey(key)) {
-                return transactionMap.get(key);
+        public Storeable transactionGet(String key) {
+            if (currentTable.containsKey(key)) {
+                return currentTable.get(key);
             }
-            return map.get(key);
+            return map.getMap().get(key);
         }
 
-
-        public int commit() {
-            int changes = map.commit(transactionMap);
-            transactionMap.clear();
-            return changes;
+        public int transactionCommit() {
+            int count = 0;
+            for (String key : currentTable.keySet()) {
+                Storeable value = currentTable.get(key);
+                if (transactionHasChanges(value, map.getMap().get(key))) {
+                    if (value == null) {
+                        map.getMap().remove(key);
+                    } else {
+                        map.getMap().put(key, value);
+                    }
+                    ++count;
+                }
+            }
+            return count;
         }
 
-        public int size() {
-            return map.currentSize(transactionMap);
+        public void transactionIncreaseChangesCount() {
+            ++changesCount;
         }
 
-        public void clearMap() {
-            transactionMap.clear();
+        public int transactionGetChangesCount() {
+            return changesCount;
         }
 
-        public int numberOfChanges() {
-            return map.changesCount(transactionMap);
+        public void transactionClearChanges() {
+            currentTable.clear();
+            changesCount = 0;
+        }
+
+        public int transactionGetSize() {
+            return map.getMap().size() + transactionCalcSize();
         }
 
         public int transactionsCalcChanges() {
             int count = 0;
-            for (String key : transactionMap.keySet()) {
-                Storeable newValue = transactionMap.get(key);
+            for (String key : currentTable.keySet()) {
+                Storeable newValue = currentTable.get(key);
                 if (transactionHasChanges(newValue, map.getMap().get(key))) {
+                    ++count;
+                }
+            }
+            return count;
+        }
+
+        private int transactionCalcSize() {
+            int count = 0;
+            for (String key : currentTable.keySet()) {
+                Storeable newValue = currentTable.get(key);
+                Storeable oldValue = map.getMap().get(key);
+                if (newValue == null && oldValue != null) {
+                    --count;
+                } else if (newValue != null && oldValue == null) {
                     ++count;
                 }
             }
@@ -100,17 +128,6 @@ public class DataBase implements Table {
                 return true;
             }
             return !oldValue.equals(newValue);
-        }
-
-
-        private boolean wasChanged(Storeable value1, Storeable value2) {
-            if (value1 == null && value2 == null) {
-                return false;
-            }
-            if (value1 == null || value2 == null) {
-                return true;
-            }
-            return !value1.equals(value2);
         }
 
 
@@ -457,7 +474,7 @@ public class DataBase implements Table {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
-       return transaction.get().get(key);
+        return transaction.get().transactionGet(key);
     }
 
     public Storeable put (String key, Storeable value) throws IllegalArgumentException {
@@ -471,8 +488,8 @@ public class DataBase implements Table {
             throw new IllegalArgumentException("Value cannot be null");
         }
         checkAlienStoreable(value);
-        Storeable oldValue = transaction.get().get(key);
-        transaction.get().put(key, value);
+        Storeable oldValue = transaction.get().transactionGet(key);
+        transaction.get().transactionPut(key, value);
         return oldValue;
     }
 
@@ -480,8 +497,9 @@ public class DataBase implements Table {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
         }
-        Storeable oldValue = transaction.get().get(key);
-        transaction.get().put(key, null);
+        Storeable oldValue = transaction.get().transactionGet(key);
+        transaction.get().transactionPut(key, null);
+        transaction.get().transactionIncreaseChangesCount();
         return oldValue;
     }
 
@@ -490,39 +508,38 @@ public class DataBase implements Table {
     }
 
     public int size() {
-        System.out.println(transaction.get().size());
-        return transaction.get().size();
+        System.out.println(transaction.get().transactionCalcSize());
+        return transaction.get().transactionCalcSize();
     }
 
     public int commit () {
-
         try {
             lock.lock();
-            int tempChanged = transaction.get().commit();
+            int changesCount = transaction.get().transactionCommit();
+            transaction.get().transactionClearChanges();
             saveDataBase();
-            System.out.println(tempChanged);
-            return tempChanged;
+            return changesCount;
         } catch (IOException e) {
-            System.err.println("Error! " + e.getMessage());
+            System.err.println("Error!" + e.getMessage());
             System.exit(1);
-        }  finally {
+        }
+        finally {
             lock.unlock();
         }
         return 0;
     }
 
     public int rollback () {
-        int tempChanged = transaction.get().transactionsCalcChanges();
-        transaction.get().clearMap();
-        System.out.println(tempChanged);
-        return tempChanged;
+        int count = transaction.get().transactionsCalcChanges();
+        transaction.get().transactionClearChanges();
+        return count;
     }
 
     public int getColumnsCount() {
         return storeableClasses.size();
     }
     public int numberOfChanges() {
-        return transaction.get().numberOfChanges();
+        return transaction.get().transactionsCalcChanges();
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
