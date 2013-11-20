@@ -127,7 +127,7 @@ public class DataBase implements Table {
             if (newValue == null || oldValue == null) {
                 return true;
             }
-            return Equals(oldValue, newValue);
+            return !oldValue.equals(newValue);
         }
 
         public boolean Equals (Storeable first, Storeable another) {
