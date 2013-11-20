@@ -229,7 +229,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     }
 
 
-    private Table singleCreateTable(String name, List<Class<?>> columnType) throws IOException {
+    public Table createTable(String name, List<Class<?>> columnType) throws IOException {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -244,37 +244,31 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 throw new IllegalArgumentException("name is clear");
             }
         }
-        if (setDirTable.contains(name)) {
-            return null;
-        } else {
-            setDirTable.add(name);
-            try {
-                FileMap fileMap = new FileMap(pathDb, name, this, columnType);
-                mapFileMap.put(name, fileMap);
-                return fileMap;
-            } catch (Exception e) {
-                RuntimeException error = new RuntimeException();
-                error.addSuppressed(e);
-                throw error;
-            }
 
+        Table resTable = null;
+        write.lock();
+        try {
+            if (setDirTable.contains(name)) {
+                resTable = null;
+            } else {
+                setDirTable.add(name);
+                try {
+                    FileMap fileMap = new FileMap(pathDb, name, this, columnType);
+                    mapFileMap.put(name, fileMap);
+                    resTable = fileMap;
+                } catch (Exception e) {
+                    RuntimeException error = new RuntimeException();
+                    error.addSuppressed(e);
+                    throw error;
+                }
+            }
+        } finally {
+            write.unlock();
         }
+        return resTable;
     }
 
-    public Table createTable(String name, List<Class<?>> columnType) throws IOException {
-        if (write.tryLock()) {
-            write.lock();
-            try {
-                return singleCreateTable(name, columnType);
-            } finally {
-                write.unlock();
-            }
-        } else {
-            return null;
-        }
-    }
-
-    private Table singleGetTable(String name) {
+    public Table getTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
@@ -285,63 +279,60 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (!currentFileMap.isDirectory()) {
             return null;
         }
-        if (mapFileMap.containsKey(name)) {
-            return mapFileMap.get(name);
-        }
-        if (setDirTable.contains(name)) {
-            try {
-                FileMap fileMap = new FileMap(pathDb, name, this);
-                mapFileMap.put(name, fileMap);
-                return fileMap;
-            } catch (Exception e) {
-                RuntimeException error = new RuntimeException();
-                error.addSuppressed(e);
-                throw error;
-            }
-        } else {
-            return null;
-        }
-    }
 
-    public Table getTable(String name) {
+        Table resTable = null;
         read.lock();
         try {
-            return singleGetTable(name);
+            if (mapFileMap.containsKey(name)) {
+                resTable = mapFileMap.get(name);
+            }
+            if (setDirTable.contains(name)) {
+                try {
+                    FileMap fileMap = new FileMap(pathDb, name, this);
+                    mapFileMap.put(name, fileMap);
+                    resTable = fileMap;
+                } catch (Exception e) {
+                    RuntimeException error = new RuntimeException();
+                    error.addSuppressed(e);
+                    throw error;
+                }
+            } else {
+                return null;
+            }
         } finally {
             read.unlock();
         }
-    }
-
-    private void singleRemoveTable(String name) {
-        if (name == null || name.equals("")) {
-            throw new IllegalArgumentException("name is clear");
-        }
-        if (setDirTable.contains(name)) {
-            setDirTable.remove(name);
-            mapFileMap.remove(name);
-            if (dbData != null) {
-                dbData.setDrop();
-            }
-            dbData = null;
-            try {
-                mySystem.rm(new String[]{pathDb.resolve(name).toString()});
-            } catch (Exception e) {
-                IllegalArgumentException ex = new IllegalArgumentException();
-                ex.addSuppressed(e);
-                throw ex;
-            }
-        } else {
-            throw new IllegalStateException();
-        }
+        return resTable;
     }
 
     public void removeTable(String name) {
+        if (name == null || name.equals("")) {
+            throw new IllegalArgumentException("name is clear");
+        }
+
         write.lock();
         try {
-            singleRemoveTable(name);
+            if (setDirTable.contains(name)) {
+                setDirTable.remove(name);
+                mapFileMap.remove(name);
+                if (dbData != null) {
+                    dbData.setDrop();
+                }
+                dbData = null;
+                try {
+                    mySystem.rm(new String[]{pathDb.resolve(name).toString()});
+                } catch (Exception e) {
+                    IllegalArgumentException ex = new IllegalArgumentException();
+                    ex.addSuppressed(e);
+                    throw ex;
+                }
+            } else {
+                throw new IllegalStateException();
+            }
         } finally {
             write.unlock();
         }
+
     }
 
     @Override
