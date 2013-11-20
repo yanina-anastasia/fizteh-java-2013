@@ -27,17 +27,12 @@ public class FileMapTableProvider extends State implements TableProvider {
     private Vector<Command> commands = new Vector<Command>();
     private Hashtable<String, Class<?>> providedTypes;
     private Hashtable<Class<?>, String> providedTypesNames;
+    private String currentFileMapTable = null;
+    private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
+
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
-
-    private ThreadLocal<String> currentFileMapTable = new ThreadLocal<String>() {
-        @Override
-        public String initialValue() {
-            return null;
-        }
-    };
-    private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
 
     @Override
     public Vector<Command> getCommands() {
@@ -81,14 +76,14 @@ public class FileMapTableProvider extends State implements TableProvider {
                 System.out.println(name + " not exists");
                 return;
             }
-            if (currentFileMapTable.get() != null) {
-                int uncommitedSize = allFileMapTablesHashtable.get(currentFileMapTable.get()).uncommittedChangesCount();
+            if (currentFileMapTable != null) {
+                int uncommitedSize = allFileMapTablesHashtable.get(currentFileMapTable).uncommittedChangesCount();
                 if (uncommitedSize != 0) {
                     System.out.println(uncommitedSize + " unsaved changes");
                     return;
                 }
             }
-            currentFileMapTable.set(name);
+            currentFileMapTable = name;
             System.out.println("using " + name);
         } finally {
             write.unlock();
@@ -96,10 +91,10 @@ public class FileMapTableProvider extends State implements TableProvider {
     }
 
     public FileMapTable getCurrentFileMapTable() {
-        if (currentFileMapTable.get() == null) {
+        if (currentFileMapTable == null) {
             return null;
         }
-        return allFileMapTablesHashtable.get(currentFileMapTable.get());
+        return allFileMapTablesHashtable.get(currentFileMapTable);
     }
 
     public FileMapTableProvider(String dbDir) throws IllegalArgumentException, IOException {
@@ -247,8 +242,8 @@ public class FileMapTableProvider extends State implements TableProvider {
             } catch (IOException e) {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
-            if (name.equals(currentFileMapTable.get())) {
-                currentFileMapTable.set(null);
+            if (name.equals(currentFileMapTable)) {
+                currentFileMapTable = null;
             }
         } finally {
             write.unlock();
