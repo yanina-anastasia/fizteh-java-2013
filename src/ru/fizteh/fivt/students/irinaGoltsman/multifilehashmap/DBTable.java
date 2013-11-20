@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DBTable implements Table {
+
     private File tableDirectory;
     private HashMap<String, Storeable> originalTable = new HashMap<>();
     private List<Class<?>> columnTypes;
@@ -21,13 +22,6 @@ public class DBTable implements Table {
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
-    ThreadLocal<Integer> originalSize = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return 0;
-        }
-
-    };
     private ThreadLocal<HashMap<String, Storeable>> tableOfChanges = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
@@ -63,7 +57,6 @@ public class DBTable implements Table {
                 throw new IOException(e);
             }
         }
-        originalSize.set(originalTable.size());
     }
 
     @Override
@@ -179,7 +172,31 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        return originalSize.get() - removedKeys.get().size() + tableOfChanges.get().size();
+        int count = 0;
+        try {
+            readLock.lock();
+            count = originalTable.size();
+            for (String currentKey : removedKeys.get()) {
+                if (!originalTable.containsKey(currentKey)) {
+                    continue;
+                }
+                if (tableOfChanges.get().containsKey(currentKey)) {
+                    Storeable currentValue = tableOfChanges.get().get(currentKey);
+                    if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
+                        continue;
+                    }
+                }
+                count--;
+            }
+            for (String currentKey : tableOfChanges.get().keySet()) {
+                if (!originalTable.containsKey(currentKey)) {
+                    count++;
+                }
+            }
+            return count;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     //@return Количество сохранённых ключей.
@@ -189,18 +206,12 @@ public class DBTable implements Table {
         try {
             writeLock.lock();
             count = countTheNumberOfChanges();
-            originalSize.set(originalSize.get() - removedKeys.get().size());
             for (String delString : removedKeys.get()) {
                 if (originalTable.containsKey(delString)) {
                     originalTable.remove(delString);
                 }
             }
-            originalSize.set(originalSize.get() + tableOfChanges.get().size());
-            for (String currentKey : tableOfChanges.get().keySet()) {
-                if (!originalTable.containsKey(currentKey)) {
-                    originalTable.put(currentKey, tableOfChanges.get().get(currentKey));
-                }
-            }
+            originalTable.putAll(tableOfChanges.get());
             List<String> keys = new ArrayList<>(originalTable.keySet());
             List<Storeable> values = new ArrayList<>(originalTable.values());
             HashMap<String, String> serializedTable = new HashMap<>();
