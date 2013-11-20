@@ -172,14 +172,31 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        int count = -1;
+        int count = 0;
         try {
             readLock.lock();
-            count = tableOfChanges.get().size() + originalTable.size() - removedKeys.get().size();
+            count = originalTable.size();
+            for (String currentKey : removedKeys.get()) {
+                if (!originalTable.containsKey(currentKey)) {
+                    continue;
+                }
+                if (tableOfChanges.get().containsKey(currentKey)) {
+                    Storeable currentValue = tableOfChanges.get().get(currentKey);
+                    if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
+                        continue;
+                    }
+                }
+                count--;
+            }
+            for (String currentKey : tableOfChanges.get().keySet()) {
+                if (!originalTable.containsKey(currentKey)) {
+                    count++;
+                }
+            }
+            return count;
         } finally {
             readLock.unlock();
         }
-        return count;
     }
 
     //@return Количество сохранённых ключей.
@@ -190,7 +207,9 @@ public class DBTable implements Table {
             writeLock.lock();
             count = countTheNumberOfChanges();
             for (String delString : removedKeys.get()) {
-                originalTable.remove(delString);
+                if (originalTable.containsKey(delString)) {
+                    originalTable.remove(delString);
+                }
             }
             originalTable.putAll(tableOfChanges.get());
             List<String> keys = new ArrayList<>(originalTable.keySet());
@@ -240,6 +259,9 @@ public class DBTable implements Table {
     public int countTheNumberOfChanges() {
         int countOfChanges = 0;
         for (String currentKey : removedKeys.get()) {
+            if (!originalTable.containsKey(currentKey)) {
+                continue;
+            }
             if (tableOfChanges.get().containsKey(currentKey)) {
                 Storeable currentValue = tableOfChanges.get().get(currentKey);
                 if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
