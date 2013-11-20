@@ -120,7 +120,16 @@ public class DataBase implements Table {
             if (newValue == null || oldValue == null) {
                 return true;
             }
-            return !oldValue.equals(newValue);
+            return Equals(oldValue, newValue);
+        }
+
+        public boolean Equals(Storeable first, Storeable second) {
+            for (int i = 0; i < storeableClasses.size(); ++i) {
+                if (!first.getColumnAt(i).equals(second.getColumnAt(i))){
+                    return false;
+                }
+            }
+            return true;
         }
 
     }
