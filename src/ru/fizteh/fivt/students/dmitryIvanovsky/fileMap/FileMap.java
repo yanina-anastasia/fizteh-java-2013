@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.BufferedReader;
@@ -32,7 +34,9 @@ public class FileMap implements Table {
 
     private final Path pathDb;
     private final CommandShell mySystem;
-    private final Lock commitLock = new ReentrantLock();
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock read  = readWriteLock.readLock();
+    private final Lock write = readWriteLock.writeLock();
     String nameTable;
     volatile ConcurrentHashMap<String, Storeable> tableData = new ConcurrentHashMap<>();
     ThreadLocal<Map<String, Storeable>> changeTable = new ThreadLocal<Map<String, Storeable>>() {
@@ -495,22 +499,31 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        if (changeTable.get().containsKey(key)) {
-            Storeable newValue = changeTable.get().get(key);
-            if (newValue == null) {
-                return null;
+
+        Storeable value = null;
+        read.lock();
+        try {
+            if (changeTable.get().containsKey(key)) {
+                Storeable newValue = changeTable.get().get(key);
+                if (newValue == null) {
+                    value = null;
+                } else {
+                    value = changeTable.get().get(key);
+                    return value;
+                }
             } else {
-                Storeable value = changeTable.get().get(key);
-                return value;
+                if (tableData.containsKey(key)) {
+                    value = tableData.get(key);
+                    return value;
+                } else {
+                    value = null;
+                }
             }
-        } else {
-            if (tableData.containsKey(key)) {
-                Storeable value = tableData.get(key);
-                return value;
-            } else {
-                return null;
-            }
+        } finally {
+            read.unlock();
         }
+
+        return value;
     }
 
     public Storeable remove(String key) {
@@ -518,79 +531,93 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        if (changeTable.get().containsKey(key)) {
-            Storeable newValue = changeTable.get().get(key);
-            if (tableData.containsKey(key)) {
-                if (newValue == null) {
-                    return null;
+
+        Storeable resValue = null;
+        read.lock();
+        try {
+            if (changeTable.get().containsKey(key)) {
+                Storeable newValue = changeTable.get().get(key);
+                if (tableData.containsKey(key)) {
+                    if (newValue == null) {
+                        resValue =  null;
+                    } else {
+                        Storeable value = changeTable.get().get(key);
+                        changeTable.get().put(key, null);
+                        resValue =  value;
+                    }
                 } else {
-                    Storeable value = changeTable.get().get(key);
-                    changeTable.get().put(key, null);
-                    return value;
+                    changeTable.get().remove(key);
+                    resValue =  newValue;
                 }
             } else {
-                changeTable.get().remove(key);
-                return newValue;
+                if (tableData.containsKey(key)) {
+                    Storeable value = tableData.get(key);
+                    changeTable.get().put(key, null);
+                    resValue =  value;
+                } else {
+                    resValue =  null;
+                }
             }
-        } else {
-            if (tableData.containsKey(key)) {
-                Storeable value = tableData.get(key);
-                changeTable.get().put(key, null);
-                return value;
-            } else {
-                return null;
-            }
+        } finally {
+            read.unlock();
         }
+
+        return resValue;
     }
 
     public int size() {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
+
         int size = tableData.size();
-        for (String key : changeTable.get().keySet()) {
-            if (tableData.containsKey(key)) {
-                if (changeTable.get().get(key) == null) {
-                    --size;
-                }
-            } else {
-                if (changeTable.get().get(key) != null) {
-                    ++size;
+        read.lock();
+        try {
+            for (String key : changeTable.get().keySet()) {
+                if (tableData.containsKey(key)) {
+                    if (changeTable.get().get(key) == null) {
+                        --size;
+                    }
+                } else {
+                    if (changeTable.get().get(key) != null) {
+                        ++size;
+                    }
                 }
             }
+        } finally {
+            read.unlock();
         }
+
         return size;
     }
 
-    private int singleCommit() {
+    public int commit() {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        for (String key : changeTable.get().keySet()) {
-            Storeable value = changeTable.get().get(key);
-            if (value == null) {
-                tableData.remove(key);
-            } else {
-                tableData.put(key, changeTable.get().get(key));
-            }
-        }
-        int count = changeTable.get().size();
-        changeTable.get().clear();
+
+        int count = 0;
+        write.lock();
         try {
-            unloadTable();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+            for (String key : changeTable.get().keySet()) {
+                Storeable value = changeTable.get().get(key);
+                if (value == null) {
+                    tableData.remove(key);
+                } else {
+                    tableData.put(key, changeTable.get().get(key));
+                }
+            }
+            count = changeTable.get().size();
+            changeTable.get().clear();
+            try {
+                unloadTable();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        } finally {
+            write.unlock();
         }
         return count;
-    }
-
-    public int commit() {
-        commitLock.lock();
-        try {
-            return singleCommit();
-        } finally {
-            commitLock.unlock();
-        }
     }
 
     public int rollback() {
