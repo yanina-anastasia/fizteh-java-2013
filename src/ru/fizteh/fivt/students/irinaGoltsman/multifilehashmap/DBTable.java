@@ -172,22 +172,30 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        return tableOfChanges.get().size() + originalTable.size() - removedKeys.get().size();
+        int count = -1;
+        try {
+            readLock.lock();
+            count = tableOfChanges.get().size() + originalTable.size() - removedKeys.get().size();
+        } finally {
+            readLock.unlock();
+        }
+        return count;
     }
 
     //@return Количество сохранённых ключей.
     @Override
     public int commit() throws IOException {
-        int count = countTheNumberOfChanges();
+        int count = -1;
         try {
             writeLock.lock();
+            count = countTheNumberOfChanges();
             for (String delString : removedKeys.get()) {
                 originalTable.remove(delString);
             }
             originalTable.putAll(tableOfChanges.get());
             List<String> keys = new ArrayList<>(originalTable.keySet());
             List<Storeable> values = new ArrayList<>(originalTable.values());
-            HashMap<String, String> serializedTable = new HashMap();
+            HashMap<String, String> serializedTable = new HashMap<>();
             for (int i = 0; i < values.size(); i++) {
                 String serializedValue = tableProvider.serialize(this, values.get(i));
                 serializedTable.put(keys.get(i), serializedValue);
@@ -203,7 +211,13 @@ public class DBTable implements Table {
 
     @Override
     public int rollback() {
-        int count = countTheNumberOfChanges();
+        int count = -1;
+        try {
+            readLock.lock();
+            count = countTheNumberOfChanges();
+        } finally {
+            readLock.unlock();
+        }
         tableOfChanges.get().clear();
         removedKeys.get().clear();
         return count;
@@ -222,30 +236,21 @@ public class DBTable implements Table {
         return columnTypes.get(columnIndex);
     }
 
+    //Перед вызовом этой функции нужно блокировать запись в originalTable
     public int countTheNumberOfChanges() {
         int countOfChanges = 0;
         for (String currentKey : removedKeys.get()) {
             if (tableOfChanges.get().containsKey(currentKey)) {
                 Storeable currentValue = tableOfChanges.get().get(currentKey);
-                try {
-                    readLock.lock();
-                    if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
-                        continue;
-                    }
-                } finally {
-                    readLock.unlock();
+                if (checkStoreableForEquality(originalTable.get(currentKey), currentValue)) {
+                    continue;
                 }
             }
             countOfChanges++;
         }
         for (String currentKey : tableOfChanges.get().keySet()) {
-            try {
-                readLock.lock();
-                if (!originalTable.containsKey(currentKey)) {
-                    countOfChanges++;
-                }
-            } finally {
-                readLock.unlock();
+            if (!originalTable.containsKey(currentKey)) {
+                countOfChanges++;
             }
         }
         return countOfChanges;
