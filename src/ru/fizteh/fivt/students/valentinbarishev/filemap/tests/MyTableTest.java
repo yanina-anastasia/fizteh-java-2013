@@ -185,5 +185,27 @@ public class MyTableTest {
         Assert.assertEquals(storeable.getStringAt(0), "");
     }
 
+    @Test
+    public void testCommitRollback() throws IOException {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(0, "");
+        Assert.assertNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertNotNull(table.put("abacaba", storeable));
+        Assert.assertNotNull(table.get("abacaba"));
+        Assert.assertEquals(table.commit(), 0);
+        Assert.assertEquals(table.rollback(), 0);
+        storeable.setColumnAt(0, "123");
+        Assert.assertNotNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.rollback(), 1);
+        Assert.assertNotNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertNotNull(table.remove("abacaba"));
+        Assert.assertNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.commit(), 0);
+
+
+    }
+
 
 }

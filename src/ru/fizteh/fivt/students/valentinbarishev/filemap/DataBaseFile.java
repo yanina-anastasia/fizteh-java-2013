@@ -162,17 +162,19 @@ public class DataBaseFile {
     }
 
     public String put(final String key, final String value) {
-        if (deleted.contains(key)) {
-            deleted.remove(key);
-        }
-
         String result = null;
+
         if (diff.containsKey(key)) {
             result = diff.get(key);
         } else {
             if (old.containsKey(key)) {
                 result = old.get(key);
             }
+        }
+
+        if (deleted.contains(key)) {
+            deleted.remove(key);
+            result = null;
         }
 
         diff.put(key, value);
@@ -249,6 +251,7 @@ public class DataBaseFile {
     }
 
     public void commit() {
+        normalize();
         for (Map.Entry<String, String> node : diff.entrySet()) {
             old.put(node.getKey(), node.getValue());
         }
