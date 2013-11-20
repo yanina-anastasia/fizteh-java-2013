@@ -30,8 +30,13 @@ public class DbState extends State {
         provider = prov;
         table = newTable;
         path = dbPath;
-        changes = new ThreadLocal<HashMap<String, Storeable>>();
-        changes.set(new HashMap<String, Storeable>());
+        changes = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
+        
         loadData();
     }
     
