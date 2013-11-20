@@ -17,11 +17,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTable implements Table {
 
-    public class ValueNode {
-        Storeable oldValue;
-        Storeable newValue;
-    }
-
     public MyTable(File dirTable, MyTableProvider currentProvider) throws IOException, RuntimeException {
         tableProvider = currentProvider;
         tableFile = dirTable;
@@ -30,9 +25,9 @@ public class MyTable implements Table {
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
         readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
-        changesMap = new ThreadLocal<HashMap<String, ValueNode>>() {
+        changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
-            public HashMap<String, ValueNode> initialValue() {
+            public HashMap<String, Storeable> initialValue() {
                 return new HashMap<>();
             }
         };
@@ -52,7 +47,7 @@ public class MyTable implements Table {
     private File tableFile;
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
-    private ThreadLocal<HashMap<String, ValueNode>> changesMap;
+    private ThreadLocal<HashMap<String, Storeable>> changesMap;
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
@@ -65,17 +60,14 @@ public class MyTable implements Table {
         if (changesMap == null || changesMap.get().isEmpty()) {
             return 0;
         }
-        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.get().entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
+        Set<Map.Entry<String, Storeable>> fileSet = changesMap.get().entrySet();
+        Iterator<Map.Entry<String, Storeable>> i = fileSet.iterator();
         int counter = 0;
         while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
-            ValueNode value = currItem.getValue();
-            /*if (value.newValue != null && !equals(value.newValue, fileMap.get(currItem.getKey()))
-                    || value.newValue == null && fileMap.get(currItem.getKey()) != null) {
-                ++counter;
-            }    */
-            if (!equals(value.newValue, value.oldValue)) {
+            Map.Entry<String, Storeable> currItem = i.next();
+            Storeable value = currItem.getValue();
+            if (value != null && !equals(value, fileMap.get(currItem.getKey()))
+                    || value == null && fileMap.get(currItem.getKey()) != null) {
                 ++counter;
             }
         }
@@ -351,7 +343,7 @@ public class MyTable implements Table {
         readLock.lock();
         try {
             if (changesMap.get().containsKey(key)) {            // если он был изменен
-                return changesMap.get().get(key).newValue;
+                return changesMap.get().get(key);
             } else {
                 if (fileMap.containsKey(key)) {
                     return fileMap.get(key);
@@ -365,14 +357,7 @@ public class MyTable implements Table {
     }
 
     public void addChanges(String key, Storeable value) {
-        if (changesMap.get().containsKey(key)) {
-            changesMap.get().get(key).newValue = value;
-        } else {
-            ValueNode valueNode = new ValueNode();
-            valueNode.oldValue = fileMap.get(key);
-            valueNode.newValue = value;
-            changesMap.get().put(key, valueNode);
-        }
+        changesMap.get().put(key, value);
     }
 
     @Override
@@ -445,9 +430,9 @@ public class MyTable implements Table {
     public int commit() throws IndexOutOfBoundsException, IOException {
         writeLock.lock();
         try {
+            int count = getCountOfChanges();
             modifyFileMap();
             saveChangesOnHard();
-            int count = getCountOfChanges();
             changesMap.get().clear();
             return count;
         } finally {
@@ -460,18 +445,14 @@ public class MyTable implements Table {
         if (changesMap == null || changesMap.get().isEmpty()) {
             return;
         }
-        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.get().entrySet();
-        for (Map.Entry<String, ValueNode> currItem : fileSet) {
-            ValueNode value = currItem.getValue();
-            if (value.newValue != null && equals(value.newValue, fileMap.get(currItem.getKey()))
-                    || value.newValue == null && fileMap.get(currItem.getKey()) == null) {
-                continue;
-            }
-            if (!equals(value.newValue, value.oldValue)) {
-                if (value.newValue == null) {
+        Set<Map.Entry<String, Storeable>> fileSet = changesMap.get().entrySet();
+        for (Map.Entry<String, Storeable> currItem : fileSet) {
+            Storeable value = currItem.getValue();
+            if (!equals(value, fileMap.get(currItem.getKey()))) {
+                if (value == null) {
                     fileMap.remove(currItem.getKey());
                 } else {
-                    fileMap.put(currItem.getKey(), value.newValue);
+                    fileMap.put(currItem.getKey(), value);
                 }
             }
         }
@@ -482,17 +463,13 @@ public class MyTable implements Table {
             return 0;
         }
         int size = 0;
-        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.get().entrySet();
-        for (Map.Entry<String, ValueNode> currItem : fileSet) {
-            ValueNode value = currItem.getValue();
-            if (value.newValue != null && equals(value.newValue, fileMap.get(currItem.getKey()))
-                    || value.newValue == null && fileMap.get(currItem.getKey()) == null) {
-                continue;
-            }
-            if (value.oldValue == null && value.newValue != null) {
+        Set<Map.Entry<String, Storeable>> fileSet = changesMap.get().entrySet();
+        for (Map.Entry<String, Storeable> currItem : fileSet) {
+            Storeable value = currItem.getValue();
+            if (fileMap.get(currItem.getKey()) == null && value != null) {
                 ++size;
             }
-            if (value.oldValue != null && value.newValue == null) {
+            if (fileMap.get(currItem.getKey()) != null && value == null) {
                 --size;
             }
         }
