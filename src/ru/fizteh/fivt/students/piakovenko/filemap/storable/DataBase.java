@@ -73,25 +73,33 @@ public class DataBase implements Table {
             return map.currentSize(transactionMap);
         }
 
-        public int rollback() {
-            int changes = changesCount();
+        public void clearMap() {
             transactionMap.clear();
-            return changes;
         }
 
         public int numberOfChanges() {
             return map.changesCount(transactionMap);
         }
 
-        public int changesCount() {
+        public int transactionsCalcChanges() {
             int count = 0;
-            for (final String key: transactionMap.keySet()) {
-                Storeable tempValue = transactionMap.get(key);
-                if (wasChanged(tempValue, map.get(key))) {
+            for (String key : transactionMap.keySet()) {
+                Storeable newValue = transactionMap.get(key);
+                if (transactionHasChanges(newValue, map.getMap().get(key))) {
                     ++count;
                 }
             }
             return count;
+        }
+
+        private boolean transactionHasChanges(Storeable oldValue, Storeable newValue) {
+            if (newValue == null && oldValue == null) {
+                return false;
+            }
+            if (newValue == null || oldValue == null) {
+                return true;
+            }
+            return !oldValue.equals(newValue);
         }
 
 
@@ -505,8 +513,8 @@ public class DataBase implements Table {
 
     public int rollback () {
         try {
-            lock.lock();
-            int tempChanged = transaction.get().rollback();
+            int tempChanged = transaction.get().transactionsCalcChanges();
+            transaction.get().clearMap();
             System.out.println(tempChanged);
             return tempChanged;
         } finally {
