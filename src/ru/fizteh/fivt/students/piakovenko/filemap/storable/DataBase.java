@@ -26,7 +26,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DataBase implements Table {
     private String name;
     private RandomAccessFile raDataBaseFile = null;
-    private DataBaseMap map = null;
+    //private DataBaseMap map = null;
+    private Map<String, Storeable> map = null;
     private Shell shell = null;
     private File dataBaseStorage = null;
     private List<Class<?>> storeableClasses;
@@ -84,7 +85,7 @@ public class DataBase implements Table {
         }
 
         public int transactionGetSize() {
-            return map.getMap().size() + transactionCalcSize();
+            return map.size() + transactionCalcSize();
         }
 
         public int transactionsCalcChanges() {
@@ -208,7 +209,7 @@ public class DataBase implements Table {
                 length -= l2;
             }
             try {
-                map.primaryPut(new String(key, StandardCharsets.UTF_8), JSONSerializer.deserialize(this, new String(value, StandardCharsets.UTF_8)));
+                map.put(new String(key, StandardCharsets.UTF_8), JSONSerializer.deserialize(this, new String(value, StandardCharsets.UTF_8)));
             } catch (ParseException e) {
                 System.err.println("readFromFile: problem with desereliaze" + e.getMessage());
                 System.exit(1);
@@ -255,7 +256,7 @@ public class DataBase implements Table {
                     throw new IOException("Wrong place of key value! Key: " + keyString + " Value: " + valueString);
                 } else {
                     try {
-                        map.primaryPut(keyString, JSONSerializer.deserialize(this, valueString));
+                        map.put(keyString, JSONSerializer.deserialize(this, valueString));
                     } catch (ParseException e) {
                         System.err.println("readFromFile: problem with deserializer" + e.getMessage());
                         System.exit(1);
@@ -275,9 +276,9 @@ public class DataBase implements Table {
     private void saveToFile () throws IOException {
         long length  = 0;
         raDataBaseFile.seek(0);
-        for (String key: map.getMap().keySet()) {
+        for (String key: map.keySet()) {
             byte [] keyBytes = key.getBytes(StandardCharsets.UTF_8);
-            byte [] valueBytes = JSONSerializer.serialize(this, map.getMap().get(key)).getBytes(StandardCharsets.UTF_8);
+            byte [] valueBytes = JSONSerializer.serialize(this, map.get(key)).getBytes(StandardCharsets.UTF_8);
             raDataBaseFile.writeInt(keyBytes.length);
             raDataBaseFile.writeInt(valueBytes.length);
             raDataBaseFile.write(keyBytes);
@@ -310,7 +311,7 @@ public class DataBase implements Table {
         if (!dataBaseStorage.mkdirs()){
             throw new IOException("Unable to create this directory - " + dataBaseStorage.getCanonicalPath());
         }
-        for (String key : map.getMap().keySet()) {
+        for (String key : map.keySet()) {
             Integer numberOfDirectory = ruleNumberDirectory(key);
             Integer numberOfFile = ruleNumberFile(key);
             File directory = new File (dataBaseStorage, numberOfDirectory.toString() + ".dir");
@@ -323,7 +324,7 @@ public class DataBase implements Table {
             if (!writeFile.exists()) {
                 writeFile.createNewFile();
             }
-            saveToFile(writeFile, key, JSONSerializer.serialize(this, map.getMap().get(key)));
+            saveToFile(writeFile, key, JSONSerializer.serialize(this, map.get(key)));
         }
     }
 
@@ -380,7 +381,8 @@ public class DataBase implements Table {
     }
 
     public DataBase (Shell sl, File storage, TableProvider _parent, List<Class<?>> columnTypes) {
-        map = new DataBaseMap();
+        //map = new DataBaseMap();
+        map = new HashMap<String, Storeable>();
         shell  = sl;
         dataBaseStorage = storage;
         name = storage.getName();
@@ -394,7 +396,8 @@ public class DataBase implements Table {
     }
 
     public DataBase (Shell sl, File storage, TableProvider _parent) {
-        map = new DataBaseMap();
+        //map = new DataBaseMap();
+        map = new HashMap<String, Storeable>();
         shell  = sl;
         dataBaseStorage = storage;
         name = storage.getName();
@@ -412,12 +415,6 @@ public class DataBase implements Table {
         }
     }
 
-    public DataBase () {
-        map = new DataBaseMap();
-        shell  = new Shell();
-        dataBaseStorage = new File (System.getProperty("fizteh.db.dir"));
-        name = dataBaseStorage.getName();
-    }
 
     public void load () throws IOException {
         if (dataBaseStorage.isFile()) {
