@@ -48,7 +48,7 @@ public class DataBaseFile {
 
     public boolean check() throws IOException {
         for (String key : old.keySet()) {
-            int zeroByte = Math.abs(key.charAt(0));
+            int zeroByte = Math.abs(key.getBytes()[0]);
             if (!((zeroByte % 16 == direcotryNumber) && ((zeroByte / 16) % 16 == fileNumber))) {
                 throw new IOException("Wrong file format key[0] =  " + String.valueOf(zeroByte)
                         + " in file " + fileName);
