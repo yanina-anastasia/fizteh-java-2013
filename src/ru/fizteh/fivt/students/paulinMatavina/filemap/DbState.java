@@ -14,8 +14,8 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import ru.fizteh.fivt.storage.structured.*;
 
 public class DbState extends State {
-    public HashMap<String, Storeable> data;
-    private HashMap<String, Storeable> initial;
+    public HashMap<String, Storeable> initial;
+    private HashMap<String, Storeable> changes;
     public RandomAccessFile dbFile;
     public String path;
     private TableProvider provider;
@@ -52,11 +52,17 @@ public class DbState extends State {
     }
     
     public void assignInitial() {
-        initial = new HashMap<String, Storeable>(data);
+        for (Map.Entry<String, Storeable> s : changes.entrySet()) {
+            if (s.getValue() != null) {
+                initial.put(s.getKey(), s.getValue());
+            } else {
+                initial.remove(s.getKey());
+            }
+        }
     }
     
     public void assignData() {
-        data = new HashMap<String, Storeable>(initial);
+        changes = new HashMap<String, Storeable>();
     }
     
     private String byteVectToStr(Vector<Byte> byteVect) throws IOException {
@@ -101,7 +107,7 @@ public class DbState extends State {
     }    
     
     public int loadData() throws IOException, ParseException {
-        data = new HashMap<String, Storeable>();
+        initial = new HashMap<String, Storeable>();
         assignInitial();
         File dbTempFile = new File(path);
         if (!dbTempFile.exists()) {
@@ -140,7 +146,7 @@ public class DbState extends State {
                     }
                     result++;
                     Storeable stor = provider.deserialize(table, value);
-                    data.put(key, stor);
+                    initial.put(key, stor);
                 }
                 
                 key = key2;
@@ -167,21 +173,12 @@ public class DbState extends State {
     }
   
     public int getChangeNum() {
-        int result = 0;
-        for (Map.Entry<String, Storeable> s : data.entrySet()) {
-            Storeable was = initial.get(s.getKey());
-            Storeable became = s.getValue();
-            if ((was != null && !was.equals(became)) 
-               || (was == null && became != null)) {
-                result++;
-            }
-        }
-        return result;
+        return changes.size();
     }  
 
     public void commit() throws IOException {
         assignInitial();
-        if (data.size() == 0) {
+        if (initial.size() == 0) {
             return;
         }
         dbFile = null;
@@ -193,12 +190,12 @@ public class DbState extends State {
             }
             int offset = 0;
             long pos = 0;
-            for (Map.Entry<String, Storeable> s : data.entrySet()) {
+            for (Map.Entry<String, Storeable> s : initial.entrySet()) {
                 if (s.getValue() != null) {
                     offset += s.getKey().getBytes("UTF-8").length + 5;
                 } 
             }
-            for (Map.Entry<String, Storeable> s : data.entrySet()) {
+            for (Map.Entry<String, Storeable> s : initial.entrySet()) {
                 if (s.getValue() != null) {
                     dbFile.seek(pos);
                     dbFile.write(s.getKey().getBytes("UTF-8"));
@@ -231,28 +228,55 @@ public class DbState extends State {
     }
     
     public Storeable put(String key, Storeable value) {
-        return data.put(key, value);
+        Storeable change = changes.get(key);
+        if (!value.equals(initial.get(key))) {
+            changes.put(key, value);
+        } else {
+            changes.remove(key);
+        }
+        
+        if (change != null) {
+            return change;
+        } else {
+            return initial.get(key);
+        }
     }
     
     public Storeable get(String key) {
-        if (data.containsKey(key)) {
-            return data.get(key);
+        Storeable change = changes.get(key);
+        
+        if (change != null) {
+            return change;
         } else {
-            return null;
+            return initial.get(key);
         }
     }
     
     public Storeable remove(String key) {
-        Storeable value = data.get(key);
-        data.put(key, null);
-        return value;
+        Storeable change = changes.get(key);
+        if (!initial.containsKey(key)) {
+            changes.remove(key);
+        } else {
+            changes.put(key, null);
+        }
+        
+        if (change != null) {
+            return change;
+        } else {
+            return initial.get(key);
+        }
     }
     
     public int size() {
-        int result = 0;
-        for (Map.Entry<String, Storeable> entry : data.entrySet()) {
+        int result = initial.size();
+        for (Map.Entry<String, Storeable> entry : changes.entrySet()) {
             if (entry.getValue() != null) {
-                result++;
+                if (!initial.containsKey(entry.getKey())) {
+                    result++;
+                }
+                
+            } else {
+                result--;
             }
         }
         return result;
