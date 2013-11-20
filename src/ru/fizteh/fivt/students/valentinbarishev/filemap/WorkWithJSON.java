@@ -13,6 +13,7 @@ public class WorkWithJSON {
             value.getColumnAt(table.getColumnsCount());
             throw new ColumnFormatException("Too many columns!");
         } catch (IndexOutOfBoundsException e) {
+            table.getColumnsCount();
         }
 
         JSONArray array = new JSONArray();

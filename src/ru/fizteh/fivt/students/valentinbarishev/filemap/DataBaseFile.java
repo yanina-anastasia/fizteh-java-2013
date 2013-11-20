@@ -8,7 +8,6 @@ import java.text.ParseException;
 import java.util.*;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.io.FileNotFoundException;
 
@@ -245,7 +244,7 @@ public class DataBaseFile {
 
     public int getNewKeys() {
         normalize();
-        return diff.size() + old.size() - deleted.size();
+        return diff.size() + deleted.size();
     }
 
     public int getSize() {

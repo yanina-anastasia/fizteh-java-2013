@@ -3,8 +3,6 @@ package ru.fizteh.fivt.students.valentinbarishev.filemap;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
-import java.io.IOException;
-
 public class ShellUseTable extends SimpleShellCommand {
     private Context context;
 
