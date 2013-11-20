@@ -127,10 +127,17 @@ public class DataBase implements Table {
             if (newValue == null || oldValue == null) {
                 return true;
             }
-            return !oldValue.equals(newValue);
+            return Equals(oldValue, newValue);
         }
 
-
+        public boolean Equals (Storeable first, Storeable another) {
+            for (int i = 0; i < storeableClasses.size(); ++i) {
+                if (!first.getColumnAt(i).equals(another.getColumnAt(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     public void checkAlienStoreable(Storeable storeable) {
