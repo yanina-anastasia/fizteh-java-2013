@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DataBaseFile {
 
@@ -21,9 +23,21 @@ public class DataBaseFile {
     private DataBase table;
     private TableProvider provider;
 
+    private ThreadLocal<HashMap<String, String>> diff = new ThreadLocal<HashMap<String, String>>() {
+        @Override
+        public HashMap<String, String> initialValue() {
+            return new HashMap<String, String>();
+        }
+    };
+
+    private ThreadLocal<HashSet<String>> deleted = new ThreadLocal<HashSet<String>>() {
+        @Override
+        public HashSet<String> initialValue() {
+            return new HashSet<String>();
+        }
+    };
+
     private Map<String, String> old;
-    private Map<String, String> diff;
-    private Set<String> deleted;
 
     public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber,
                         DataBase newTable, TableProvider newProvider) throws IOException {
@@ -39,8 +53,6 @@ public class DataBaseFile {
         dir = new File(file.getParent());
 
         old = new HashMap<>();
-        diff = new HashMap<>();
-        deleted = new HashSet<>();
 
         load();
         check();
@@ -164,31 +176,31 @@ public class DataBaseFile {
     public String put(final String key, final String value) {
         String result = null;
 
-        if (diff.containsKey(key)) {
-            result = diff.get(key);
+        if (diff.get().containsKey(key)) {
+            result = diff.get().get(key);
         } else {
             if (old.containsKey(key)) {
                 result = old.get(key);
             }
         }
 
-        if (deleted.contains(key)) {
-            deleted.remove(key);
+        if (deleted.get().contains(key)) {
+            deleted.get().remove(key);
             result = null;
         }
 
-        diff.put(key, value);
+        diff.get().put(key, value);
 
         return result;
     }
 
     public String get(final String key) {
-        if (deleted.contains(key)) {
+        if (deleted.get().contains(key)) {
             return null;
         }
 
-        if (diff.containsKey(key)) {
-            return diff.get(key);
+        if (diff.get().containsKey(key)) {
+            return diff.get().get(key);
         }
 
         if (old.containsKey(key)) {
@@ -199,22 +211,22 @@ public class DataBaseFile {
     }
 
     public String remove(final String key) {
-        if (deleted.contains(key)) {
+        if (deleted.get().contains(key)) {
             return null;
         }
 
         String result = null;
 
-        if (diff.containsKey(key)) {
-            result = diff.get(key);
-            diff.remove(key);
-            deleted.add(key);
+        if (diff.get().containsKey(key)) {
+            result = diff.get().get(key);
+            diff.get().remove(key);
+            deleted.get().add(key);
             return result;
         }
 
         if (old.containsKey(key)) {
             result = old.get(key);
-            deleted.add(key);
+            deleted.get().add(key);
         }
 
         return result;
@@ -222,35 +234,38 @@ public class DataBaseFile {
 
     private void normalize() {
         Set<String> newDeleted = new HashSet<>();
+        newDeleted.addAll(deleted.get());
+
 
         for (String key : old.keySet()) {
-            if (old.get(key).equals(diff.get(key))) {
-                diff.remove(key);
+            if (old.get(key).equals(diff.get().get(key))) {
+                diff.get().remove(key);
             }
-            if (deleted.contains(key)) {
-                newDeleted.add(key);
-            }
-        }
-
-        for (String key : deleted) {
-            if (diff.containsKey(key)) {
-                diff.remove(key);
+            if (newDeleted.contains(key)) {
+                newDeleted.remove(key);
             }
         }
 
-        deleted.clear();
-        deleted = newDeleted;
+        for (String key : deleted.get()) {
+            if (diff.get().containsKey(key)) {
+                diff.get().remove(key);
+            }
+        }
+
+        for (String key : newDeleted) {
+            deleted.get().remove(key);
+        }
     }
 
     public int getNewKeys() {
         normalize();
-        return diff.size() + deleted.size();
+        return diff.get().size() + deleted.get().size();
     }
 
     public int getSize() {
         normalize();
-        int result = diff.size() + old.size() - deleted.size();
-        for (String key : diff.keySet()) {
+        int result = diff.get().size() + old.size() - deleted.get().size();
+        for (String key : diff.get().keySet()) {
             if (old.containsKey(key)) {
                 --result;
             }
@@ -260,22 +275,22 @@ public class DataBaseFile {
 
     public void commit() {
         normalize();
-        for (Map.Entry<String, String> node : diff.entrySet()) {
+        for (Map.Entry<String, String> node : diff.get().entrySet()) {
             old.put(node.getKey(), node.getValue());
         }
 
-        for (String key : deleted) {
+        for (String key : deleted.get()) {
             old.remove(key);
         }
 
-        diff.clear();
-        deleted.clear();
+        diff.get().clear();
+        deleted.get().clear();
 
         save();
     }
 
     public void rollback() {
-        diff.clear();
-        deleted.clear();
+        diff.get().clear();
+        deleted.get().clear();
     }
 }
