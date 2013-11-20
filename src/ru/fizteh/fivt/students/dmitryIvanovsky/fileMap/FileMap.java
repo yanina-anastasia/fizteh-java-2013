@@ -463,14 +463,16 @@ public class FileMap implements Table {
         if (changeTable.get().containsKey(key)) {
             Storeable newValue = changeTable.get().get(key);
             if (newValue == null) {
-                Storeable oldValue = tableData.get(key);
-                if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
-                    changeTable.get().remove(key);
+                //Storeable oldValue = tableData.get(key);
+                /*if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
+                    //changeTable.get().remove(key);
                     return null;
                 } else {
                     changeTable.get().put(key, value);
                     return null;
-                }
+                } */
+                changeTable.get().put(key, value);
+                return null;
             } else {
                 Storeable oldValue = changeTable.get().get(key);
                 changeTable.get().put(key, value);
@@ -479,9 +481,9 @@ public class FileMap implements Table {
         } else {
             if (tableData.containsKey(key)) {
                 Storeable oldValue = tableData.get(key);
-                if (!parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
+                //if (!parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
                     changeTable.get().put(key, value);
-                }
+                //}
                 return oldValue;
             } else {
                 changeTable.get().put(key, value);
