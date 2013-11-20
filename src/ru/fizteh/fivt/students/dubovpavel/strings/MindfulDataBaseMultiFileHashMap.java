@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap<V> {
-    protected HashMap<String, V> oldDict;
+    private HashMap<String, V> oldDict;
     protected ObjectTransformer<V> transformer;
     MindfulDataBaseMultiFileHashMap(File path, ObjectTransformer<V> transformer) {
         super(path, transformer);
@@ -73,7 +73,7 @@ public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap
     }
 
     protected int rollback(HashMap<String, V> dict) {
-        int diff = getDiff();
+        int diff = getDiff(dict);
         copyHashMap(oldDict, dict);
         return diff;
     }

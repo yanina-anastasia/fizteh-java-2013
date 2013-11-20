@@ -59,6 +59,7 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
                         dirIsEmpty = false;
                         try {
                             setPath(data);
+                            localDict.clear();
                             super.open();
                             if(localDict.size() == 0) {
                                 throw new DataBaseException(String.format("Chunk can not be empty"), false);

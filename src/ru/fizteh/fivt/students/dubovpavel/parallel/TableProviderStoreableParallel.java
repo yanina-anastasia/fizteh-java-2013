@@ -10,7 +10,6 @@ import ru.fizteh.fivt.students.dubovpavel.storeable.TableStoreableBuilder;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBase<Storeable> & Table> extends TableProviderStoreable<DB> implements TableProvider {

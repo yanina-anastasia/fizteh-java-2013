@@ -4,8 +4,6 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageBuilder;
-import ru.fizteh.fivt.students.dubovpavel.storeable.TableProviderStoreable;
-import ru.fizteh.fivt.students.dubovpavel.storeable.TableStoreableBuilder;
 import ru.fizteh.fivt.students.dubovpavel.strings.TableProviderStorageExtendedFactory;
 
 import java.io.IOException;
