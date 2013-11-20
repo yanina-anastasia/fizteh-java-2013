@@ -13,8 +13,7 @@ public class StoreableCommands implements Storeable{
         this.types = new ArrayList(types);
         values = new ArrayList(types.size());
         for (int i = 0; i < types.size(); ++i) {
-            Object empty = new Object();
-            values.add(empty);
+            values.add(null);
         }
     }
     
