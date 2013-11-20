@@ -477,6 +477,9 @@ public class MyTable implements Table {
         Set<Map.Entry<String, ValueNode>> fileSet = changesMap.get().entrySet();
         for (Map.Entry<String, ValueNode> currItem : fileSet) {
             ValueNode value = currItem.getValue();
+            if (equals(fileMap.get(currItem.getKey()), value.newValue)) {
+                continue;
+            }
             if (value.oldValue == null && value.newValue != null) {
                 ++size;
             }
