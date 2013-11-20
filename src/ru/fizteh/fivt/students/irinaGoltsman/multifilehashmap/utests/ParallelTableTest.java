@@ -31,14 +31,9 @@ public class ParallelTableTest {
     }
 
     @Test
-    public void concurrentPutAndCommit() throws IOException{
+    public void concurrentPutAndCommit() throws IOException {
         Thread thread1 = new Thread(new Runnable() {
             public void run() {
-                try{
-                Thread.sleep(1000);
-                } catch (InterruptedException e){
-                    //
-                }
                 Storeable row = new DBStoreable(columnTypes);
                 row.setColumnAt(0, 1);
                 table.put("key1", row);
@@ -55,6 +50,7 @@ public class ParallelTableTest {
                     table.commit();
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
+                    return;
                 }
             }
         });
@@ -72,6 +68,9 @@ public class ParallelTableTest {
         }
         table.remove("key1");
         table.remove("key2");
+        Assert.assertEquals(0, table.size());
         Assert.assertEquals(2, table.commit());
     }
+
+
 }
