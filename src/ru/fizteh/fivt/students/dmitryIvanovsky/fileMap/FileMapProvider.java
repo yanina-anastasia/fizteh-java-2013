@@ -285,19 +285,20 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         try {
             if (mapFileMap.containsKey(name)) {
                 resTable = mapFileMap.get(name);
-            }
-            if (setDirTable.contains(name)) {
-                try {
-                    FileMap fileMap = new FileMap(pathDb, name, this);
-                    mapFileMap.put(name, fileMap);
-                    resTable = fileMap;
-                } catch (Exception e) {
-                    RuntimeException error = new RuntimeException();
-                    error.addSuppressed(e);
-                    throw error;
-                }
             } else {
-                return null;
+                if (setDirTable.contains(name)) {
+                    try {
+                        FileMap fileMap = new FileMap(pathDb, name, this);
+                        mapFileMap.put(name, fileMap);
+                        resTable = fileMap;
+                    } catch (Exception e) {
+                        RuntimeException error = new RuntimeException();
+                        error.addSuppressed(e);
+                        throw error;
+                    }
+                } else {
+                    resTable = null;
+                }
             }
         } finally {
             read.unlock();
