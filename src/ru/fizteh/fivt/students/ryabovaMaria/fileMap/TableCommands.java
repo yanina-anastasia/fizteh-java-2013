@@ -198,7 +198,7 @@ public class TableCommands implements Table {
         try {
             return tableProvider.deserialize(this, value);
         } catch (ParseException e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
