@@ -459,10 +459,6 @@ public class MyTable implements Table {
         Set<Map.Entry<String, ValueNode>> fileSet = changesMap.get().entrySet();
         for (Map.Entry<String, ValueNode> currItem : fileSet) {
             ValueNode value = currItem.getValue();
-            String key = currItem.getKey();
-            if (fileMap.get(key) != null && !equals(fileMap.get(key), value.newValue)) {
-                continue;
-            }
             if (!equals(value.newValue, value.oldValue)) {
                 if (value.newValue == null) {
                     fileMap.remove(currItem.getKey());
