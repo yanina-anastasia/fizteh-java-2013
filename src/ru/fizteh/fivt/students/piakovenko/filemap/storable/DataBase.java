@@ -512,14 +512,10 @@ public class DataBase implements Table {
     }
 
     public int rollback () {
-        try {
-            int tempChanged = transaction.get().transactionsCalcChanges();
-            transaction.get().clearMap();
-            System.out.println(tempChanged);
-            return tempChanged;
-        } finally {
-            lock.unlock();
-        }
+        int tempChanged = transaction.get().transactionsCalcChanges();
+        transaction.get().clearMap();
+        System.out.println(tempChanged);
+        return tempChanged;
     }
 
     public int getColumnsCount() {
