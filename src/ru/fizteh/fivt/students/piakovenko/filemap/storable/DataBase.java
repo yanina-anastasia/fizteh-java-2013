@@ -515,8 +515,8 @@ public class DataBase implements Table {
     }
 
     public int size() {
-        System.out.println(transaction.get().transactionCalcSize());
-        return transaction.get().transactionCalcSize();
+        System.out.println(transaction.get().transactionGetSize());
+        return transaction.get().transactionGetSize();
     }
 
     public int commit () {
