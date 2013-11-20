@@ -71,13 +71,13 @@ public class MyTable implements Table {
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
-            if (value.newValue != null && equals(value.newValue, fileMap.get(currItem.getKey()))
-                    || value.newValue == null && fileMap.get(currItem.getKey()) == null) {
-                continue;
-            }
-            if (!equals(value.newValue, value.oldValue)) {
+            if (value.newValue != null && !equals(value.newValue, fileMap.get(currItem.getKey()))
+                    || value.newValue == null && fileMap.get(currItem.getKey()) != null) {
                 ++counter;
             }
+            /*if (!equals(value.newValue, value.oldValue)) {
+                ++counter;
+            }*/
         }
         return counter;
     }
@@ -481,9 +481,6 @@ public class MyTable implements Table {
         Set<Map.Entry<String, ValueNode>> fileSet = changesMap.get().entrySet();
         for (Map.Entry<String, ValueNode> currItem : fileSet) {
             ValueNode value = currItem.getValue();
-            if (equals(fileMap.get(currItem.getKey()), value.newValue)) {
-                continue;
-            }
             if (value.oldValue == null && value.newValue != null) {
                 ++size;
             }
