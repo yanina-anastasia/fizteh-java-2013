@@ -38,7 +38,7 @@ public class MyTableTest {
 
     public void storeableEquals(Storeable a, Storeable b) {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            Assert.assertEquals(a.getColumnAt(i),b.getColumnAt(i));
+            Assert.assertEquals(a.getColumnAt(i), b.getColumnAt(i));
         }
     }
 
