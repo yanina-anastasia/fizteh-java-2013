@@ -411,7 +411,7 @@ public class TableProviderCommands implements TableProvider {
         try {
             curTypes = getTypeList(table);
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         } 
         return new StoreableCommands(curTypes);
     }
