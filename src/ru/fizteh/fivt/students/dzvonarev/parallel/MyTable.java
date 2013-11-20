@@ -71,13 +71,13 @@ public class MyTable implements Table {
         while (i.hasNext()) {
             Map.Entry<String, ValueNode> currItem = i.next();
             ValueNode value = currItem.getValue();
-            if (value.newValue != null && !equals(value.newValue, fileMap.get(currItem.getKey()))
+            /*if (value.newValue != null && !equals(value.newValue, fileMap.get(currItem.getKey()))
                     || value.newValue == null && fileMap.get(currItem.getKey()) != null) {
                 ++counter;
-            }
-            /*if (!equals(value.newValue, value.oldValue)) {
+            }    */
+            if (!equals(value.newValue, value.oldValue)) {
                 ++counter;
-            }*/
+            }
         }
         return counter;
     }
