@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -164,7 +166,7 @@ public class TableCommands implements Table {
                 } catch (Exception ex) {
                 }
             }
-            throw new IOException("Incorrect table");
+            throw new IOException("Incorrect table", e);
         }
     }
     
@@ -212,7 +214,7 @@ public class TableCommands implements Table {
             diff[numberOfDir][numberOfFile].put(key, stringValue);
             return answer;
         } catch (Exception e) {
-            throw new IllegalArgumentException("incorrect args ");
+            throw new IllegalArgumentException("incorrect args", e);
         }
     }
 
@@ -233,10 +235,9 @@ public class TableCommands implements Table {
             diff[numberOfDir][numberOfFile].put(key, null);
             value = lastList[numberOfDir][numberOfFile].get(key);
         }
-        //String value = list[numberOfDir][numberOfFile].remove(key);
         try {
             return tableProvider.deserialize(this, value);
-        } catch (ParseException e) {
+        } catch (ParseException ex) {
             return null;
         }
     }
@@ -326,7 +327,7 @@ public class TableCommands implements Table {
                 } catch (Exception ex) {
                 }
             }
-            throw new IOException("incorrect file");
+            throw new IOException("incorrect file", e);
         }
 
     }
