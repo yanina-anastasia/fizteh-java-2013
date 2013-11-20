@@ -23,33 +23,29 @@ public class MyTable implements Table {
     }
 
     public MyTable(File dirTable, MyTableProvider currentProvider) throws IOException, RuntimeException {
+        tableProvider = currentProvider;
+        tableFile = dirTable;
+        tableName = dirTable.getName();
+        fileMap = new HashMap<>();
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
         readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
-        readLock.lock();
-        try {
-            tableProvider = currentProvider;
-            tableFile = dirTable;
-            tableName = dirTable.getName();
-            fileMap = new HashMap<>();
-            changesMap = new ThreadLocal<HashMap<String, ValueNode>>() {
-                @Override
-                public HashMap<String, ValueNode> initialValue() {
-                    return new HashMap<>();
-                }
-            };
-            type = new ArrayList<>();
-            List<String> temp = new ArrayList<>();  //init types of table
-            readTypes(temp);
-            Parser myParser = new Parser();
-            try {
-                type = myParser.parseTypeList(temp);
-            } catch (ParseException e) {
-                throw new IOException(e);
+        changesMap = new ThreadLocal<HashMap<String, ValueNode>>() {
+            @Override
+            public HashMap<String, ValueNode> initialValue() {
+                return new HashMap<>();
             }
-        } finally {
-            readLock.unlock();
+        };
+        type = new ArrayList<>();
+        List<String> temp = new ArrayList<>();  //init types of table
+        readTypes(temp);
+        Parser myParser = new Parser();
+        try {
+            type = myParser.parseTypeList(temp);
+        } catch (ParseException e) {
+            throw new IOException(e);
         }
+
     }
 
     private String tableName;                      // name of current table
@@ -115,6 +111,7 @@ public class MyTable implements Table {
         while (myScanner.hasNext()) {
             arr.add(myScanner.next());
         }
+        myScanner.close();
     }
 
     public void readFileMap() throws RuntimeException, IOException, ParseException {
@@ -323,7 +320,7 @@ public class MyTable implements Table {
     public void closeFile(RandomAccessFile file) throws IOException {
         try {
             file.close();
-        } catch (NullPointerException | IOException e) {
+        } catch (IOException e) {
             throw new IOException(e.getMessage() + " error in closing file", e);
         }
     }

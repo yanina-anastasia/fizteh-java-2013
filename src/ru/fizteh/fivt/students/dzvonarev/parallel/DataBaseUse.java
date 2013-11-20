@@ -27,6 +27,9 @@ public class DataBaseUse implements CommandInterface {
             throw new IOException("use: wrong parameters");
         }
         String tableName = str.substring(spaceIndex + 1, str.length());
+        if (tableProvider == null) {
+            throw new IOException("can't use table");
+        }
         if (tableProvider.getCurrentTable() != null) {
             MyTable currTable = tableProvider.getTable(tableProvider.getCurrentTable());
             int countOfChanges = currTable.getCountOfChanges();

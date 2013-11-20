@@ -40,6 +40,9 @@ public class DataBaseCreate implements CommandInterface {
         } catch (ParseException e) {
             throw new IllegalArgumentException(e);
         }
+        if (tableProvider == null) {
+            throw new IOException("can't create table");
+        }
         Table newTable = tableProvider.createTable(newName, newTypes);
         if (newTable == null) {
             System.out.println(newName + " exists");
