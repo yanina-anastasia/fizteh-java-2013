@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -17,6 +19,10 @@ public final class DataBase implements Table {
     private DataBaseFile[] files;
     private TableProvider provider;
     private List<Class<?>> types;
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock readLock = readWriteLock.readLock();
+    private Lock writeLock = readWriteLock.writeLock();
 
     public final class DirFile {
         private int nDir;
@@ -187,7 +193,15 @@ public final class DataBase implements Table {
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         String value = WorkWithJSON.serialize(this, storeableValue);
-        String result = file.put(keyStr, value);
+
+        String result;
+        readLock.lock();
+        try {
+            result = file.put(keyStr, value);
+        } finally {
+            readLock.unlock();
+        }
+
         return WorkWithJSON.deserialize(this, result);
     }
 
@@ -195,7 +209,15 @@ public final class DataBase implements Table {
     public Storeable get(final String keyStr) {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
-        String result = files[node.getId()].get(keyStr);
+
+        String result;
+        readLock.lock();
+        try {
+            result = files[node.getId()].get(keyStr);
+        } finally {
+            readLock.unlock();
+        }
+
         return WorkWithJSON.deserialize(this, result);
     }
 
@@ -204,37 +226,60 @@ public final class DataBase implements Table {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
-        String result = file.remove(keyStr);
+
+        String result;
+        readLock.lock();
+        try {
+            result = files[node.getId()].remove(keyStr);
+        } finally {
+            readLock.unlock();
+        }
+
         return WorkWithJSON.deserialize(this, result);
     }
 
     @Override
     public int commit() {
-        int allNew = 0;
-        for (int i = 0; i < 256; ++i) {
-            allNew += files[i].getNewKeys();
-            files[i].commit();
+        writeLock.lock();
+        try {
+            int allNew = 0;
+            for (int i = 0; i < 256; ++i) {
+                allNew += files[i].getNewKeys();
+                files[i].commit();
+            }
+            return  allNew;
+        } finally {
+            writeLock.unlock();
         }
-        return allNew;
     }
 
     @Override
     public int size() {
-        int allSize = 0;
-        for (int i = 0; i < 256; ++i) {
-                allSize += files[i].getSize();
+        readLock.lock();
+        try {
+            int allSize = 0;
+            for (int i = 0; i < 256; ++i) {
+                    allSize += files[i].getSize();
+            }
+            return allSize;
+        } finally {
+            readLock.unlock();
         }
-        return allSize;
     }
 
     @Override
     public int rollback() {
-        int allCanceled = 0;
-        for (int i = 0; i < 256; ++i) {
-            allCanceled += files[i].getNewKeys();
-            files[i].rollback();
+        writeLock.lock();
+        try {
+            int allCanceled = 0;
+            for (int i = 0; i < 256; ++i) {
+                allCanceled += files[i].getNewKeys();
+                files[i].rollback();
+            }
+            return allCanceled;
+        } finally {
+            writeLock.unlock();
         }
-        return allCanceled;
     }
 
     @Override
