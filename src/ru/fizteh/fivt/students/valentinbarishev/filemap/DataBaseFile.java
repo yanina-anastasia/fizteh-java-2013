@@ -5,9 +5,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
@@ -16,127 +14,48 @@ import java.io.FileNotFoundException;
 
 public class DataBaseFile {
 
-    static final byte OLD_NODE = 1;
-    static final byte NEW_NODE = 2;
-    static final byte MODIFIED_NODE = 3;
-    static final byte DELETED_NODE = 4;
-
-
-    public final class Node {
-        private byte status;
-        private boolean old;
-        private byte[] key;
-        private byte[] value;
-        private byte[] oldValue;
-
-        public int getZeroByte() {
-            return Math.abs(key[0]);
-        }
-
-        public Node(final byte[] newKey, final byte[] newValue) {
-            status = NEW_NODE;
-            key = newKey;
-            value = newValue;
-            oldValue = null;
-            old = false;
-        }
-
-        public Node(final RandomAccessFile inputFile) throws IOException {
-            try {
-                int keyLength = inputFile.readInt();
-                int valueLength = inputFile.readInt();
-                if ((keyLength <= 0) || (valueLength <= 0)) {
-                    throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
-                }
-                try {
-                    key = new byte[keyLength];
-                    value = new byte[valueLength];
-                } catch (OutOfMemoryError e) {
-                    throw new DataBaseWrongFileFormat("Some key or value are too large in " + file.getName());
-                }
-                inputFile.read(key);
-                inputFile.read(value);
-                setOld();
-            } catch (Exception e) {
-                throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
-            }
-        }
-
-        public void setOld() {
-            status = OLD_NODE;
-            old = true;
-            oldValue = value;
-        }
-
-        public void setKey(final byte[] newKey) {
-            key = newKey;
-        }
-
-        public void setValue(final byte[] newValue) {
-            status = MODIFIED_NODE;
-            if ((oldValue != null) && (Arrays.equals(oldValue, newValue))) {
-                status = OLD_NODE;
-            }
-            value = newValue;
-        }
-
-        public void write(final RandomAccessFile outputFile) throws IOException {
-            if (status == DELETED_NODE) {
-                return;
-            }
-            outputFile.writeInt(key.length);
-            outputFile.writeInt(value.length);
-            outputFile.write(key);
-            outputFile.write(value);
-        }
-
-        public byte getStatus() {
-            return status;
-        }
-
-        public void setStatus(byte newStatus) {
-            status = newStatus;
-        }
-
-        public void remove() {
-            value = null;
-            status = DELETED_NODE;
-        }
-
-    }
-
     protected final String fileName;
     protected File file;
     private File dir;
-    protected List<Node> data;
     private int fileNumber;
     private int direcotryNumber;
     private DataBase table;
     private TableProvider provider;
 
+    private Map<String, String> old;
+    private Map<String, String> diff;
+    private Set<String> deleted;
+
     public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber,
                         DataBase newTable, TableProvider newProvider) throws IOException {
+        fileName = newFileName;
+
         table = newTable;
         provider = newProvider;
-        fileName = newFileName;
-        file = new File(fileName);
-        data = new ArrayList<Node>();
+
         fileNumber = newFileNumber;
         direcotryNumber = newDirectoryNumber;
-        String path = file.getParent();
-        dir = new File(path);
+
+        file = new File(fileName);
+        dir = new File(file.getParent());
+
+        old = new HashMap<>();
+        diff = new HashMap<>();
+        deleted = new HashSet<>();
+
         load();
         check();
     }
 
     public boolean check() throws IOException {
-        for (Node node : data) {
-            if (!((node.getZeroByte() % 16 == direcotryNumber) && ((node.getZeroByte() / 16) % 16 == fileNumber))) {
-                throw new IOException("Wrong file format key[0] =  " + String.valueOf(node.getZeroByte())
+        for (String key : old.keySet()) {
+            int zeroByte = Math.abs(key.charAt(0));
+            if (!((zeroByte % 16 == direcotryNumber) && ((zeroByte / 16) % 16 == fileNumber))) {
+                throw new IOException("Wrong file format key[0] =  " + String.valueOf(zeroByte)
                         + " in file " + fileName);
             }
             try {
-                provider.deserialize(table, new String(node.value));
+                provider.deserialize(table, key);
             } catch (ParseException e) {
                 throw new IOException("Invalid file format! (parse exception error!)");
             }
@@ -154,10 +73,31 @@ public class DataBaseFile {
             }
             try (RandomAccessFile inputFile = new RandomAccessFile(fileName, "rw")) {
                 while (inputFile.getFilePointer() < inputFile.length() - 1) {
-                    data.add(new Node(inputFile));
+
+                    int keyLength = inputFile.readInt();
+                    int valueLength = inputFile.readInt();
+
+                    if ((keyLength <= 0) || (valueLength <= 0)) {
+                        throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
+                    }
+
+                    byte[] key;
+                    byte[] value;
+
+                    try {
+                        key = new byte[keyLength];
+                        value = new byte[valueLength];
+                    } catch (OutOfMemoryError e) {
+                        throw new DataBaseWrongFileFormat("Some key or value are too large in " + file.getName());
+                    }
+
+                    inputFile.read(key);
+                    inputFile.read(value);
+
+                    old.put(new String(key, StandardCharsets.UTF_8), new String(value, StandardCharsets.UTF_8));
                 }
             }
-            if (data.size() == 0) {
+            if (old.size() == 0) {
                 throw new IOException("Empty file!");
             }
         } catch (FileNotFoundException e) {
@@ -206,8 +146,11 @@ public class DataBaseFile {
                     }
                 }
                 try (RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw")) {
-                    for (Node node : data) {
-                        node.write(outputFile);
+                    for (Map.Entry<String, String> node : old.entrySet()) {
+                        outputFile.writeInt(node.getKey().getBytes(StandardCharsets.UTF_8).length);
+                        outputFile.writeInt(node.getValue().getBytes(StandardCharsets.UTF_8).length);
+                        outputFile.write(node.getKey().getBytes(StandardCharsets.UTF_8));
+                        outputFile.write(node.getValue().getBytes(StandardCharsets.UTF_8));
                     }
                     outputFile.setLength(outputFile.getFilePointer());
                 }
@@ -219,100 +162,120 @@ public class DataBaseFile {
         }
     }
 
+    public String put(final String key, final String value) {
+        if (deleted.contains(key)) {
+            deleted.remove(key);
+        }
 
-    private int search(final byte[] key) {
-        for (int i = 0; i < data.size(); ++i) {
-            if (Arrays.equals(data.get(i).key, key)) {
-                return i;
+        String result = null;
+        if (diff.containsKey(key)) {
+            result = diff.get(key);
+        } else {
+            if (old.containsKey(key)) {
+                result = old.get(key);
             }
         }
-        return -1;
+
+        if (!value.equals(result)) {
+            diff.put(key, value);
+        }
+
+        if (value.equals(old.get(key))) {
+            diff.remove(key);
+        }
+
+        return result;
     }
 
-    public String put(final String keyStr, final String valueStr) {
-        byte[] key = keyStr.getBytes(StandardCharsets.UTF_8);
-        byte[] value = valueStr.getBytes(StandardCharsets.UTF_8);
-
-        int index = search(key);
-        if (index == -1) {
-            data.add(new Node(key, value));
+    public String get(final String key) {
+        if (deleted.contains(key)) {
             return null;
-        } else {
-            int status = data.get(index).status;
-            String result = null;
-            if (status != DELETED_NODE) {
-                result = new String(data.get(index).value);
+        }
+
+        if (diff.containsKey(key)) {
+            return diff.get(key);
+        }
+
+        if (old.containsKey(key)) {
+            return old.get(key);
+        }
+
+        return null;
+    }
+
+    public String remove(final String key) {
+        if (deleted.contains(key)) {
+            return null;
+        }
+
+        String result = null;
+
+        if (diff.containsKey(key)) {
+            result = diff.get(key);
+            diff.remove(key);
+
+            if (old.containsKey(key)) {
+                deleted.add(key);
             }
-            data.get(index).setValue(value);
+
             return result;
         }
-    }
 
-    public String get(final String keyStr) {
-        byte[] key = keyStr.getBytes(StandardCharsets.UTF_8);
-        int index = search(key);
-        if (index != -1) {
-            if (data.get(index).status == DELETED_NODE) {
-                return null;
-            }
-            return new String(data.get(index).value);
-        } else {
-            return null;
+        if (old.containsKey(key)) {
+            result = old.get(key);
+            deleted.add(key);
         }
+
+        return result;
     }
 
-    public String remove(final String keyStr) {
-        byte[] key = keyStr.getBytes(StandardCharsets.UTF_8);
-        int index = search(key);
-        if (index == -1) {
-            return null;
-        } else {
-            String result;
-            if (data.get(index).status == DELETED_NODE) {
-                result = null;
-            } else {
-                result = new String(data.get(index).value);
+    private void normalize() {
+        for (String key : diff.keySet()) {
+            if (diff.get(key).equals(old.get(key)) || deleted.contains(key)) {
+                diff.remove(key);
             }
-            data.get(index).remove();
-            return result;
+        }
+
+        for (String key : deleted) {
+            if (!old.containsKey(key)) {
+                deleted.remove(key);
+            }
         }
     }
 
     public int getNewKeys() {
-        int result = 0;
-        for (Node node : data) {
-            if ((node.getStatus() == NEW_NODE) || (node.getStatus() == MODIFIED_NODE)
-                    || ((node.getStatus() == DELETED_NODE) && (node.old))) {
-                ++result;
-            }
-        }
-        return result;
+        normalize();
+        return diff.size() + old.size() - deleted.size();
     }
 
     public int getSize() {
-        int result = 0;
-        for (Node node : data) {
-            if (node.getStatus() != DELETED_NODE) {
-                ++result;
+        normalize();
+        int result = diff.size() + old.size() - deleted.size();
+        for (String key : diff.keySet()) {
+            if (old.containsKey(key)) {
+                --result;
             }
         }
         return result;
     }
 
     public void commit() {
-        save();
-        for (int i = 0; i < data.size();) {
-            if (data.get(i).getStatus() == DELETED_NODE) {
-                data.remove(i);
-            } else {
-                data.get(i).setOld();
-                ++i;
-            }
+        for (Map.Entry<String, String> node : diff.entrySet()) {
+            old.put(node.getKey(), node.getValue());
         }
+
+        for (String key : deleted) {
+            old.remove(key);
+        }
+
+        diff.clear();
+        deleted.clear();
+
+        save();
     }
 
     public void rollback() {
-        data.clear();
-        load();
+        diff.clear();
+        deleted.clear();
     }
 }
