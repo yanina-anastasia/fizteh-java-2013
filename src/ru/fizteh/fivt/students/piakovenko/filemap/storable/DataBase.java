@@ -58,7 +58,7 @@ public class DataBase implements Table {
             int count = 0;
             for (String key : currentTable.keySet()) {
                 Storeable value = currentTable.get(key);
-                if (transactionHasChanges(value, map.getMap().get(key))) {
+                if (transactionHasChanges(value, map.get(key))) {
                     if (value == null) {
                         map.remove(key);
                     } else {
@@ -102,7 +102,7 @@ public class DataBase implements Table {
             int count = 0;
             for (String key : currentTable.keySet()) {
                 Storeable newValue = currentTable.get(key);
-                Storeable oldValue = map.getMap().get(key);
+                Storeable oldValue = map.get(key);
                 if (newValue == null && oldValue != null) {
                     --count;
                 } else if (newValue != null && oldValue == null) {
