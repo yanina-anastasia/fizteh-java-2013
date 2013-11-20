@@ -231,19 +231,24 @@ public class DbState extends State {
     }
     
     public Storeable put(String key, Storeable value) {
-        Storeable change = changes.get().get(key);
-        boolean exist = changes.get().containsKey(key);
-        if (!value.equals(initial.get(key))) {
-            changes.get().put(key, value);
-        } else {
-            changes.get().remove(key);
+        try {
+            Storeable change = changes.get().get(key);
+            boolean exist = changes.get().containsKey(key);
+            if (!value.equals(initial.get(key))) {
+                changes.get().put(key, value);
+            } else {
+                changes.get().remove(key);
+            }
+            
+            if (exist) {
+                return change;
+            } else {
+                return initial.get(key);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        
-        if (exist) {
-            return change;
-        } else {
-            return initial.get(key);
-        }
+        return null;
     }
     
     public Storeable get(String key) {
