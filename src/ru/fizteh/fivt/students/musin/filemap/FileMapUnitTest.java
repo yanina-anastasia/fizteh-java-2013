@@ -689,6 +689,43 @@ public class FileMapUnitTest {
         MultiFileMap table = provider.createTable("new", getColumnTypeList());
         Assert.assertEquals(table.getColumnsCount(), 3);
     }
+
+    @Test
+    public void parallelCountsChangesSeparately() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        final FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        table.put("a", getSampleStoreable());
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    MultiFileMap table = provider.getTable("new");
+                    Storeable sample = getSampleStoreable();
+                    sample.setColumnAt(0, 3);
+                    Assert.assertTrue(table.size() == 0);
+                    table.put("b", getSampleStoreable());
+                    table.commit();
+                } catch (Exception e) {
+                    System.err.println(e);
+                    Assert.fail();
+                }
+            }
+        };
+        try {
+            thread.start();
+            Assert.assertTrue(table.size() == 1);
+            thread.join();
+            Assert.assertTrue(table.size() == 2);
+            table.commit();
+            Assert.assertTrue(table.size() == 2);
+        } catch (Exception e) {
+            System.err.println(e);
+            Assert.fail();
+        }
+    }
 }
 
 
