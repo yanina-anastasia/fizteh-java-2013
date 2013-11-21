@@ -8,6 +8,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -24,6 +26,8 @@ public class FileMapProvider implements TableProvider {
     private Path rootDir;
     private Hashtable<String, FileMap> tables;
     
+    private Lock lock = new ReentrantLock();
+    
     @Override
     public FileMap getTable(String name) {
         if (name == null || name.isEmpty()) {
@@ -33,8 +37,9 @@ public class FileMapProvider implements TableProvider {
         if (dbPath == null || !isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
+        FileMap table;
+        lock.lock();
         try {
-            FileMap table;
             table = tables.get(name);
             if (table == null) {
                 table = IOUtility.parseDatabase(dbPath);
@@ -44,6 +49,8 @@ public class FileMapProvider implements TableProvider {
             return table; 
         } catch (IOException e) {
             return null;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -56,14 +63,19 @@ public class FileMapProvider implements TableProvider {
         if (dbPath == null || !isValidFileName(name)) {
             throw new IllegalArgumentException("Invalid path");
         }
-        if (dbPath.toFile().exists()) {
-            return null;
+        lock.lock();
+        try {
+            if (dbPath.toFile().exists()) {
+                return null;
+            }
+            FileMap newFileMap = new FileMap(name, columnTypes);
+            newFileMap.setProvider(this);
+            createFileStructure(dbPath, columnTypes);
+            tables.put(name, newFileMap);
+            return newFileMap;
+        } finally {
+            lock.unlock();
         }
-        FileMap newFileMap = new FileMap(name, columnTypes);
-        newFileMap.setProvider(this);
-        createFileStructure(dbPath, columnTypes);
-        tables.put(name, newFileMap);
-        return newFileMap;
     }
 
     @Override
@@ -71,6 +83,7 @@ public class FileMapProvider implements TableProvider {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
+        lock.lock();
         try {
             FileMap removedTable = tables.remove(name);
             Path dbPath = Paths.get(getRootDir() + "/" + name);
@@ -83,6 +96,8 @@ public class FileMapProvider implements TableProvider {
             }
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
+        } finally {
+            lock.unlock();
         }
     }
     
