@@ -17,13 +17,14 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class DataBase implements Table {
     protected HashMap<String, Storeable> dataMap;
-    protected HashMap<String, Storeable> oldDataMap;
+    protected HashMap<String, Storeable> commonDataMap;
     protected ArrayList<Class<?>> typesList;
     protected DataBaseProvider provider;
 
     private String currTable = "";
     private static String rootDir = "";
     private boolean removed = false;
+    private int size = 0;
 
     public void setRemoved() {
         removed = true;
@@ -54,12 +55,12 @@ public class DataBase implements Table {
             throw new IllegalStateException("Table not exists");
         }
         dataMap = new HashMap<>();
-        oldDataMap = new HashMap<>();
+        commonDataMap = new HashMap<>();
     }
 
     public void setHashMap(HashMap<String, Storeable> map) {
-        copyMap(dataMap, map);
-        copyMap(oldDataMap, map);
+        copyMap(commonDataMap, map);
+        size = commonDataMap.size();
     }
 
     public void setTypes(List<Class<?>> columnTypes) {
@@ -123,7 +124,7 @@ public class DataBase implements Table {
                 }
             }
 
-            Set<Entry<String, Storeable>> entries = dataMap.entrySet();
+            Set<Entry<String, Storeable>> entries = commonDataMap.entrySet();
             for (Map.Entry<String, Storeable> entry : entries) {
                 String key = entry.getKey();
                 Storeable value = entry.getValue();
@@ -170,6 +171,18 @@ public class DataBase implements Table {
         }
     }
 
+    private void mergeMaps() {
+        for (Map.Entry<String, Storeable> entry : dataMap.entrySet()) {
+            String key = entry.getKey();
+            Storeable val = entry.getValue();
+            if (val == null) {
+                commonDataMap.remove(key);
+            } else {
+                commonDataMap.put(key, val);
+            }
+        }
+    }
+
     private void copyMap(HashMap<String, Storeable> dest, HashMap<String, Storeable> source) {
         dest.clear();
         Set<Map.Entry<String, Storeable>> entries = source.entrySet();
@@ -204,7 +217,11 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
-        return dataMap.get(key);
+        Storeable val = dataMap.get(key);
+        if (val == null) {
+            val = commonDataMap.get(key);
+        }
+        return val;
     }
 
     @Override
@@ -218,7 +235,13 @@ public class DataBase implements Table {
         }
         provider.checkColumns(this, value);
         Storeable oldValue = dataMap.get(key);
+        if (oldValue == null) {
+            oldValue = commonDataMap.get(key);
+        }
         dataMap.put(key, value);
+        if (oldValue == null) {
+            ++size;
+        }
         return oldValue;
     }
 
@@ -229,8 +252,14 @@ public class DataBase implements Table {
         }
         checkKey(key);
         Storeable val = dataMap.get(key);
+        if (val == null) {
+            val = commonDataMap.get(key);
+        }
         if (val != null) {
             dataMap.put(key, null);
+        }
+        if (val != null) {
+            --size;
         }
         return val;
     }
@@ -240,14 +269,7 @@ public class DataBase implements Table {
         if (removed) {
             throw new IllegalStateException("table not exists");
         }
-        int count = 0;
-        Set<Map.Entry<String, Storeable>> entries = dataMap.entrySet();
-        for (Map.Entry<String, Storeable> entry : entries) {
-            if (entry.getValue() != null) {
-                ++count;
-            }
-        }
-        return count;
+        return size;
     }
 
     @Override
@@ -257,7 +279,9 @@ public class DataBase implements Table {
         }
         int changesCount = countChanges();
         unloadData();
-        copyMap(oldDataMap, dataMap);
+        mergeMaps();
+        // TODO remove copyMap(commonDataMap, dataMap);
+        size = commonDataMap.size();
         return changesCount;
     }
 
@@ -267,7 +291,7 @@ public class DataBase implements Table {
         for (Map.Entry<String, Storeable> entry : entries) {
             String key = entry.getKey();
             TableRow value = (TableRow) entry.getValue();
-            TableRow oldValue = (TableRow) oldDataMap.get(key);
+            TableRow oldValue = (TableRow) commonDataMap.get(key);
             if (value != oldValue
                     || ((value != null) && (oldValue != null) && !provider.serialize(this, value).equals(
                             provider.serialize(this, oldValue)))) {
@@ -283,7 +307,8 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         int changesCount = countChanges();
-        copyMap(dataMap, oldDataMap);
+        dataMap.clear();
+        size = commonDataMap.size();
         return changesCount;
     }
 
