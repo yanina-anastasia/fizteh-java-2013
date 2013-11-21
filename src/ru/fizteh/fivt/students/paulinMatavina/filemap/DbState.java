@@ -185,7 +185,19 @@ public class DbState extends State {
     }
   
     public int getChangeNum() {
-        return changes.get().size();
+        int result = 0;
+        for (Map.Entry<String, Storeable> entry : changes.get().entrySet()) {
+            if (entry.getValue() != null) {
+                if (initial.get(entry.getKey()) == null || !initial.get(entry.getKey()).equals(entry.getValue())) {
+                    result++;
+                }          
+            } else {
+                if (initial.containsKey(entry.getKey())) {
+                    result++;
+                }      
+            }
+        }
+        return result;
     }  
 
     public void commit() throws IOException {
