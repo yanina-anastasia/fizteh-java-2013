@@ -27,7 +27,7 @@ public class MultiDbCreate implements Command {
         Table table = null;
 
         try {
-            ArrayList<Class<?>> signature = multiState.parseSignature(args[0], tokens);
+            ArrayList<Class<?>> signature = multiState.parseSignature(tokens);
             table = multiState.createTable(name, signature);
         } catch (DbWrongTypeException e) {
             System.out.println("wrong type (" + e.getMessage() + ")");

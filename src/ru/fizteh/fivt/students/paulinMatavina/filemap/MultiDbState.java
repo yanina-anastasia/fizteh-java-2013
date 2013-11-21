@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.ReentrantLock;
 
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
@@ -14,7 +15,7 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import java.text.ParseException;
 
 public class MultiDbState extends State implements Table {
-    private MyTableProvider provider;
+    public MyTableProvider provider;
     final int folderNum = 16;
     final int fileInFolderNum = 16;
     private String tableName;
@@ -25,10 +26,11 @@ public class MultiDbState extends State implements Table {
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
+    private ReentrantLock commitLock;
     
     private void init(String dbName) throws IOException, ParseException {          
         isDropped = false;
-        
+        commitLock = new ReentrantLock(true);
         data = new DbState[folderNum][fileInFolderNum];
         shell = new ShellState();
         currentDir = new File(rootPath);
@@ -162,23 +164,27 @@ public class MultiDbState extends State implements Table {
         }   
         checkDbDir(shell.currentDir.getAbsolutePath());
         int chNum = changesNum();
-        for (int i = 0; i < folderNum; i++) {
-            String fold = Integer.toString(i) + ".dir";
-            checkFolder(shell.makeNewSource(fold));
-            if (!fileExist(fold)) {
-                shell.mkdir(new String[] {fold});
-            }
-            for (int j = 0; j < fileInFolderNum; j++) {
-                data[i][j].commit();
-            }
-           
-            File folderFile = new File(shell.makeNewSource(fold));
-            if (folderFile.exists() && folderFile.listFiles().length == 0) {
-                String[] arg = {shell.makeNewSource(fold)};
-                shell.rm(arg);
-            }
+        commitLock.lock();
+        try {
+            for (int i = 0; i < folderNum; i++) {
+                String fold = Integer.toString(i) + ".dir";
+                checkFolder(shell.makeNewSource(fold));
+                if (!fileExist(fold)) {
+                    shell.mkdir(new String[] {fold});
+                }
+                for (int j = 0; j < fileInFolderNum; j++) {
+                    data[i][j].commit();
+                }
+               
+                File folderFile = new File(shell.makeNewSource(fold));
+                if (folderFile.exists() && folderFile.listFiles().length == 0) {
+                    String[] arg = {shell.makeNewSource(fold)};
+                    shell.rm(arg);
+                }
+            }    
+        } finally {
+            commitLock.unlock();
         }
-        
         return chNum;
     }
     
@@ -317,32 +323,29 @@ public class MultiDbState extends State implements Table {
     
     private void getObjList(String name) {
         File signature = new File(shell.makeNewSource(name));
-        Scanner reader;
+        Scanner reader = null;
         try {
-            reader = new Scanner(signature);
-        } catch (IOException e) {
-            throw new RuntimeException("no correct signature file", e);
-        }
-        String signLine;
-        if (!reader.hasNextLine()) {
-            reader.close();
-            throw new RuntimeException("no correct signature file");
-        } else {
+            reader = new Scanner(signature);    
+            String signLine;
             signLine = reader.nextLine();
-            objList = provider.parseSignature(signLine, new StringTokenizer(signLine));
-            reader.close();
-        }     
+            objList = provider.parseSignature(new StringTokenizer(signLine));
+        } catch (Exception e) {
+            throw new RuntimeException("no correct signature file", e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (Throwable e) {
+                //do nothing
+            }
+        }
     }
     
     private void writeObjList(List<Class<?>> list, String name) throws IOException {
         FileWriter writer = null;
         try {
             writer = new FileWriter(new File(shell.makeNewSource(signatureName)));
-        } catch (IOException e) {
-            throw new IOException("error writing " + signatureName, e);
-        }
-        
-        try {
             for (int i = 0; i < objList.size() - 1; i++) {
                 writer.write(possibleTypes.get(objList.get(i)) + " ");
             }
@@ -351,7 +354,9 @@ public class MultiDbState extends State implements Table {
             throw new IOException("error writing " + signatureName, e);
         } finally {
             try {
-                writer.close();
+                if (writer != null) {
+                    writer.close();
+                }
             } catch (Throwable e) {
                 //do nothing
             }
@@ -360,5 +365,14 @@ public class MultiDbState extends State implements Table {
     
     public boolean fileExist(String name) {
         return new File(shell.makeNewSource(name)).exists();
+    }
+    
+    public void printout() {
+        for (int i = 0; i < folderNum; i++) {
+            for (int j = 0; j < fileInFolderNum; j++) {
+                data[i][j].printout();
+            }
+        } 
+        System.out.println("end of printout");
     }
 }

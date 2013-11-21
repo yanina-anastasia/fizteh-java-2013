@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.locks.ReentrantLock;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import ru.fizteh.fivt.storage.structured.*;
@@ -23,7 +22,6 @@ public class DbState extends State {
     private Table table;
     private int foldNum;
     private int fileNum;
-    private ReentrantLock commitLock;
     
     public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
                                                       throws ParseException, IOException {
@@ -32,7 +30,6 @@ public class DbState extends State {
         provider = prov;
         table = newTable;
         path = dbPath;
-        commitLock = new ReentrantLock(true);
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -202,7 +199,6 @@ public class DbState extends State {
 
     public void commit() throws IOException {
         dbFile = null;
-        commitLock.lock();
         try {
             fileCheck();
             assignInitial();
@@ -231,7 +227,6 @@ public class DbState extends State {
                 }
             }
         } finally {
-            commitLock.unlock();
             if (dbFile != null) {
                 try {
                   dbFile.close();
@@ -253,11 +248,7 @@ public class DbState extends State {
     public Storeable put(String key, Storeable value) {
         Storeable change = changes.get().get(key);
         boolean exist = changes.get().containsKey(key);
-        if (!value.equals(initial.get(key))) {
-            changes.get().put(key, value);
-        } else {
-            changes.get().remove(key);
-        }
+        changes.get().put(key, value);
         
         if (exist) {
             return change;
@@ -279,16 +270,26 @@ public class DbState extends State {
     public Storeable remove(String key) {
         Storeable change = changes.get().get(key);
         boolean exist = changes.get().containsKey(key);
-        if (!initial.containsKey(key)) {
-            changes.get().remove(key);
-        } else {
-            changes.get().put(key, null);
-        }
+        changes.get().put(key, null);
         
         if (exist) {
             return change;
         } else {
             return initial.get(key);
+        }
+    }
+    
+    public void printout() {
+        if (initial.size() == 0 && changes.get().size() == 0) {
+            return;
+        }
+        System.out.println("initial:");
+        for (Map.Entry<String, Storeable> entry : initial.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+        System.out.println("cnanges:");
+        for (Map.Entry<String, Storeable> entry : changes.get().entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
         }
     }
     

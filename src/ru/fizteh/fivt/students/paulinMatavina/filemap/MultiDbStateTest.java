@@ -26,9 +26,11 @@ public class MultiDbStateTest {
     ArrayList<Class<?>> wrongList;
     ArrayList<Class<?>> nullList;
     ArrayList<Object> correct;
+    ArrayList<Object> correct2;
     ArrayList<Object> wrong;
     ArrayList<Object> shortVal;
     Storeable correctValues;
+    Storeable correctValues2;
     Storeable wrongValues;
     Storeable alienValues;
     File file;
@@ -65,7 +67,8 @@ public class MultiDbStateTest {
         correct.add(null);
         correct.add(true);
         correct.add(1.001);
-        
+        correct2 = new ArrayList<Object>(correct);
+        correct2.set(0, "otherString");
         wrong = new ArrayList<Object>(correct);
         wrong.set(1, true);
         
@@ -76,6 +79,7 @@ public class MultiDbStateTest {
         nullList.set(1, null);
         
         correctValues = provider.createFor(table, correct);
+        correctValues2 = provider.createFor(table, correct2);
     }  
     
     //tests for TableProviderFactory     
@@ -420,4 +424,48 @@ public class MultiDbStateTest {
     }  
      
     //end of Storeable tests 
+    
+    //threads test
+    @Test
+    public void testThreadPutSizeOne() throws Exception {
+        table.put("1", correctValues);
+        table.commit();
+        Thread onePutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("first");
+                ((MultiDbState) table).printout();
+                assertNotNull(table.put("1", correctValues));
+                //System.out.println("first");
+                //((MultiDbState) table).printout();
+                table.put("2", correctValues);
+                try {
+                    table.commit();
+                } catch (Exception e) {
+                    fail();
+                }
+            }
+        });
+        Thread secondPutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(correctValues, table.put("1", correctValues2));
+                //table.put("1", correctValues);
+                System.out.println("second");
+                ((MultiDbState) table).printout();
+                try {
+                    assertEquals(1, table.commit());
+                } catch (Exception e) {
+                    fail();
+                }
+            }
+        });
+        onePutThread.start();
+        onePutThread.join();
+        secondPutThread.start();
+        secondPutThread.join();
+        assertEquals(2, table.size());
+    }
+
+    //end of threads test
 }

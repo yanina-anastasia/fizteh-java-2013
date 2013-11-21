@@ -181,7 +181,7 @@ public class MyTableProvider extends State implements TableProvider {
                         + ": expected " + array.length(), 0);
             }
             
-            Storeable newList = new MyStoreable(columnTypes);
+            Storeable newList = new MyStoreable(table, columnTypes);
             for (int i = 0; i < columnCount; i++) {
                 Object object = array.get(i);
                 newList.setColumnAt(i, object);
@@ -227,7 +227,7 @@ public class MyTableProvider extends State implements TableProvider {
         for (int i = 0; i < columnCount; i++) {
             columnTypes.add(table.getColumnType(i));
         }
-        return new MyStoreable(columnTypes);
+        return new MyStoreable(table, columnTypes);
     }
 
     @Override
@@ -242,7 +242,7 @@ public class MyTableProvider extends State implements TableProvider {
             types.add(table.getColumnType(i));
         }
         
-        MyStoreable newList = new MyStoreable(types);
+        MyStoreable newList = new MyStoreable(table, types);
         if (values.size() != columnCount) {
             throw new IndexOutOfBoundsException("wrong array size: " + values.size()
                     + " instead of " + columnCount);
@@ -253,11 +253,10 @@ public class MyTableProvider extends State implements TableProvider {
         return newList;
     }
     
-    public ArrayList<Class<?>> parseSignature(String signLine, StringTokenizer tokens) {
+    public ArrayList<Class<?>> parseSignature(StringTokenizer tokens) {
         ArrayList<Class<?>> columnTypes = new ArrayList<Class<?>>();
         while (tokens.hasMoreTokens()) {
             String nextToken = tokens.nextToken().trim();
-            
             switch (nextToken) {
                 case ("int") :
                     columnTypes.add(Integer.class);
