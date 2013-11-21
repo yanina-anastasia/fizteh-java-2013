@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.*;
@@ -189,7 +190,11 @@ public class ParallelTester {
     }
 
     @After
-    public void wipe() {
+    public void wipe() throws InterruptedException {
         provider.removeTable("static");
+        executor.shutdown();
+        if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+            throw new RuntimeException("Executor did not terminate");
+        }
     }
 }
