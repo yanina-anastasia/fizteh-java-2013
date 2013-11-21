@@ -160,10 +160,10 @@ public class NewTableProvider implements TableProvider {
     }
 
     public void saveChanges(NewTable table) throws IOException {
+        currentTable = table;
         HashMap<File, HashMap<String, String>> files = makeFiles(table);
         removeTableFromDisk(table);
         providerController.lock();
-        currentTable = table;
         try {
             for (File file : files.keySet()) {
                 File newDir = new File(workingDirectory + File.separator + table.getName() + File.separator
