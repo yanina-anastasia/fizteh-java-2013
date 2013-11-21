@@ -194,7 +194,11 @@ public class NewTable implements Table {
                         ++count;
                     }
                 } else {
-                    if (!entry.getValue().equals(dataMap.get(entry.getKey()))) {
+                    if (entry.getValue() != null) {
+                        if (!entry.getValue().equals(dataMap.get(entry.getKey()))) {
+                            ++count;
+                        }
+                    } else {
                         ++count;
                     }
                 }
