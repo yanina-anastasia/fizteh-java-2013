@@ -104,15 +104,17 @@ public class FileMapProvider implements TableProvider {
         }
         MultiFileMap newMap = used.get(name);
         if (newMap != null) {
+            newMap.init();
             return newMap;
         } else {
             newMap = new MultiFileMap(dir, 16, this);
             try {
                 newMap.loadFromDisk();
+                newMap.init();
             } catch (IOException e) {
-                throw new RuntimeException("", e);
+                throw new RuntimeException("Error loading from disk:", e);
             } catch (ParseException e) {
-                throw new RuntimeException("", e);
+                throw new RuntimeException("Error loading from disk:", e);
             }
             return newMap;
         }
@@ -164,6 +166,7 @@ public class FileMapProvider implements TableProvider {
         }
         MultiFileMap result = new MultiFileMap(dir, 16, this, columnTypes);
         result.writeToDisk();
+        result.init();
         used.put(name, result);
         return result;
     }
