@@ -33,6 +33,9 @@ public class StorageLoggingProxyFactory implements LoggingProxyFactory {
             throw new IllegalArgumentException("cannot set Object as interface class");
         }
 
+        if (!interfaceClass.isInterface()) {
+            throw new IllegalArgumentException("SADAS");
+        }
 
         return Proxy.newProxyInstance(
                 implementation.getClass().getClassLoader(),

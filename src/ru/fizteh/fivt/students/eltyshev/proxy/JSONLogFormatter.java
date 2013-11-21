@@ -49,8 +49,21 @@ public class JSONLogFormatter {
                 continue;
             }
 
-            boolean isContainer = value instanceof Iterable || value.getClass().isArray();
-            if (objects.containsKey(value) && isContainer) {
+            boolean isContainer = false;
+            boolean isEmpty = false;
+
+            if (value instanceof Iterable) {
+                isContainer = true;
+                isEmpty = ((Iterable) value).iterator().hasNext() == false;
+            }
+
+            if (!isContainer && value.getClass().isArray()) {
+                isContainer = true;
+                isEmpty = ((Object[]) value).length == 0;
+            }
+
+            if (objects.containsKey(value) && isContainer && !isEmpty) {
+
                 result.put("cyclic");
                 continue;
             }
