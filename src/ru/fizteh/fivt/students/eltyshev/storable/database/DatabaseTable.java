@@ -180,6 +180,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
 
     @Override
     public String toString() {
+
         return String.format("%s[%s]", getClass().getSimpleName(), getDirectory());
     }
 }

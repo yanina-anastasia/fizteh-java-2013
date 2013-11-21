@@ -211,7 +211,6 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
     }
 
     public String getDirectory() {
-        System.out.println(String.format("getting directory: %s", directory));
         return directory;
     }
 
