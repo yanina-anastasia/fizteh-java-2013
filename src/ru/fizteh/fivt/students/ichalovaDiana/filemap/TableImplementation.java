@@ -54,14 +54,6 @@ public class TableImplementation implements Table {
         }
     };
     
-    private int originTableSize;
-    private ThreadLocal<Integer> currentTableSize = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return originTableSize;
-        }
-    };
-    
     public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
             String tableName, List<Class<?>> columnTypes) throws IOException {
 
@@ -69,7 +61,6 @@ public class TableImplementation implements Table {
         this.databaseDirectory = databaseDirectory;
         this.tableName = tableName;
         this.columnTypes = columnTypes;
-        originTableSize = computeSize();
         
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
@@ -173,7 +164,6 @@ public class TableImplementation implements Table {
                 removeChanges.get()[nDirectory][nFile].remove(key);
                 putChanges.get()[nDirectory][nFile].put(key, value);
             }
-            currentTableSize.set(currentTableSize.get() + 1);
             return null;
         }
         
@@ -181,7 +171,6 @@ public class TableImplementation implements Table {
             return originValue;
         } else if (originValue == null) {
             putChanges.get()[nDirectory][nFile].put(key, value);
-            currentTableSize.set(currentTableSize.get() + 1);
             return null;
         } else {
             putChanges.get()[nDirectory][nFile].put(key, value);
@@ -225,7 +214,6 @@ public class TableImplementation implements Table {
             if (originValue != null) {
                 removeChanges.get()[nDirectory][nFile].add(key);
             }
-            currentTableSize.set(currentTableSize.get() - 1);
             return prevValue;
         }
         
@@ -235,7 +223,6 @@ public class TableImplementation implements Table {
         
         if (originValue != null) {
             removeChanges.get()[nDirectory][nFile].add(key);
-            currentTableSize.set(currentTableSize.get() - 1);
             return originValue;
         } else {
             return null;
@@ -244,7 +231,12 @@ public class TableImplementation implements Table {
 
     @Override
     public int size() {
-        return currentTableSize.get();
+        try {
+            return computeSize() + countChanges();
+        } catch (IOException e) {
+            throw new RuntimeException("Error while computing size: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
     }
 
     @Override
@@ -253,7 +245,6 @@ public class TableImplementation implements Table {
         writeLock.lock();
         try {
             changesNumber = countChanges();
-            originTableSize = currentTableSize.get();
        
             for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
                 for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
@@ -274,7 +265,6 @@ public class TableImplementation implements Table {
     @Override
     public int rollback() {
         int changesNumber = countChanges();
-        currentTableSize.set(originTableSize);
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
                 putChanges.get()[nDirectory][nFile].clear();
@@ -441,21 +431,26 @@ public class TableImplementation implements Table {
     private int computeSize() throws IOException {
         int size = 0;
         
-        Path tableDirectory = databaseDirectory.resolve(tableName);
-        for (String dirName : tableDirectory.toFile().list()) {
-            if (dirName.equals("signature.tsv")) {
-                continue;
-            }
-            for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
-                try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
-                        .resolve(dirName).resolve(fileName))) {
-                    
-                    size += currentDatabase.getSize();
-                } catch (IOException e) {
-                    throw new IOException("Error while openning file: "
-                            + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        writeLock.lock();
+        try {
+            Path tableDirectory = databaseDirectory.resolve(tableName);
+            for (String dirName : tableDirectory.toFile().list()) {
+                if (dirName.equals("signature.tsv")) {
+                    continue;
+                }
+                for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
+                    try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
+                            .resolve(dirName).resolve(fileName))) {
+                        
+                        size += currentDatabase.getSize();
+                    } catch (IOException e) {
+                        throw new IOException("Error while openning file: "
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                    }
                 }
             }
+        } finally {
+            writeLock.unlock();
         }
         
         return size;
