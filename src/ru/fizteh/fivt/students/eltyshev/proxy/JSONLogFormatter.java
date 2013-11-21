@@ -30,7 +30,7 @@ public class JSONLogFormatter {
     }
 
     public void writeResultValue(Object result) {
-        jsonObject = jsonObject.put("returnValue", result.toString());
+        jsonObject = jsonObject.put("returnValue", result);
     }
 
     public void writeThrown(Throwable cause) {
