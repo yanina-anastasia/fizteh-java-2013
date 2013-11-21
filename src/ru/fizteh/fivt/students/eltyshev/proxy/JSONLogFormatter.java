@@ -43,7 +43,6 @@ public class JSONLogFormatter {
     }
 
     public String getStringRepresentation() {
-        System.out.println(jsonObject.toString(2));
         return jsonObject.toString(2);
     }
 
