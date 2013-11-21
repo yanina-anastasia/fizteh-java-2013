@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.json.JSONArray;
 import java.text.ParseException;
+
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
@@ -17,8 +21,14 @@ public class MyTableProvider extends State implements TableProvider {
     private String rootDir;
     private ShellState shell;
     public String currTableName;
+    private ReentrantReadWriteLock tableAccessLock;
+    private Lock readAccess;
+    private Lock writeAccess;
     
     public MyTableProvider(String dir) throws IOException {
+        tableAccessLock = new ReentrantReadWriteLock(true);
+        readAccess = tableAccessLock.readLock();
+        writeAccess = tableAccessLock.writeLock();
         validate(dir);
         shell = new ShellState();    
         File root = new File(shell.makeNewSource(dir));
@@ -66,10 +76,13 @@ public class MyTableProvider extends State implements TableProvider {
     public Table getTable(String name) {
         validate(name);
         checkNameIsCorrect(name);
+        readAccess.lock();
         try {
             return tryToGetTable(name);
         } catch (Exception e) {
             return null;
+        } finally {
+            readAccess.unlock();
         }
     }
     
@@ -89,47 +102,54 @@ public class MyTableProvider extends State implements TableProvider {
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, DbWrongTypeException {
         validate(name);
-        checkNameIsCorrect(name);      
-        if (fileExist(name) && new File(shell.makeNewSource(name)).isDirectory()) {
-            return null;
-        }
-        
-        if (fileExist(name) && !new File(shell.makeNewSource(name)).isDirectory()) {
-            throw new IOException(name + " exists and is not a directory");
-        }
-        
-        if (columnTypes == null || columnTypes.size() == 0) {
-            throw new IllegalArgumentException("no column types provided");
-        }
-        MultiDbState table;
-        shell.mkdir(new String[] {shell.makeNewSource(name)});
-       
+        checkNameIsCorrect(name); 
+        writeAccess.lock();
         try {
+            if (fileExist(name) && new File(shell.makeNewSource(name)).isDirectory()) {
+                return null;
+            }     
+            if (fileExist(name) && !new File(shell.makeNewSource(name)).isDirectory()) {
+                throw new IOException(name + " exists and is not a directory");
+            }        
+            if (columnTypes == null || columnTypes.size() == 0) {
+                throw new IllegalArgumentException("no column types provided");
+            }
+            
+            MultiDbState table;
+            shell.mkdir(new String[] {shell.makeNewSource(name)});      
             table = new MultiDbState(rootDir, name, this, columnTypes);
+            tableMap.put(name, table);
+            return table;
         } catch (ParseException e) {
             throw new RuntimeException(e.getMessage(), e);
-        }
-        
-        tableMap.put(name, table);
-        return table;
+        } finally {
+            writeAccess.unlock();
+        }      
     }
 
     public void removeTable(String name) {
-        validate(name);
-        
-        if (!fileExist(name)) {
-            throw new IllegalStateException("removing not existing table");
+        validate(name); 
+        writeAccess.lock();
+        try {
+            if (!fileExist(name)) {
+                throw new IllegalStateException("removing not existing table");
+            }
+            if (tableMap.get(name) != null) {
+                tableMap.get(name).dropped();
+            }
+            
+            tableMap.put(name, null);
+            shell.rm(new String[]{name});
+        } finally {
+            writeAccess.unlock();
         }
-        
-        if (tableMap.get(name) != null) {
-            tableMap.get(name).dropped();
-        }
-        tableMap.put(name, null);
-        shell.rm(new String[]{name});
         
         return;
     }
     
+    /*
+     * is an atomic method
+     */
     public boolean fileExist(String name) {
         return new File(shell.makeNewSource(name)).exists();
     }

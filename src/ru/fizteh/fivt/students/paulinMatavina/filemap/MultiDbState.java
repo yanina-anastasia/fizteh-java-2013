@@ -16,8 +16,8 @@ import java.text.ParseException;
 
 public class MultiDbState extends State implements Table {
     public MyTableProvider provider;
-    final int folderNum = 16;
-    final int fileInFolderNum = 16;
+    static final int FOLDER_NUM = 16;
+    static final int FILE_IN_FOLD_NUM = 16;
     private String tableName;
     DbState[][] data;
     public ShellState shell;
@@ -31,7 +31,7 @@ public class MultiDbState extends State implements Table {
     private void init(String dbName) throws IOException, ParseException {          
         isDropped = false;
         commitLock = new ReentrantLock(true);
-        data = new DbState[folderNum][fileInFolderNum];
+        data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
         shell = new ShellState();
         currentDir = new File(rootPath);
         if (!currentDir.exists() || !currentDir.isDirectory()) {
@@ -133,11 +133,11 @@ public class MultiDbState extends State implements Table {
     
     private void loadData() throws IOException, ParseException {
         checkDbDir(shell.currentDir.getAbsolutePath());
-        data = new DbState[folderNum][fileInFolderNum];
-        for (int i = 0; i < folderNum; i++) {
+        data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
+        for (int i = 0; i < FOLDER_NUM; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (!fileExist(fold)) {
-                for (int j = 0; j < fileInFolderNum; j++) {
+                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                     String file = Integer.toString(j) + ".dat";
                     String filePath = shell.makeNewSource(fold, file);
                     data[i][j] = new DbState(filePath, i, j, provider, this);
@@ -145,7 +145,7 @@ public class MultiDbState extends State implements Table {
                 continue;
             }
             checkFolder(shell.makeNewSource(fold));
-            for (int j = 0; j < fileInFolderNum; j++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
                 data[i][j] = new DbState(filePath, i, j, provider, this);
@@ -166,13 +166,13 @@ public class MultiDbState extends State implements Table {
         int chNum = changesNum();
         commitLock.lock();
         try {
-            for (int i = 0; i < folderNum; i++) {
+            for (int i = 0; i < FOLDER_NUM; i++) {
                 String fold = Integer.toString(i) + ".dir";
                 checkFolder(shell.makeNewSource(fold));
                 if (!fileExist(fold)) {
                     shell.mkdir(new String[] {fold});
                 }
-                for (int j = 0; j < fileInFolderNum; j++) {
+                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                     data[i][j].commit();
                 }
                
@@ -264,8 +264,8 @@ public class MultiDbState extends State implements Table {
     @Override
     public int size() {
         int result = 0;
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
+        for (int i = 0; i < FOLDER_NUM; i++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 result += data[i][j].size();
             }
         }
@@ -275,8 +275,8 @@ public class MultiDbState extends State implements Table {
     @Override
     public int rollback() {
         int chNum = changesNum();
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
+        for (int i = 0; i < FOLDER_NUM; i++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 data[i][j].assignData();
             }
         }
@@ -299,8 +299,8 @@ public class MultiDbState extends State implements Table {
     
     public int changesNum() {
         int result = 0;
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
+        for (int i = 0; i < FOLDER_NUM; i++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 result += data[i][j].getChangeNum();
             }
         } 
@@ -365,14 +365,5 @@ public class MultiDbState extends State implements Table {
     
     public boolean fileExist(String name) {
         return new File(shell.makeNewSource(name)).exists();
-    }
-    
-    public void printout() {
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
-                data[i][j].printout();
-            }
-        } 
-        System.out.println("end of printout");
     }
 }
