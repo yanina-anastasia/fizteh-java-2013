@@ -9,37 +9,46 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class TableCommands implements Table {
-    private ArrayList<Class<?>> types;
-    private TableProvider tableProvider;
-    private File tableDir;
-    private HashMap<String, String>[][] diff;
-    private HashMap<String, String>[][] list;
+    private final ArrayList<Class<?>> types;
+    private final TableProvider tableProvider;
+    private final File tableDir;
+    private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal();
+    private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal();
     private HashMap<String, String>[][] lastList;
-    private HashMap<Integer, String> update;
-    private int hashCode;
-    private int numberOfDir;
-    private int numberOfFile;
+    private ThreadLocal<HashMap<Integer, String>> update = new ThreadLocal();
+    private ThreadLocal<Integer> hashCode = new ThreadLocal();
+    private ThreadLocal<Integer> numberOfDir = new ThreadLocal();
+    private ThreadLocal<Integer> numberOfFile = new ThreadLocal();
+    private ReadWriteLock lock;
+    private Lock readLock;
+    private Lock writeLock;
     
     TableCommands(File directory, List<Class<?>> types, TableProvider tableProvider) throws IOException {
+        lock = new ReentrantReadWriteLock();
+        readLock = lock.readLock();
+        writeLock = lock.writeLock();
         this.tableProvider = tableProvider;
         this.types = new ArrayList(types);
-        diff = new HashMap[16][16];
+        HashMap<String, String> diffObject[][] = new HashMap[16][16];
         lastList = new HashMap[16][16];
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
-                diff[i][j] = new HashMap<String, String>();
+                diffObject[i][j] = new HashMap<String, String>();
                 lastList[i][j] = new HashMap<String, String>();
             }
         }
+        diff.set(diffObject);
         tableDir = directory;
-        update = new HashMap<Integer, String>();
-        isCorrectTable();
+        update.set(new HashMap<Integer, String>());
     }
     
     private void isCorrectTable() throws IOException {
@@ -168,9 +177,9 @@ public class TableCommands implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Bad key");
         }
-        hashCode = Math.abs(key.hashCode());
-        numberOfDir = hashCode % 16;
-        numberOfFile = hashCode / 16 % 16;
+        hashCode.set(Math.abs(key.hashCode()));
+        numberOfDir.set(hashCode.get() % 16);
+        numberOfFile.set(hashCode.get() / 16 % 16);
     }
 
     @Override
@@ -179,14 +188,19 @@ public class TableCommands implements Table {
             throw new IllegalArgumentException("Bad key");
         }
         getUsingDatFile(key);
-        String value = lastList[numberOfDir][numberOfFile].get(key);
-        if (diff[numberOfDir][numberOfFile].containsKey(key)) {
-            value = diff[numberOfDir][numberOfFile].get(key);
-        }
+        readLock.lock();
         try {
-            return tableProvider.deserialize(this, value);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+            String value = lastList[numberOfDir.get()][numberOfFile.get()].get(key);
+            if (diff.get()[numberOfDir.get()][numberOfFile.get()].containsKey(key)) {
+                value = diff.get()[numberOfDir.get()][numberOfFile.get()].get(key);
+            }
+            try {
+                return tableProvider.deserialize(this, value);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
@@ -197,10 +211,10 @@ public class TableCommands implements Table {
         }
         try {
             getUsingDatFile(key);
-            update.put(numberOfDir * 16 + numberOfFile, " ");
+            update.get().put(numberOfDir.get() * 16 + numberOfFile.get(), " ");
             String stringValue = tableProvider.serialize(this, value);
             Storeable answer = get(key);
-            diff[numberOfDir][numberOfFile].put(key, stringValue);
+            diff.get()[numberOfDir.get()][numberOfFile.get()].put(key, stringValue);
             return answer;
         } catch (Exception e) {
             throw new ColumnFormatException("incorrect args", e);
@@ -213,28 +227,34 @@ public class TableCommands implements Table {
             throw new IllegalArgumentException("Bad args");
         }
         getUsingDatFile(key);
-        update.put(numberOfDir * 16 + numberOfFile, null);
+        update.get().put(numberOfDir.get() * 16 + numberOfFile.get(), null);
         Storeable answer = get(key);
-        diff[numberOfDir][numberOfFile].put(key, null);
+        diff.get()[numberOfDir.get()][numberOfFile.get()].put(key, null);
         return answer;
     }
     
     private int getCountSize(int first, int second) {
-        int result = lastList[first][second].size();
-        for (Map.Entry entry : diff[first][second].entrySet()) {
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
-            if (value == null){
-                if (lastList[first][second].containsKey(key)) {
-                    --result;
-                }
-            } else {
-                if (!lastList[first][second].containsKey(key)) {
-                    ++result;
+        readLock.lock();
+        int result = 0;
+        try {
+            result = lastList[first][second].size();
+            for (Map.Entry entry : diff.get()[first][second].entrySet()) {
+                String key = (String) entry.getKey();
+                String value = (String) entry.getValue();
+                if (value == null){
+                    if (lastList[first][second].containsKey(key)) {
+                        --result;
+                    }
+                } else {
+                    if (!lastList[first][second].containsKey(key)) {
+                        ++result;
+                    }
                 }
             }
+        } finally {
+            readLock.unlock();
+            return result;
         }
-        return result;
     }
 
     @Override
@@ -258,7 +278,7 @@ public class TableCommands implements Table {
             }
         }
         File dbFile = dbDir.toPath().resolve(fileString).normalize().toFile();
-        if (list[numOfDir][numOfFile].isEmpty()) {
+        if (list.get()[numOfDir][numOfFile].isEmpty()) {
             dbFile.delete();
             if (dbDir.list().length == 0) {
                 if (!dbDir.delete()) {
@@ -270,8 +290,8 @@ public class TableCommands implements Table {
         try (RandomAccessFile db = new RandomAccessFile(dbFile, "rw")) {   
             db.setLength(0);
             Iterator<Map.Entry<String, String>> it;
-            it = list[numOfDir][numOfFile].entrySet().iterator();
-            long[] pointers = new long[list[numOfDir][numOfFile].size()];
+            it = list.get()[numOfDir][numOfFile].entrySet().iterator();
+            long[] pointers = new long[list.get()[numOfDir][numOfFile].size()];
             int counter = 0;
             while (it.hasNext()) {
                 Map.Entry<String, String> m = (Map.Entry<String, String>) it.next();
@@ -282,7 +302,7 @@ public class TableCommands implements Table {
                 db.seek(pointers[counter] + 4);
                 ++counter;
             }
-            it = list[numOfDir][numOfFile].entrySet().iterator();
+            it = list.get()[numOfDir][numOfFile].entrySet().iterator();
             counter = 0;
             while (it.hasNext()) {
                 Map.Entry<String, String> m = (Map.Entry<String, String>) it.next();
@@ -301,41 +321,42 @@ public class TableCommands implements Table {
     
     public int countChanges(boolean isWrite) throws IOException {
         int result = 0;
-        for (Integer file : update.keySet()) {
-            numberOfFile = file % 16;
-            numberOfDir = (file - numberOfFile) / 16;
+        for (Integer file : update.get().keySet()) {
+            numberOfFile.set(file % 16);
+            numberOfDir.set((file - numberOfFile.get()) / 16);
             if (isWrite) {
-                list = new HashMap[16][16];
-                list[numberOfDir][numberOfFile] = new HashMap<String, String>();
-                for(Map.Entry entry : lastList[numberOfDir][numberOfFile].entrySet()) {
+                HashMap<String, String>[][] listObject = new HashMap[16][16];
+                listObject[numberOfDir.get()][numberOfFile.get()] = new HashMap<String, String>();
+                list.set(listObject);
+                for(Map.Entry entry : lastList[numberOfDir.get()][numberOfFile.get()].entrySet()) {
                     String key = (String) entry.getKey();
                     String value = (String) entry.getValue();
-                    list[numberOfDir][numberOfFile].put(key, value);
+                    list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
                 }
             }
-            for (Map.Entry entry : diff[numberOfDir][numberOfFile].entrySet()) {
+            for (Map.Entry entry : diff.get()[numberOfDir.get()][numberOfFile.get()].entrySet()) {
                 String key = (String) entry.getKey();
                 String value = (String) entry.getValue();
                 if (value == null) {
-                    if (lastList[numberOfDir][numberOfFile].containsKey(key)) {
+                    if (lastList[numberOfDir.get()][numberOfFile.get()].containsKey(key)) {
                         ++result;
                         if (isWrite) {
-                            list[numberOfDir][numberOfFile].remove(key);
+                            list.get()[numberOfDir.get()][numberOfFile.get()].remove(key);
                         }
                     }
                 } else {
-                    if (!value.equals(lastList[numberOfDir][numberOfFile].get(key))) {
+                    if (!value.equals(lastList[numberOfDir.get()][numberOfFile.get()].get(key))) {
                         ++result;
                         if (isWrite) {
-                            list[numberOfDir][numberOfFile].put(key, value);
+                            list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
                         }
                     }
                 }
             }
             if (isWrite) {
-                writeIntoFile(numberOfDir, numberOfFile);
-                if (!list[numberOfDir][numberOfFile].isEmpty()) {
-                    list[numberOfDir][numberOfFile].clear();
+                writeIntoFile(numberOfDir.get(), numberOfFile.get());
+                if (!list.get()[numberOfDir.get()][numberOfFile.get()].isEmpty()) {
+                    list.get()[numberOfDir.get()][numberOfFile.get()].clear();
                 }
             }
         }
@@ -345,39 +366,42 @@ public class TableCommands implements Table {
     @Override
     public int commit() throws IOException {
         int result = 0;
+        writeLock.lock();
         try {
-             result = countChanges(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                if (!diff[i][j].isEmpty()) {
-                    diff[i][j].clear();
-                }
-                if (!lastList[i][j].isEmpty()) {
-                    lastList[i][j].clear();
+            result = countChanges(true);
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    if (!diff.get()[i][j].isEmpty()) {
+                        diff.get()[i][j].clear();
+                    }
+                    if (!lastList[i][j].isEmpty()) {
+                        lastList[i][j].clear();
+                    }
                 }
             }
+            isCorrectTable();
+        } finally {
+            writeLock.unlock();
+            return result;
         }
-        isCorrectTable();
-        return result;
     }
 
     @Override
     public int rollback() {
         int result = 0;
+        readLock.lock();
         try {
             result = countChanges(false);
             for (int i = 0; i < 16; ++i) {
                 for (int j = 0; j < 16; ++j) {
-                    if (!diff[i][j].isEmpty()) {
-                        diff[i][j].clear();
+                    if (!diff.get()[i][j].isEmpty()) {
+                        diff.get()[i][j].clear();
                     }
                 }
             }
         } catch (IOException e) {
+        } finally {
+            readLock.unlock();
         }
         return result;
     }
