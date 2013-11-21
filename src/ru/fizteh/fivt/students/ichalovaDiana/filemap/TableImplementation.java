@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -22,13 +24,43 @@ public class TableImplementation implements Table {
     private final TableProvider tableProvider;
     private final List<Class<?>> columnTypes;
     
-    //FileDatabase[][] files;
+    private final ReentrantReadWriteLock[][] fileLocks = new ReentrantReadWriteLock[DIR_NUM][FILES_NUM]; //change to Lock
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
     
-    private Map<String, Storeable>[][] putChanges = new HashMap[DIR_NUM][FILES_NUM];
-    private Set<String> removeChanges[][] = new HashSet[DIR_NUM][FILES_NUM];
+    private ThreadLocal<Map<String, Storeable>[][]> putChanges = new ThreadLocal<Map<String, Storeable>[][]>() {
+        @Override
+        protected Map<String, Storeable>[][] initialValue() {
+            Map<String, Storeable>[][] tempMapArray = new HashMap[DIR_NUM][FILES_NUM];
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                    tempMapArray[nDirectory][nFile] = new HashMap<String, Storeable>();
+                }
+            }
+            return tempMapArray;
+        }
+    };
+    private ThreadLocal<Set<String>[][]> removeChanges = new ThreadLocal<Set<String>[][]>() {
+        @Override
+        protected Set<String>[][] initialValue() {
+            Set<String>[][] tempSetArray = new HashSet[DIR_NUM][FILES_NUM];;
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                    tempSetArray[nDirectory][nFile] = new HashSet<String>();
+                }
+            }
+            return tempSetArray;
+        }
+    };
     
     private int originTableSize;
-    private int currentTableSize;
+    private ThreadLocal<Integer> currentTableSize = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return originTableSize;
+        }
+    };
     
     public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
             String tableName, List<Class<?>> columnTypes) throws IOException {
@@ -37,11 +69,11 @@ public class TableImplementation implements Table {
         this.databaseDirectory = databaseDirectory;
         this.tableName = tableName;
         this.columnTypes = columnTypes;
-        currentTableSize = originTableSize = computeSize();
+        originTableSize = computeSize();
+        
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                putChanges[nDirectory][nFile] = new HashMap<String, Storeable>();
-                removeChanges[nDirectory][nFile] = new HashSet<String>();
+                fileLocks[nDirectory][nFile] = new ReentrantReadWriteLock();
             }
         }
     }
@@ -63,20 +95,25 @@ public class TableImplementation implements Table {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        value = putChanges[nDirectory][nFile].get(key);
+        value = putChanges.get()[nDirectory][nFile].get(key);
         if (value != null) {
             return value;
         }
         
-        if (removeChanges[nDirectory][nFile].contains(key)) {
+        if (removeChanges.get()[nDirectory][nFile].contains(key)) {
             return null;
         }
         
         String rawValue;
+        readLock.lock();
         try {
-            rawValue = getValueFromFile(key);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            try {
+                rawValue = getValueFromFile(key);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            readLock.unlock();
         }
         
         try {
@@ -97,10 +134,15 @@ public class TableImplementation implements Table {
         isValidValue(value);
         
         String originValueString;
+        readLock.lock();
         try {
-            originValueString = getValueFromFile(key);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            try {
+                originValueString = getValueFromFile(key);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            readLock.unlock();
         }
         
         Storeable originValue;
@@ -114,35 +156,35 @@ public class TableImplementation implements Table {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
 
-        Storeable prevValue = putChanges[nDirectory][nFile].get(key);
+        Storeable prevValue = putChanges.get()[nDirectory][nFile].get(key);
         if (prevValue != null) {
             if (storeableAreEqual(value, originValue)) {
-                putChanges[nDirectory][nFile].remove(key);
+                putChanges.get()[nDirectory][nFile].remove(key);
             } else {
-                putChanges[nDirectory][nFile].put(key, value);
+                putChanges.get()[nDirectory][nFile].put(key, value);
             }
             return prevValue;
         }
         
-        if (removeChanges[nDirectory][nFile].contains(key)) {
+        if (removeChanges.get()[nDirectory][nFile].contains(key)) {
             if (storeableAreEqual(value, originValue)) {
-                removeChanges[nDirectory][nFile].remove(key);
+                removeChanges.get()[nDirectory][nFile].remove(key);
             } else {
-                removeChanges[nDirectory][nFile].remove(key);
-                putChanges[nDirectory][nFile].put(key, value);
+                removeChanges.get()[nDirectory][nFile].remove(key);
+                putChanges.get()[nDirectory][nFile].put(key, value);
             }
-            currentTableSize += 1;
+            currentTableSize.set(currentTableSize.get() + 1);
             return null;
         }
         
         if (storeableAreEqual(value, originValue)) {
             return originValue;
         } else if (originValue == null) {
-            putChanges[nDirectory][nFile].put(key, value);
-            currentTableSize += 1;
+            putChanges.get()[nDirectory][nFile].put(key, value);
+            currentTableSize.set(currentTableSize.get() + 1);
             return null;
         } else {
-            putChanges[nDirectory][nFile].put(key, value);
+            putChanges.get()[nDirectory][nFile].put(key, value);
             return originValue;
         }
     }
@@ -155,10 +197,15 @@ public class TableImplementation implements Table {
         }
         
         String originValueString;
+        readLock.lock();
         try {
-            originValueString = getValueFromFile(key);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            try {
+                originValueString = getValueFromFile(key);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } finally {
+            readLock.unlock();
         }
         
         Storeable originValue;
@@ -172,23 +219,23 @@ public class TableImplementation implements Table {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        Storeable prevValue = putChanges[nDirectory][nFile].get(key);
+        Storeable prevValue = putChanges.get()[nDirectory][nFile].get(key);
         if (prevValue != null) {
-            putChanges[nDirectory][nFile].remove(key);
+            putChanges.get()[nDirectory][nFile].remove(key);
             if (originValue != null) {
-                removeChanges[nDirectory][nFile].add(key);
+                removeChanges.get()[nDirectory][nFile].add(key);
             }
-            currentTableSize -= 1;
+            currentTableSize.set(currentTableSize.get() - 1);
             return prevValue;
         }
         
-        if (removeChanges[nDirectory][nFile].contains(key)) {
+        if (removeChanges.get()[nDirectory][nFile].contains(key)) {
             return null;
         }
         
         if (originValue != null) {
-            removeChanges[nDirectory][nFile].add(key);
-            currentTableSize -= 1;
+            removeChanges.get()[nDirectory][nFile].add(key);
+            currentTableSize.set(currentTableSize.get() - 1);
             return originValue;
         } else {
             return null;
@@ -197,22 +244,28 @@ public class TableImplementation implements Table {
 
     @Override
     public int size() {
-        return currentTableSize;
+        return currentTableSize.get();
     }
 
     @Override
     public int commit() throws IOException {
-        int changesNumber = countChanges();
-        originTableSize = currentTableSize;
-   
-        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
-            for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                if (!putChanges[nDirectory][nFile].isEmpty() || !removeChanges[nDirectory][nFile].isEmpty()) {
-                    saveAllChangesToFile(nDirectory, nFile);
-                    putChanges[nDirectory][nFile].clear();
-                    removeChanges[nDirectory][nFile].clear();
+        int changesNumber;
+        writeLock.lock();
+        try {
+            changesNumber = countChanges();
+            originTableSize = currentTableSize.get();
+       
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                    if (!putChanges.get()[nDirectory][nFile].isEmpty() || !removeChanges.get()[nDirectory][nFile].isEmpty()) {
+                        saveAllChangesToFile(nDirectory, nFile);
+                        putChanges.get()[nDirectory][nFile].clear();
+                        removeChanges.get()[nDirectory][nFile].clear();
+                    }
                 }
             }
+        } finally {
+            writeLock.unlock();
         }
         
         return changesNumber;
@@ -221,11 +274,11 @@ public class TableImplementation implements Table {
     @Override
     public int rollback() {
         int changesNumber = countChanges();
-        currentTableSize = originTableSize;
+        currentTableSize.set(originTableSize);
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                putChanges[nDirectory][nFile].clear();
-                removeChanges[nDirectory][nFile].clear();
+                putChanges.get()[nDirectory][nFile].clear();
+                removeChanges.get()[nDirectory][nFile].clear();
             }
         }
         return changesNumber;
@@ -243,8 +296,8 @@ public class TableImplementation implements Table {
         int changesNumber = 0;
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                changesNumber += putChanges[nDirectory][nFile].size();
-                changesNumber += removeChanges[nDirectory][nFile].size();
+                changesNumber += putChanges.get()[nDirectory][nFile].size();
+                changesNumber += removeChanges.get()[nDirectory][nFile].size();
             }
         }
         return changesNumber;
@@ -283,43 +336,51 @@ public class TableImplementation implements Table {
         throw new ColumnFormatException("Invalid value: more columns");
     }
     
+    private void saveAllChangesToFile(int nDirectory, int nFile) throws IOException {
+        
+        fileLocks[nDirectory][nFile].writeLock().lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                Storeable value;
+                String rawValue;
+                for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                    value = putChanges.get()[nDirectory][nFile].get(key);
+                    rawValue = tableProvider.serialize(this, value);
+                    currentDatabase.put(key, rawValue);
+                }
+                
+                for (String key : removeChanges.get()[nDirectory][nFile]) {
+                    currentDatabase.remove(key);
+                }
+            }
+            catch (IOException e) {
+                throw new IOException("Error while putting value to file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        } finally {
+            fileLocks[nDirectory][nFile].writeLock().unlock();
+        }
+    }
+    
     private String getValueFromFile(String key) throws IOException {
-        String value;
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            value = currentDatabase.get(key);
-        }
-        catch (IOException e) {
-            throw new IOException("Error while getting value from file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-        }
-        return value;
-    }
-    
-    private void saveAllChangesToFile(int nDirectory, int nFile) throws IOException {
-        
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            Storeable value;
-            String rawValue;
-            for (String key : putChanges[nDirectory][nFile].keySet()) {
-                value = putChanges[nDirectory][nFile].get(key);
-                rawValue = tableProvider.serialize(this, value);
-                currentDatabase.put(key, rawValue);
+        fileLocks[nDirectory][nFile].writeLock().lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                return currentDatabase.get(key);
             }
-            
-            for (String key : removeChanges[nDirectory][nFile]) {
-                currentDatabase.remove(key);
+            catch (IOException e) {
+                throw new IOException("Error while getting value from file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
             }
-        }
-        catch (IOException e) {
-            throw new IOException("Error while putting value to file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        } finally {
+            fileLocks[nDirectory][nFile].writeLock().unlock();
         }
     }
     
@@ -327,14 +388,19 @@ public class TableImplementation implements Table {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            return currentDatabase.put(key, value);
-        }
-        catch (IOException e) {
-            throw new IOException("Error while putting value to file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        fileLocks[nDirectory][nFile].writeLock().lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                return currentDatabase.put(key, value);
+            }
+            catch (IOException e) {
+                throw new IOException("Error while putting value to file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        } finally {
+            fileLocks[nDirectory][nFile].writeLock().unlock();
         }
     }
     
@@ -342,13 +408,18 @@ public class TableImplementation implements Table {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            return currentDatabase.remove(key);
-        } catch (IOException e) {
-            throw new IOException("Error while removing value from file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        fileLocks[nDirectory][nFile].writeLock().lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                return currentDatabase.remove(key);
+            } catch (IOException e) {
+                throw new IOException("Error while removing value from file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        } finally {
+            fileLocks[nDirectory][nFile].writeLock().unlock();
         }
     }
     
