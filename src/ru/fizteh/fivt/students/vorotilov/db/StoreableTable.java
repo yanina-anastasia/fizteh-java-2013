@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -20,52 +19,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class StoreableTable implements Table {
 
-    class LogEntry {
-
-        private String key;
-        private Storeable value;
-
-        LogEntry(String key, Storeable value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        void applyChanges() {
-            if (value != null) {
-                localTable.get().put(key, value);
-            } else {
-                localTable.get().remove(key);
-            }
-        }
-
-    }
-
     private TableProvider tableProvider;
     private List<Class<?>> columnTypes;
     private final File tableRootDir;
     private TableFile[][] tableFiles = new TableFile[16][16];
-    private HashMap<String, Storeable> tableOnDisk;
 
-    private AtomicInteger lastCommitNumber = new AtomicInteger(0);
+    private HashMap<String, Storeable> tableOnDisk = new HashMap<>();
 
-    private final ThreadLocal<HashMap<String, Storeable>> localTable = new ThreadLocal<HashMap<String, Storeable>>() {
+    private final ThreadLocal<HashMap<String, Storeable>> changedKeys = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
             return new HashMap<>();
         }
     };
 
-    private final ThreadLocal<List<LogEntry>> changes = new ThreadLocal<List<LogEntry>>() {
+    private final ThreadLocal<HashSet<String>> removedKeys = new ThreadLocal<HashSet<String>>() {
         @Override
-        protected List<LogEntry> initialValue() {
-            return new ArrayList<>();
-        }
-    };
-
-    private final ThreadLocal<Integer> localCommitNumber = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return new Integer(lastCommitNumber.get());
+        protected HashSet<String> initialValue() {
+            return new HashSet<>();
         }
     };
 
@@ -125,7 +96,7 @@ public class StoreableTable implements Table {
                                         throw new IllegalStateException("Wrong key placement");
                                     }
                                     try {
-                                        localTable.get().put(i.getKey(),
+                                        tableOnDisk.put(i.getKey(),
                                                 tableProvider.deserialize(this, i.getValue()));
                                     } catch (ParseException e) {
                                         throw new IllegalStateException("Can't deserialize", e);
@@ -136,7 +107,6 @@ public class StoreableTable implements Table {
                     }
                 }
             }
-            tableOnDisk = new HashMap<>(localTable.get());
         } finally {
             tableLock.writeLock().unlock();
         }
@@ -157,7 +127,6 @@ public class StoreableTable implements Table {
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
         columnTypes = classes;
-        lastCommitNumber.set(0);
         try {
             SignatureFile.createSignature(tableRootDir, columnTypes);
         } catch (IOException e) {
@@ -176,7 +145,6 @@ public class StoreableTable implements Table {
         }
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
-        lastCommitNumber.set(0);
         try {
             columnTypes = SignatureFile.readSignature(tableRootDir);
         } catch (IOException e) {
@@ -206,12 +174,20 @@ public class StoreableTable implements Table {
     @Override
     public Storeable get(String key) {
         checkKey(key);
-        tableLock.readLock().lock();
-        try {
-            useLatestTable();
-            return localTable.get().get(key);
-        } finally {
-            tableLock.readLock().unlock();
+        Storeable value = changedKeys.get().get(key);
+        if (value == null) {
+            if (removedKeys.get().contains(key)) {
+                return null;
+            } else {
+                tableLock.readLock().lock();
+                try {
+                    return tableOnDisk.get(key);
+                } finally {
+                    tableLock.readLock().unlock();
+                }
+            }
+        } else {
+            return value;
         }
     }
 
@@ -230,18 +206,21 @@ public class StoreableTable implements Table {
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkKey(key);
         checkValue(value);
+        Storeable valueOnDisk;
         tableLock.readLock().lock();
         try {
-            useLatestTable();
-            Storeable oldValue = localTable.get().get(key);
-            if (oldValue == null || !oldValue.equals(value)) {
-                localTable.get().put(key, value);
-                changes.get().add(new LogEntry(key, value));
-            }
-            return oldValue;
+            valueOnDisk = tableOnDisk.get(key);
         } finally {
             tableLock.readLock().unlock();
         }
+        Storeable oldValue = changedKeys.get().put(key, value);
+        if (!removedKeys.get().contains(key) && oldValue == null) {
+            oldValue = valueOnDisk;
+        }
+        if (valueOnDisk != null) {
+            removedKeys.get().add(key);
+        }
+        return oldValue;
     }
 
     /**
@@ -255,17 +234,34 @@ public class StoreableTable implements Table {
     @Override
     public Storeable remove(String key) {
         checkKey(key);
-        tableLock.readLock().lock();
-        try {
-            useLatestTable();
-            Storeable oldValue = localTable.get().remove(key);
-            if (oldValue != null) {
-                changes.get().add(new LogEntry(key, null));
-            }
-            return oldValue;
-        } finally {
-            tableLock.readLock().unlock();
+        if (key == null) {
+            throw new IllegalArgumentException("table remove: key is null");
         }
+        Storeable value = changedKeys.get().get(key);
+        if (value == null) {
+            if (!removedKeys.get().contains(key)) {
+                tableLock.readLock().lock();
+                try {
+                    value = tableOnDisk.get(key);
+                } finally {
+                    tableLock.readLock().unlock();
+                }
+                if (value != null) {
+                    removedKeys.get().add(key);
+                }
+            }
+        } else {
+            changedKeys.get().remove(key);
+            tableLock.readLock().lock();
+            try {
+                if (tableOnDisk.containsKey(key)) {
+                    removedKeys.get().add(key);
+                }
+            } finally {
+                tableLock.readLock().unlock();
+            }
+        }
+        return value;
     }
 
     /**
@@ -275,10 +271,23 @@ public class StoreableTable implements Table {
      */
     @Override
     public int size() {
+        int count = 0;
         tableLock.readLock().lock();
         try {
-            useLatestTable();
-            return localTable.get().size();
+            count = tableOnDisk.size();
+            //удаляем те которые с коммитом уйдут в мир иной
+            for (String currentKey : removedKeys.get()) {
+                if (tableOnDisk.containsKey(currentKey) || !changedKeys.get().containsKey(currentKey)) {
+                    --count;
+                }
+            }
+            //добавляем те которые запишутся на диск при коммите
+            for (String currentKey : changedKeys.get().keySet()) {
+                if (!removedKeys.get().contains(currentKey) && !tableOnDisk.containsKey(currentKey)) {
+                    ++count;
+                }
+            }
+            return count;
         } finally {
             tableLock.readLock().unlock();
         }
@@ -295,9 +304,12 @@ public class StoreableTable implements Table {
     public int commit() throws IOException {
         tableLock.writeLock().lock();
         try {
-            useLatestTable();
-            int numberOfCommittedChanges = uncommittedChanges();
-            Set<Map.Entry<String, Storeable>> dbSet = localTable.get().entrySet();
+            int count = uncommittedChanges();
+            for (String currentKey : removedKeys.get()) {
+                tableOnDisk.remove(currentKey);
+            }
+            tableOnDisk.putAll(changedKeys.get());
+            Set<Map.Entry<String, Storeable>> dbSet = tableOnDisk.entrySet();
             for (int nDir = 0; nDir < 16; ++nDir) {
                 for (int nFile = 0; nFile < 16; ++nFile) {
                     List<TableFile.Entry> fileData = new ArrayList<>();
@@ -309,6 +321,9 @@ public class StoreableTable implements Table {
                             fileData.add(new TableFile.Entry(tempMapEntry.getKey(),
                                     tableProvider.serialize(this, tempMapEntry.getValue())));
                         }
+                    }
+                    if (fileData.isEmpty()) {
+                        continue;
                     }
                     if (tableFiles[nDir][nFile] == null) {
                         File subDir = new File(tableRootDir, Integer.toString(nDir) + ".dir");
@@ -323,15 +338,12 @@ public class StoreableTable implements Table {
                     tableFiles[nDir][nFile].writeEntries(fileData);
                 }
             }
-            tableOnDisk.clear();
-            tableOnDisk.putAll(localTable.get());
-            changes.get().clear();
-            localCommitNumber.set(lastCommitNumber.incrementAndGet());
-            return numberOfCommittedChanges;
+            changedKeys.get().clear();
+            removedKeys.get().clear();
+            return count;
         } finally {
             tableLock.writeLock().unlock();
         }
-
     }
 
     /**
@@ -343,11 +355,9 @@ public class StoreableTable implements Table {
     public int rollback() {
         tableLock.readLock().lock();
         try {
-            useLatestTable();
             int numberOfRolledChanges = uncommittedChanges();
-            localTable.get().clear();
-            localTable.get().putAll(tableOnDisk);
-            changes.get().clear();
+            changedKeys.get().clear();
+            removedKeys.get().clear();
             return numberOfRolledChanges;
         } finally {
             tableLock.readLock().unlock();
@@ -371,27 +381,19 @@ public class StoreableTable implements Table {
     }
 
     public int uncommittedChanges() {
-        Set<Map.Entry<String, Storeable>> indexedSet = localTable.get().entrySet();
-        Set<Map.Entry<String, Storeable>> diskSet = tableOnDisk.entrySet();
         int count = 0;
-        Iterator<Map.Entry<String, Storeable>> iter1 = indexedSet.iterator();
-        Iterator<Map.Entry<String, Storeable>> iter2 = diskSet.iterator();
-        while (iter1.hasNext()) {
-            Map.Entry<String, Storeable> next = iter1.next();
-            Storeable entryOnDisk = tableOnDisk.get(next.getKey());
-            if (entryOnDisk == null) {
-                //записи на диске нет, то она изменение
-                ++count;
-            } else if (!entryOnDisk.equals(next.getValue())) {
-                //запись на диске есть, но она другая, тоже изменение
-                ++count;
+        //удаленные с диска
+        for (String currentKey : removedKeys.get()) {
+            if (tableOnDisk.containsKey(currentKey)) {
+                Storeable currentValue = changedKeys.get().get(currentKey);
+                if (currentValue != null && !currentValue.equals(tableOnDisk.get(currentKey))) {
+                    ++count;
+                }
             }
         }
-        while (iter2.hasNext()) {
-            Map.Entry<String, Storeable> next = iter2.next();
-            Storeable entryIndexed = localTable.get().get(next.getKey());
-            if (entryIndexed == null) {
-                //на диске есть, индексированной нет, изменение
+        //измененные
+        for (String currentKey : changedKeys.get().keySet()) {
+            if (!tableOnDisk.containsKey(currentKey)) {
                 ++count;
             }
         }
@@ -465,17 +467,6 @@ public class StoreableTable implements Table {
             throw new ColumnFormatException("Alien value", e);
         }
 
-    }
-
-    private void useLatestTable() {
-        if (lastCommitNumber.get() != localCommitNumber.get()) {
-            localTable.get().clear();
-            localTable.get().putAll(tableOnDisk);
-            for (LogEntry i : changes.get()) {
-                i.applyChanges();
-            }
-            localCommitNumber.set(lastCommitNumber.get());
-        }
     }
 
 }
