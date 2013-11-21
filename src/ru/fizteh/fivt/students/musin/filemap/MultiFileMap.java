@@ -433,8 +433,10 @@ public class MultiFileMap implements Table {
             int hashCode = Math.abs(entry.getKey().hashCode());
             int dir = (hashCode % 16 + 16) % 16;
             int file = ((hashCode / 16 % 16) + 16) % 16;
-            if (entry.getValue() == null && map[dir][file].get(entry.getKey()) != null) {
-                result++;
+            if (entry.getValue() == null) {
+                if (map[dir][file].get(entry.getKey()) != null) {
+                    result++;
+                }
             } else if (!storeableEqual(entry.getValue(), map[dir][file].get(entry.getKey()))) {
                 result++;
             }
