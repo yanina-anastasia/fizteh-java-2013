@@ -370,6 +370,13 @@ public class TableCommands implements Table {
         int result = 0;
         try {
             result = countChanges(false);
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    if (!diff[i][j].isEmpty()) {
+                        diff[i][j].clear();
+                    }
+                }
+            }
         } catch (IOException e) {
         }
         return result;
