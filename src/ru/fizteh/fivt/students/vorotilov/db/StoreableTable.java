@@ -277,7 +277,7 @@ public class StoreableTable implements Table {
             count = tableOnDisk.size();
             //удаляем те которые с коммитом уйдут в мир иной
             for (String currentKey : removedKeys.get()) {
-                if (tableOnDisk.containsKey(currentKey) || !changedKeys.get().containsKey(currentKey)) {
+                if (tableOnDisk.containsKey(currentKey)) {
                     --count;
                 }
             }
