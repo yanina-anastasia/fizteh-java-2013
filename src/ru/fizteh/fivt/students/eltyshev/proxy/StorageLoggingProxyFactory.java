@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.eltyshev.proxy;
 
-import ru.fizteh.fivt.storage.structured.LoggingProxyFactory;
+import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
 import java.io.Writer;
 import java.lang.reflect.Proxy;
