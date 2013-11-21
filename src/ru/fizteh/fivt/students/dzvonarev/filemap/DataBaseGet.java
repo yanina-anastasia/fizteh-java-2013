@@ -16,7 +16,7 @@ public class DataBaseGet implements CommandInterface {
 
     public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
         if (tableProvider == null) {
-            throw new IOException("can't get data");
+            throw new IOException("can't get object");
         }
         String tableName = tableProvider.getCurrentTable();
         if (tableName == null) {
