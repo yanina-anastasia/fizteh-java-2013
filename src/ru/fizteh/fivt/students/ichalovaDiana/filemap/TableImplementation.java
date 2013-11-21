@@ -54,6 +54,13 @@ public class TableImplementation implements Table {
         }
     };
     
+    private ThreadLocal<Integer> currentTableChanges = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return 0;
+        }
+    };
+    
     public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
             String tableName, List<Class<?>> columnTypes) throws IOException {
 
@@ -164,6 +171,7 @@ public class TableImplementation implements Table {
                 removeChanges.get()[nDirectory][nFile].remove(key);
                 putChanges.get()[nDirectory][nFile].put(key, value);
             }
+            currentTableChanges.set(currentTableChanges.get() + 1);
             return null;
         }
         
@@ -171,6 +179,7 @@ public class TableImplementation implements Table {
             return originValue;
         } else if (originValue == null) {
             putChanges.get()[nDirectory][nFile].put(key, value);
+            currentTableChanges.set(currentTableChanges.get() + 1);
             return null;
         } else {
             putChanges.get()[nDirectory][nFile].put(key, value);
@@ -214,6 +223,7 @@ public class TableImplementation implements Table {
             if (originValue != null) {
                 removeChanges.get()[nDirectory][nFile].add(key);
             }
+            currentTableChanges.set(currentTableChanges.get() - 1);
             return prevValue;
         }
         
@@ -223,6 +233,7 @@ public class TableImplementation implements Table {
         
         if (originValue != null) {
             removeChanges.get()[nDirectory][nFile].add(key);
+            currentTableChanges.set(currentTableChanges.get() - 1);
             return originValue;
         } else {
             return null;
@@ -231,23 +242,12 @@ public class TableImplementation implements Table {
 
     @Override
     public int size() {
-        int size = 0;
-        
         try {
-            size += computeSize();
+            return computeSize() + currentTableChanges.get();
         } catch (IOException e) {
             throw new RuntimeException("Error while computing size: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
-        
-        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
-            for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                size += putChanges.get()[nDirectory][nFile].size();
-                size -= removeChanges.get()[nDirectory][nFile].size();
-            }
-        }
-        
-        return size;
     }
 
     @Override
@@ -256,7 +256,7 @@ public class TableImplementation implements Table {
         writeLock.lock();
         try {
             changesNumber = countChanges();
-       
+            currentTableChanges.set(0);
             for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
                 for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
                     if (!putChanges.get()[nDirectory][nFile].isEmpty() || !removeChanges.get()[nDirectory][nFile].isEmpty()) {
@@ -276,6 +276,7 @@ public class TableImplementation implements Table {
     @Override
     public int rollback() {
         int changesNumber = countChanges();
+        currentTableChanges.set(0);
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
                 putChanges.get()[nDirectory][nFile].clear();
