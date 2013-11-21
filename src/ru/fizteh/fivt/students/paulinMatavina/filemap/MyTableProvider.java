@@ -182,7 +182,6 @@ public class MyTableProvider extends State implements TableProvider {
             }
             return newList;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new ParseException("error when parsing string: " + e.getMessage(), 0);
         }
     }
@@ -248,7 +247,7 @@ public class MyTableProvider extends State implements TableProvider {
         return newList;
     }
     
-    public ArrayList<Class<?>> parseSignature(String signLine, StringTokenizer tokens) {
+    public ArrayList<Class<?>> parseSignature(StringTokenizer tokens) {
         ArrayList<Class<?>> columnTypes = new ArrayList<Class<?>>();
         while (tokens.hasMoreTokens()) {
             String nextToken = tokens.nextToken().trim();

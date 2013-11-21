@@ -79,23 +79,13 @@ public class MultiDbStateTest {
     
     //tests for TableProviderFactory 
     @Test
-    public void testFactoryCreateWrong() {
-        try {
-            provider = factory.create("wrong-path");
-        } catch (IOException e) {
-            return;
-        }
-        fail();
+    public void testFactoryCreateNonExist() throws IOException {
+        provider = factory.create("non-existent-path");
     }  
     
-    @Test
-    public void testFactoryCreateOnFile() {
-        try {
-            provider = factory.create("file");
-        } catch (IOException e) {
-            return;
-        }
-        fail();
+    @Test(expected = IllegalArgumentException.class)
+    public void testFactoryCreateOnFile() throws IOException {
+        provider = factory.create(file.getAbsolutePath());
     }  
     
     @Test(expected = IllegalArgumentException.class)

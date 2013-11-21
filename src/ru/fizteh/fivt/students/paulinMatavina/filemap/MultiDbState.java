@@ -331,32 +331,29 @@ public class MultiDbState extends State implements Table {
     
     private void getObjList(String name) {
         File signature = new File(shell.makeNewSource(name));
-        Scanner reader;
+        Scanner reader = null;
         try {
-            reader = new Scanner(signature);
-        } catch (IOException e) {
-            throw new RuntimeException("no correct signature file", e);
-        }
-        String signLine;
-        if (!reader.hasNextLine()) {
-            reader.close();
-            throw new RuntimeException("no correct signature file");
-        } else {
+            reader = new Scanner(signature);    
+            String signLine;
             signLine = reader.nextLine();
-            objList = provider.parseSignature(signLine, new StringTokenizer(signLine));
-            reader.close();
-        }     
+            objList = provider.parseSignature(new StringTokenizer(signLine));
+        } catch (Exception e) {
+            throw new RuntimeException("no correct signature file", e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (Throwable e) {
+                //do nothing
+            }
+        }
     }
     
     private void writeObjList(List<Class<?>> list, String name) throws IOException {
         FileWriter writer = null;
         try {
             writer = new FileWriter(new File(shell.makeNewSource(signatureName)));
-        } catch (IOException e) {
-            throw new IOException("error writing " + signatureName, e);
-        }
-        
-        try {
             for (int i = 0; i < objList.size() - 1; i++) {
                 writer.write(possibleTypes.get(objList.get(i)) + " ");
             }
@@ -365,7 +362,9 @@ public class MultiDbState extends State implements Table {
             throw new IOException("error writing " + signatureName, e);
         } finally {
             try {
-                writer.close();
+                if (writer != null) {
+                    writer.close();
+                }
             } catch (Throwable e) {
                 //do nothing
             }
