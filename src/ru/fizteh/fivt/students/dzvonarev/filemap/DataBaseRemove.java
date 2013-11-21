@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.dzvonarev.filemap;
 
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.dzvonarev.shell.CommandInterface;
 
 import java.io.IOException;
@@ -15,6 +16,9 @@ public class DataBaseRemove implements CommandInterface {
     private MyTableProvider tableProvider;
 
     public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
+        if (tableProvider == null) {
+            throw new IOException("can't remove data");
+        }
         String tableName = tableProvider.getCurrentTable();
         if (tableName == null) {
             throw new IOException("no table");
@@ -29,7 +33,7 @@ public class DataBaseRemove implements CommandInterface {
         }
         String key = str.substring(spaceIndex + 1, str.length());
         MyTable currTable = tableProvider.getTable(tableName);
-        String value = currTable.remove(key);
+        Storeable value = currTable.remove(key);
         if (value == null) {
             System.out.println("not found");
         } else {
