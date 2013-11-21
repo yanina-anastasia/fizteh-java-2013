@@ -609,4 +609,43 @@ public class FileMapTableTest {
         assertTrue(storeableEquals(table.get(value2), value4Storeable, table));
         assertTrue(storeableEquals(table.get(value3), value3Storeable, table));
     }
+    @Test
+    public void testParallelsCommits() throws InterruptedException {
+        table.put("key1", value1Storeable);
+        try {
+            table.commit();
+        } catch (IOException e) {
+            //
+        }
+        first = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                table.put("key1", value2Storeable);
+                try {
+                    Thread.sleep(100);
+                    assertEquals(table.commit(), 1);
+                } catch (IOException | InterruptedException e) {
+                    //
+                }
+            }
+        });
+        second = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                table.put("key1", value1Storeable);
+                table.put("key1", value1Storeable);
+                try {
+                    Thread.sleep(300);
+                    assertEquals(table.commit(), 1);
+                } catch (InterruptedException | IOException e) {
+                    //
+                }
+            }
+        });
+
+        first.start();
+        second.start();
+        first.join();
+        second.join();
+    }
 }
