@@ -96,8 +96,6 @@ public class StoreableTable implements Table {
         locker.readLock().lock();
 
         try {
-            updateControlFigures(key);
-
             if (diff.get().containsKey(key)) {
                 return diff.get().get(key);
             }
@@ -142,8 +140,6 @@ public class StoreableTable implements Table {
         locker.readLock().lock();
 
         try {
-            updateControlFigures(key);
-
             if (!diff.get().containsKey(key) && !contents.containsKey(key)
                     || diff.get().containsKey(key) && diff.get().get(key) == null) {
                 number.set(number.get() + 1);
@@ -188,7 +184,7 @@ public class StoreableTable implements Table {
         locker.readLock().lock();
 
         try {
-            updateControlFigures(null);
+            updateControlFigures();
 
             if (!diff.get().containsKey(key) && contents.get(key) != null || diff.get().get(key) != null) {
                 number.set(number.get() - 1);
@@ -220,7 +216,7 @@ public class StoreableTable implements Table {
         locker.readLock().lock();
 
         try {
-            updateControlFigures(null);
+            updateControlFigures();
 
             return number.get();
         } finally {
@@ -233,7 +229,7 @@ public class StoreableTable implements Table {
         locker.writeLock().lock();
 
         try {
-            updateControlFigures(null);
+            updateControlFigures();
 
             int prevSize = diff.get().size();
 
@@ -286,7 +282,7 @@ public class StoreableTable implements Table {
         locker.readLock().lock();
 
         try {
-            updateControlFigures(null);
+            updateControlFigures();
 
             int prevSize = diff.get().size();
 
@@ -436,12 +432,12 @@ public class StoreableTable implements Table {
         }
     }
 
-    public void updateControlFigures(String key) {
+    public void updateControlFigures() {
         if (controlFigures != localControlFigures.get()) {
             number.set(contents.size());
             localControlFigures.set(controlFigures);
             updateLocalBoolUsed();
-            updateDiff(key);
+            updateDiff();
         }
     }
 
@@ -469,63 +465,36 @@ public class StoreableTable implements Table {
         }
     }
 
-    public void updateDiff(String key) {
-        if (key != null) {
-            if (diff.get().get(key) == null) {
-                if (contents.containsKey(key)) {
+    public void updateDiff() {
+        Map<String, Storeable> newDiff = new HashMap<>();
+
+        for (String diffKey : diff.get().keySet()) {
+            if (diff.get().get(diffKey) == null) {
+                if (contents.containsKey(diffKey)) {
                     number.set(number.get() - 1);
-                    diff.get().put(key, null);
+                    newDiff.put(diffKey, null);
                 } else {
-                    diff.get().remove(key);
+                    diff.get().remove(diffKey);
                 }
             } else {
-                String diffValue = tp.serialize(this, diff.get().get(key));
+                String diffValue = tp.serialize(this, diff.get().get(diffKey));
                 String contentsValue = null;
 
-                if (contents.get(key) != null) {
-                    contentsValue = tp.serialize(this, contents.get(key));
+                if (contents.get(diffKey) != null) {
+                    contentsValue = tp.serialize(this, contents.get(diffKey));
                 }
 
-                if (!contents.containsKey(key)) {
+                if (!contents.containsKey(diffKey)) {
                     number.set(number.get() + 1);
                 }
-                if (!contents.containsKey(key)
-                        || contents.containsKey(key)
-                        && (contents.get(key) == null || !diffValue.equals(contentsValue))) {
-                    diff.get().put(key, diff.get().get(key));
+                if (!contents.containsKey(diffKey)
+                        || contents.containsKey(diffKey)
+                        && (contents.get(diffKey) == null || !diffValue.equals(contentsValue))) {
+                    newDiff.put(diffKey, diff.get().get(diffKey));
                 }
             }
-        } else {
-            Map<String, Storeable> newDiff = new HashMap<>();
-
-            for (String diffKey : diff.get().keySet()) {
-                if (diff.get().get(diffKey) == null) {
-                    if (contents.containsKey(diffKey)) {
-                        number.set(number.get() - 1);
-                        newDiff.put(diffKey, null);
-                    } else {
-                        diff.get().remove(diffKey);
-                    }
-                } else {
-                    String diffValue = tp.serialize(this, diff.get().get(diffKey));
-                    String contentsValue = null;
-
-                    if (contents.get(diffKey) != null) {
-                        contentsValue = tp.serialize(this, contents.get(diffKey));
-                    }
-
-                    if (!contents.containsKey(diffKey)) {
-                        number.set(number.get() + 1);
-                    }
-                    if (!contents.containsKey(diffKey)
-                            || contents.containsKey(diffKey)
-                            && (contents.get(diffKey) == null || !diffValue.equals(contentsValue))) {
-                        newDiff.put(diffKey, diff.get().get(diffKey));
-                    }
-                }
-            }
-
-            diff.set(newDiff);
         }
+
+        diff.set(newDiff);
     }
 }
