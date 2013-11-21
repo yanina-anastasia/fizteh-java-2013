@@ -277,13 +277,13 @@ public class StoreableTable implements Table {
             count = tableOnDisk.size();
             //удаляем те которые с коммитом уйдут в мир иной
             for (String currentKey : removedKeys.get()) {
-                if (tableOnDisk.containsKey(currentKey)) {
+                if (tableOnDisk.containsKey(currentKey) && !changedKeys.get().containsKey(currentKey)) {
                     --count;
                 }
             }
             //добавляем те которые запишутся на диск при коммите
             for (String currentKey : changedKeys.get().keySet()) {
-                if (!tableOnDisk.containsKey(currentKey)) {
+                if (!removedKeys.get().contains(currentKey) && !tableOnDisk.containsKey(currentKey)) {
                     ++count;
                 }
             }
