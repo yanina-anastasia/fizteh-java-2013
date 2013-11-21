@@ -87,18 +87,18 @@ public class MyTable implements Table {
     }
 
     public void readTypes(List<String> arr) throws RuntimeException, IOException {
-        File signature = new File(tableFile.getAbsolutePath() + File.separator + "signature.tsv");
+        File signature = new File(tableFile.getAbsolutePath(), "signature.tsv");
         if (!signature.exists()) {
             throw new RuntimeException("signature.tsv not existing");
         }
-        Scanner myScanner = new Scanner(signature);
-        if (!myScanner.hasNext()) {
-            throw new RuntimeException("signature.tsv: invalid file");
+        try (Scanner myScanner = new Scanner(signature)) {
+            if (!myScanner.hasNext()) {
+                throw new RuntimeException("signature.tsv: invalid file");
+            }
+            while (myScanner.hasNext()) {
+                arr.add(myScanner.next());
+            }
         }
-        while (myScanner.hasNext()) {
-            arr.add(myScanner.next());
-        }
-        myScanner.close();
     }
 
     public void readFileMap() throws RuntimeException, IOException, ParseException {
@@ -134,7 +134,7 @@ public class MyTable implements Table {
             throws IOException, RuntimeException, ParseException {
         RandomAccessFile fileReader = null;
         try {
-            fileReader = openFileForRead(fileName);
+            fileReader = openFile(fileName);
             long endOfFile = fileReader.length();
             long currFilePosition = fileReader.getFilePointer();
             if (endOfFile == 0) {
@@ -269,7 +269,7 @@ public class MyTable implements Table {
     public void writeInFile(String path, String key, Storeable value) throws IOException {
         RandomAccessFile fileWriter = null;
         try {
-            fileWriter = openFileForWrite(path);
+            fileWriter = openFile(path);
             fileWriter.skipBytes((int) fileWriter.length());
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
             byte[] valueBytes = tableProvider.serialize(this, value).getBytes(StandardCharsets.UTF_8);
@@ -284,27 +284,23 @@ public class MyTable implements Table {
         }
     }
 
-    public RandomAccessFile openFileForRead(String fileName) throws IOException {
+    public RandomAccessFile openFile(String fileName) throws IOException {
         RandomAccessFile newFile;
-        try {
-            newFile = new RandomAccessFile(fileName, "rw");
-        } catch (FileNotFoundException e) {
-            throw new IOException(e.getMessage() + " reading from file: file " + fileName + " not found", e);
+        if (fileName == null) {
+            throw new IOException("wrong name of file to opem");
         }
-        return newFile;
-    }
-
-    public RandomAccessFile openFileForWrite(String fileName) throws IOException {
-        RandomAccessFile newFile;
         try {
             newFile = new RandomAccessFile(fileName, "rw");
         } catch (FileNotFoundException e) {
-            throw new IOException(e.getMessage() + " writing to file: file " + fileName + " not found", e);
+            throw new IOException(e.getMessage() + " error in opening file: file " + fileName + " not found", e);
         }
         return newFile;
     }
 
     public void closeFile(RandomAccessFile file) throws IOException {
+        if (file == null) {
+            throw new IOException("error in closing file");
+        }
         try {
             file.close();
         } catch (IOException e) {
