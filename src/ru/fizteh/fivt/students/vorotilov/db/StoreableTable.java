@@ -283,7 +283,7 @@ public class StoreableTable implements Table {
             }
             //добавляем те которые запишутся на диск при коммите
             for (String currentKey : changedKeys.get().keySet()) {
-                if (!removedKeys.get().contains(currentKey) && !tableOnDisk.containsKey(currentKey)) {
+                if (!tableOnDisk.containsKey(currentKey)) {
                     ++count;
                 }
             }
