@@ -265,8 +265,10 @@ public class NewTableProvider implements TableProvider {
                 return null;
             } else {
                 File table = new File(workingDirectory, name);
-                if (!table.mkdir()) {
-                    throw new IOException("Can't create dir");
+                if (!table.exists()) {
+                    if (!table.mkdir()) {
+                        throw new IOException("Can't create dir");
+                    }
                 }
                 File file = new File(workingDirectory + File.separator + name + File.separator + "signature.tsv");
                 PrintStream newFile = new PrintStream(file);
