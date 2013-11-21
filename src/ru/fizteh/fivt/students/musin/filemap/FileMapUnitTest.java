@@ -691,7 +691,7 @@ public class FileMapUnitTest {
     }
 
     @Test
-    public void parallelCountsChangesSeparately() throws IOException {
+    public void parallelCountsSizeSeparately() throws IOException {
         File testFolder = new File(folder.getRoot(), "test");
         testFolder.mkdir();
         FileMapProviderFactory factory = new FileMapProviderFactory();
@@ -721,6 +721,64 @@ public class FileMapUnitTest {
             Assert.assertTrue(table.size() == 2);
             table.commit();
             Assert.assertTrue(table.size() == 2);
+        } catch (Exception e) {
+            System.err.println(e);
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void parallelPutAndGet() throws IOException {
+        final Object lock = new Object();
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        final FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        table.put("a", getSampleStoreable());
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    MultiFileMap table = provider.getTable("new");
+                    Storeable sample = getSampleStoreable();
+                    sample.setColumnAt(0, 3);
+                    Assert.assertTrue(table.size() == 0);
+                    table.put("b", getSampleStoreable());
+                    table.commit();
+                    synchronized (lock) {
+                        lock.notify();
+                    }
+                    synchronized (lock) {
+                        lock.wait();
+                    }
+                    Assert.assertTrue(table.storeableEqual(getSampleStoreable(), table.get("a")));
+                    table.put("a", sample);
+                    synchronized (lock) {
+                        lock.notify();
+                    }
+                    Assert.assertFalse(table.storeableEqual(getSampleStoreable(), table.get("a")));
+                } catch (Exception e) {
+                    System.err.println(e);
+                    Assert.fail();
+                }
+            }
+        };
+        try {
+            thread.start();
+            synchronized (lock) {
+                lock.wait();
+            }
+            Assert.assertTrue(table.storeableEqual(table.get("b"), getSampleStoreable()));
+            table.commit();
+            synchronized (lock) {
+                lock.notify();
+            }
+            synchronized (lock) {
+                lock.wait();
+            }
+            Assert.assertTrue(table.storeableEqual(table.get("a"), getSampleStoreable()));
+            thread.join();
         } catch (Exception e) {
             System.err.println(e);
             Assert.fail();
