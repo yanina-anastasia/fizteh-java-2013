@@ -16,6 +16,7 @@ public class CommandCommit extends DataBaseCommand {
                 int count = state.getTable().commit();
                 System.out.println(count);
             } catch (IOException e) {
+                e.printStackTrace();
                 state.printError(e.getMessage());
                 return;
             }
