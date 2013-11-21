@@ -157,4 +157,30 @@ public class MyStoreable implements Storeable {
         throw new ColumnFormatException("expected " + expectedClass.toString()
                 + ", " + object.getClass().toString() + " found");
     }
+    
+    @Override public int hashCode() {
+        return this.toString().hashCode();
+    }
+    
+    @Override 
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        Storeable stor = (Storeable) obj;
+        for (int i = 0; i < size(); i++) {
+            Object value1 = this.getColumnAt(i);
+            Object value2 = stor.getColumnAt(i);
+            if (value1 == null && value2 == null) {
+                continue;
+            }
+            if (value1 == null && value2 != null) {
+                return false;
+            }
+            if (!value1.equals(value2)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
