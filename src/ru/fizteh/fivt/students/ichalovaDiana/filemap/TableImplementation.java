@@ -231,12 +231,23 @@ public class TableImplementation implements Table {
 
     @Override
     public int size() {
+        int size = 0;
+        
         try {
-            return computeSize() + countChanges();
+            size += computeSize();
         } catch (IOException e) {
             throw new RuntimeException("Error while computing size: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
+        
+        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+            for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                size += putChanges.get()[nDirectory][nFile].size();
+                size -= removeChanges.get()[nDirectory][nFile].size();
+            }
+        }
+        
+        return size;
     }
 
     @Override
