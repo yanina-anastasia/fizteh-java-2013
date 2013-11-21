@@ -259,11 +259,11 @@ public class NewTableProvider implements TableProvider {
         if (columnTypes == null || !(checkValuesName(columnTypes)) || columnTypes.size() == 0) {
             throw new IllegalArgumentException("wrong type (Incorrect column name)");
         }
-        if (tables.get(name) != null) {
-            return null;
-        } else {
-            providerController.lock();
-            try {
+        providerController.lock();
+        try {
+            if (tables.get(name) != null) {
+                return null;
+            } else {
                 File table = new File(workingDirectory, name);
                 if (!table.mkdir()) {
                     throw new IOException("Can't create dir");
@@ -279,12 +279,12 @@ public class NewTableProvider implements TableProvider {
                     newFile.print(" ");
                 }
                 newFile.close();
-            } finally {
-                providerController.unlock();
             }
-            tables.put(name, new NewTable(name, this));
-            return tables.get(name);
+        } finally {
+            providerController.unlock();
         }
+        tables.put(name, new NewTable(name, this));
+        return tables.get(name);
     }
 
     private boolean checkValuesName(List<Class<?>> columnTypes) {
