@@ -154,6 +154,7 @@ public class ParallelTester {
             // Throws an exception if an exception was thrown by the task.
             assertEquals(future.get(), (Integer) 5);
         }
+        shutDownExecutor(executorService);
     }
 
     public void threadSharingCommitCountTest(int threadCount) 
@@ -187,14 +188,19 @@ public class ParallelTester {
         }
         assertEquals(1, countOnes);
         assertEquals(countZeros, threadCount - 1);
+        shutDownExecutor(executorService);
+    }
+    
+    private void shutDownExecutor(ExecutorService executor) throws InterruptedException {
+        executor.shutdown();
+        if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+            throw new RuntimeException("Executor did not terminate");
+        }
     }
 
     @After
     public void wipe() throws InterruptedException {
         provider.removeTable("static");
-        executor.shutdown();
-        if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-            throw new RuntimeException("Executor did not terminate");
-        }
+        shutDownExecutor(executor);
     }
 }

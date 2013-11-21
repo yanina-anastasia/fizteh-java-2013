@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +24,7 @@ public class FileMapProvider implements TableProvider {
     public static final String SIGNATURE_FILE_NAME = "signature.tsv";
 
     private Path rootDir;
-    private Hashtable<String, FileMap> tables;
+    private HashMap<String, FileMap> tables;
     
     private Lock lock = new ReentrantLock();
     
@@ -121,7 +121,7 @@ public class FileMapProvider implements TableProvider {
         if (!rootDir.toFile().isDirectory()) {
             throw new IllegalArgumentException("Error: Root did not resolve to a valid directory");
         }
-        tables = new Hashtable<String, FileMap>();
+        tables = new HashMap<String, FileMap>();
     }
     
     private static void createFileStructure(Path dbPath, List<Class<?>> columnTypes) throws IOException {

@@ -21,192 +21,137 @@ public class FileMap implements Table {
     private HashMap<String, Storeable> db = null;
     private List<Class<?>> columnTypes = null;
     private FileMapProvider parentProvider = null;
-    private boolean destroyed = false;
+    private volatile boolean destroyed = false;
 
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final Lock rLock = rwLock.readLock(); 
     private final Lock wLock = rwLock.writeLock(); 
 
-    /*Purpose: do not lock rwLock for primitive operations like getName()*/
-    private final ReadWriteLock rwDestroyLock = new ReentrantReadWriteLock();
-    private final Lock aliveLock = rwDestroyLock.readLock(); 
-    private final Lock destroyLock = rwDestroyLock.writeLock(); 
-
     private ThreadLocal<HashMap<String, Diff>> diff;
 
     @Override
     public String getName() {
-        aliveLock.lock();
-        try {
-            ensureTableExists();
-            return name;
-        } finally {
-            aliveLock.unlock();
-        }
+        ensureTableExists();
+        return name;
     }
 
     @Override
     public Storeable get(String key) {
-        aliveLock.lock();
+        ensureTableExists();
+        if (key == null || key.isEmpty() || !isValidKey(key)) {
+            throw new IllegalArgumentException();
+        }
+        rLock.lock();
         try {
-            ensureTableExists();
-            if (key == null || key.isEmpty() || !isValidKey(key)) {
-                throw new IllegalArgumentException();
-            }
-            rLock.lock();
-            try {
-                return getDirtyValue(key);
-            } finally {
-                rLock.unlock();
-            }
+            return getDirtyValue(key);
         } finally {
-            aliveLock.unlock();
+            rLock.unlock();
         }
     }
 
     @Override
     public Storeable put(String key, Storeable value) {
-        aliveLock.lock();
+        ensureTableExists();
+        if (!isValidKey(key)) {
+            throw new IllegalArgumentException("Illegal key");
+        }
+        if (!isValidValue(value)) {
+            throw new ColumnFormatException("Mismatched Storeable for table + " + getName());
+        }
+        rLock.lock();
         try {
-            ensureTableExists();
-            if (!isValidKey(key)) {
-                throw new IllegalArgumentException("Illegal key");
-            }
-            if (!isValidValue(value)) {
-                throw new ColumnFormatException("Mismatched Storeable for table + " + getName());
-            }
-            rLock.lock();
-            try {
-                Storeable result = getDirtyValue(key);
-                diff.get().put(key, new Diff(DiffType.ADD, value));
-                return result;
-            } finally {
-                rLock.unlock();
-            }
+            Storeable result = getDirtyValue(key);
+            diff.get().put(key, new Diff(DiffType.ADD, value));
+            return result;
         } finally {
-            aliveLock.unlock();
+            rLock.unlock();
         }
     }
 
     @Override
     public Storeable remove(String key) {
-        aliveLock.lock();
+        ensureTableExists();
+        if (key == null || key.isEmpty() || !isValidKey(key)) {
+            throw new IllegalArgumentException();
+        }
+        rLock.lock();
         try {
-            ensureTableExists();
-            if (key == null || key.isEmpty() || !isValidKey(key)) {
-                throw new IllegalArgumentException();
-            }
-            rLock.lock();
-            try {
-                Storeable result = getDirtyValue(key);
-                diff.get().put(key, new Diff(DiffType.REMOVE, null));
-                return result;
-            } finally {
-                rLock.unlock();
-            }
+            Storeable result = getDirtyValue(key);
+            diff.get().put(key, new Diff(DiffType.REMOVE, null));
+            return result;
         } finally {
-            aliveLock.unlock();
+            rLock.unlock();
         }
     }
 
     @Override
     public int size() {
-        aliveLock.lock();
+        ensureTableExists();
+        rLock.lock();
         try {
-            ensureTableExists();
-            rLock.lock();
-            try {
-                return db.size() + estimateDiffDelta();
-            } finally {
-                rLock.unlock();
-            }
+            return db.size() + estimateDiffDelta();
         } finally {
-            aliveLock.unlock();
+            rLock.unlock();
         }
     }
 
     @Override
     public int commit() throws IOException {
-        aliveLock.lock();
+        ensureTableExists();
+        wLock.lock();
         try {
-            ensureTableExists();
-            wLock.lock();
-            try {
-                int result = estimateDiffSize();
-                for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
-                    String key = entry.getKey();
-                    Storeable value = entry.getValue().value;
-                    DiffType type = entry.getValue().type;
-                    if (type == DiffType.ADD) {
-                        db.put(key, value);
-                    } else if (type == DiffType.REMOVE) {
-                        db.remove(key);
-                    }
+            int result = estimateDiffSize();
+            for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue().value;
+                DiffType type = entry.getValue().type;
+                if (type == DiffType.ADD) {
+                    db.put(key, value);
+                } else if (type == DiffType.REMOVE) {
+                    db.remove(key);
                 }
-                if (parentProvider != null) {
-                    writeOut(parentProvider.getRootDir());
-                }
-                diff.remove();
-                return result;
-            } finally {
-                wLock.unlock();
             }
+            if (parentProvider != null) {
+                writeOut(parentProvider.getRootDir());
+            }
+            diff.remove();
+            return result;
         } finally {
-            aliveLock.unlock();
+            wLock.unlock();
         }
     }
 
     @Override
     public int rollback() {
-        aliveLock.lock();
+        ensureTableExists();
+        rLock.lock();
         try {
-            ensureTableExists();
-            rLock.lock();
-            try {
-                int result = estimateDiffSize();
-                diff.remove();
-                return result;
-            } finally {
-                rLock.unlock();
-            }
+            int result = estimateDiffSize();
+            diff.remove();
+            return result;
         } finally {
-            aliveLock.unlock();
+            rLock.unlock();
         }
     }
     
     @Override 
     public int getColumnsCount() {
-        aliveLock.lock();
-        try {
-            ensureTableExists();
-            return columnTypes.size();
-        } finally {
-            aliveLock.unlock();
-        }
+        ensureTableExists();
+        return columnTypes.size();
     }
     
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        aliveLock.lock();
-        try {
-            ensureTableExists();
-            if (columnIndex >= columnTypes.size() || columnIndex < 0) {
-                throw new IndexOutOfBoundsException();
-            }
-            return columnTypes.get(columnIndex);
-        } finally {
-            aliveLock.unlock();
+        ensureTableExists();
+        if (columnIndex >= columnTypes.size() || columnIndex < 0) {
+            throw new IndexOutOfBoundsException();
         }
+        return columnTypes.get(columnIndex);
     }
     
     public void setName(String name) {
-        aliveLock.lock();
-        try {
-            ensureTableExists();
-            this.name = name;
-        } finally {
-            aliveLock.unlock();
-        }
+        ensureTableExists();
+        this.name = name;
     }
     
     public FileMap(String dbName, List<Class<?>> classes) {
@@ -247,93 +192,63 @@ public class FileMap implements Table {
     }
     
     public boolean isDirty() {
-        aliveLock.lock();
-        try {
-            ensureTableExists();
-            return !diff.get().isEmpty();
-        } finally {
-            aliveLock.unlock();
-        }
+        ensureTableExists();
+        return !diff.get().isEmpty();
     }
     
     public int getDiffSize() {
-        aliveLock.lock();
+        ensureTableExists();
+        rLock.lock();
         try {
-            ensureTableExists();
             return estimateDiffSize();
         } finally {
-            aliveLock.unlock();
+            rLock.unlock();
         }
     }
     
     public void writeOut(String dirPath) throws IOException {
-        aliveLock.lock();
+        ensureTableExists();
+        Path path = Paths.get(dirPath + "/" + name);
+        if (path == null) {
+            throw new IllegalArgumentException("Invalid directory path");
+        }
+        wLock.lock();
         try {
-            ensureTableExists();
-            Path path = Paths.get(dirPath + "/" + name);
-            if (path == null) {
-                throw new IllegalArgumentException("Invalid directory path");
-            }
-            wLock.lock();
             try {
-                try {
-                    ShellUtility.removeDir(path);
-                } catch (IOException e) {
-                    // Ignore
-                }
-                IOUtility.writeDatabase(db, path, columnTypes);
-                IOUtility.writeSignature(path, columnTypes);
-            } finally {
-                wLock.unlock();
+                ShellUtility.removeDir(path);
+            } catch (IOException e) {
+                // Ignore
             }
+            IOUtility.writeDatabase(db, path, columnTypes);
+            IOUtility.writeSignature(path, columnTypes);
         } finally {
-            aliveLock.unlock();
+            wLock.unlock();
         }
     }
     
     public List<Class<?>> getSignature() {
-        aliveLock.lock();
-        try {
-            ensureTableExists();
-            return columnTypes;
-        } finally {
-            aliveLock.unlock();
-        }
+        ensureTableExists();
+        return columnTypes;
     }
     
     public void setProvider(FileMapProvider provider) {
-        aliveLock.lock();
-        try {
-            ensureTableExists();
-            this.parentProvider = provider;
-        } finally {
-            aliveLock.unlock();
-        }
+        ensureTableExists();
+        this.parentProvider = provider;
     }
     
     public void destroy() {
-        destroyLock.lock();
+        ensureTableExists();
+        diff.remove();
+        wLock.lock();
         try {
-            ensureTableExists();
-            diff.remove();
-            wLock.lock();
-            try {
-                destroyed = true;
-            } finally {
-                wLock.unlock();
-            }
+            destroyed = true;
         } finally {
-            destroyLock.unlock();
+            wLock.unlock();
         }
     }
     
     public boolean isAlive() {
-        aliveLock.lock();
-        try {
-            return !destroyed;
-        } finally {
-            aliveLock.unlock();
-        }
+        return !destroyed;
     }
     
     private Storeable getDirtyValue(String key) {
