@@ -117,11 +117,11 @@ public class MyTableProvider implements TableProvider {
         if (!signature.createNewFile()) {
             throw new IOException("can't create file signature.tsv");
         }
-        PrintWriter myWriter = new PrintWriter(signature);
-        for (Class<?> type : types) {
-            myWriter.write((typeToString.get(type)) + " ");
+        try (PrintWriter myWriter = new PrintWriter(signature)) {
+            for (Class<?> type : types) {
+                myWriter.write((typeToString.get(type)) + " ");
+            }
         }
-        myWriter.close();
     }
 
 

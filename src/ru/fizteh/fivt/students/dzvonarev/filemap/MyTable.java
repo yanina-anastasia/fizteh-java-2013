@@ -132,9 +132,7 @@ public class MyTable implements Table {
     /* READING FILEMAP */
     public void readMyFileMap(String fileName, String dir, String file)
             throws IOException, RuntimeException, ParseException {
-        RandomAccessFile fileReader = null;
-        try {
-            fileReader = openFile(fileName);
+        try (RandomAccessFile fileReader = openFile(fileName)) {
             long endOfFile = fileReader.length();
             long currFilePosition = fileReader.getFilePointer();
             if (endOfFile == 0) {
@@ -168,8 +166,6 @@ public class MyTable implements Table {
             }
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage() + " " + fileName + " : file is broken", e);
-        } finally {
-            closeFile(fileReader);
         }
     }
 
@@ -267,9 +263,7 @@ public class MyTable implements Table {
     }
 
     public void writeInFile(String path, String key, Storeable value) throws IOException {
-        RandomAccessFile fileWriter = null;
-        try {
-            fileWriter = openFile(path);
+        try (RandomAccessFile fileWriter = openFile(path)) {
             fileWriter.skipBytes((int) fileWriter.length());
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
             byte[] valueBytes = tableProvider.serialize(this, value).getBytes(StandardCharsets.UTF_8);
@@ -279,15 +273,13 @@ public class MyTable implements Table {
             fileWriter.write(valueBytes);
         } catch (IOException e) {
             throw new IOException(e.getMessage() + " updating file " + path + " : error in writing", e);
-        } finally {
-            closeFile(fileWriter);
         }
     }
 
     public RandomAccessFile openFile(String fileName) throws IOException {
         RandomAccessFile newFile;
         if (fileName == null) {
-            throw new IOException("wrong name of file to opem");
+            throw new IOException("wrong name of file to open");
         }
         try {
             newFile = new RandomAccessFile(fileName, "rw");
@@ -295,17 +287,6 @@ public class MyTable implements Table {
             throw new IOException(e.getMessage() + " error in opening file: file " + fileName + " not found", e);
         }
         return newFile;
-    }
-
-    public void closeFile(RandomAccessFile file) throws IOException {
-        if (file == null) {
-            throw new IOException("error in closing file");
-        }
-        try {
-            file.close();
-        } catch (IOException e) {
-            throw new IOException(e.getMessage() + " error in closing file", e);
-        }
     }
 
     @Override
