@@ -130,6 +130,7 @@ public class NewTable implements Table {
         } finally {
             controller.writeLock().unlock();
         }
+        localDataMap.get().clear();
         return count;
     }
 
@@ -265,10 +266,10 @@ public class NewTable implements Table {
         try {
             for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey())) {
-                    if (entry.getKey() == null) {
+                    if (entry.getValue() == null) {
                         --count;
                     }
-                } else if (entry.getKey() != null) {
+                } else if (entry.getValue() != null) {
                     ++count;
                 }
             }
