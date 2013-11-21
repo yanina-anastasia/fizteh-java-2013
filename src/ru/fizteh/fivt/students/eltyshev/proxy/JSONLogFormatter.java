@@ -46,30 +46,27 @@ public class JSONLogFormatter {
         for (Object value : collection) {
             if (value != null) {
                 if (objects.containsKey(value)) {
-                    throw new CyclicReferenceException();
+                    result.put("cyclic");
+                    continue;
                 }
                 objects.put(value, true);
             }
-            try {
-                if (value == null) {
-                    result.put(value);
-                    continue;
-                }
-
-                if (value.getClass().isArray()) {
-                    result.put(makeJSONArray(Arrays.asList(value)));
-                    continue;
-                }
-
-                if (value instanceof Iterable) {
-                    result.put(makeJSONArray((Iterable) value));
-                    continue;
-                }
-
+            if (value == null) {
                 result.put(value);
-            } catch (CyclicReferenceException e) {
-                result.put("cyclic");
+                continue;
             }
+
+            if (value.getClass().isArray()) {
+                result.put(makeJSONArray(Arrays.asList(value)));
+                continue;
+            }
+
+            if (value instanceof Iterable) {
+                result.put(makeJSONArray((Iterable) value));
+                continue;
+            }
+
+            result.put(value);
         }
         return result;
     }
