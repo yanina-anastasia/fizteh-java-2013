@@ -30,7 +30,6 @@ public class JSONLogFormatter {
         } catch (NullPointerException | ClassCastException e) {
             array = new JSONArray();
         }
-        System.out.println("writing arguments: " + args);
         jsonObject = jsonObject.put("arguments", array);
         objects.clear();
     }
