@@ -299,10 +299,11 @@ public class DbState extends State {
             if (entry.getValue() != null) {
                 if (!initial.containsKey(entry.getKey())) {
                     result++;
-                }
-                
+                }     
             } else {
-                result--;
+                if (initial.containsKey(entry.getKey())) {
+                    result--;
+                }
             }
         }
         return result;
