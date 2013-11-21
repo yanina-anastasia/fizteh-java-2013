@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParallelTableProviderTest {
-    private static List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+    private static List<Class<?>> columnTypes = new ArrayList<>();
     private static TableProvider provider;
+    boolean flagOfThread1 = true;
+    boolean flagOfThread2 = true;
     @Rule
     public TemporaryFolder rootDBDirectory = new TemporaryFolder();
 
@@ -102,5 +104,82 @@ public class ParallelTableProviderTest {
         } catch (InterruptedException e) {
             //
         }
+    }
+
+
+    @Test
+    public void concurrentCreateSameTable() throws IOException {
+        flagOfThread1 = true;
+        flagOfThread2 = true;
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    flagOfThread1 = (provider.createTable("tmpTable", columnTypes) == null);
+                } catch (IOException e) {
+                    throw new RuntimeException("error when creating a table: " + e.getMessage());
+                }
+            }
+        });
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    flagOfThread2 = (provider.createTable("tmpTable", columnTypes) == null);
+                } catch (IOException e) {
+                    throw new RuntimeException("error when creating a table: " + e.getMessage());
+                }
+            }
+        });
+        thread1.start();
+        thread2.start();
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            //
+        }
+        provider.removeTable("tmpTable");
+        Assert.assertTrue(flagOfThread1 ^ flagOfThread2);
+    }
+
+    @Test
+    public void concurrentRemoveSameTable() throws IOException {
+        flagOfThread1 = true;
+        flagOfThread2 = true;
+        provider.createTable("tableWhichWillRemoved", columnTypes);
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    provider.removeTable("tableWhichWillRemoved");
+                } catch (IOException e) {
+                    throw new RuntimeException("error when removing a table: " + e.getMessage());
+                } catch (IllegalStateException e) {
+                    flagOfThread1 = false;
+                }
+            }
+        });
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    provider.removeTable("tableWhichWillRemoved");
+                } catch (IOException e) {
+                    throw new RuntimeException("error when removing a table: " + e.getMessage());
+                } catch (IllegalStateException e) {
+                    flagOfThread2 = false;
+                }
+            }
+        });
+        thread1.start();
+        thread2.start();
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            //
+        }
+        Assert.assertTrue(flagOfThread1 ^ flagOfThread2);
     }
 }

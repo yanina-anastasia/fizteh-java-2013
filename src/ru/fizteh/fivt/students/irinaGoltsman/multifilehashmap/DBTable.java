@@ -172,7 +172,7 @@ public class DBTable implements Table {
 
     @Override
     public int size() {
-        int count = 0;
+        int count;
         readLock.lock();
         try {
             count = originalTable.size();
@@ -180,8 +180,7 @@ public class DBTable implements Table {
                 if (!originalTable.containsKey(currentKey)) {
                     continue;
                 }
-                if (tableOfChanges.get().containsKey(currentKey)
-                        && originalTable.get(currentKey).equals(tableOfChanges.get().get(currentKey))) {
+                if (tableOfChanges.get().containsKey(currentKey)) {
                     continue;
                 }
                 count--;

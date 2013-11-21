@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DBTableProvider implements TableProvider {
-    private Map<String, Table> allTables = new HashMap<String, Table>();
+    private Map<String, Table> allTables = new HashMap<>();
     private File rootDirectoryOfTables;
     private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9@.]+";
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
