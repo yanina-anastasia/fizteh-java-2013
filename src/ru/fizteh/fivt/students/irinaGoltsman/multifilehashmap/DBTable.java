@@ -22,7 +22,8 @@ public class DBTable implements Table {
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
-    private static ThreadLocal<HashMap<String, Storeable>> tableOfChanges = new ThreadLocal<HashMap<String, Storeable>>() {
+    private static ThreadLocal<HashMap<String, Storeable>> tableOfChanges
+            = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
             return new HashMap<>();
