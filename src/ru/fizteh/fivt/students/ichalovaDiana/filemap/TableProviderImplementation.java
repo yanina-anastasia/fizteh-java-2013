@@ -74,18 +74,18 @@ public class TableProviderImplementation implements TableProvider {
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
         
-        if (!isValidTableName(name)) {
-            throw new IllegalArgumentException("Invalid table name");
-        }
-        if (!areValidColumnTypes(columnTypes)) {
-            throw new ColumnFormatException("Invalid column types");
-        }
-        if (tables.containsKey(name)) {
-            return null;
-        }
-        
         writeLock.lock();
         try {
+            if (!isValidTableName(name)) {
+                throw new IllegalArgumentException("Invalid table name");
+            }
+            if (!areValidColumnTypes(columnTypes)) {
+                throw new ColumnFormatException("Invalid column types");
+            }
+            if (tables.containsKey(name)) {
+                return null;
+            }
+        
             Path tablePath = databaseDirectory.resolve(name);
             try {
                 Files.createDirectory(tablePath);
@@ -137,15 +137,14 @@ public class TableProviderImplementation implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IOException {
-        if (!isValidTableName(name)) {
-            throw new IllegalArgumentException("Invalid table name");
-        }
-        if (!tables.containsKey(name)) {
-            throw new IllegalStateException("No such table");
-        }
-        
         writeLock.lock();
         try {
+            if (!isValidTableName(name)) {
+                throw new IllegalArgumentException("Invalid table name");
+            }
+            if (!tables.containsKey(name)) {
+                throw new IllegalStateException("No such table");
+            }
         
             tables.remove(name);
             
