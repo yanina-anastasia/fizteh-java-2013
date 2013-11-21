@@ -16,7 +16,7 @@ import ru.fizteh.fivt.storage.structured.*;
 
 public class DbState extends State {
     private HashMap<String, Storeable> initial;
-    private static ThreadLocal<HashMap<String, Storeable>> changes;
+    private ThreadLocal<HashMap<String, Storeable>> changes;
     public RandomAccessFile dbFile;
     public String path;
     private TableProvider provider;
