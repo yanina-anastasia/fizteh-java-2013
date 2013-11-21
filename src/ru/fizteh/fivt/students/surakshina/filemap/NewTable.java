@@ -113,24 +113,20 @@ public class NewTable implements Table {
         int count = unsavedChanges();
         controller.writeLock().lock();
         try {
-            if (count != 0) {
-                for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
-                    if (!dataMap.containsKey(entry.getKey())) {
-                        if (entry.getValue() != null) {
-                            dataMap.put(entry.getKey(), entry.getValue());
-                        }
+            for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
+                if (dataMap.containsKey(entry.getKey()) && !dataMap.get(entry.getKey()).equals(entry.getValue())) {
+                    if (entry.getValue() != null) {
+                        dataMap.put(entry.getKey(), entry.getValue());
                     } else {
-                        if (entry.getValue() == null) {
-                            dataMap.remove(entry.getKey());
-                        } else if (!entry.getValue().equals(dataMap.get(entry.getKey()))) {
-                            dataMap.put(entry.getKey(), entry.getValue());
-                        }
+                        dataMap.remove(entry.getKey());
+                    }
+                } else {
+                    if (entry.getValue() != null) {
+                        dataMap.put(entry.getKey(), entry.getValue());
                     }
                 }
-                provider.saveChanges(this);
-            } else {
-                return 0;
             }
+            provider.saveChanges(this);
         } finally {
             controller.writeLock().unlock();
         }
@@ -188,9 +184,7 @@ public class NewTable implements Table {
         try {
             for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
                 if (!dataMap.containsKey(entry.getKey())) {
-                    if (entry.getValue() == null) {
-                        continue;
-                    } else {
+                    if (entry.getValue() != null) {
                         ++count;
                     }
                 } else {
