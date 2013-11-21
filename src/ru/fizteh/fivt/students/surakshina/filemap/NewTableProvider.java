@@ -163,9 +163,10 @@ public class NewTableProvider implements TableProvider {
         HashMap<File, HashMap<String, String>> files = makeFiles(table);
         removeTableFromDisk(table);
         providerController.lock();
+        currentTable = table;
         try {
             for (File file : files.keySet()) {
-                File newDir = new File(workingDirectory + File.separator + currentTable.getName() + File.separator
+                File newDir = new File(workingDirectory + File.separator + table.getName() + File.separator
                         + file.getParentFile().getName());
                 if (!newDir.mkdirs()) {
                     throw new IOException("Can't create dir");
