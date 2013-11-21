@@ -204,27 +204,14 @@ public class TableImplementation implements Table {
     public int commit() throws IOException {
         int changesNumber = countChanges();
         originTableSize = currentTableSize;
-
-        Storeable value;
-        String rawValue;
+   
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                for (String key : putChanges[nDirectory][nFile].keySet()) {
-                    value = putChanges[nDirectory][nFile].get(key);
-                    rawValue = tableProvider.serialize(this, value);
-                    putValueToFile(key, rawValue);
+                if (!putChanges[nDirectory][nFile].isEmpty() || !removeChanges[nDirectory][nFile].isEmpty()) {
+                    saveAllChangesToFile(nDirectory, nFile);
+                    putChanges[nDirectory][nFile].clear();
+                    removeChanges[nDirectory][nFile].clear();
                 }
-                
-                for (String key : removeChanges[nDirectory][nFile]) {
-                    removeValueFromFile(key);
-                }
-            }
-        }
-
-        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
-            for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                putChanges[nDirectory][nFile].clear();
-                removeChanges[nDirectory][nFile].clear();
             }
         }
         
@@ -311,6 +298,29 @@ public class TableImplementation implements Table {
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
         return value;
+    }
+    
+    private void saveAllChangesToFile(int nDirectory, int nFile) throws IOException {
+        
+        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+            
+            Storeable value;
+            String rawValue;
+            for (String key : putChanges[nDirectory][nFile].keySet()) {
+                value = putChanges[nDirectory][nFile].get(key);
+                rawValue = tableProvider.serialize(this, value);
+                currentDatabase.put(key, rawValue);
+            }
+            
+            for (String key : removeChanges[nDirectory][nFile]) {
+                currentDatabase.remove(key);
+            }
+        }
+        catch (IOException e) {
+            throw new IOException("Error while putting value to file: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
     }
     
     private String putValueToFile(String key, String value) throws IOException {
