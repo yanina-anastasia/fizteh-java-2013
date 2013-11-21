@@ -142,15 +142,13 @@ public class NewTable implements Table {
             throw new IllegalArgumentException("wrong type (value is null)");
         }
         checkStoreable(value);
-        Storeable result;
+        Storeable result = null;
         controller.readLock().lock();
         try {
             if (localDataMap.get().containsKey(key)) {
                 result = localDataMap.get().get(key);
             } else if (dataMap.containsKey(key)) {
                 result = dataMap.get(key);
-            } else {
-                result = null;
             }
         } finally {
             controller.readLock().unlock();
@@ -192,6 +190,8 @@ public class NewTable implements Table {
                         if (!entry.getValue().equals(dataMap.get(entry.getKey()))) {
                             ++count;
                         }
+                    } else {
+                        ++count;
                     }
                 }
             }
@@ -204,15 +204,13 @@ public class NewTable implements Table {
     @Override
     public Storeable remove(String key) {
         checkKey(key);
-        Storeable oldVal;
+        Storeable oldVal = null;
         controller.readLock().lock();
         try {
             if (localDataMap.get().containsKey(key)) {
                 oldVal = localDataMap.get().get(key);
             } else if (dataMap.containsKey(key)) {
                 oldVal = dataMap.get(key);
-            } else {
-                oldVal = null;
             }
         } finally {
             controller.readLock().unlock();
