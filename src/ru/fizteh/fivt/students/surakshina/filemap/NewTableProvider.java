@@ -98,20 +98,20 @@ public class NewTableProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
-        NewTable table = tables.get(name);
-        File tableFile = new File(workingDirectory, name);
-        if (table != null && tableFile != null) {
-            currentTable = table;
-            providerController.lock();
-            try {
+        providerController.lock();
+        try {
+            NewTable table = tables.get(name);
+            File tableFile = new File(workingDirectory, name);
+            if (table != null && tableFile != null) {
+                currentTable = table;
                 table.loadCommitedValues(load(tableFile));
-            } catch (IOException | ParseException e) {
-                throw new IllegalArgumentException("wrong type (Wrong key)");
-            } finally {
-                providerController.unlock();
             }
+            return table;
+        } catch (IOException | ParseException e) {
+            throw new IllegalArgumentException("wrong type (Wrong key)");
+        } finally {
+            providerController.unlock();
         }
-        return table;
     }
 
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
@@ -174,10 +174,10 @@ public class NewTableProvider implements TableProvider {
                 File newFile = new File(newDir, file.getName());
                 WriteInDataBase.saveFile(newFile, files.get(file));
             }
+            tables.put(table.getName(), table);
         } finally {
             providerController.unlock();
         }
-        tables.put(table.getName(), table);
     }
 
     private HashMap<File, HashMap<String, String>> makeFiles(NewTable table) {
@@ -216,18 +216,18 @@ public class NewTableProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
-        NewTable table = tables.remove(name);
-        File tableFile = new File(workingDirectory, name);
-        if (table == null) {
-            throw new IllegalStateException(name + " not exists");
-        } else {
-            if (currentTable != null) {
-                if (table.getName().equals(currentTable.getName())) {
-                    currentTable = null;
+        providerController.lock();
+        try {
+            NewTable table = tables.remove(name);
+            File tableFile = new File(workingDirectory, name);
+            if (table == null) {
+                throw new IllegalStateException(name + " not exists");
+            } else {
+                if (currentTable != null) {
+                    if (table.getName().equals(currentTable.getName())) {
+                        currentTable = null;
+                    }
                 }
-            }
-            providerController.lock();
-            try {
                 for (File dir : tableFile.listFiles()) {
                     if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
                             || (dir.getName().equals("signature.tsv"))) {
@@ -245,9 +245,9 @@ public class NewTableProvider implements TableProvider {
                     }
                 }
                 tableFile.delete();
-            } finally {
-                providerController.unlock();
             }
+        } finally {
+            providerController.unlock();
         }
     }
 
@@ -282,11 +282,11 @@ public class NewTableProvider implements TableProvider {
                 }
                 newFile.close();
             }
+            tables.put(name, new NewTable(name, this));
+            return tables.get(name);
         } finally {
             providerController.unlock();
         }
-        tables.put(name, new NewTable(name, this));
-        return tables.get(name);
     }
 
     private boolean checkValuesName(List<Class<?>> columnTypes) {
