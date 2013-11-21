@@ -386,7 +386,7 @@ public class StoreableTable implements Table {
         for (String currentKey : removedKeys.get()) {
             if (tableOnDisk.containsKey(currentKey)) {
                 Storeable currentValue = changedKeys.get().get(currentKey);
-                if (currentValue != null && !currentValue.equals(tableOnDisk.get(currentKey))) {
+                if (currentValue == null || !currentValue.equals(tableOnDisk.get(currentKey))) {
                     ++count;
                 }
             }
