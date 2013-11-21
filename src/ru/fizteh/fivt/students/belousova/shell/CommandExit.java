@@ -10,6 +10,7 @@ public class CommandExit implements Command {
     public CommandExit(ShellState state) {
         this.state = state;
     }
+
     public String getName() {
         return name;
     }

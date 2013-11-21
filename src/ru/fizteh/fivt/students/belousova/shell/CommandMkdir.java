@@ -25,7 +25,7 @@ public class CommandMkdir implements Command {
         String dirName = args[1];
         File newDirectory = FileUtils.getFileFromString(dirName, state);
 
-        if(!newDirectory.getParentFile().exists()) {
+        if (!newDirectory.getParentFile().exists()) {
             throw new IOException("parent directory '" + newDirectory.getParent() + "' doesn't exist");
         }
 

@@ -1,9 +1,9 @@
 package ru.fizteh.fivt.students.kislenko.shell;
 
-import java.io.IOException;
-
-public interface Command {
+public interface Command<State> {
     public String getName();
 
-    public void run(State state, String[] args) throws IOException;
+    public int getArgCount();
+
+    public void run(State state, String[] args) throws Exception;
 }

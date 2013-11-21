@@ -1,12 +1,12 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
+import ru.fizteh.fivt.students.asaitgalin.shell.DefaultCommand;
 import ru.fizteh.fivt.students.asaitgalin.shell.FilesystemController;
 
-public class CpCommand implements Command {
+import java.io.File;
+import java.io.IOException;
+
+public class CpCommand extends DefaultCommand {
     private FilesystemController controller;
 
     public CpCommand(FilesystemController controller) {
@@ -59,7 +59,7 @@ public class CpCommand implements Command {
         }
         if (src.isDirectory()) {
             destFile.mkdir();
-            for (File f: src.listFiles()) {
+            for (File f : src.listFiles()) {
                 copyRecursive(f, destFile);
             }
         }

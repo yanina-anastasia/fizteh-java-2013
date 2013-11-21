@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.asaitgalin.shell.commands;
 
-public class ExitCommand implements Command {
+import ru.fizteh.fivt.students.asaitgalin.shell.DefaultCommand;
+
+public class ExitCommand extends DefaultCommand {
 
     @Override
     public String getName() {

@@ -5,12 +5,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class CommandCd implements Command {
+public class CommandCd implements Command<ShellState> {
     public String getName() {
         return "cd";
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public int getArgCount() {
+        return 1;
+    }
+
+    public void run(ShellState state, String[] args) throws IOException {
         if (args.length != 1) {
             throw new IOException("cd: Command \"cd\" takes one argument.");
         }

@@ -5,9 +5,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class CommandMv implements Command {
+public class CommandMv implements Command<ShellState> {
     public String getName() {
         return "mv";
+    }
+
+    public int getArgCount() {
+        return 2;
     }
 
     private static void moveFile(File source, File dest) throws IOException {
@@ -34,7 +38,7 @@ public class CommandMv implements Command {
         return path;
     }
 
-    public void run(State state, String[] args) throws IOException {
+    public void run(ShellState state, String[] args) throws IOException {
         if (args.length != 2) {
             throw new IOException("mv: Command \"mv\" takes one argument.");
         }

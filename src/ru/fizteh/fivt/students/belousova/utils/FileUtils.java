@@ -58,7 +58,7 @@ public class FileUtils {
         }
     }
 
-    private static void closeStream(Closeable stream) {
+    public static void closeStream(Closeable stream) {
         try {
             if (stream != null) {
                 stream.close();
