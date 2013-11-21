@@ -20,7 +20,7 @@ public class JSONLogFormatter {
     }
 
     public void writeMethod(Method method) {
-        jsonObject = jsonObject.put("method", method.getName());
+        jsonObject = jsonObject.put("name", method.getName());
     }
 
     public void writeArguments(Object[] args) {
