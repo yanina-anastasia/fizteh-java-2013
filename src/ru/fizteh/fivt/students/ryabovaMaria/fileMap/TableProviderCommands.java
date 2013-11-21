@@ -58,7 +58,7 @@ public class TableProviderCommands implements TableProvider {
                 throw new IllegalArgumentException(name + " is not a directory");
             }
             myTable.set(names.get(name));
-            if (myTable == null) {
+            if (myTable.get() == null) {
                 readSignature();
                 myTable.set(new TableCommands(tableDir.get(), types.get(), this));
                 names.put(name, myTable.get());
