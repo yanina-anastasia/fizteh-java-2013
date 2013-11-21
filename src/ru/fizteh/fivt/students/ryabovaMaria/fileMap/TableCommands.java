@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -226,7 +224,10 @@ public class TableCommands implements Table {
         }
         getUsingDatFile(key);
         update.put(numberOfDir * 16 + numberOfFile, null);
-        String value;
+        Storeable answer = get(key);
+        diff[numberOfDir][numberOfFile].put(key, null);
+        return answer;
+        /*String value;
         if (diff[numberOfDir][numberOfFile].containsKey(key)) {
             value = diff[numberOfDir][numberOfFile].get(key);
             if (value != null) {
@@ -241,7 +242,7 @@ public class TableCommands implements Table {
         } catch (ParseException ex) {
             //return null;
             throw new RuntimeException(ex);
-        }
+        }*/
     }
     
     private int getCountSize(int first, int second) {
@@ -375,17 +376,6 @@ public class TableCommands implements Table {
             }
         }
         return result;
-    }
-    
-    private void assigment(HashMap<String, String>[][] first, HashMap<String, String>[][] second) {
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                first[i][j].clear();
-                for (Map.Entry entry : second[i][j].entrySet()) {
-                    first[i][j].put((String) entry.getKey(), (String) entry.getValue());
-                }
-            }
-        }
     }
     
     @Override
