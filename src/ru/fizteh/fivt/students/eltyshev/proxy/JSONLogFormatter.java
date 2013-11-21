@@ -24,7 +24,12 @@ public class JSONLogFormatter {
     }
 
     public void writeArguments(Object[] args) {
-        JSONArray array = args == null ? new JSONArray() : makeJSONArray(Arrays.asList(args));
+        JSONArray array = null;
+        try {
+            array = makeJSONArray(Arrays.asList(args));
+        } catch (NullPointerException | ClassCastException e) {
+            array = new JSONArray();
+        }
         jsonObject = jsonObject.put("arguments", array);
         objects.clear();
     }
