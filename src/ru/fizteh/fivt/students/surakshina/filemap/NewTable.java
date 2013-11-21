@@ -290,8 +290,13 @@ public class NewTable implements Table {
 
     public HashMap<String, String> returnMap() {
         HashMap<String, String> map = new HashMap<>();
-        for (String key : dataMap.keySet()) {
-            map.put(key, JSONSerializer.serialize(this, dataMap.get(key)));
+        controller.readLock().lock();
+        try {
+            for (String key : dataMap.keySet()) {
+                map.put(key, JSONSerializer.serialize(this, dataMap.get(key)));
+            }
+        } finally {
+            controller.readLock().unlock();
         }
         return map;
     }
