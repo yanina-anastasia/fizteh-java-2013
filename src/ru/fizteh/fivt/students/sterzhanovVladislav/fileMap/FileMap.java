@@ -41,12 +41,7 @@ public class FileMap implements Table {
         if (key == null || key.isEmpty() || !isValidKey(key)) {
             throw new IllegalArgumentException();
         }
-        rLock.lock();
-        try {
-            return getDirtyValue(key);
-        } finally {
-            rLock.unlock();
-        }
+        return getDirtyValueSynced(key);
     }
 
     @Override
@@ -58,14 +53,9 @@ public class FileMap implements Table {
         if (!isValidValue(value)) {
             throw new ColumnFormatException("Mismatched Storeable for table + " + getName());
         }
-        rLock.lock();
-        try {
-            Storeable result = getDirtyValue(key);
-            diff.get().put(key, new Diff(DiffType.ADD, value));
-            return result;
-        } finally {
-            rLock.unlock();
-        }
+        Storeable result = getDirtyValueSynced(key);
+        diff.get().put(key, new Diff(DiffType.ADD, value));
+        return result;
     }
 
     @Override
@@ -74,14 +64,9 @@ public class FileMap implements Table {
         if (key == null || key.isEmpty() || !isValidKey(key)) {
             throw new IllegalArgumentException();
         }
-        rLock.lock();
-        try {
-            Storeable result = getDirtyValue(key);
-            diff.get().put(key, new Diff(DiffType.REMOVE, null));
-            return result;
-        } finally {
-            rLock.unlock();
-        }
+        Storeable result = getDirtyValueSynced(key);
+        diff.get().put(key, new Diff(DiffType.REMOVE, null));
+        return result;
     }
 
     @Override
@@ -251,10 +236,15 @@ public class FileMap implements Table {
         return !destroyed;
     }
     
-    private Storeable getDirtyValue(String key) {
+    private Storeable getDirtyValueSynced(String key) {
         Diff changed = diff.get().get(key);
         if (changed == null) {
-            return db.get(key);
+            rLock.lock();
+            try {
+                return db.get(key);
+            } finally {
+                rLock.unlock();
+            }
         } else if (changed.type == DiffType.ADD) {
             return changed.value;
         } else {
