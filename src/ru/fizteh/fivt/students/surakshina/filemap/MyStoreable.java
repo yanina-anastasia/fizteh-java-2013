@@ -21,11 +21,6 @@ public class MyStoreable implements Storeable {
     }
 
     @Override
-    public int hashCode() {
-        return this.hashCode();
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (this != null && obj == null) {
             return false;
@@ -125,6 +120,15 @@ public class MyStoreable implements Storeable {
                 }
             }
         }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((types == null) ? 0 : types.hashCode());
+        result = prime * result + ((values == null) ? 0 : values.hashCode());
+        return result;
     }
 
     @Override
