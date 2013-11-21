@@ -31,21 +31,18 @@ public class MultiFileMap implements Table {
         lock = new ReentrantReadWriteLock();
         columnTypes = new ArrayList<>();
         map = new FileMap[arraySize][arraySize];
-        diff = new ThreadLocal<>();
-        init();
+        diff = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
         for (int i = 0; i < arraySize; i++) {
             for (int j = 0; j < arraySize; j++) {
                 String relative = String.format("%d.dir/%d.dat", i, j);
                 File path = new File(location, relative);
                 map[i][j] = new FileMap(path);
             }
-        }
-    }
-
-    public void init()
-    {
-        if (diff.get() == null) {
-            diff.set(new HashMap<String, Storeable>());
         }
     }
 
