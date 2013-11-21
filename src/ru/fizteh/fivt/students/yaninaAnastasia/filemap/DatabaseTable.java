@@ -14,10 +14,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class DatabaseTable implements Table {
     public HashMap<String, Storeable> oldData;
-    public ThreadLocal<HashMap<String, Storeable>> modifiedData;
-    public ThreadLocal<HashSet<String>> deletedKeys;
-    public ThreadLocal<Integer> size;
-    public ThreadLocal<Integer> uncommittedChanges;
+    public static ThreadLocal<HashMap<String, Storeable>> modifiedData;
+    public static ThreadLocal<HashSet<String>> deletedKeys;
+    public int size;
+    public static ThreadLocal<Integer> uncommittedChanges;
     private String tableName;
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
@@ -45,12 +45,7 @@ public class DatabaseTable implements Table {
                 return new Integer(0);
             }
         };
-        size = new ThreadLocal<Integer>() {
-            @Override
-            public Integer initialValue() {
-                return oldData.size();
-            }
-        };
+        size = oldData.size();
         columnTypes = colTypes;
         provider = providerRef;
         uncommittedChanges.set(0);
@@ -92,7 +87,12 @@ public class DatabaseTable implements Table {
         if (deletedKeys.get().contains(key)) {
             return null;
         }
-        return oldData.get(key);
+        transactionLock.lock();
+        try {
+            return oldData.get(key);
+        } finally {
+            transactionLock.unlock();
+        }
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
@@ -120,14 +120,19 @@ public class DatabaseTable implements Table {
         Storeable oldValue = null;
         oldValue = modifiedData.get().get(key);
         if (oldValue == null && !deletedKeys.get().contains(key)) {
-            oldValue = oldData.get(key);
+            transactionLock.lock();
+            try {
+                oldValue = oldData.get(key);
+            } finally {
+                transactionLock.unlock();
+            }
         }
         modifiedData.get().put(key, value);
         if (deletedKeys.get().contains(key)) {
             deletedKeys.get().remove(key);
         }
         if (oldValue == null) {
-            size.set(size.get() + 1);
+            size += 1;
         }
         uncommittedChanges.set(changesCount());
         return oldValue;
@@ -140,31 +145,46 @@ public class DatabaseTable implements Table {
         Storeable oldValue = null;
         oldValue = modifiedData.get().get(key);
         if (oldValue == null && !deletedKeys.get().contains(key)) {
-            oldValue = oldData.get(key);
+            transactionLock.lock();
+            try {
+                oldValue = oldData.get(key);
+            } finally {
+                transactionLock.unlock();
+            }
         }
         if (modifiedData.get().containsKey(key)) {
             modifiedData.get().remove(key);
-            if (oldData.containsKey(key)) {
-                deletedKeys.get().add(key);
+            transactionLock.lock();
+            try {
+                if (oldData.containsKey(key)) {
+                    deletedKeys.get().add(key);
+                }
+            } finally {
+                transactionLock.unlock();
             }
         } else {
             deletedKeys.get().add(key);
         }
         if (oldValue != null) {
-            size.set(size.get() - 1);
+            size -= 1;
         }
         uncommittedChanges.set(changesCount());
         return oldValue;
     }
 
     public int size() {
-        return oldData.size() + diffSize();
+        transactionLock.lock();
+        try {
+            return oldData.size() + diffSize();
+        } finally {
+            transactionLock.unlock();
+        }
     }
 
     public int commit() {
         int recordsCommitted = 0;
+        transactionLock.lock();
         try {
-            transactionLock.lock();
             recordsCommitted = Math.abs(changesCount());
             for (String keyToDelete : deletedKeys.get()) {
                 oldData.remove(keyToDelete);
@@ -176,7 +196,7 @@ public class DatabaseTable implements Table {
             }
             deletedKeys.get().clear();
             modifiedData.get().clear();
-            size.set(oldData.size());
+            size = oldData.size();
             TableBuilder tableBuilder = new TableBuilder(provider, this);
             save(tableBuilder);
             uncommittedChanges.set(0);
@@ -191,7 +211,12 @@ public class DatabaseTable implements Table {
 
         deletedKeys.get().clear();
         modifiedData.get().clear();
-        size.set(oldData.size());
+        transactionLock.lock();
+        try {
+            size = oldData.size();
+        } finally {
+            transactionLock.unlock();
+        }
 
         uncommittedChanges.set(0);
 
@@ -324,7 +349,13 @@ public class DatabaseTable implements Table {
     private int diffSize() {
         int result = 0;
         for (final String key : modifiedData.get().keySet()) {
-            Storeable oldValue = oldData.get(key);
+            transactionLock.lock();
+            Storeable oldValue;
+            try {
+                oldValue = oldData.get(key);
+            } finally {
+                transactionLock.unlock();
+            }
             Storeable newValue = modifiedData.get().get(key);
             if (oldValue == null && newValue != null) {
                 result += 1;

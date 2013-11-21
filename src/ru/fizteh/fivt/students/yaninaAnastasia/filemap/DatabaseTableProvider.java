@@ -11,14 +11,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DatabaseTableProvider implements TableProvider {
     public DatabaseTable curTable = null;
     HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     String curDir;
-    private final Lock lock = new ReentrantLock(true);
+    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public DatabaseTableProvider(String directory) {
         if (directory == null || directory.isEmpty()) {
@@ -32,8 +32,8 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public DatabaseTable getTable(String name) throws IllegalArgumentException, IllegalStateException {
+        lock.readLock().lock();
         try {
-            lock.lock();
             if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
                 throw new IllegalArgumentException("table's name cannot be null");
             }
@@ -59,14 +59,14 @@ public class DatabaseTableProvider implements TableProvider {
 
             return table;
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, IllegalStateException {
+        lock.writeLock().lock();
         try {
-            lock.lock();
             if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
                 throw new IllegalArgumentException("table's name cannot be null");
             }
@@ -124,7 +124,7 @@ public class DatabaseTableProvider implements TableProvider {
             tables.put(name, table);
             return table;
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
@@ -142,8 +142,8 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
+        lock.writeLock().lock();
         try {
-            lock.lock();
             if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
                 throw new IllegalArgumentException("table's name cannot be null");
             }
@@ -170,7 +170,7 @@ public class DatabaseTableProvider implements TableProvider {
             }
             tables.remove(name);
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
