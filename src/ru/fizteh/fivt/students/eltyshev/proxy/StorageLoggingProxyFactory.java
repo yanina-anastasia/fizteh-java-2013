@@ -21,6 +21,10 @@ public class StorageLoggingProxyFactory implements LoggingProxyFactory {
             throw new IllegalArgumentException("target object does not implementing interface class");
         }
 
+        if (interfaceClass.isEnum()) {
+            throw new IllegalArgumentException("cannot set enum as interface class");
+        }
+
         if (interfaceClass.isPrimitive()) {
             throw new IllegalArgumentException("cannot set primitive as interface class");
         }

@@ -9,7 +9,7 @@ import java.util.IdentityHashMap;
 
 public class JSONLogFormatter {
     private JSONObject jsonObject = new JSONObject();
-    private final IdentityHashMap<Object, Boolean> objects = new IdentityHashMap<Object, Boolean>();
+    private final IdentityHashMap<Object, Object> objects = new IdentityHashMap<Object, Object>();
 
     public void writeTimestamp() {
         jsonObject = jsonObject.put("timestamp", System.currentTimeMillis());
@@ -44,17 +44,18 @@ public class JSONLogFormatter {
     private JSONArray makeJSONArray(Iterable collection) {
         JSONArray result = new JSONArray();
         for (Object value : collection) {
-            if (value != null) {
-                if (objects.containsKey(value)) {
-                    result.put("cyclic");
-                    continue;
-                }
-                objects.put(value, true);
-            }
             if (value == null) {
                 result.put(value);
                 continue;
             }
+
+            Object oldValue = objects.get(value);
+            if (oldValue != null && oldValue.getClass().equals(value.getClass())) {
+                result.put("cyclic");
+                continue;
+            }
+
+            objects.put(value, value);
 
             if (value.getClass().isArray()) {
                 result.put(makeJSONArray(Arrays.asList(value)));
