@@ -94,6 +94,9 @@ public class DatabaseRow implements Storeable {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         DatabaseRow otherStoreable = (DatabaseRow) obj;
         return otherStoreable.columns.equals(columns) && otherStoreable.classes.equals(classes);
     }

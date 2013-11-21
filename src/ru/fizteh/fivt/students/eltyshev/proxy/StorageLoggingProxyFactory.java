@@ -29,6 +29,10 @@ public class StorageLoggingProxyFactory implements LoggingProxyFactory {
             throw new IllegalArgumentException("cannot set primitive as interface class");
         }
 
+        if (interfaceClass.getClass().equals(Object.class)) {
+            throw new IllegalArgumentException("cannot set Object as interface class");
+        }
+
 
         return Proxy.newProxyInstance(
                 implementation.getClass().getClassLoader(),
