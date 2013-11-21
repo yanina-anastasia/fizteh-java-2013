@@ -27,6 +27,7 @@ public class DbState extends State {
     
     public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
                                                       throws ParseException, IOException {
+        initial = new HashMap<String, Storeable>();
         foldNum = folder;
         fileNum = file;
         provider = prov;
@@ -131,7 +132,6 @@ public class DbState extends State {
                 return 0;
             }
             changes.set(new HashMap<String, Storeable>());
-            initial = new HashMap<String, Storeable>();  
             assignInitial();
             fileCheck();  
             if (dbFile.length() == 0) {
