@@ -298,8 +298,43 @@ public class TableImplementation implements Table {
         int changesNumber = 0;
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                changesNumber += putChanges.get()[nDirectory][nFile].size();
-                changesNumber += removeChanges.get()[nDirectory][nFile].size();
+                for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                    Storeable value = putChanges.get()[nDirectory][nFile].get(key);
+                    String rawFileValue;
+                    try {
+                        rawFileValue = getValueFromFile(key);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error while opening file: "
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                    }
+                    if (rawFileValue == null) {
+                        changesNumber += 1;
+                    } else {
+                        Storeable fileValue;
+                        try {
+                            fileValue = tableProvider.deserialize(this, rawFileValue);
+                        } catch (ParseException e) {
+                            throw new RuntimeException("Error while deserializing value with key " + key + ": "
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                        }
+                        if (!storeableAreEqual(value, fileValue)) {
+                            changesNumber += 1;
+                        }
+                    }
+                }
+                
+                for (String key : removeChanges.get()[nDirectory][nFile]) {
+                    String rawFileValue;
+                    try {
+                        rawFileValue = getValueFromFile(key);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error while opening file: "
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                    }
+                    if (rawFileValue != null) {
+                        changesNumber += 1;
+                    }
+                }
             }
         }
         return changesNumber;
