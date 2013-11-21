@@ -49,6 +49,12 @@ public class TableCommands implements Table {
         diff.set(diffObject);
         tableDir = directory;
         update.set(new HashMap<Integer, String>());
+        readLock.lock();
+        try {
+            isCorrectTable();
+        } finally {
+            readLock.unlock();
+        }
     }
     
     private void isCorrectTable() throws IOException {
