@@ -262,12 +262,12 @@ public class NewTableProvider implements TableProvider {
         if (tables.get(name) != null) {
             return null;
         } else {
-            File table = new File(workingDirectory, name);
-            if (!table.mkdir()) {
-                throw new IOException("Can't create dir");
-            }
             providerController.lock();
             try {
+                File table = new File(workingDirectory, name);
+                if (!table.mkdir()) {
+                    throw new IOException("Can't create dir");
+                }
                 File file = new File(workingDirectory + File.separator + name + File.separator + "signature.tsv");
                 PrintStream newFile = new PrintStream(file);
                 for (int i = 0; i < columnTypes.size(); ++i) {
