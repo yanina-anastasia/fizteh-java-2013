@@ -7,15 +7,16 @@ import ru.fizteh.fivt.storage.structured.Table;
 import java.io.*;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MultiFileMap implements Table {
     File location;
     FileMap[][] map;
-    HashMap<String, Storeable> oldValue;
-    HashSet<String> newKey;
+    ThreadLocal<HashMap<String, Storeable>> diff;
     ArrayList<Class<?>> columnTypes;
     FileMapProvider tableProvider;
     final int arraySize;
+    ReentrantReadWriteLock lock;
 
     public MultiFileMap(File location, int arraySize, FileMapProvider tableProvider) {
         if (location == null) {
@@ -27,16 +28,24 @@ public class MultiFileMap implements Table {
         this.tableProvider = tableProvider;
         this.location = location;
         this.arraySize = arraySize;
+        lock = new ReentrantReadWriteLock();
         columnTypes = new ArrayList<>();
         map = new FileMap[arraySize][arraySize];
-        newKey = new HashSet<>();
-        oldValue = new HashMap<>();
+        diff = new ThreadLocal<>();
+        init();
         for (int i = 0; i < arraySize; i++) {
             for (int j = 0; j < arraySize; j++) {
                 String relative = String.format("%d.dir/%d.dat", i, j);
                 File path = new File(location, relative);
                 map[i][j] = new FileMap(path);
             }
+        }
+    }
+
+    public void init()
+    {
+        if (diff.get() == null) {
+            diff.set(new HashMap<String, Storeable>());
         }
     }
 
@@ -95,8 +104,6 @@ public class MultiFileMap implements Table {
                 map[i][j].clear();
             }
         }
-        oldValue.clear();
-        newKey.clear();
     }
 
     public File getFile() {
@@ -104,12 +111,26 @@ public class MultiFileMap implements Table {
     }
 
     public int size() {
+        lock.readLock().lock();
         int size = 0;
         for (int i = 0; i < arraySize; i++) {
             for (int j = 0; j < arraySize; j++) {
                 size += map[i][j].size();
             }
         }
+        for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
+            int hashCode = Math.abs(entry.getKey().hashCode());
+            int dir = (hashCode % 16 + 16) % 16;
+            int file = ((hashCode / 16 % 16) + 16) % 16;
+            if (entry.getValue() == null) {
+                if (map[dir][file].get(entry.getKey()) != null) {
+                    size--;
+                }
+            } else if (map[dir][file].get(entry.getKey()) == null) {
+                size++;
+            }
+        }
+        lock.readLock().unlock();
         return size;
     }
 
@@ -226,8 +247,6 @@ public class MultiFileMap implements Table {
         if (!validateData()) {
             throw new RuntimeException("Wrong data format: key distribution among files is incorrect");
         }
-        oldValue.clear();
-        newKey.clear();
     }
 
     /**
@@ -316,12 +335,13 @@ public class MultiFileMap implements Table {
                 }
             }
         }
-        oldValue.clear();
-        newKey.clear();
     }
 
     public boolean storeableEqual(Storeable first, Storeable second) {
-        if (first.getClass() != second.getClass()) {
+        if (first == null && second == null) {
+            return true;
+        }
+        if (first == null || second == null) {
             return false;
         }
         for (int i = 0; i < columnTypes.size(); i++) {
@@ -358,30 +378,13 @@ public class MultiFileMap implements Table {
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
         int file = ((hashCode / 16 % 16) + 16) % 16;
-        Storeable result = map[dir][file].put(key, value);
-        if (result != null) {
-            if (!newKey.contains(key)) {
-                Storeable diffValue = oldValue.get(key);
-                if (diffValue == null) {
-                    if (!storeableEqual(result, value)) {
-                        oldValue.put(key, result);
-                    }
-                } else {
-                    if (storeableEqual(diffValue, value)) {
-                        oldValue.remove(key);
-                    }
-                }
-            }
-        } else {
-            Storeable diffValue = oldValue.get(key);
-            if (diffValue == null) {
-                newKey.add(key);
-            } else {
-                if (storeableEqual(diffValue, value)) {
-                    oldValue.remove(key);
-                }
-            }
+        if (diff.get().containsKey(key)) {
+            return diff.get().put(key, value);
         }
+        lock.readLock().lock();
+        Storeable result = map[dir][file].get(key);
+        diff.get().put(key, value);
+        lock.readLock().unlock();
         return result;
     }
 
@@ -395,7 +398,13 @@ public class MultiFileMap implements Table {
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
         int file = ((hashCode / 16 % 16) + 16) % 16;
-        return map[dir][file].get(key);
+        if (diff.get().containsKey(key)) {
+            return diff.get().get(key);
+        }
+        lock.readLock().lock();
+        Storeable result = map[dir][file].get(key);
+        lock.readLock().unlock();
+        return result;
     }
 
     public Storeable remove(String key) {
@@ -408,42 +417,59 @@ public class MultiFileMap implements Table {
         int hashCode = Math.abs(key.hashCode());
         int dir = (hashCode % 16 + 16) % 16;
         int file = ((hashCode / 16 % 16) + 16) % 16;
-        Storeable result = map[dir][file].remove(key);
-        if (result != null) {
-            if (newKey.contains(key)) {
-                newKey.remove(key);
-            } else {
-                if (oldValue.get(key) == null) {
-                    oldValue.put(key, result);
-                }
-            }
+        if (diff.get().containsKey(key)) {
+            return diff.get().put(key, null);
         }
+        lock.readLock().lock();
+        Storeable result = map[dir][file].get(key);
+        if (result != null) {
+            diff.get().put(key, null);
+        }
+        lock.readLock().unlock();
         return result;
     }
 
     public int uncommittedChanges() {
-        return newKey.size() + oldValue.size();
+        lock.readLock().lock();
+        int result = 0;
+        for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
+            int hashCode = Math.abs(entry.getKey().hashCode());
+            int dir = (hashCode % 16 + 16) % 16;
+            int file = ((hashCode / 16 % 16) + 16) % 16;
+            if (entry.getValue() == null && map[dir][file].get(entry.getKey()) != null) {
+                result++;
+            } else if (!storeableEqual(entry.getValue(), map[dir][file].get(entry.getKey()))) {
+                result++;
+            }
+        }
+        lock.readLock().unlock();
+        return result;
     }
 
     public int commit() throws IOException {
         int changes = uncommittedChanges();
-        writeToDisk();
+        try {
+            lock.writeLock().lock();
+            for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
+                int hashCode = Math.abs(entry.getKey().hashCode());
+                int dir = (hashCode % 16 + 16) % 16;
+                int file = ((hashCode / 16 % 16) + 16) % 16;
+                if (entry.getValue() == null) {
+                    map[dir][file].remove(entry.getKey());
+                } else {
+                    map[dir][file].put(entry.getKey(), entry.getValue());
+                }
+            }
+            writeToDisk();
+        } finally {
+            lock.writeLock().unlock();
+        }
         return changes;
     }
 
     public int rollback() {
         int changes = uncommittedChanges();
-        for (Map.Entry<String, Storeable> entry : oldValue.entrySet()) {
-            int hashCode = Math.abs(entry.getKey().hashCode());
-            int dir = (hashCode % 16 + 16) % 16;
-            int file = ((hashCode / 16 % 16) + 16) % 16;
-            map[dir][file].put(entry.getKey(), entry.getValue());
-        }
-        for (String entry : newKey) {
-            remove(entry);
-        }
-        newKey.clear();
-        oldValue.clear();
+        diff.get().clear();
         return changes;
     }
 

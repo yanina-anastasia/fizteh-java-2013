@@ -353,7 +353,7 @@ public class FileMapUnitTest {
         Storeable sample = new FixedListTwo(getColumnTypeList());
         sample.setColumnAt(0, 1);
         sample.setColumnAt(1, "hello");
-        sample.setColumnAt(2, Byte.valueOf((byte) 2));
+        sample.setColumnAt(2, Byte.valueOf((byte) 3));
         table.put("a", sample1);
         table.put("b", sample);
         Assert.assertTrue(table.commit() == 2);
