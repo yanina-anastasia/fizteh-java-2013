@@ -47,8 +47,8 @@ public class DBTable implements Table {
         for (int i = 0; i < values.size(); i++) {
             try {
                 Storeable rowValue = tableProvider.deserialize(this, values.get(i));
+                readLock.lock();
                 try {
-                    readLock.lock();
                     originalTable.put(keys.get(i), rowValue);
                 } finally {
                     readLock.unlock();
@@ -74,8 +74,8 @@ public class DBTable implements Table {
             if (removedKeys.get().contains(key)) {
                 return null;
             }
+            readLock.lock();
             try {
-                readLock.lock();
                 value = originalTable.get(key);
             } finally {
                 readLock.unlock();
@@ -121,8 +121,8 @@ public class DBTable implements Table {
         Storeable newValue = value;
         checkEqualityTypes(newValue);
         Storeable originalValue = null;
+        readLock.lock();
         try {
-            readLock.lock();
             originalValue = originalTable.get(key);
         } finally {
             readLock.unlock();
@@ -146,8 +146,8 @@ public class DBTable implements Table {
         Storeable value = tableOfChanges.get().get(key);
         if (value == null) {
             if (!removedKeys.get().contains(key)) {
+                readLock.lock();
                 try {
-                    readLock.lock();
                     value = originalTable.get(key);
                 } finally {
                     readLock.unlock();
@@ -158,8 +158,8 @@ public class DBTable implements Table {
             }
         } else {
             tableOfChanges.get().remove(key);
+            readLock.lock();
             try {
-                readLock.lock();
                 if (originalTable.containsKey(key)) {
                     removedKeys.get().add(key);
                 }
@@ -173,8 +173,8 @@ public class DBTable implements Table {
     @Override
     public int size() {
         int count = 0;
+        readLock.lock();
         try {
-            readLock.lock();
             count = originalTable.size();
             for (String currentKey : removedKeys.get()) {
                 if (!originalTable.containsKey(currentKey)) {
@@ -204,8 +204,8 @@ public class DBTable implements Table {
     @Override
     public int commit() throws IOException {
         int count = -1;
+        writeLock.lock();
         try {
-            writeLock.lock();
             count = countTheNumberOfChanges();
             for (String delString : removedKeys.get()) {
                 if (originalTable.containsKey(delString)) {
@@ -232,8 +232,8 @@ public class DBTable implements Table {
     @Override
     public int rollback() {
         int count = -1;
+        readLock.lock();
         try {
-            readLock.lock();
             count = countTheNumberOfChanges();
         } finally {
             readLock.unlock();

@@ -37,8 +37,8 @@ public class DBTableProvider implements TableProvider {
             throw new IllegalArgumentException(rootDirectory.getName() + ": not a directory");
         }
         rootDirectoryOfTables = rootDirectory;
+        writeLock.lock();
         try {
-            writeLock.lock();
             for (File tableFile : rootDirectoryOfTables.listFiles()) {
                 Table table = new DBTable(tableFile, this);
                 allTables.put(tableFile.getName(), table);
@@ -59,8 +59,8 @@ public class DBTableProvider implements TableProvider {
         if (!tableName.matches(TABLE_NAME_FORMAT)) {
             throw new IllegalArgumentException("get table: error table name");
         }
+        readLock.lock();
         try {
-            readLock.lock();
             return allTables.get(tableName);
         } finally {
             readLock.unlock();
@@ -81,8 +81,8 @@ public class DBTableProvider implements TableProvider {
         ColumnTypes ct = new ColumnTypes();
         ct.checkTypes(columnTypes);
         Table newTable = null;
+        writeLock.lock();
         try {
-            writeLock.lock();
             File tableFile = new File(rootDirectoryOfTables, tableName);
             if (tableFile.exists()) {
                 return null;
@@ -111,8 +111,8 @@ public class DBTableProvider implements TableProvider {
         MapOfCommands cm = new MapOfCommands();
         cm.addCommand(new ShellCommands.Remove());
         cm.addCommand(new ShellCommands.ChangeDirectory());
+        writeLock.lock();
         try {
-            writeLock.lock();
             if (!allTables.containsKey(tableName)) {
                 throw new IllegalStateException(String.format("%s not exists", tableName));
             }
