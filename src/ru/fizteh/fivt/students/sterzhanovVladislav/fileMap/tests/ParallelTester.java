@@ -20,11 +20,11 @@ import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.FileMapProvider;
 import static org.junit.Assert.*;
 
 public class ParallelTester {
-    static FileMapProvider provider;
-    static List<Class<?>> sampleSignature;
-    static FileMap staticTable;
-    static ExecutorService executor;
-    static Storeable sampleValue;
+    FileMapProvider provider;
+    List<Class<?>> sampleSignature;
+    FileMap staticTable;
+    ExecutorService executor;
+    Storeable sampleValue;
     
     @Before
     public void init() throws IllegalArgumentException, IOException {

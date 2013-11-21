@@ -11,8 +11,8 @@ import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.FileMapProvider;
 import static org.junit.Assert.*;
 
 public class FileMapProviderTester {
-    static FileMapProvider provider;
-    static List<Class<?>> sampleSignature;
+    FileMapProvider provider;
+    List<Class<?>> sampleSignature;
     
     @Before
     public void init() throws IllegalArgumentException, IOException {

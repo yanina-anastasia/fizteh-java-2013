@@ -11,8 +11,8 @@ import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable.StoreableRo
 import static org.junit.Assert.*;
 
 public class StoreableTester {
-    public static Storeable row;
-    public static List<Class<?>> sampleSignature;
+    public Storeable row;
+    public List<Class<?>> sampleSignature;
     
     @Before
     public void init() {
