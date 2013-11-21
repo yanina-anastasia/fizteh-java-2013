@@ -98,10 +98,7 @@ public class TableCommands implements Table {
         if (!dbFile.isFile()) {
             throw new IllegalArgumentException("Incorrect table");
         }
-        RandomAccessFile db = null;
-        try {
-            db = new RandomAccessFile(dbFile, "rw");
-
+        try (RandomAccessFile db = new RandomAccessFile(dbFile, "rw")) {
             long curPointer = 0;
             long lastPointer = 0;
             long length = db.length();
@@ -157,14 +154,7 @@ public class TableCommands implements Table {
                 throw new IllegalArgumentException("Incorrect file" + dbFile.toString());
             }
             lastList[numOfDir][numOfFile].put(lastKey, lastValue);
-            db.close();
         } catch(Exception e) {
-            if (db != null) {
-                try {
-                    db.close();
-                } catch (Exception ex) {
-                }
-            }
             throw new IOException("Incorrect table", e);
         }
     }
@@ -307,7 +297,6 @@ public class TableCommands implements Table {
         } catch (Exception e) {
             throw new IOException("incorrect file", e);
         }
-
     }
     
     public int countChanges(boolean isWrite) throws IOException {
