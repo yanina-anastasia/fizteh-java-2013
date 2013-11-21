@@ -46,27 +46,30 @@ public class StoreableTable implements Table {
     private TableFile[][] tableFiles = new TableFile[16][16];
     private HashMap<String, Storeable> tableOnDisk;
 
+    private AtomicInteger lastCommitNumber = new AtomicInteger(0);
+
     private final ThreadLocal<HashMap<String, Storeable>> localTable = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
             return new HashMap<>();
         }
     };
+
     private final ThreadLocal<List<LogEntry>> changes = new ThreadLocal<List<LogEntry>>() {
         @Override
         protected List<LogEntry> initialValue() {
             return new ArrayList<>();
         }
     };
+
     private final ThreadLocal<Integer> localCommitNumber = new ThreadLocal<Integer>() {
         @Override
         protected Integer initialValue() {
-            return new Integer(0);
+            return new Integer(lastCommitNumber.get());
         }
     };
-    private AtomicInteger lastCommitNumber = new AtomicInteger(0);
 
-    private ReadWriteLock tableLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock tableLock = new ReentrantReadWriteLock(true);
 
     private void index() {
         tableLock.writeLock().lock();
