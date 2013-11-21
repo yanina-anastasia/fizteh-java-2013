@@ -138,6 +138,10 @@ public class DBTableTest {
         Assert.assertEquals(0, table.rollback());
         Storeable oldValue = table.put("new1", row);
         Assert.assertNull(oldValue);
+        table.remove("new1");
+        table.remove("new2");
+        table.remove("new3");
+        Assert.assertEquals(0, table.size());
     }
 
     @Test
