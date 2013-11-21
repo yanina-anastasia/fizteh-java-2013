@@ -22,14 +22,14 @@ public class DBTable implements Table {
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
-    private static ThreadLocal<HashMap<String, Storeable>> tableOfChanges
+    private ThreadLocal<HashMap<String, Storeable>> tableOfChanges
             = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
             return new HashMap<>();
         }
     };
-    private static ThreadLocal<Set<String>> removedKeys = new ThreadLocal<Set<String>>() {
+    private ThreadLocal<Set<String>> removedKeys = new ThreadLocal<Set<String>>() {
         @Override
         protected HashSet<String> initialValue() {
             return new HashSet<>();
