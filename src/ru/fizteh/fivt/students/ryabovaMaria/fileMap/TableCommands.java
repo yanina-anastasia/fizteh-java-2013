@@ -227,22 +227,6 @@ public class TableCommands implements Table {
         Storeable answer = get(key);
         diff[numberOfDir][numberOfFile].put(key, null);
         return answer;
-        /*String value;
-        if (diff[numberOfDir][numberOfFile].containsKey(key)) {
-            value = diff[numberOfDir][numberOfFile].get(key);
-            if (value != null) {
-                diff[numberOfDir][numberOfFile].remove(key);
-            }
-        } else {
-            diff[numberOfDir][numberOfFile].put(key, null);
-            value = lastList[numberOfDir][numberOfFile].get(key);
-        }
-        try {
-            return tableProvider.deserialize(this, value);
-        } catch (ParseException ex) {
-            //return null;
-            throw new RuntimeException(ex);
-        }*/
     }
     
     private int getCountSize(int first, int second) {
@@ -293,9 +277,7 @@ public class TableCommands implements Table {
             }
             return;
         }
-        RandomAccessFile db = null;
-        try {
-            db = new RandomAccessFile(dbFile, "rw");
+        try (RandomAccessFile db = new RandomAccessFile(dbFile, "rw")) {   
             db.setLength(0);
             Iterator<Map.Entry<String, String>> it;
             it = list[numOfDir][numOfFile].entrySet().iterator();
@@ -322,14 +304,7 @@ public class TableCommands implements Table {
                 db.write(value.getBytes("UTF-8"));
                 ++counter;
             }
-            db.close();
         } catch (Exception e) {
-            if (db != null) {
-                try {
-                    db.close();
-                } catch (Exception ex) {
-                }
-            }
             throw new IOException("incorrect file", e);
         }
 
