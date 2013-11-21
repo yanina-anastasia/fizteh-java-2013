@@ -181,16 +181,12 @@ public class NewTable implements Table {
         controller.readLock().lock();
         try {
             for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
-                if (!dataMap.containsKey(entry.getKey())) {
-                    if (entry.getValue() != null) {
+                if (dataMap.containsKey(entry.getKey())) {
+                    if (!dataMap.get(entry.getKey()).equals(entry.getValue())) {
                         ++count;
                     }
                 } else {
                     if (entry.getValue() != null) {
-                        if (!entry.getValue().equals(dataMap.get(entry.getKey()))) {
-                            ++count;
-                        }
-                    } else {
                         ++count;
                     }
                 }
