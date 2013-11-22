@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class MyHashMap {
+public class MyHashMap extends HashMap {
     int size;
     Set<String> keySet;
     final int numberDir = 16, numberFile = 16;
@@ -68,7 +68,7 @@ public class MyHashMap {
         return nfile;
     }
 
-    public Boolean isEmpty() {
+    public boolean isEmpty() {
         return (size == 0);
     }
 
