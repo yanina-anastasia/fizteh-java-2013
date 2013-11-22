@@ -531,7 +531,7 @@ public class MultiFileHashTable implements Table {
     private Storeable removeFromTable(String key) {
         HashMap<String, Storeable> table = getKeyTable(key, false);
         if (table == null) {
-            throw new IllegalStateException("Null table remove for key '" + key "'");
+            throw new IllegalStateException("Null table remove for key '" + key + "'");
             //return null;
         }
         return table.remove(key);
