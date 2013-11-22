@@ -45,7 +45,12 @@ public class DatabaseTable implements Table {
                 return new Integer(0);
             }
         };
-        size = oldData.size();
+        transactionLock.readLock().lock();
+        try {
+            size = oldData.size();
+        } finally {
+            transactionLock.readLock().unlock();
+        }
         columnTypes = colTypes;
         provider = providerRef;
         uncommittedChanges.set(0);
@@ -227,16 +232,31 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable storeableGet(String key) {
-        return oldData.get(key);
+        transactionLock.readLock().lock();
+        try {
+            return oldData.get(key);
+        } finally {
+            transactionLock.readLock().unlock();
+        }
     }
 
     public void storeablePut(String key, Storeable value) {
-        oldData.put(key, value);
+        transactionLock.writeLock().lock();
+        try {
+            oldData.put(key, value);
+        } finally {
+            transactionLock.writeLock().unlock();
+        }
     }
 
     public boolean save(TableBuilder tableBuilder) {
-        if (oldData == null) {
-            return true;
+        transactionLock.readLock().lock();
+        try {
+            if (oldData == null) {
+                return true;
+            }
+        } finally {
+            transactionLock.readLock().unlock();
         }
         if (tableName.equals("")) {
             return true;
@@ -250,13 +270,18 @@ public class DatabaseTable implements Table {
             for (int j = 0; j < 16; j++) {
                 keys.add(new HashSet<String>());
             }
-            for (String step : oldData.keySet()) {
-                int nDirectory = getDirectoryNum(step);
-                if (nDirectory == i) {
-                    int nFile = getFileNum(step);
-                    keys.get(nFile).add(step);
-                    isDirEmpty = false;
+            transactionLock.readLock().lock();
+            try {
+                for (String step : oldData.keySet()) {
+                    int nDirectory = getDirectoryNum(step);
+                    if (nDirectory == i) {
+                        int nFile = getFileNum(step);
+                        keys.get(nFile).add(step);
+                        isDirEmpty = false;
+                    }
                 }
+            } finally {
+                transactionLock.readLock().unlock();
             }
 
             if (isDirEmpty) {
@@ -334,10 +359,15 @@ public class DatabaseTable implements Table {
         HashSet<String> toRemove = new HashSet<>();
         tempSet.addAll(modifiedData.get().keySet());
         tempSet.addAll(deletedKeys.get());
-        for (String key : tempSet) {
-            if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get().get(key))) {
-                toRemove.add(key);
+        transactionLock.readLock().lock();
+        try {
+            for (String key : tempSet) {
+                if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get().get(key))) {
+                    toRemove.add(key);
+                }
             }
+        } finally {
+            transactionLock.readLock().unlock();
         }
         return tempSet.size() - toRemove.size();
     }
@@ -345,8 +375,8 @@ public class DatabaseTable implements Table {
     private int diffSize() {
         int result = 0;
         for (final String key : modifiedData.get().keySet()) {
-            transactionLock.readLock().lock();
             Storeable oldValue;
+            transactionLock.readLock().lock();
             try {
                 oldValue = oldData.get(key);
             } finally {
