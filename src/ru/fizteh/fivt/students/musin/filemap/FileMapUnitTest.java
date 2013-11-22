@@ -11,8 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class FileMapUnitTest {
 
@@ -691,98 +693,134 @@ public class FileMapUnitTest {
     }
 
     @Test
-    public void parallelCountsSizeSeparately() throws IOException {
+    public void parallelCountsSizeSeparately() throws IOException, InterruptedException, ExecutionException {
         File testFolder = new File(folder.getRoot(), "test");
         testFolder.mkdir();
         FileMapProviderFactory factory = new FileMapProviderFactory();
         final FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
-        MultiFileMap table = provider.createTable("new", getColumnTypeList());
-        table.put("a", getSampleStoreable());
-        Thread thread = new Thread() {
+        final MultiFileMap table = provider.createTable("new", getColumnTypeList());
+
+        ExecutorService thread1 = Executors.newSingleThreadExecutor();
+        ExecutorService thread2 = Executors.newSingleThreadExecutor();
+
+        thread1.submit(new Runnable() {
+            @Override
+            public void run() {
+                table.put("a", getSampleStoreable());
+            }
+        }).get();
+
+        Storeable sample = getSampleStoreable();
+        sample.setColumnAt(0, 3);
+
+        thread2.submit(new Runnable() {
+            @Override
+            public void run() {
+                Assert.assertTrue(table.size() == 0);
+                table.put("b", getSampleStoreable());
+            }
+        }).get();
+
+        thread1.submit(new Runnable() {
+            @Override
+            public void run() {
+                Assert.assertTrue(table.size() == 1);
+            }
+        }).get();
+
+        thread2.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    MultiFileMap table = provider.getTable("new");
-                    Storeable sample = getSampleStoreable();
-                    sample.setColumnAt(0, 3);
-                    Assert.assertTrue(table.size() == 0);
-                    table.put("b", getSampleStoreable());
                     table.commit();
-                } catch (Exception e) {
-                    System.err.println(e);
-                    Assert.fail();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        };
-        try {
-            thread.start();
-            Assert.assertTrue(table.size() == 1);
-            thread.join();
-            Assert.assertTrue(table.size() == 2);
-            table.commit();
-            Assert.assertTrue(table.size() == 2);
-        } catch (Exception e) {
-            System.err.println(e);
-            Assert.fail();
-        }
+        }).get();
+
+        thread1.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Assert.assertTrue(table.size() == 2);
+                    table.commit();
+                    Assert.assertTrue(table.size() == 2);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).get();
     }
 
     @Test
-    public void parallelPutAndGet() throws IOException {
+    public void parallelPutAndGet() throws IOException, InterruptedException, ExecutionException {
         final Object lock = new Object();
         File testFolder = new File(folder.getRoot(), "test");
         testFolder.mkdir();
         FileMapProviderFactory factory = new FileMapProviderFactory();
         final FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
-        MultiFileMap table = provider.createTable("new", getColumnTypeList());
-        table.put("a", getSampleStoreable());
-        Thread thread = new Thread() {
+        final MultiFileMap table = provider.createTable("new", getColumnTypeList());
+
+        ExecutorService thread1 = Executors.newSingleThreadExecutor();
+        ExecutorService thread2 = Executors.newSingleThreadExecutor();
+
+        thread1.submit(new Runnable() {
+            @Override
+            public void run() {
+                table.put("a", getSampleStoreable());
+            }
+        }).get();
+
+        final Storeable sample = getSampleStoreable();
+        sample.setColumnAt(0, 3);
+
+        thread2.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    MultiFileMap table = provider.getTable("new");
-                    Storeable sample = getSampleStoreable();
-                    sample.setColumnAt(0, 3);
                     Assert.assertTrue(table.size() == 0);
                     table.put("b", getSampleStoreable());
                     table.commit();
-                    synchronized (lock) {
-                        lock.notify();
-                    }
-                    synchronized (lock) {
-                        lock.wait();
-                    }
-                    Assert.assertTrue(table.storeableEqual(getSampleStoreable(), table.get("a")));
-                    table.put("a", sample);
-                    synchronized (lock) {
-                        lock.notify();
-                    }
-                    Assert.assertFalse(table.storeableEqual(getSampleStoreable(), table.get("a")));
-                } catch (Exception e) {
-                    System.err.println(e);
-                    Assert.fail();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
-        };
-        try {
-            thread.start();
-            synchronized (lock) {
-                lock.wait();
+        }).get();
+
+        thread1.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Assert.assertTrue(table.storeableEqual(table.get("b"), getSampleStoreable()));
+                    table.commit();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            Assert.assertTrue(table.storeableEqual(table.get("b"), getSampleStoreable()));
-            table.commit();
-            synchronized (lock) {
-                lock.notify();
+        }).get();
+
+        thread2.submit(new Runnable() {
+            @Override
+            public void run() {
+                Assert.assertTrue(table.storeableEqual(getSampleStoreable(), table.get("a")));
+                table.put("a", sample);
             }
-            synchronized (lock) {
-                lock.wait();
+        }).get();
+
+        thread1.submit(new Runnable() {
+            @Override
+            public void run() {
+                Assert.assertTrue(table.storeableEqual(table.get("a"), getSampleStoreable()));
             }
-            Assert.assertTrue(table.storeableEqual(table.get("a"), getSampleStoreable()));
-            thread.join();
-        } catch (Exception e) {
-            System.err.println(e);
-            Assert.fail();
-        }
+        }).get();
+
+        thread2.submit(new Runnable() {
+            @Override
+            public void run() {
+                Assert.assertFalse(table.storeableEqual(getSampleStoreable(), table.get("a")));
+            }
+        }).get();
     }
 }
 
