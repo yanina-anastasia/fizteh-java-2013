@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -22,6 +24,10 @@ public class MyTableProvider implements TableProvider {
 
     private String rootDir = null;
     private HashMap<String, MyTable> tables = new HashMap<String, MyTable>();
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(
+            true);
+    private Lock read = readWriteLock.readLock();
+    private Lock write = readWriteLock.writeLock();
 
     public MyTableProvider() {
     }
@@ -58,6 +64,7 @@ public class MyTableProvider implements TableProvider {
         return false;
     }
 
+//read
     @Override
     public Table getTable(String name) throws IllegalArgumentException,
             RuntimeException {
@@ -71,34 +78,42 @@ public class MyTableProvider implements TableProvider {
         if (tablePath == null) {
             throw new RuntimeException("no root directory");
         }
-        File tmpFile = new File(tablePath);
-        if (!tmpFile.exists() || !tmpFile.isDirectory()) {
-            return null;
-        }
-        File info = new File(tablePath + File.separator + "signature.tsv");
-        if (!info.exists() || info.length() == 0) {
-            throw new RuntimeException(name
-                    + " exists as folder and has no data as table");
-        }
-        List<Class<?>> oldTypes = new ArrayList<Class<?>>();
-        if (info.exists()) {
-            try {
-                oldTypes = getTypesFromSignature(info);
-            } catch (IOException e) {
-                throw new RuntimeException(name
-                        + " can't get info from signature", e);
-            }
-        }
+        read.lock();
         try {
-            if (tables.get(name) != null) {
-                return (Table) tables.get(name);
-            } else {
-                MyTable result = new MyTable(tablePath, name, this, oldTypes);
-                tables.put(name, result);
-                return (Table) result;
+            File tmpFile = new File(tablePath);
+            if (!tmpFile.exists() || !tmpFile.isDirectory()) {
+                return null;
             }
-        } catch (IOException e1) {
-            throw new RuntimeException("can't read info from signature.tsv", e1);
+            File info = new File(tablePath + File.separator + "signature.tsv");
+            if (!info.exists() || info.length() == 0) {
+                throw new RuntimeException(name
+                        + " exists as folder and has no data as table");
+            }
+            List<Class<?>> oldTypes = new ArrayList<Class<?>>();
+
+            if (info.exists()) {
+                try {
+                    oldTypes = getTypesFromSignature(info);
+                } catch (IOException e) {
+                    throw new RuntimeException(name
+                            + " can't get info from signature", e);
+                }
+            }
+            try {
+                if (tables.get(name) != null) {
+                    return (Table) tables.get(name);
+                } else {
+                    MyTable result = new MyTable(tablePath, name, this,
+                            oldTypes);
+                    tables.put(name, result);
+                    return (Table) result;
+                }
+            } catch (IOException e1) {
+                throw new RuntimeException(
+                        "can't read info from signature.tsv", e1);
+            }
+        } finally {
+            read.unlock();
         }
     }
 
@@ -200,6 +215,7 @@ public class MyTableProvider implements TableProvider {
         return types;
     }
 
+    // write
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, RuntimeException, IOException {
@@ -221,54 +237,60 @@ public class MyTableProvider implements TableProvider {
                 throw new IllegalArgumentException(type + " wrong type");
             }
         }
-        File tmpFile = new File(tablePath);
 
-        File info = new File(tablePath + File.separator + "signature.tsv");
-        List<Class<?>> oldTypes = new ArrayList<Class<?>>();
-        if (info.exists()) {
-            oldTypes = getTypesFromSignature(info);
-        }
+        write.lock();
+        try {
+            File tmpFile = new File(tablePath);
 
-        if (tmpFile.exists() && tmpFile.isDirectory()) {
-            if (!info.exists()) {
-                throw new IllegalArgumentException(name
-                        + " exists, but couldn't find table info");
-            } else {
-                if (oldTypes.size() != columnTypes.size()) {
+            File info = new File(tablePath + File.separator + "signature.tsv");
+            List<Class<?>> oldTypes = new ArrayList<Class<?>>();
+            if (info.exists()) {
+                oldTypes = getTypesFromSignature(info);
+            }
+
+            if (tmpFile.exists() && tmpFile.isDirectory()) {
+                if (!info.exists()) {
                     throw new IllegalArgumentException(name
-                            + " exists, but number of types mismatch");
-                }
-                for (int i = 0; i < oldTypes.size(); i++) {
-                    if (!oldTypes.get(i).equals(columnTypes.get(i))) {
+                            + " exists, but couldn't find table info");
+                } else {
+                    if (oldTypes.size() != columnTypes.size()) {
                         throw new IllegalArgumentException(name
-                                + " exists, but types mismatch");
+                                + " exists, but number of types mismatch");
+                    }
+                    for (int i = 0; i < oldTypes.size(); i++) {
+                        if (!oldTypes.get(i).equals(columnTypes.get(i))) {
+                            throw new IllegalArgumentException(name
+                                    + " exists, but types mismatch");
+                        }
+                    }
+                    if (tables.get(name) == null) {
+                        MyTable result = new MyTable(tablePath, name, this,
+                                columnTypes);
+                        tables.put(name, result);
                     }
                 }
-                if (tables.get(name) == null) {
-                    MyTable result = new MyTable(tablePath, name, this,
-                            columnTypes);
-                    tables.put(name, result);
-                }
-            }
-            return null;
-        } else {
-            if (!tmpFile.mkdir() || !info.createNewFile()) {
-                throw new RuntimeException(name + " can't create a table");
+                return null;
             } else {
-                writeTypes(info, columnTypes);
-                if (tables.get(name) == null) {
-                    MyTable result = new MyTable(tablePath, name, this,
-                            columnTypes);
-                    tables.put(name, result);
-                    return (Table) result;
+                if (!tmpFile.mkdir() || !info.createNewFile()) {
+                    throw new RuntimeException(name + " can't create a table");
                 } else {
-                    return null;
+                    writeTypes(info, columnTypes);
+                    if (tables.get(name) == null) {
+                        MyTable result = new MyTable(tablePath, name, this,
+                                columnTypes);
+                        tables.put(name, result);
+                        return (Table) result;
+                    } else {
+                        return null;
+                    }
                 }
             }
-
+        } finally {
+            write.unlock();
         }
     }
 
+    // write
     public void removeTable(String name) throws RuntimeException,
             IllegalArgumentException, IllegalStateException {
         if (isEmpty(name)) {
@@ -281,19 +303,24 @@ public class MyTableProvider implements TableProvider {
         if (tablePath == null) {
             throw new RuntimeException("no root directory");
         }
-        File tmpFile = new File(tablePath);
-        if (!tmpFile.exists() || !tmpFile.isDirectory()) {
-            throw new IllegalStateException(name + " not exists");
-        } else {
-            if (tables.get(name) != null) {
-                tables.remove(name);
-            }
-            Shell sh = new Shell(rootDir, false);
-            if (sh.rm(name) == ExitCode.OK) {
-                return;
+        write.lock();
+        try {
+            File tmpFile = new File(tablePath);
+            if (!tmpFile.exists() || !tmpFile.isDirectory()) {
+                throw new IllegalStateException(name + " not exists");
             } else {
-                throw new RuntimeException(name + " can't remove table");
+                if (tables.get(name) != null) {
+                    tables.remove(name);
+                }
+                Shell sh = new Shell(rootDir, false);
+                if (sh.rm(name) == ExitCode.OK) {
+                    return;
+                } else {
+                    throw new RuntimeException(name + " can't remove table");
+                }
             }
+        } finally {
+            write.unlock();
         }
     }
 

@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//import java.util.concurrent.locks.ReadWriteLock;
-//import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTable implements Table {
 
@@ -23,18 +23,17 @@ public class MyTable implements Table {
     private String currTableName = null;
     private MyTableProvider provider = null;
     private List<Class<?>> types = new ArrayList<Class<?>>();
-    private HashMap<String, Storeable> changesMap = new HashMap<String, Storeable>();
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock read = readWriteLock.readLock();
+    private Lock write = readWriteLock.writeLock();
     
-/*    private ThreadLocal<HashMap<String, Storeable>> updatedMap = new ThreadLocal<HashMap<String, Storeable>>() {
+    
+    private ThreadLocal<HashMap<String, Storeable>> changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
             return new HashMap<String, Storeable>();
         }
     };
-*/
-/*    public HashMap<String, Storeable> getHashMap() {
-        return updatedMap;
-    }*/
 
     public MyTableProvider getProvider() {
         return provider;
@@ -63,20 +62,22 @@ public class MyTable implements Table {
         return (!provider.hasBadSymbols(key) && !key.contains("[") && !key
                 .contains("]"));
     }
-
-    public Storeable getWithoutChecking(String key) {
-        if (changesMap.containsKey(key)) {
-            return changesMap.get(key);
-        } else {
-            return getDataBaseFromKey(key).get(key);
-        }
-    }
-    
+   
+//read
     public Storeable get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("get: key is empty");
         }
-        return getWithoutChecking(key);
+        if (changesMap.get().containsKey(key)) {
+            return changesMap.get().get(key);
+        } else {
+            read.lock();
+            try {
+                return getDataBaseFromKey(key).get(key);
+            } finally {
+                read.unlock();
+            }
+        } 
     }
 
     private void checkValue(Storeable value) {
@@ -104,7 +105,8 @@ public class MyTable implements Table {
         String str2 = provider.serialize(this, st2);
         return (!str1.equals(str2));
     }
-    
+
+//read
     public Storeable put(String key, Storeable value)
             throws IllegalArgumentException, ColumnFormatException {
         if (isEmpty(key)) {
@@ -122,46 +124,71 @@ public class MyTable implements Table {
             throw new ColumnFormatException("wrong type (put: "
                     + e1.getMessage() + ")", e1);
         }
-        Storeable oldVal = getDataBaseFromKey(key).get(key);
-        Storeable newVal = changesMap.get(key);
+        
+        Storeable oldVal = null;        
+        read.lock();
+        try {
+            oldVal = getDataBaseFromKey(key).get(key);
+        } finally {
+            read.unlock();
+        }
+        
+        Storeable newVal = changesMap.get().get(key);
         Storeable res = null;
-        if (changesMap.containsKey(key)) {
+        if (changesMap.get().containsKey(key)) {
             res = newVal;
         } else if (oldVal != null) {
             res = oldVal;
         }
         if (oldVal != null) {
             if (differs(oldVal, value)) {
-                    changesMap.put(key, value);
+                    changesMap.get().put(key, value);
             } else {
-                changesMap.remove(key);
+                changesMap.get().remove(key);
             }
         } else {
-            changesMap.put(key, value);
+            changesMap.get().put(key, value);
         }
         return res;
     }
-
+    
+//read
     public Storeable remove(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("remove: key is empty");
         }
-        Storeable res = getWithoutChecking(key);
-        changesMap.put(key, null);
-        if (getDataBaseFromKey(key).get(key) == null) {
-            changesMap.remove(key);
+        
+        Storeable oldVal = null;
+        read.lock();
+        try {
+            oldVal = getDataBaseFromKey(key).get(key);
+        } finally {
+            read.unlock();
+        }
+        
+        Storeable res;            
+        if (changesMap.get().containsKey(key)) {
+            res = changesMap.get().get(key);
+        } else {
+            res = oldVal;
         }
         return res;
     }
 
+//read
     public int size() {
         int n = 0;
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                n += data[i][j].getSize();
+                read.lock();
+                try {
+                    n += data[i][j].getSize();
+                } finally {
+                    read.unlock();
+                }
             }
         }
-        Set<Map.Entry<String, Storeable>> mySet = changesMap.entrySet();
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
         for (Map.Entry<String, Storeable> myEntry : mySet) {
             if (getDataBaseFromKey(myEntry.getKey()).get(myEntry.getKey()) == null) {
                 if (myEntry.getValue() != null) {
@@ -174,53 +201,9 @@ public class MyTable implements Table {
         return n;
     }
 
-/*    public int getUncommitedChangesAndTrack(boolean trackChanges)
-            throws RuntimeException {
-        Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
-        int nchanges = 0;
-        String key;
-        String val;
-        for (Map.Entry<String, Storeable> myEntry : mySet) {
-            key = myEntry.getKey();
-
-            DataBase myDBFile = getDataBaseFromKey(key);
-            if (myEntry.getValue() != null) {
-                if (!myDBFile.hasFile()) {
-                    myDBFile.createFile();
-                }
-            }
-
-            val = myDBFile.get(key);
-
-            if (myEntry.getValue() == null) {
-                if (myDBFile.get(key) != null) {
-                    nchanges++;
-                }
-                if (trackChanges) {
-                    myDBFile.remove(key);
-                    myDBFile.hasChanged = true;
-                }
-            } else {
-                String currVal = getProvider().serialize(this,
-                        myEntry.getValue());
-                if (val == null || !val.equals(currVal)) {
-                    nchanges++;
-                    if (trackChanges) {
-                        try {
-                            myDBFile.put(key, currVal);
-                            myDBFile.hasChanged = true;
-                        } catch (ColumnFormatException e) {
-                            throw new RuntimeException("some problems", e);
-                        }
-                    }
-                }
-            }
-        }
-        return nchanges;
-    }*/
-
+// write
     public void trackChanges() {
-        Set<Map.Entry<String, Storeable>> mySet = changesMap.entrySet();
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
         String key;
         Storeable value;
         DataBase mdb;
@@ -228,13 +211,18 @@ public class MyTable implements Table {
             key = myEntry.getKey();
             value = myEntry.getValue();
             mdb = getDataBaseFromKey(myEntry.getKey());
-            if (value == null) {
-                mdb.remove(key);
-            } else {
-                mdb.put(key, value);
+            write.lock();
+            try {
+                if (value == null) {
+                    mdb.remove(key);
+                } else {
+                    mdb.put(key, value);
+                }
+                mdb.createFile();
+                mdb.hasChanged = true;
+            } finally {
+                write.unlock();
             }
-            mdb.createFile();
-            mdb.hasChanged = true;
         }
     }
     
@@ -243,23 +231,14 @@ public class MyTable implements Table {
         trackChanges();
         if (nchanges != 0) {
             saveChanges();
-            changesMap.clear();
+            changesMap.get().clear();
         }
         return nchanges;
     }
 
     public int rollback() throws RuntimeException {
         int nchanges = getUncommitedChanges();
-/*        if (nchanges != 0) {
-            try {
-                loadFromDataMap();
-            } catch (ParseException | IllegalArgumentException e) {
-                throw new RuntimeException(
-                        "can't read data from saved changes", e);
-            }
-        }
-        */
-        changesMap.clear();
+        changesMap.get().clear();
         return nchanges;
     }
 
@@ -268,19 +247,25 @@ public class MyTable implements Table {
         currTableName = null;
     }
 
+// write to disk
     public void saveChanges() throws RuntimeException {
         if (currTableName == null) {
             return;
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                if (data[i][j].hasFile() && data[i][j].hasChanged) {
-                    try {
-                        data[i][j].commitChanges();
-                        data[i][j].hasChanged = false;
-                    } catch (IOException e) {
-                        throw new RuntimeException("can't write to file", e);
+                write.lock();
+                try {
+                    if (data[i][j].hasFile() && data[i][j].hasChanged) {
+                        try {
+                            data[i][j].commitChanges();
+                            data[i][j].hasChanged = false;
+                        } catch (IOException e) {
+                            throw new RuntimeException("can't write to file", e);
+                        }
                     }
+                } finally {
+                    write.unlock();
                 }
             }
         }
@@ -296,36 +281,48 @@ public class MyTable implements Table {
         }
     }
 
+//read from disk
     public void loadFromDisk() throws RuntimeException {
         if (changesMap != null) {
-            changesMap.clear();
+            changesMap.get().clear();
         } else {
-            changesMap = new HashMap<String, Storeable>();
+            changesMap.set(new HashMap<String, Storeable>());
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
+                read.lock();
                 try {
-                    data[i][j] = new DataBase(this, i, j);
-                } catch (ParseException e) {
-                    throw new RuntimeException("wrong type (load "
-                            + e.getMessage() + ")", e);
+                    try {
+                        data[i][j] = new DataBase(this, i, j);
+                    } catch (ParseException e) {
+                        throw new RuntimeException("wrong type (load "
+                                + e.getMessage() + ")", e);
+                    }
+                } finally {
+                    read.unlock();
                 }
             }
         }
     }
 
+//read
     public void loadFromDataMap() throws IllegalArgumentException,
             ParseException {
         if (changesMap != null) {
-            changesMap.clear();
+            changesMap.get().clear();
         } else {
-            changesMap = new HashMap<String, Storeable>();
+            changesMap.set(new HashMap<String, Storeable>());
         }
 
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                if (data[i][j].hasFile()) {
-                    data[i][j].loadDataToMap(changesMap);
+                read.lock();
+                try {
+                    if (data[i][j].hasFile()) {
+                        data[i][j].loadDataToMap(changesMap.get());
+                    }
+                } finally {
+                    read.unlock();
                 }
             }
         }
@@ -351,7 +348,7 @@ public class MyTable implements Table {
     }
 
     public int getUncommitedChanges() {
-        return changesMap.size();
+        return changesMap.get().size();
     }
     
     @Override
