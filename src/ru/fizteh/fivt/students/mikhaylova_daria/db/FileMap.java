@@ -78,11 +78,16 @@ public class FileMap {
             fileMapNewValue.get().put(key, value);
             return null;
         }
-        if ((!fileMapInitial.containsKey(key)) || fileMapNewValue.get().containsKey(key)) {
-            return fileMapNewValue.get().put(key, value);
-        } else {
-            fileMapNewValue.get().put(key, value);
-            return fileMapInitial.get(key);
+        myWriteLock.lock();
+        try {
+            if ((!fileMapInitial.containsKey(key)) || fileMapNewValue.get().containsKey(key)) {
+                return fileMapNewValue.get().put(key, value);
+            } else {
+                fileMapNewValue.get().put(key, value);
+                return fileMapInitial.get(key);
+            }
+        } finally {
+            myWriteLock.unlock();
         }
     }
 
