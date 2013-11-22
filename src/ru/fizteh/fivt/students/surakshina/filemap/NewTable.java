@@ -17,12 +17,12 @@ import ru.fizteh.fivt.storage.structured.Table;
 
 public class NewTable implements Table {
     private final String name;
-    private volatile HashMap<String, Storeable> dataMap = new HashMap<>();
+    private HashMap<String, Storeable> dataMap = new HashMap<>();
     private final NewTableProvider provider;
     private final ArrayList<Class<?>> types;
     private ReadWriteLock controller = new ReentrantReadWriteLock(true);
 
-    private ThreadLocal<HashMap<String, Storeable>> localDataMap = new ThreadLocal<HashMap<String, Storeable>>() {
+    private static ThreadLocal<HashMap<String, Storeable>> localMap = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
             return new HashMap<String, Storeable>();
@@ -113,7 +113,7 @@ public class NewTable implements Table {
         int count = unsavedChanges();
         controller.writeLock().lock();
         try {
-            for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
+            for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey()) && !dataMap.get(entry.getKey()).equals(entry.getValue())) {
                     if (entry.getValue() != null) {
                         dataMap.put(entry.getKey(), entry.getValue());
@@ -130,7 +130,7 @@ public class NewTable implements Table {
         } finally {
             controller.writeLock().unlock();
         }
-        localDataMap.get().clear();
+        localMap.get().clear();
         return count;
     }
 
@@ -144,8 +144,8 @@ public class NewTable implements Table {
         }
         checkStoreable(value);
         Storeable result = null;
-        if (localDataMap.get().containsKey(key)) {
-            result = localDataMap.get().get(key);
+        if (localMap.get().containsKey(key)) {
+            result = localMap.get().get(key);
         } else {
             controller.readLock().lock();
             try {
@@ -156,7 +156,7 @@ public class NewTable implements Table {
                 controller.readLock().unlock();
             }
         }
-        localDataMap.get().put(key, value);
+        localMap.get().put(key, value);
         return result;
     }
 
@@ -183,7 +183,7 @@ public class NewTable implements Table {
         int count = 0;
         controller.readLock().lock();
         try {
-            for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
+            for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey())) {
                     if (!dataMap.get(entry.getKey()).equals(entry.getValue())) {
                         ++count;
@@ -204,8 +204,8 @@ public class NewTable implements Table {
     public Storeable remove(String key) {
         checkKey(key);
         Storeable oldVal = null;
-        if (localDataMap.get().containsKey(key)) {
-            oldVal = localDataMap.get().get(key);
+        if (localMap.get().containsKey(key)) {
+            oldVal = localMap.get().get(key);
         } else {
             controller.readLock().lock();
             try {
@@ -216,14 +216,14 @@ public class NewTable implements Table {
                 controller.readLock().unlock();
             }
         }
-        localDataMap.get().put(key, null);
+        localMap.get().put(key, null);
         return oldVal;
     }
 
     @Override
     public Storeable get(String key) {
         checkKey(key);
-        if (!localDataMap.get().containsKey(key)) {
+        if (!localMap.get().containsKey(key)) {
             controller.readLock().lock();
             try {
                 if (!dataMap.containsKey(key)) {
@@ -235,7 +235,7 @@ public class NewTable implements Table {
                 controller.readLock().unlock();
             }
         } else {
-            return localDataMap.get().get(key);
+            return localMap.get().get(key);
         }
     }
 
@@ -259,7 +259,7 @@ public class NewTable implements Table {
     @Override
     public int rollback() {
         int count = unsavedChanges();
-        localDataMap.get().clear();
+        localMap.get().clear();
         return count;
     }
 
@@ -268,7 +268,7 @@ public class NewTable implements Table {
         int count = dataMap.size();
         controller.readLock().lock();
         try {
-            for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
+            for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey())) {
                     if (entry.getValue() == null) {
                         --count;
