@@ -247,7 +247,7 @@ public class TableImplementation implements Table {
     @Override
     public int size() {
         try {
-            return computeSize() + currentTableChanges.get();
+            return computeSize() + countChanges();
         } catch (IOException e) {
             throw new RuntimeException("Error while computing size: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
