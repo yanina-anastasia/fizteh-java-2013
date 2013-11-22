@@ -4,6 +4,8 @@ import java.io.*;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.DataFormatException;
 import ru.fizteh.fivt.storage.structured.*;
 
@@ -21,6 +23,11 @@ public class FileMap {
             return null;
         }
     };
+
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock myWriteLock = readWriteLock.writeLock();
+    private final Lock myReadLock = readWriteLock.readLock();
 
     private File file;
     private Short[] id;
@@ -85,23 +92,28 @@ public class FileMap {
             throw new IllegalArgumentException("Table is null");
         }
         table.checkKey(key);
-        if (!isLoaded) {
-            try {
-                readFile(table);
-            } catch (DataFormatException e) {
-                throw new IllegalArgumentException("Bad data", e);
-            } catch (Exception e) {
-                throw new RuntimeException("Reading error", e);
+        myReadLock.lock();
+        try {
+            if (!isLoaded) {
+                try {
+                    readFile(table);
+                } catch (DataFormatException e) {
+                    throw new IllegalArgumentException("Bad data", e);
+                } catch (Exception e) {
+                    throw new RuntimeException("Reading error", e);
+                }
             }
-        }
-        if (fileMapNewValue.get().containsKey(key)) {
-            return fileMapNewValue.get().get(key);
-        } else {
-            if (fileMapRemoveKey.get().contains(key)) {
-                return null;
+            if (fileMapNewValue.get().containsKey(key)) {
+                return fileMapNewValue.get().get(key);
             } else {
-                return fileMapInitial.get(key);
+                if (fileMapRemoveKey.get().contains(key)) {
+                    return null;
+                } else {
+                    return fileMapInitial.get(key);
+                }
             }
+        } finally {
+            myReadLock.unlock();
         }
     }
 
@@ -111,34 +123,39 @@ public class FileMap {
         }
         table.checkKey(key);
         initialMap();
-        if (!isLoaded) {
-            try {
-                readFile(table);
-            } catch (DataFormatException e) {
-                throw new IllegalArgumentException("Bad data", e);
-            } catch (Exception e) {
-                throw new RuntimeException("Reading error", e);
-            }
-        }
-        if (fileMapNewValue.get().containsKey(key)) {
-            if (!fileMapInitial.containsKey(key)) {
-                return fileMapNewValue.get().remove(key);
-            } else {
-                fileMapRemoveKey.get().add(key);
-                return fileMapNewValue.get().remove(key);
-            }
-
-        } else {
-            if (fileMapRemoveKey.get().contains(key)) {
-                return null;
-            } else {
-                if (fileMapInitial.containsKey(key)) {
-                    fileMapRemoveKey.get().add(key);
-                    return fileMapInitial.get(key);
-                } else {
-                    return null;
+        myReadLock.lock();
+        try {
+            if (!isLoaded) {
+                try {
+                    readFile(table);
+                } catch (DataFormatException e) {
+                    throw new IllegalArgumentException("Bad data", e);
+                } catch (Exception e) {
+                    throw new RuntimeException("Reading error", e);
                 }
             }
+            if (fileMapNewValue.get().containsKey(key)) {
+                if (!fileMapInitial.containsKey(key)) {
+                    return fileMapNewValue.get().remove(key);
+                } else {
+                    fileMapRemoveKey.get().add(key);
+                    return fileMapNewValue.get().remove(key);
+                }
+
+            } else {
+                if (fileMapRemoveKey.get().contains(key)) {
+                    return null;
+                } else {
+                    if (fileMapInitial.containsKey(key)) {
+                        fileMapRemoveKey.get().add(key);
+                        return fileMapInitial.get(key);
+                    } else {
+                        return null;
+                    }
+                }
+            }
+        } finally {
+            myReadLock.unlock();
         }
     }
 
@@ -146,52 +163,56 @@ public class FileMap {
         initialMap();
         RandomAccessFile fileDataBase = null;
         Exception e = null;
+        myWriteLock.lock();
         try {
-            fileDataBase = new RandomAccessFile(file, "rw");
-            fileDataBase.setLength(0);
-            HashMap<String, Long> offsets = new HashMap<String, Long>();
-            long currentOffsetOfValue;
-            long offset = fileDataBase.getFilePointer();
-            for (String key: fileMapInitial.keySet()) {
-                fileDataBase.write(key.getBytes("UTF8"));
-                fileDataBase.write("\0".getBytes());
-                offset = fileDataBase.getFilePointer();
-                offsets.put(key, offset);
-                fileDataBase.seek(fileDataBase.getFilePointer() + 4);
-                currentOffsetOfValue = fileDataBase.getFilePointer();
-            }
-
-            long currentPosition = 0;
-            for (String key: fileMapInitial.keySet()) {
-                String value = table.manager.serialize(table, fileMapInitial.get(key));
-                fileDataBase.write(value.getBytes("UTF8"));
-                currentPosition  = fileDataBase.getFilePointer();
-                currentOffsetOfValue = currentPosition - value.getBytes("UTF8").length;
-                fileDataBase.seek(offsets.get(key));
-                Integer lastOffsetInt = new Long(currentOffsetOfValue).intValue();
-                fileDataBase.writeInt(lastOffsetInt);
-                fileDataBase.seek(currentPosition);
-            }
-        } catch (Exception exp) {
-            e = exp;
-            throw e;
-        } finally {
             try {
-                if (fileDataBase != null) {
-                    fileDataBase.close();
+                fileDataBase = new RandomAccessFile(file, "rw");
+                fileDataBase.setLength(0);
+                HashMap<String, Long> offsets = new HashMap<String, Long>();
+                long currentOffsetOfValue;
+                long offset = fileDataBase.getFilePointer();
+                for (String key: fileMapInitial.keySet()) {
+                    fileDataBase.write(key.getBytes("UTF8"));
+                    fileDataBase.write("\0".getBytes());
+                    offset = fileDataBase.getFilePointer();
+                    offsets.put(key, offset);
+                    fileDataBase.seek(fileDataBase.getFilePointer() + 4);
+                    currentOffsetOfValue = fileDataBase.getFilePointer();
                 }
-            } catch (Throwable th) {
-                if (e != null) {
-                    e.addSuppressed(th);
+
+                long currentPosition = 0;
+                for (String key: fileMapInitial.keySet()) {
+                    String value = table.manager.serialize(table, fileMapInitial.get(key));
+                    fileDataBase.write(value.getBytes("UTF8"));
+                    currentPosition  = fileDataBase.getFilePointer();
+                    currentOffsetOfValue = currentPosition - value.getBytes("UTF8").length;
+                    fileDataBase.seek(offsets.get(key));
+                    Integer lastOffsetInt = new Long(currentOffsetOfValue).intValue();
+                    fileDataBase.writeInt(lastOffsetInt);
+                    fileDataBase.seek(currentPosition);
+                }
+            } catch (Exception exp) {
+                e = exp;
+                throw e;
+            } finally {
+                try {
+                    if (fileDataBase != null) {
+                        fileDataBase.close();
+                    }
+                } catch (Throwable th) {
+                    if (e != null) {
+                        e.addSuppressed(th);
+                    }
                 }
             }
+            if (file.length() == 0) {
+                deleteEmptyFile();
+            }
+            fileMapRemoveKey.get().clear();
+            fileMapNewValue.get().clear();
+        } finally {
+            myWriteLock.unlock();
         }
-        if (file.length() == 0) {
-            deleteEmptyFile();
-        }
-        fileMapRemoveKey.get().clear();
-        fileMapNewValue.get().clear();
-
     }
 
     private boolean deleteEmptyFile() {
@@ -207,7 +228,12 @@ public class FileMap {
         if (isLoaded) {
             fileMapRemoveKey.get().clear();
             fileMapNewValue.get().clear();
-            fileMapInitial.clear();
+            myWriteLock.lock();
+            try {
+                fileMapInitial.clear();
+            } finally {
+                myWriteLock.unlock();
+            }
             isLoaded = false;
         }
     }
@@ -216,84 +242,90 @@ public class FileMap {
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
         }
-        fileMapInitial.clear();
         Exception e = null;
         Storeable storeableValue;
         RandomAccessFile dataBase = null;
+        myWriteLock.lock();
         try {
-            dataBase = new RandomAccessFile(file, "r");
-            HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
-            HashMap<String, Integer> keyAndValueLength = new HashMap<String, Integer>();
-            String key = readKey(dataBase);
-            byte b = key.getBytes()[0];
-            if (b < 0) {
-                b *= (-1);
-            }
-            if (id[0] != b % 16 && id[1] != b / 16 % 16) {
-                throw new DataFormatException("Illegal key in file1 " + file.toPath().toString());
-            }
-            if (keyAndValueLength.containsKey(key)) {
-                throw new DataFormatException("Illegal key in file2 " + file.toPath().toString());
-            }
-            Integer offset = 0;
+            fileMapInitial.clear();
             try {
-                offset = dataBase.readInt();
-            } catch (EOFException e1) {
-                throw new DataFormatException(file.getName());
-            }
-            offsetAndKeyMap.put(offset, key);
-            final int firstOffset = offset;
-            try {
-                int lastOffset = offset;
-                String lastKey;
-                while (dataBase.getFilePointer() < firstOffset) {
-                    lastKey = key;
-                    key = readKey(dataBase);
-                    lastOffset = offset;
-                    offset = dataBase.readInt();
-                    offsetAndKeyMap.put(offset, key);
-                    keyAndValueLength.put(lastKey, offset - lastOffset);
-                    if (keyAndValueLength.containsKey(key)) {
-                        throw new DataFormatException(file.getName() + ": " + key + ": The key is already contained");
-                    }
+                dataBase = new RandomAccessFile(file, "r");
+                HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
+                HashMap<String, Integer> keyAndValueLength = new HashMap<String, Integer>();
+                String key = readKey(dataBase);
+                byte b = key.getBytes()[0];
+                if (b < 0) {
+                    b *= (-1);
                 }
-                keyAndValueLength.put(key, (int) dataBase.length() - offset);
-            } catch (EOFException e1) {
-                throw new DataFormatException(file.getName());
-            }
-            int lengthOfValue = 0;
-            while (dataBase.getFilePointer() < dataBase.length()) {
-                int currentOffset = (int) dataBase.getFilePointer();
-                if (!offsetAndKeyMap.containsKey(currentOffset)) {
-                    throw new DataFormatException("Illegal key in file " + file.toPath().toString());
-                } else {
-                    key = offsetAndKeyMap.get(currentOffset);
-                    lengthOfValue = keyAndValueLength.get(key);
+                if (id[0] != b % 16 && id[1] != b / 16 % 16) {
+                    throw new DataFormatException("Illegal key in file1 " + file.toPath().toString());
                 }
-                byte[] valueInBytes = new byte[lengthOfValue];
-                for (int i = 0; i < lengthOfValue; ++i) {
-                    valueInBytes[i] = dataBase.readByte();
+                if (keyAndValueLength.containsKey(key)) {
+                    throw new DataFormatException("Illegal key in file2 " + file.toPath().toString());
                 }
-                String value = new String(valueInBytes, "UTF8");
-                storeableValue = table.manager.deserialize(table, value);
-                fileMapInitial.put(key, storeableValue);
-            }
-        } catch (FileNotFoundException e1) {
-            e = e1;
-            return;
-        } catch (EOFException e2) {
-            e = e2;
-            throw new DataFormatException(file.toString());
-        } finally {
-            if (dataBase != null) {
+                Integer offset = 0;
                 try {
-                    dataBase.close();
-                } catch (Throwable th) {
-                    if (e != null) {
-                        e.addSuppressed(th);
+                    offset = dataBase.readInt();
+                } catch (EOFException e1) {
+                    throw new DataFormatException(file.getName());
+                }
+                offsetAndKeyMap.put(offset, key);
+                final int firstOffset = offset;
+                try {
+                    int lastOffset = offset;
+                    String lastKey;
+                    while (dataBase.getFilePointer() < firstOffset) {
+                        lastKey = key;
+                        key = readKey(dataBase);
+                        lastOffset = offset;
+                        offset = dataBase.readInt();
+                        offsetAndKeyMap.put(offset, key);
+                        keyAndValueLength.put(lastKey, offset - lastOffset);
+                        if (keyAndValueLength.containsKey(key)) {
+                            throw new DataFormatException(file.getName() + ": " + key
+                                    + ": The key is already contained");
+                        }
+                    }
+                    keyAndValueLength.put(key, (int) dataBase.length() - offset);
+                } catch (EOFException e1) {
+                    throw new DataFormatException(file.getName());
+                }
+                int lengthOfValue = 0;
+                while (dataBase.getFilePointer() < dataBase.length()) {
+                    int currentOffset = (int) dataBase.getFilePointer();
+                    if (!offsetAndKeyMap.containsKey(currentOffset)) {
+                        throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                    } else {
+                        key = offsetAndKeyMap.get(currentOffset);
+                        lengthOfValue = keyAndValueLength.get(key);
+                    }
+                    byte[] valueInBytes = new byte[lengthOfValue];
+                    for (int i = 0; i < lengthOfValue; ++i) {
+                        valueInBytes[i] = dataBase.readByte();
+                    }
+                    String value = new String(valueInBytes, "UTF8");
+                    storeableValue = table.manager.deserialize(table, value);
+                    fileMapInitial.put(key, storeableValue);
+                }
+            } catch (FileNotFoundException e1) {
+                e = e1;
+                return;
+            } catch (EOFException e2) {
+                e = e2;
+                throw new DataFormatException(file.toString());
+            } finally {
+                if (dataBase != null) {
+                    try {
+                        dataBase.close();
+                    } catch (Throwable th) {
+                        if (e != null) {
+                            e.addSuppressed(th);
+                        }
                     }
                 }
             }
+        } finally {
+            myReadLock.unlock();
         }
         isLoaded = true;
     }
@@ -328,16 +360,21 @@ public class FileMap {
         int numberOfChanges = 0;
         Set<String> newKeys = fileMapNewValue.get().keySet();
         Set<String> oldKeys = fileMapInitial.keySet();
-        for (String key: newKeys) {
-            if (oldKeys.contains(key)) {
-                String val1 = table.manager.serialize(table, fileMapNewValue.get().get(key));
-                String val2 = table.manager.serialize(table, fileMapInitial.get(key));
-                if (!val1.equals(val2)) {
+        myReadLock.lock();
+        try {
+            for (String key: newKeys) {
+                if (oldKeys.contains(key)) {
+                    String val1 = table.manager.serialize(table, fileMapNewValue.get().get(key));
+                    String val2 = table.manager.serialize(table, fileMapInitial.get(key));
+                    if (!val1.equals(val2)) {
+                        ++numberOfChanges;
+                    }
+                } else {
                     ++numberOfChanges;
                 }
-            } else {
-                ++numberOfChanges;
             }
+        } finally {
+            myReadLock.unlock();
         }
         Set<String> removeKeys = fileMapRemoveKey.get();
         for (String key: removeKeys) {
@@ -356,30 +393,35 @@ public class FileMap {
         }
         int numberOfChanges = numberOfChangesCounter(table);
         if (numberOfChanges != 0) {
-            Set<String> newKeys = fileMapNewValue.get().keySet();
-            Set<String> oldKeys = fileMapInitial.keySet();
-            for (String key: newKeys) {
-                if (oldKeys.contains(key)) {
-                    String val1 = table.manager.serialize(table, fileMapNewValue.get().get(key));
-                    String val2 = table.manager.serialize(table, fileMapInitial.get(key));
-                    if (!val1.equals(val2)) {
+            myWriteLock.lock();
+            try {
+                Set<String> newKeys = fileMapNewValue.get().keySet();
+                Set<String> oldKeys = fileMapInitial.keySet();
+                for (String key: newKeys) {
+                    if (oldKeys.contains(key)) {
+                        String val1 = table.manager.serialize(table, fileMapNewValue.get().get(key));
+                        String val2 = table.manager.serialize(table, fileMapInitial.get(key));
+                        if (!val1.equals(val2)) {
+                            fileMapInitial.put(key, fileMapNewValue.get().get(key));
+                        }
+                    } else {
                         fileMapInitial.put(key, fileMapNewValue.get().get(key));
                     }
-                } else {
-                    fileMapInitial.put(key, fileMapNewValue.get().get(key));
                 }
-            }
-            Set<String> removeKeys = fileMapRemoveKey.get();
-            for (String key: removeKeys) {
-                if (oldKeys.contains(key)) {
-                    fileMapInitial.remove(key);
+                Set<String> removeKeys = fileMapRemoveKey.get();
+                for (String key: removeKeys) {
+                    if (oldKeys.contains(key)) {
+                        fileMapInitial.remove(key);
+                    }
                 }
-            }
-            try {
-                writeFile(table);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("Writing error", e);
+                try {
+                    writeFile(table);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new IllegalArgumentException("Writing error", e);
+                }
+            } finally {
+                myWriteLock.unlock();
             }
         }
     }
@@ -406,15 +448,20 @@ public class FileMap {
                 throw new IllegalArgumentException("Reading error", e);
             }
         }
-        Set<String> newKeys = fileMapNewValue.get().keySet();
-        Set<String> oldKeys = fileMapInitial.keySet();
-        int numberOfNew = 0;
-        for (String key: newKeys) {
-            if (!oldKeys.contains(key)) {
-                ++numberOfNew;
+        myReadLock.lock();
+        try {
+            Set<String> newKeys = fileMapNewValue.get().keySet();
+            Set<String> oldKeys = fileMapInitial.keySet();
+            int numberOfNew = 0;
+            for (String key: newKeys) {
+                if (!oldKeys.contains(key)) {
+                    ++numberOfNew;
+                }
             }
+            return fileMapInitial.size() - fileMapRemoveKey.get().size() + numberOfNew;
+        } finally {
+            myReadLock.unlock();
         }
-        return fileMapInitial.size() - fileMapRemoveKey.get().size() + numberOfNew;
     }
 }
 
