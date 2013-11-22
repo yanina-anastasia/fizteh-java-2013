@@ -221,23 +221,24 @@ public class TableCommands implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) {
-        readLock.lock();
+        if (value == null || key == null || key.isEmpty() || key.matches(".*\\s.*")) {
+            throw new IllegalArgumentException("Bad args");
+        }
         try {
-            if (value == null || key == null || key.isEmpty() || key.matches(".*\\s.*")) {
-                throw new IllegalArgumentException("Bad args");
-            }
+            getUsingDatFile(key);
+            update.get().put(numberOfDir.get() * 16 + numberOfFile.get(), " ");
+            readLock.lock();
+            String stringValue;
             try {
-                getUsingDatFile(key);
-                update.get().put(numberOfDir.get() * 16 + numberOfFile.get(), " ");
-                String stringValue = tableProvider.serialize(this, value);
-                Storeable answer = get(key);
-                diff.get()[numberOfDir.get()][numberOfFile.get()].put(key, stringValue);
-                return answer;
-            } catch (Exception e) {
-                throw new ColumnFormatException("incorrect args", e);
+                stringValue = tableProvider.serialize(this, value);
+            } finally {
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
+            Storeable answer = get(key);
+            diff.get()[numberOfDir.get()][numberOfFile.get()].put(key, stringValue);
+            return answer;
+        } catch (Exception e) {
+            throw new ColumnFormatException("incorrect args", e);
         }
     }
 
@@ -428,14 +429,24 @@ public class TableCommands implements Table {
 
     @Override
     public int getColumnsCount() {
-        return types.size();
+        readLock.lock();
+        try {
+            return types.size();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex < 0 || columnIndex >= types.size()) {
-            throw new IndexOutOfBoundsException();
+        readLock.lock();
+        try {
+            if (columnIndex < 0 || columnIndex >= types.size()) {
+                throw new IndexOutOfBoundsException();
+            }
+            return types.get(columnIndex);
+        } finally {
+            readLock.unlock();
         }
-        return types.get(columnIndex);
     }
 }
