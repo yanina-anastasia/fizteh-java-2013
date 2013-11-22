@@ -6,16 +6,15 @@ import java.util.Map;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class MultiHashMap {
-    @SuppressWarnings("unchecked")
-    HashMap<String, Storeable>[][] dbArray = (HashMap<String, Storeable>[][]) new HashMap[16][16];
+    HashMap<String, Storeable>[][] dbArray;
     private int size = 0;
     
     public Storeable put(String key, Storeable value) {
-        Storeable result = getMapForKey(key).put(key, value);
-        if (result == null) {
+        HashMap<String, Storeable> db = getMapForKey(key);
+        if (!db.containsKey(key)) {
             ++size;
         }
-        return result;
+        return db.put(key, value);
     }
     
     public Storeable get(String key) {
@@ -23,11 +22,11 @@ public class MultiHashMap {
     }
 
     public Storeable remove(String key) {
-        Storeable result = getMapForKey(key).remove(key);
-        if (result != null) {
+        HashMap<String, Storeable> db = getMapForKey(key);
+        if (db.containsKey(key)) {
             --size;
         }
-        return result;
+        return db.remove(key);
     }
     
     public boolean containsKey(String key) {
@@ -53,6 +52,7 @@ public class MultiHashMap {
     }
 
     public MultiHashMap() {
+        dbArray = (HashMap<String, Storeable>[][]) new HashMap[16][16];
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 dbArray[i][j] = new HashMap<String, Storeable>();
