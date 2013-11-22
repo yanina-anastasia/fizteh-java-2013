@@ -281,14 +281,14 @@ public class FileMap implements Table {
                 if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
                     ++diffSize;
                     if (modifiedFiles != null) {
-                        modifiedFiles.add((int) key.getBytes()[0]);
+                        modifiedFiles.add(Math.abs((int) key.getBytes()[0]));
                     }
                 }
             } else if (type == DiffType.REMOVE) {
                 if (db.containsKey(key)) {
                     ++diffSize;
                     if (modifiedFiles != null) {
-                        modifiedFiles.add((int) key.getBytes()[0]);
+                        modifiedFiles.add(Math.abs((int) key.getBytes()[0]));
                     }
                 }
             }
