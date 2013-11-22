@@ -7,6 +7,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.belousova.utils.FileUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandAbstract;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
+import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -248,6 +249,13 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         Table resTable = null;
         write.lock();
         try {
+            if (name.equals("table")) {
+                try {
+                    mySystem.rm(new String[]{pathDb.resolve(name).toString()});
+                } catch (ErrorShell errorShell) {
+                    errorShell.printStackTrace();
+                }
+            }
             if (setDirTable.contains(name)) {
                 resTable = null;
             } else {
