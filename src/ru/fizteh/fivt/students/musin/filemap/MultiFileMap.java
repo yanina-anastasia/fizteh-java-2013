@@ -460,6 +460,7 @@ public class MultiFileMap implements Table {
                 }
             }
             writeToDisk();
+            diff.get().clear();
         } finally {
             lock.writeLock().unlock();
         }
