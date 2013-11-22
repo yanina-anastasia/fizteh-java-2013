@@ -98,7 +98,7 @@ public class MyTableTest {
         types.add(Long.class);
         types.add(Long.class);
 
-        Table table = provider.createTable("simple1", types);
+        Table table = provider.createTable("simple13424", types);
 
         Storeable storeable = provider.createFor(table);
 

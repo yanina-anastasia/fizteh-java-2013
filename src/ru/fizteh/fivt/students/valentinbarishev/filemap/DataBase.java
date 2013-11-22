@@ -20,6 +20,10 @@ public final class DataBase implements Table {
     private TableProvider provider;
     private List<Class<?>> types;
 
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    public Lock readLock = readWriteLock.readLock();
+    public Lock writeLock = readWriteLock.writeLock();
+
     public final class DirFile {
         private int nDir;
         private int nFile;
@@ -219,9 +223,14 @@ public final class DataBase implements Table {
     @Override
     public int commit() {
         int allNew = 0;
-        for (int i = 0; i < 256; ++i) {
-            allNew += files[i].getNewKeys();
-            files[i].commit();
+        writeLock.lock();
+        try {
+            for (int i = 0; i < 256; ++i) {
+                allNew += files[i].getNewKeys();
+                files[i].commit();
+            }
+        } finally {
+            writeLock.unlock();
         }
         return  allNew;
     }
