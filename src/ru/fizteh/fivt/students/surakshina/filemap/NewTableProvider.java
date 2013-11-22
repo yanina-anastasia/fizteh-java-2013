@@ -138,33 +138,28 @@ public class NewTableProvider implements TableProvider {
 
     private void removeTableFromDisk(NewTable table) {
         File tableFile = new File(workingDirectory, table.getName());
-        providerController.lock();
-        try {
-            for (File dir : tableFile.listFiles()) {
-                if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
-                        || (dir.getName().equals("signature.tsv"))) {
-                    if (dir.getName().equals("signature.tsv")) {
-                        continue;
-                    }
-                    for (File file : dir.listFiles()) {
-                        if (checkNameOfFiles(file.getName()) && file.isFile()) {
-                            file.delete();
-                        }
-                    }
-                    dir.delete();
+        for (File dir : tableFile.listFiles()) {
+            if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
+                    || (dir.getName().equals("signature.tsv"))) {
+                if (dir.getName().equals("signature.tsv")) {
+                    continue;
                 }
+                for (File file : dir.listFiles()) {
+                    if (checkNameOfFiles(file.getName()) && file.isFile()) {
+                        file.delete();
+                    }
+                }
+                dir.delete();
             }
-        } finally {
-            providerController.unlock();
         }
     }
 
     public void saveChanges(NewTable table) throws IOException {
         currentTable = table;
         HashMap<File, HashMap<String, String>> files = makeFiles(table);
-        removeTableFromDisk(table);
         providerController.lock();
         try {
+            removeTableFromDisk(table);
             for (File file : files.keySet()) {
                 File newDir = new File(workingDirectory + File.separator + table.getName() + File.separator
                         + file.getParentFile().getName());
@@ -174,7 +169,6 @@ public class NewTableProvider implements TableProvider {
                 File newFile = new File(newDir, file.getName());
                 WriteInDataBase.saveFile(newFile, files.get(file));
             }
-            tables.put(table.getName(), table);
         } finally {
             providerController.unlock();
         }
