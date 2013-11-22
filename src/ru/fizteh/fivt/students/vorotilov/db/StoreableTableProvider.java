@@ -57,30 +57,25 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable getTable(String name) {
         checkTableName(name);
-        StoreableTable requestedTable;
-        providerLock.readLock().lock();
+        providerLock.writeLock().lock();
         try {
-            requestedTable = tables.get(name);
-        } finally {
-            providerLock.readLock().unlock();
-        }
-        if (requestedTable != null) {
-            return requestedTable;
-        } else {
-            File tableRootDir = new File(rootDir, name);
-            if (!tableRootDir.exists()) {
-                return null;
+            StoreableTable requestedTable = tables.get(name);
+            if (requestedTable != null) {
+                return requestedTable;
             } else {
-                providerLock.writeLock().lock();
-                try {
+                File tableRootDir = new File(rootDir, name);
+                if (!tableRootDir.exists()) {
+                    return null;
+                } else {
                     StoreableTable newOpenedTable = new StoreableTable(this, tableRootDir);
                     tables.put(name, newOpenedTable);
                     return new StoreableTable(this, tableRootDir);
-                } finally {
-                    providerLock.writeLock().unlock();
                 }
             }
+        } finally {
+            providerLock.writeLock().unlock();
         }
+
     }
 
     /**
