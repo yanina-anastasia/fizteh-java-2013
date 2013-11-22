@@ -397,12 +397,6 @@ public class DataBase implements Table {
                 return new Transaction();
             }
         };
-        try {
-            readClasses();
-        } catch (IOException e) {
-            System.out.println("Database: Oops! don't have file with types!");
-            System.exit(1);
-        }
     }
 
 
@@ -490,7 +484,6 @@ public class DataBase implements Table {
             lock.lock();
             int changesCount = transaction.get().commit();
             transaction.get().clearMap();
-            //saveDataBase();
             return changesCount;
         }
         finally {
@@ -499,9 +492,14 @@ public class DataBase implements Table {
     }
 
     public int rollback () {
-        int count = transaction.get().calcChanges();
-        transaction.get().clearMap();
-        return count;
+        try{
+            lock.lock();
+            int count = transaction.get().calcChanges();
+            transaction.get().clearMap();
+            return count;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public int getColumnsCount() {
