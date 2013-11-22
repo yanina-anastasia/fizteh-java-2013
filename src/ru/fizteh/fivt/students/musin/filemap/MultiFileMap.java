@@ -108,26 +108,29 @@ public class MultiFileMap implements Table {
     }
 
     public int size() {
-        lock.readLock().lock();
         int size = 0;
-        for (int i = 0; i < arraySize; i++) {
-            for (int j = 0; j < arraySize; j++) {
-                size += map[i][j].size();
-            }
-        }
-        for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
-            int hashCode = Math.abs(entry.getKey().hashCode());
-            int dir = (hashCode % 16 + 16) % 16;
-            int file = ((hashCode / 16 % 16) + 16) % 16;
-            if (entry.getValue() == null) {
-                if (map[dir][file].get(entry.getKey()) != null) {
-                    size--;
+        try {
+            lock.readLock().lock();
+            for (int i = 0; i < arraySize; i++) {
+                for (int j = 0; j < arraySize; j++) {
+                    size += map[i][j].size();
                 }
-            } else if (map[dir][file].get(entry.getKey()) == null) {
-                size++;
             }
+            for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
+                int hashCode = Math.abs(entry.getKey().hashCode());
+                int dir = (hashCode % 16 + 16) % 16;
+                int file = ((hashCode / 16 % 16) + 16) % 16;
+                if (entry.getValue() == null) {
+                    if (map[dir][file].get(entry.getKey()) != null) {
+                        size--;
+                    }
+                } else if (map[dir][file].get(entry.getKey()) == null) {
+                    size++;
+                }
+            }
+        } finally {
+            lock.readLock().unlock();
         }
-        lock.readLock().unlock();
         return size;
     }
 
@@ -378,10 +381,14 @@ public class MultiFileMap implements Table {
         if (diff.get().containsKey(key)) {
             return diff.get().put(key, value);
         }
-        lock.readLock().lock();
-        Storeable result = map[dir][file].get(key);
-        diff.get().put(key, value);
-        lock.readLock().unlock();
+        Storeable result = null;
+        try {
+            lock.readLock().lock();
+            result = map[dir][file].get(key);
+            diff.get().put(key, value);
+        } finally {
+            lock.readLock().unlock();
+        }
         return result;
     }
 
@@ -398,9 +405,13 @@ public class MultiFileMap implements Table {
         if (diff.get().containsKey(key)) {
             return diff.get().get(key);
         }
-        lock.readLock().lock();
-        Storeable result = map[dir][file].get(key);
-        lock.readLock().unlock();
+        Storeable result = null;
+        try {
+            lock.readLock().lock();
+            result = map[dir][file].get(key);
+        } finally {
+            lock.readLock().unlock();
+        }
         return result;
     }
 
@@ -417,31 +428,38 @@ public class MultiFileMap implements Table {
         if (diff.get().containsKey(key)) {
             return diff.get().put(key, null);
         }
-        lock.readLock().lock();
-        Storeable result = map[dir][file].get(key);
-        if (result != null) {
-            diff.get().put(key, null);
+        Storeable result = null;
+        try {
+            lock.readLock().lock();
+            result = map[dir][file].get(key);
+            if (result != null) {
+                diff.get().put(key, null);
+            }
+        } finally {
+            lock.readLock().unlock();
         }
-        lock.readLock().unlock();
         return result;
     }
 
     public int uncommittedChanges() {
-        lock.readLock().lock();
         int result = 0;
-        for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
-            int hashCode = Math.abs(entry.getKey().hashCode());
-            int dir = (hashCode % 16 + 16) % 16;
-            int file = ((hashCode / 16 % 16) + 16) % 16;
-            if (entry.getValue() == null) {
-                if (map[dir][file].get(entry.getKey()) != null) {
+        try {
+            lock.readLock().lock();
+            for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
+                int hashCode = Math.abs(entry.getKey().hashCode());
+                int dir = (hashCode % 16 + 16) % 16;
+                int file = ((hashCode / 16 % 16) + 16) % 16;
+                if (entry.getValue() == null) {
+                    if (map[dir][file].get(entry.getKey()) != null) {
+                        result++;
+                    }
+                } else if (!storeableEqual(entry.getValue(), map[dir][file].get(entry.getKey()))) {
                     result++;
                 }
-            } else if (!storeableEqual(entry.getValue(), map[dir][file].get(entry.getKey()))) {
-                result++;
             }
+        } finally {
+            lock.readLock().unlock();
         }
-        lock.readLock().unlock();
         return result;
     }
 
