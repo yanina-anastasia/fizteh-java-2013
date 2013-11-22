@@ -215,11 +215,11 @@ public class DbState extends State {
     }  
 
     public void commit() throws IOException {
+        dbFile = null;
+        assignInitial();
         if (getChangeNum() == 0) {
             return;
         }
-        dbFile = null;
-        assignInitial();
         initialChangeLock.readLock().lock();
         try {
             fileCheck();
