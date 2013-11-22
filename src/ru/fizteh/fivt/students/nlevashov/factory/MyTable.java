@@ -12,10 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 
@@ -30,12 +27,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class MyTable implements Table {
 
     Path addr;
-    HashMap<String, Storeable> oldMap;
+    HashMap<String, Storeable> map;
     String tableName;
     List<Class<?>> types;
     TableProvider provider;
 
-    ThreadLocal<HashMap<String, Storeable>> map;
+    //ThreadLocal<HashMap<String, Storeable>> map;
+    ThreadLocal<HashMap<String, Storeable>> rewritings;
+    ThreadLocal<HashSet<String>> removings;
 
     private final ReentrantLock locker = new ReentrantLock(true);
 
@@ -99,12 +98,7 @@ public class MyTable implements Table {
             }
         }
 
-        map = new ThreadLocal<HashMap<String, Storeable>>() {
-            @Override
-            public HashMap<String, Storeable> initialValue() {
-                return new HashMap<>();
-            }
-        };
+        map = new HashMap<>();
 
         for (int dirNum = 0; dirNum < 16; dirNum++) {
             Path dir = addr.resolve(Integer.toString(dirNum) + ".dir");
@@ -169,7 +163,7 @@ public class MyTable implements Table {
                                         throw new IOException("EOF too early");
                                     }
                                 }
-                                map.get().put(keys.get(j), provider.deserialize(this, (new String(buf, "UTF8"))));
+                                map.put(keys.get(j), provider.deserialize(this, (new String(buf, "UTF8"))));
                             }
                         }
                     } catch (ParseException e) {
@@ -182,8 +176,20 @@ public class MyTable implements Table {
                 }
             }
         }
-        oldMap = new HashMap<>();
-        oldMap.putAll(map.get());
+
+        rewritings = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+
+        removings = new ThreadLocal<HashSet<String>>() {
+            @Override
+            public HashSet<String> initialValue() {
+                return new HashSet<>();
+            }
+        };
     }
 
     /**
@@ -211,7 +217,12 @@ public class MyTable implements Table {
         }
         locker.lock();
         try {
-            return map.get().get(key);
+            Storeable s = map.get(key);
+            if (s == null) {
+                return rewritings.get().get(key);
+            } else {
+                return s;
+            }
         } finally {
             locker.unlock();
         }
@@ -268,7 +279,26 @@ public class MyTable implements Table {
                 }
                 locker.lock();
                 try {
-                    return map.get().put(key, value);
+                    if (removings.get().contains(key)) {
+                        removings.get().remove(key);
+                        Storeable s = map.get(key);
+                        if (!(s == value)) {
+                            rewritings.get().put(key, value);
+                        }
+                        return null;
+                    } else {
+                        Storeable s = map.get(key);
+                        if (s == value) {
+                            Storeable ss = rewritings.get().get(key);
+                            if (ss == null) {
+                                return value;
+                            } else {
+                                return rewritings.get().remove(key);
+                            }
+                        } else {
+                            return rewritings.get().put(key, value);
+                        }
+                    }
                 } finally {
                     locker.unlock();
                 }
@@ -295,7 +325,22 @@ public class MyTable implements Table {
         }
         locker.lock();
         try {
-            return map.get().remove(key);
+            if (removings.get().contains(key)) {
+                return null;
+            } else {
+                Storeable s = map.get(key);
+                if (s == null) {
+                    return rewritings.get().remove(key);
+                } else {
+                    removings.get().add(key);
+                    Storeable ss = rewritings.get().get(key);
+                    if (ss == null) {
+                        return s;
+                    } else {
+                        return rewritings.get().remove(key);
+                    }
+                }
+            }
         } finally {
             locker.unlock();
         }
@@ -310,7 +355,7 @@ public class MyTable implements Table {
     public int size() {
         locker.lock();
         try {
-            return map.get().size();
+            return (map.size() + insertsNumber() - removings.get().size());
         } finally {
             locker.unlock();
         }
@@ -327,9 +372,13 @@ public class MyTable implements Table {
     public int commit() throws IOException {
         locker.lock();
         try {
-            int difference = mapsDifference();
-            oldMap.clear();
-            oldMap.putAll(map.get());
+            int difference = diff();
+            for (String s : removings.get()) {
+                map.remove(s);
+            }
+            map.putAll(rewritings.get());
+            rewritings.get().clear();
+            removings.get().clear();
             refreshDiskData();
             return difference;
         } finally {
@@ -346,9 +395,9 @@ public class MyTable implements Table {
     public int rollback() {
         locker.lock();
         try {
-            int difference = mapsDifference();
-            map.get().clear();
-            map.get().putAll(oldMap);
+            int difference = diff();
+            rewritings.get().clear();
+            removings.get().clear();
             return difference;
         } finally {
             locker.unlock();
@@ -382,25 +431,23 @@ public class MyTable implements Table {
     }
 
     /**
-     * Считает "разницу" map и oldMap, то есть минимальное количество опрераций встаки, переименования и удаления,
-     *                                              с помощью которых одну коллекцию можно преобразовать к другой.
+     * Считает количество новых элементов, вставленных в map
      */
-    public int mapsDifference() {
-        int difference = 0;
-        for (Map.Entry<String, Storeable> entry : map.get().entrySet()) {
-            if (!oldMap.containsKey(entry.getKey())) {
-                difference++;
-            } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
-                difference++;
+    public int insertsNumber() {
+        int inserts = 0;
+        for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
+            if (!map.containsKey(entry.getKey())) {
+                inserts++;
             }
+        }
+        return inserts;
+    }
 
-        }
-        for (Map.Entry<String, Storeable> entry : oldMap.entrySet()) {
-            if (!map.get().containsKey(entry.getKey())) {
-                difference++;
-            }
-        }
-        return difference;
+    /**
+     * Считает минимальное количество опрераций встаки, переименования и удаления, требуемых для обновления
+     */
+    public int diff() {
+        return rewritings.get().size() + removings.get().size();
     }
 
     /**
@@ -415,7 +462,7 @@ public class MyTable implements Table {
                 parts.get(dirNum).add(new HashMap<String, Storeable>());
             }
         }
-        for (Map.Entry<String, Storeable> entry : map.get().entrySet()) {
+        for (Map.Entry<String, Storeable> entry : map.entrySet()) {
             int hash = entry.getKey().hashCode();
             hash *= Integer.signum(hash);
             parts.get(hash % 16).get(hash / 16 % 16).put(entry.getKey(), entry.getValue());
