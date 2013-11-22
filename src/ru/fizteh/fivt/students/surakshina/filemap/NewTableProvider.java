@@ -8,8 +8,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.json.*;
 
@@ -24,7 +24,7 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, NewTable> tables = new HashMap<>();
     private HashMap<String, Class<?>> providerTypes;
     private HashMap<Class<?>, String> providerTypesNames;
-    ReadWriteLock providerController = new ReentrantReadWriteLock(true);
+    Lock providerController = new ReentrantLock(true);
 
     public NewTableProvider(File dir) throws IOException {
         workingDirectory = dir;
@@ -98,7 +98,7 @@ public class NewTableProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
-        providerController.readLock().lock();
+        providerController.lock();
         try {
             NewTable table = tables.get(name);
             File tableFile = new File(workingDirectory, name);
@@ -110,13 +110,13 @@ public class NewTableProvider implements TableProvider {
         } catch (IOException | ParseException e) {
             throw new IllegalArgumentException("wrong type (Wrong key)");
         } finally {
-            providerController.readLock().unlock();
+            providerController.unlock();
         }
     }
 
     private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
-        providerController.writeLock().lock();
+        providerController.lock();
         try {
             for (File dir : tableFile.listFiles()) {
                 if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
@@ -131,14 +131,14 @@ public class NewTableProvider implements TableProvider {
 
             }
         } finally {
-            providerController.writeLock().unlock();
+            providerController.unlock();
         }
         return map;
     }
 
     private void removeTableFromDisk(NewTable table) {
         File tableFile = new File(workingDirectory, table.getName());
-        providerController.writeLock().lock();
+        providerController.lock();
         try {
             for (File dir : tableFile.listFiles()) {
                 if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
@@ -155,7 +155,7 @@ public class NewTableProvider implements TableProvider {
                 }
             }
         } finally {
-            providerController.writeLock().unlock();
+            providerController.unlock();
         }
     }
 
@@ -163,7 +163,7 @@ public class NewTableProvider implements TableProvider {
         currentTable = table;
         HashMap<File, HashMap<String, String>> files = makeFiles(table);
         removeTableFromDisk(table);
-        providerController.writeLock().lock();
+        providerController.lock();
         try {
             for (File file : files.keySet()) {
                 File newDir = new File(workingDirectory + File.separator + table.getName() + File.separator
@@ -176,7 +176,7 @@ public class NewTableProvider implements TableProvider {
             }
             tables.put(table.getName(), table);
         } finally {
-            providerController.writeLock().unlock();
+            providerController.unlock();
         }
     }
 
@@ -216,7 +216,7 @@ public class NewTableProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
-        providerController.writeLock().lock();
+        providerController.lock();
         try {
             NewTable table = tables.remove(name);
             File tableFile = new File(workingDirectory, name);
@@ -247,7 +247,7 @@ public class NewTableProvider implements TableProvider {
                 tableFile.delete();
             }
         } finally {
-            providerController.writeLock().unlock();
+            providerController.unlock();
         }
     }
 
@@ -259,7 +259,7 @@ public class NewTableProvider implements TableProvider {
         if (columnTypes == null || !(checkValuesName(columnTypes)) || columnTypes.size() == 0) {
             throw new IllegalArgumentException("wrong type (Incorrect column name)");
         }
-        providerController.writeLock().lock();
+        providerController.lock();
         try {
             if (tables.get(name) != null) {
                 return null;
@@ -285,7 +285,7 @@ public class NewTableProvider implements TableProvider {
             tables.put(name, new NewTable(name, this));
             return tables.get(name);
         } finally {
-            providerController.writeLock().unlock();
+            providerController.unlock();
         }
     }
 
