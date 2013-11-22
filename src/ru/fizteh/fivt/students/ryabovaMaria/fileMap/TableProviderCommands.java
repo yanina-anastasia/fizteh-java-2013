@@ -47,12 +47,7 @@ public class TableProviderCommands implements TableProvider {
             || name.matches(".*\\s.*")) {
             throw new IllegalArgumentException("argument contains illegal symbols");
         }
-        readLock.lock();
-        try {
-            tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
-        } finally {
-            readLock.unlock();
-        }
+        tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
     }
     
     @Override
@@ -189,13 +184,7 @@ public class TableProviderCommands implements TableProvider {
             throw new IllegalStateException(name + " cannot be deleted");
         }
         DeleteDir deleteTable = new DeleteDir();
-        readLock.lock();
-        File table;
-        try {
-            table = new File(curDir, name);
-        } finally {
-            readLock.unlock();
-        }
+        File table = new File(curDir, name);
         writeLock.lock();
         try {
             deleteTable.delete(table.toPath());
