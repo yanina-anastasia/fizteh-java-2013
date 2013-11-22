@@ -467,7 +467,7 @@ public class FileMap {
             throw new IllegalArgumentException("Table is null");
         }
         initialMap();
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -488,7 +488,7 @@ public class FileMap {
             }
             return fileMapInitial.size() - fileMapRemoveKey.get().size() + numberOfNew;
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
     }
 }

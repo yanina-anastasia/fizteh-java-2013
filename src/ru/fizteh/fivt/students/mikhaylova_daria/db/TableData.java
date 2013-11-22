@@ -285,13 +285,13 @@ public class TableData implements Table {
 
     public int size() {
         int numberOfKeys = 0;
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             for (int i = 0; i < 16; ++i) {
                 numberOfKeys += dirArray[i].size();
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
         return numberOfKeys;
     }
