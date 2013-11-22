@@ -185,7 +185,7 @@ public class MultiFileHashTableProvider implements TableProvider {
         }
     }
 
-    private boolean isContainIncorrectSymbols(String tableName) {
+    private static boolean isContainIncorrectSymbols(String tableName) {
         return tableName.contains("\\") || tableName.contains("/")
                 || tableName.contains(":") || tableName.contains("*")
                 || tableName.contains("?") || tableName.contains("\"")

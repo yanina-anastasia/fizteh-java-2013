@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.kamilTalipov.database.test;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.DatabaseException;
 import ru.fizteh.fivt.students.kamilTalipov.database.core.MultiFileHashTableProvider;
@@ -80,6 +79,9 @@ public class TableProviderTester {
         Future<Boolean> result2 = executor.submit(task);
         Assert.assertEquals(true, result1.get() || result2.get());
         Assert.assertEquals(false, result1.get() == result2.get());
+
+        executor.shutdown();
+        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -103,10 +105,13 @@ public class TableProviderTester {
         Future<Table> result2 = executor.submit(task);
         Assert.assertEquals("Table123", result1.get().getName());
         Assert.assertEquals("Table123", result2.get().getName());
+
+        executor.shutdown();
+        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void parallelRemoveTest() throws IOException {
+    public void parallelRemoveTest() throws IOException, InterruptedException {
         List<Class<?>> types = new ArrayList<>();
         types.add(Integer.class);
         provider.createTable("Table2", types);
@@ -129,5 +134,8 @@ public class TableProviderTester {
         synchronized (provider) {
             provider.removeTable("Table2");
         }
+
+        executor.shutdown();
+        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
 }

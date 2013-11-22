@@ -175,10 +175,12 @@ public class TableTester {
         Assert.assertEquals(isEqualStoreable(result1.get(), storeable), true);
         Assert.assertEquals(isEqualStoreable(result2.get(), storeable), true);
 
+        executor.shutdown();
+        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
 
     @Test
-    public void parallelGetPutTest() {
+    public void parallelGetPutTest() throws InterruptedException {
         ExecutorService executor = Executors.newCachedThreadPool();
         executor.submit(new Runnable() {
             @Override
@@ -201,11 +203,14 @@ public class TableTester {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
-                        //ignore
+                        throw new IllegalStateException(e);
                     }
                 }
             }
         });
+
+        executor.shutdown();
+        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -233,26 +238,8 @@ public class TableTester {
         } else if (!isEqualStoreable(result2.get(), storeable)) {
             throw new IllegalStateException("Bad test");
         }
+
+        executor.shutdown();
+        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
-
-    /*
-    @Test(expected = IllegalStateException.class)
-    public void parallelRemoveTableGetNameShouldFailed() {
-
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void parallelRemoveTablePutShouldFailed() {
-
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void parallelRemoveTableGetShouldFailed() {
-
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void parallelRemoveTableRemoveShouldFailed() {
-
-    } */
 }
