@@ -518,8 +518,7 @@ public class MultiFileHashTable implements Table {
     private Storeable getFromTable(String key) {
         HashMap<String, Storeable> table = getKeyTable(key, false);
         if (table == null) {
-            throw new IllegalStateException("Null table get for key '" + key + "'");
-            //return null;
+            return null;
         }
         return table.get(key);
     }
