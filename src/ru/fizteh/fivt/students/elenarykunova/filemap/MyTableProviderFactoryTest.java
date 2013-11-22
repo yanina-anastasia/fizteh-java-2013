@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import org.junit.rules.TemporaryFolder;
 
-public class FileMapMainTest {
+public class MyTableProviderFactoryTest {
 
     private File notExistingFile;
     private File existingFile;
@@ -38,13 +38,13 @@ public class FileMapMainTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void testCreateNull() throws IllegalArgumentException, IOException {
-        FileMapMain factory = new FileMapMain();
+        MyTableProviderFactory factory = new MyTableProviderFactory();
         factory.create(null);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void testCreateEmpty() {
-        FileMapMain factory = new FileMapMain();
+        MyTableProviderFactory factory = new MyTableProviderFactory();
         try {
             factory.create("");
         } catch (IOException e) {
@@ -54,7 +54,7 @@ public class FileMapMainTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void testCreateNl() {
-        FileMapMain factory = new FileMapMain();
+        MyTableProviderFactory factory = new MyTableProviderFactory();
         try {
             factory.create("                         ");
         } catch (IOException e) {
@@ -64,7 +64,7 @@ public class FileMapMainTest {
     
     @Test
     public void testCreate() {
-        FileMapMain factory = new FileMapMain();
+        MyTableProviderFactory factory = new MyTableProviderFactory();
         try {
             factory.create(existingDir.getParent());
         } catch (Exception e1) {

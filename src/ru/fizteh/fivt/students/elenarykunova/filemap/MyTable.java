@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Filemap implements Table {
+public class MyTable implements Table {
 
     private DataBase[][] data = new DataBase[16][16];
     private String currTablePath = null;
@@ -34,11 +34,11 @@ public class Filemap implements Table {
         return currTablePath;
     }
 
-    protected int getDataBaseNumberFromKey(String key) throws RuntimeException {
+    protected DataBase getDataBaseFromKey(String key) throws RuntimeException {
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
         int nfile = hashcode / 16 % 16;
-        return ndir * 16 + nfile;
+        return data[ndir][nfile];
     }
 
     public String getName() {
@@ -125,33 +125,28 @@ public class Filemap implements Table {
     public int getUncommitedChangesAndTrack(boolean trackChanges)
             throws RuntimeException {
         Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
-        int k;
-        int ndir;
-        int nfile;
         int nchanges = 0;
         String key;
         String val;
         for (Map.Entry<String, Storeable> myEntry : mySet) {
             key = myEntry.getKey();
 
-            k = getDataBaseNumberFromKey(key);
-            ndir = k / 16;
-            nfile = k % 16;
+            DataBase myDBFile = getDataBaseFromKey(key);
             if (myEntry.getValue() != null) {
-                if (!data[ndir][nfile].hasFile()) {
-                    data[ndir][nfile].createFile();
+                if (!myDBFile.hasFile()) {
+                    myDBFile.createFile();
                 }
             }
 
-            val = data[ndir][nfile].get(key);
+            val = myDBFile.get(key);
 
             if (myEntry.getValue() == null) {
-                if (data[ndir][nfile].get(key) != null) {
+                if (myDBFile.get(key) != null) {
                     nchanges++;
                 }
                 if (trackChanges) {
-                    data[ndir][nfile].remove(key);
-                    data[ndir][nfile].hasChanged = true;
+                    myDBFile.remove(key);
+                    myDBFile.hasChanged = true;
                 }
             } else {
                 String currVal = getProvider().serialize(this,
@@ -160,8 +155,8 @@ public class Filemap implements Table {
                     nchanges++;
                     if (trackChanges) {
                         try {
-                            data[ndir][nfile].put(key, currVal);
-                            data[ndir][nfile].hasChanged = true;
+                            myDBFile.put(key, currVal);
+                            myDBFile.hasChanged = true;
                         } catch (ColumnFormatException e) {
                             throw new RuntimeException("some problems", e);
                         }
@@ -261,10 +256,10 @@ public class Filemap implements Table {
         }
     }
 
-    public Filemap() {
+    public MyTable() {
     }
 
-    public Filemap(String path, String name, MyTableProvider mtp,
+    public MyTable(String path, String name, MyTableProvider mtp,
             List<Class<?>> columnTypes) throws RuntimeException, IOException {
         provider = mtp;
         currTablePath = path;
@@ -292,11 +287,11 @@ public class Filemap implements Table {
     }
 
     public static void main(String[] args) {
-        FileMapMain myFactory = new FileMapMain();
+        MyTableProviderFactory myFactory = new MyTableProviderFactory();
         MyTableProvider provider;
         try {
             provider = (MyTableProvider) myFactory.create(System.getProperty("fizteh.db.dir"));
-            Filemap mp = new Filemap();
+            MyTable mp = new MyTable();
             ExecuteCmd exec = new ExecuteCmd(mp, provider);
             exec.workWithUser(args);
         } catch (IllegalArgumentException e) {

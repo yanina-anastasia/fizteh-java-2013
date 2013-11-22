@@ -21,14 +21,14 @@ import org.json.*;
 public class MyTableProvider implements TableProvider {
 
     private String rootDir = null;
-    private HashMap<String, Filemap> tables = new HashMap<String, Filemap>();
+    private HashMap<String, MyTable> tables = new HashMap<String, MyTable>();
 
     public MyTableProvider() {
     }
 
     public MyTableProvider(String newRootDir) {
         rootDir = newRootDir;
-        tables = new HashMap<String, Filemap>();
+        tables = new HashMap<String, MyTable>();
     }
 
     public String getPath(String tableName) {
@@ -93,7 +93,7 @@ public class MyTableProvider implements TableProvider {
             if (tables.get(name) != null) {
                 return (Table) tables.get(name);
             } else {
-                Filemap result = new Filemap(tablePath, name, this, oldTypes);
+                MyTable result = new MyTable(tablePath, name, this, oldTypes);
                 tables.put(name, result);
                 return (Table) result;
             }
@@ -245,7 +245,7 @@ public class MyTableProvider implements TableProvider {
                     }
                 }
                 if (tables.get(name) == null) {
-                    Filemap result = new Filemap(tablePath, name, this,
+                    MyTable result = new MyTable(tablePath, name, this,
                             columnTypes);
                     tables.put(name, result);
                 }
@@ -257,7 +257,7 @@ public class MyTableProvider implements TableProvider {
             } else {
                 writeTypes(info, columnTypes);
                 if (tables.get(name) == null) {
-                    Filemap result = new Filemap(tablePath, name, this,
+                    MyTable result = new MyTable(tablePath, name, this,
                             columnTypes);
                     tables.put(name, result);
                     return (Table) result;

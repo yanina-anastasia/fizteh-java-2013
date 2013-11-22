@@ -21,7 +21,7 @@ public class DataBase {
     private String tablePath = null;
     private int ndir;
     private int nfile;
-    private Filemap table = null;
+    private MyTable table = null;
     private boolean exists = false;
     public boolean hasChanged = false;
 
@@ -65,7 +65,7 @@ public class DataBase {
         }
     }
 
-    public DataBase(Filemap myTable, int numbDir, int numbFile) throws RuntimeException, ParseException {
+    public DataBase(MyTable myTable, int numbDir, int numbFile) throws RuntimeException, ParseException {
         table = myTable;
         tablePath = table.getTablePath();
         ndir = numbDir;
@@ -78,7 +78,7 @@ public class DataBase {
             try {
                 dataFile = new RandomAccessFile(filePath, "r");
                 exists = true;
-                load(dataFile, table);
+                load(dataFile);
             } catch (FileNotFoundException e1) {
                 throw new RuntimeException(filePath + ": can't find file", e1);
             } catch (IOException e3) {
@@ -136,7 +136,7 @@ public class DataBase {
         return result;
     }
 
-    public void load(RandomAccessFile dataFile, Filemap table)
+    public void load(RandomAccessFile dataFile)
             throws RuntimeException, IOException, ParseException {
         try {
             if (dataFile.length() == 0) {
