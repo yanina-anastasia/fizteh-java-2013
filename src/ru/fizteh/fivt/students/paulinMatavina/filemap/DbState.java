@@ -314,8 +314,9 @@ public class DbState extends State {
     
     public int size() {
         initialChangeLock.readLock().lock();
+        int result = 0;
         try {
-            int result = initial.size();
+            result = initial.size();
             for (Map.Entry<String, Storeable> entry : changes.get().entrySet()) {
                 if (entry.getValue() != null) {
                     if (!initial.containsKey(entry.getKey())) {
@@ -327,9 +328,9 @@ public class DbState extends State {
                     }
                 }
             }
-            return result;
         } finally {
             initialChangeLock.readLock().unlock();
         }
+        return result;
     }
 }

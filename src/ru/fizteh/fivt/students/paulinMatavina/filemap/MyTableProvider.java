@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.json.JSONArray;
@@ -24,11 +25,13 @@ public class MyTableProvider extends State implements TableProvider {
     private ReentrantReadWriteLock tableAccessLock;
     private Lock readAccess;
     private Lock writeAccess;
+    private ReentrantLock tableMapLock;
     
     public MyTableProvider(String dir) throws IOException {
         tableAccessLock = new ReentrantReadWriteLock(true);
         readAccess = tableAccessLock.readLock();
         writeAccess = tableAccessLock.writeLock();
+        tableMapLock = new ReentrantLock(true);
         validate(dir);
         shell = new ShellState();    
         File root = new File(shell.makeNewSource(dir));
@@ -89,14 +92,27 @@ public class MyTableProvider extends State implements TableProvider {
     public MultiDbState tryToGetTable(String name) throws ParseException, IOException {
         validate(name);
         checkNameIsCorrect(name);
-        MultiDbState newTable;
-        if (tableMap.get(name) == null) {
+        MultiDbState newTable = null;
+        tableMapLock.lock();
+        try {
+            newTable = tableMap.get(name);
+        } finally {
+            tableMapLock.unlock();
+        }
+        
+        if (newTable == null) {
             if (fileExist(name)) {
                 newTable = new MultiDbState(rootDir, name, this);
-                tableMap.put(name, newTable);   
+                tableMapLock.lock();
+                try {
+                    tableMap.put(name, newTable);
+                } finally {
+                    tableMapLock.unlock();
+                }   
             }
-        }   
-        return tableMap.get(name);
+        }  
+        
+        return newTable;
     }
 
     @Override
@@ -118,7 +134,12 @@ public class MyTableProvider extends State implements TableProvider {
             MultiDbState table;
             shell.mkdir(new String[] {shell.makeNewSource(name)});      
             table = new MultiDbState(rootDir, name, this, columnTypes);
-            tableMap.put(name, table);
+            tableMapLock.lock();
+            try {
+                tableMap.put(name, table);
+            } finally {
+                tableMapLock.unlock();
+            } 
             return table;
         } catch (ParseException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -133,12 +154,23 @@ public class MyTableProvider extends State implements TableProvider {
         try {
             if (!fileExist(name)) {
                 throw new IllegalStateException("removing not existing table");
+            } 
+            MultiDbState table = null;
+            tableMapLock.lock();
+            try {
+                table = tableMap.get(name);
+            } finally {
+                tableMapLock.unlock();
+            }    
+            if (table != null) {
+                table.dropped();
             }
-            if (tableMap.get(name) != null) {
-                tableMap.get(name).dropped();
-            }
-            
-            tableMap.put(name, null);
+            tableMapLock.lock();
+            try {
+                tableMap.put(name, null); 
+            } finally {
+                tableMapLock.unlock();
+            }              
             shell.rm(new String[]{name});
         } finally {
             writeAccess.unlock();
@@ -174,11 +206,18 @@ public class MyTableProvider extends State implements TableProvider {
     }
     
     public Table getCurrTable() {
+        Table answer = null;
         if (currTableName == null) {
             return null;
         } else {
-            return tableMap.get(currTableName);
+            tableMapLock.lock();
+            try {
+                answer = tableMap.get(currTableName);
+            } finally {
+                tableMapLock.unlock();
+            }
         }
+        return answer;
     }
     
     @Override
