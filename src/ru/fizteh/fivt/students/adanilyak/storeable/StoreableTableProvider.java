@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * User: Alexander
@@ -24,6 +26,7 @@ import java.util.Map;
 public class StoreableTableProvider implements TableProvider {
     private Map<String, Table> allTablesMap = new HashMap<>();
     private File allTablesDirectory;
+    private final Lock lock = new ReentrantLock(true);
 
     public StoreableTableProvider(File atDirectory) throws IOException {
         if (atDirectory == null) {
@@ -49,7 +52,12 @@ public class StoreableTableProvider implements TableProvider {
         if (!CheckOnCorrect.goodName(tableName)) {
             throw new IllegalArgumentException("get table: name is bad");
         }
-        return allTablesMap.get(tableName);
+        try {
+            lock.lock();
+            return allTablesMap.get(tableName);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -57,15 +65,18 @@ public class StoreableTableProvider implements TableProvider {
         if (!CheckOnCorrect.goodName(tableName) || !CheckOnCorrect.goodColumnTypes(columnTypes)) {
             throw new IllegalArgumentException("create table: name or column types is bad");
         }
-
         File tableFile = new File(allTablesDirectory, tableName);
-        if (!tableFile.mkdir()) {
-            return null;
+        try {
+            lock.lock();
+            if (!tableFile.mkdir()) {
+                return null;
+            }
+            Table newTable = new StoreableTable(tableFile, columnTypes, this);
+            allTablesMap.put(tableName, newTable);
+            return newTable;
+        } finally {
+            lock.unlock();
         }
-
-        Table newTable = new StoreableTable(tableFile, columnTypes, this);
-        allTablesMap.put(tableName, newTable);
-        return newTable;
     }
 
     @Override
@@ -73,18 +84,21 @@ public class StoreableTableProvider implements TableProvider {
         if (!CheckOnCorrect.goodName(tableName)) {
             throw new IllegalArgumentException("remove table: name is bad");
         }
-
-        if (allTablesMap.get(tableName) == null) {
-            throw new IllegalStateException(tableName + " not exists");
-        }
-
-        File tableFile = new File(allTablesDirectory, tableName);
         try {
-            DeleteDirectory.rm(tableFile);
-        } catch (IOException exc) {
-            System.err.println(exc.getMessage());
+            lock.lock();
+            if (allTablesMap.get(tableName) == null) {
+                throw new IllegalStateException(tableName + " not exists");
+            }
+            File tableFile = new File(allTablesDirectory, tableName);
+            try {
+                DeleteDirectory.rm(tableFile);
+            } catch (IOException exc) {
+                System.err.println(exc.getMessage());
+            }
+            allTablesMap.remove(tableName);
+        } finally {
+            lock.unlock();
         }
-        allTablesMap.remove(tableName);
     }
 
     @Override

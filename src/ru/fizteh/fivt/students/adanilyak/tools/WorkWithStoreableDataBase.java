@@ -239,7 +239,7 @@ public class WorkWithStoreableDataBase {
                     result.add(String.class);
                     break;
                 default:
-                    throw new IOException("Input args has a bad symbols in types specification");
+                    throw new IOException("wrong type (input args has a bad symbols in types specification)");
             }
         }
         return result;
