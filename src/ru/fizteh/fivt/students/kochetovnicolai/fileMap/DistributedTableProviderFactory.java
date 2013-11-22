@@ -5,9 +5,12 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DistributedTableProviderFactory implements TableProviderFactory {
-    HashMap<String, DistributedTableProvider> providers;
+    private HashMap<String, DistributedTableProvider> providers;
+    private final Lock lock = new ReentrantLock();
 
     public DistributedTableProviderFactory() {
         providers = new HashMap<>();
@@ -25,9 +28,14 @@ public class DistributedTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("invalid directory", e);
         }
         String directory = path.getAbsolutePath();
-        if (!providers.containsKey(directory)) {
-            providers.put(directory, new DistributedTableProvider(path.toPath()));
+        lock.lock();
+        try {
+            if (!providers.containsKey(directory)) {
+                providers.put(directory, new DistributedTableProvider(path.toPath()));
+            }
+            return providers.get(directory);
+        } finally {
+            lock.unlock();
         }
-        return providers.get(directory);
     }
 }
