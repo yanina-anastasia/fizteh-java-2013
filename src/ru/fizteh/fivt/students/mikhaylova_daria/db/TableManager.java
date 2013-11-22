@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.DataFormatException;
 import javax.xml.parsers.DocumentBuilder;
@@ -181,7 +180,7 @@ public class TableManager implements TableProvider {
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             if (!creatingTableFile.exists()) {
                 if (bidDataBase.containsKey(nameTable)) {
@@ -206,7 +205,7 @@ public class TableManager implements TableProvider {
                 }
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
         return table;
     }

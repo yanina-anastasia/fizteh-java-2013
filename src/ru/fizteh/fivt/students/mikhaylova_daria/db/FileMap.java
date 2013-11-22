@@ -92,7 +92,7 @@ public class FileMap {
             throw new IllegalArgumentException("Table is null");
         }
         table.checkKey(key);
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -113,7 +113,7 @@ public class FileMap {
                 }
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
     }
 
@@ -123,7 +123,7 @@ public class FileMap {
         }
         table.checkKey(key);
         initialMap();
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -155,7 +155,7 @@ public class FileMap {
                 }
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
     }
 
@@ -448,7 +448,7 @@ public class FileMap {
                 throw new IllegalArgumentException("Reading error", e);
             }
         }
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             Set<String> newKeys = fileMapNewValue.get().keySet();
             Set<String> oldKeys = fileMapInitial.keySet();
@@ -460,7 +460,7 @@ public class FileMap {
             }
             return fileMapInitial.size() - fileMapRemoveKey.get().size() + numberOfNew;
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
     }
 }

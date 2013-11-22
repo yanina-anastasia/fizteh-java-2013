@@ -242,7 +242,7 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = b / 16 % 16;
         Storeable removedValue;
-        myWriteLock.lock();
+//        myWriteLock.lock();
         try {
             try {
                 dirArray[nDirectory].startWorking();
@@ -251,7 +251,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
         } finally {
-            myWriteLock.unlock();
+  //          myWriteLock.unlock();
         }
         return removedValue;
     }
@@ -265,7 +265,7 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = (b / 16) % 16;
         Storeable getValue;
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             try {
                 dirArray[nDirectory].startWorking();
@@ -275,7 +275,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
         return getValue;
     }
@@ -290,13 +290,13 @@ public class TableData implements Table {
 
     public int size() {
         int numberOfKeys = 0;
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             for (int i = 0; i < 16; ++i) {
                 numberOfKeys += dirArray[i].size();
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
         return numberOfKeys;
     }
