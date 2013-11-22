@@ -54,16 +54,16 @@ public class StorableTableImp2 implements StorableTable {
     @Override
     public Storeable get(String key) {
         TableChecker.keyValidCheck(key);
-        if (localMap.get().containsKey(key)) {
-            return localMap.get().get(key);
-        } else {
-            try {
-                tableKeeper.readLock().lock();
+        tableKeeper.readLock().lock();
+        try {
+            if (localMap.get().containsKey(key)) {
+                return localMap.get().get(key);
+            } else {
                 return mainMap.get(key);
             }
-            finally {
-                tableKeeper.readLock().unlock();
-            }
+        }
+        finally {
+            tableKeeper.readLock().unlock();
         }
     }
 
@@ -82,12 +82,13 @@ public class StorableTableImp2 implements StorableTable {
             } else if (mainMap.containsKey(key)) {
                 oldValue = mainMap.get(key);
             }
+            localMap.get().put(key, value);
+            return oldValue;
         }
         finally {
             tableKeeper.readLock().unlock();
         }
-        localMap.get().put(key, value);
-        return oldValue;
+
     }
 
     @Override
@@ -222,7 +223,7 @@ public class StorableTableImp2 implements StorableTable {
             return difference();
         }
         finally {
-          tableKeeper.readLock().unlock();
+            tableKeeper.readLock().unlock();
         }
     }
 
