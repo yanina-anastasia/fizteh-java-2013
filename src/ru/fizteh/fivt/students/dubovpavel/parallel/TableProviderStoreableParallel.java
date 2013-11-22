@@ -15,8 +15,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBase<Storeable> & Table> extends TableProviderStoreable<DB> implements TableProvider {
     private ReentrantReadWriteLock lock;
 
-    // Rachmaninov was a genius though. Concerto #3 is such a powerful thing, as well as the second one.
-
     public TableProviderStoreableParallel(Storage storage, TableStoreableBuilder builder) {
         super(storage, builder);
         lock = new ReentrantReadWriteLock(true);
@@ -36,7 +34,7 @@ public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBas
 
     @Override
     public DB getTable(final String name) {
-        return new readLockRunnable<DB>(lock) {
+        return new ReadLockRunnable<DB>(lock) {
             @Override
             public DB runner() {
                 return TableProviderStoreableParallel.super.getTable(name);

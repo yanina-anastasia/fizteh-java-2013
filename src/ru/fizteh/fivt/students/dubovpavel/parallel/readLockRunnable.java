@@ -2,9 +2,9 @@ package ru.fizteh.fivt.students.dubovpavel.parallel;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public abstract class readLockRunnable<T> {
+public abstract class ReadLockRunnable<T> {
     ReentrantReadWriteLock lock;
-    public readLockRunnable(ReentrantReadWriteLock outerLock) {
+    public ReadLockRunnable(ReentrantReadWriteLock outerLock) {
         lock = outerLock;
     }
     public T invoke() {
