@@ -332,8 +332,11 @@ public class DistributedTable extends FileManager implements Table {
     public int commit() throws IOException {
         cacheLock.writeLock().lock();
         try {
+            boolean changed[][] = new boolean[partsNumber][partsNumber];
             int difference = findDifference();
             for (String key : changes.get().keySet()) {
+                byte first = getFirstByte(key);
+                changed[first % partsNumber][(first / partsNumber) % partsNumber] = true;
                 if (changes.get().get(key) == null) {
                     if (cache.containsKey(key)) {
                         cache.remove(key);
@@ -356,17 +359,19 @@ public class DistributedTable extends FileManager implements Table {
                     Files.createDirectory(directoriesList[i]);
                 }
                 for (int j = 0; j < partsNumber; j++) {
-                    if (Files.exists(filesList[i][j])) {
-                        Files.delete(filesList[i][j]);
-                    }
-                    byte first = (byte) (i + partsNumber * j);
-                    if (serealized.containsKey(first)) {
-                        Files.createFile(filesList[i][j]);
-                        HashMap<String, String> map = serealized.get(first);
-                        try (DataOutputStream outputStream
-                                     = new DataOutputStream(new FileOutputStream(filesList[i][j].toFile()))) {
-                            for (String key : map.keySet()) {
-                                writeNextPair(outputStream, key, map.get(key));
+                    if (changed[i][j]) {
+                        if (Files.exists(filesList[i][j])) {
+                            Files.delete(filesList[i][j]);
+                        }
+                        byte first = (byte) (i + partsNumber * j);
+                        if (serealized.containsKey(first)) {
+                            Files.createFile(filesList[i][j]);
+                            HashMap<String, String> map = serealized.get(first);
+                            try (DataOutputStream outputStream
+                                         = new DataOutputStream(new FileOutputStream(filesList[i][j].toFile()))) {
+                                for (String key : map.keySet()) {
+                                    writeNextPair(outputStream, key, map.get(key));
+                                }
                             }
                         }
                     }
