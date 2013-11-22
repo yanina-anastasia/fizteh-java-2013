@@ -111,24 +111,26 @@ public class NewTable implements Table {
     @Override
     public int commit() throws IOException {
         int count = unsavedChanges();
-        controller.writeLock().lock();
-        try {
-            for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
-                if (dataMap.containsKey(entry.getKey()) && !dataMap.get(entry.getKey()).equals(entry.getValue())) {
-                    if (entry.getValue() != null) {
-                        dataMap.put(entry.getKey(), entry.getValue());
+        if (count != 0) {
+            controller.writeLock().lock();
+            try {
+                for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
+                    if (dataMap.containsKey(entry.getKey()) && !dataMap.get(entry.getKey()).equals(entry.getValue())) {
+                        if (entry.getValue() != null) {
+                            dataMap.put(entry.getKey(), entry.getValue());
+                        } else {
+                            dataMap.remove(entry.getKey());
+                        }
                     } else {
-                        dataMap.remove(entry.getKey());
-                    }
-                } else {
-                    if (entry.getValue() != null) {
-                        dataMap.put(entry.getKey(), entry.getValue());
+                        if (entry.getValue() != null) {
+                            dataMap.put(entry.getKey(), entry.getValue());
+                        }
                     }
                 }
+                provider.saveChanges(this);
+            } finally {
+                controller.writeLock().unlock();
             }
-            provider.saveChanges(this);
-        } finally {
-            controller.writeLock().unlock();
         }
         localMap.get().clear();
         return count;
