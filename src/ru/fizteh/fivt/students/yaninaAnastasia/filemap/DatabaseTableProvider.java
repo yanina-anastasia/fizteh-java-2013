@@ -136,16 +136,16 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
+        if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
+            throw new IllegalArgumentException("table's name cannot be null");
+        }
+        if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
+                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
+                || name.startsWith(".") || name.endsWith(".")) {
+            throw new RuntimeException("Bad symbols in tablename " + name);
+        }
         lock.writeLock().lock();
         try {
-            if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
-                throw new IllegalArgumentException("table's name cannot be null");
-            }
-            if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
-                    || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
-                    || name.startsWith(".") || name.endsWith(".")) {
-                throw new RuntimeException("Bad symbols in tablename " + name);
-            }
             if (!tables.containsKey(name)) {
                 throw new IllegalStateException(String.format("%s not exists", name));
             }
