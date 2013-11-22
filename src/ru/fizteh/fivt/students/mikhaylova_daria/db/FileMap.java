@@ -325,7 +325,7 @@ public class FileMap {
                 }
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
         isLoaded = true;
     }
