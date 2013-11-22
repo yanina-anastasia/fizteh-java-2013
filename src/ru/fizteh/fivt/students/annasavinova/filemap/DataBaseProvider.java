@@ -9,6 +9,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -25,6 +27,10 @@ public class DataBaseProvider implements TableProvider {
     private HashMap<String, DataBase> tableBase;
     private String rootDir = "";
 
+    DataBaseLoader loader;
+
+    private Lock lock = new ReentrantLock(true);
+
     public DataBaseProvider(String dir) {
         if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("Empty directory name");
@@ -37,11 +43,11 @@ public class DataBaseProvider implements TableProvider {
         } else {
             rootDir = dir + File.separatorChar;
         }
-        DataBaseLoader loader = new DataBaseLoader(dir, this);
+        loader = new DataBaseLoader(dir, this);
         tableBase = loader.loadBase();
     }
 
-    protected boolean checkTableName(String tableName) {
+    public boolean checkTableName(String tableName) {
         if (tableName == null || tableName.isEmpty() || tableName.contains(".") || tableName.contains(";")
                 || tableName.contains("/") || tableName.contains("\\")) {
             return false;
@@ -55,7 +61,14 @@ public class DataBaseProvider implements TableProvider {
             throw new IllegalArgumentException("name is incorrect");
         }
 
-        DataBase getTable = tableBase.get(name);
+        DataBase getTable = null;
+        lock.lock();
+        try {
+            getTable = tableBase.get(name);
+        } finally {
+            lock.unlock();
+        }
+
         return getTable;
     }
 
@@ -137,29 +150,44 @@ public class DataBaseProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
         }
-
         if (typesList == null) {
             throw new IllegalArgumentException("have no types list");
         }
-
         if (typesList.isEmpty()) {
             throw new IllegalArgumentException("empty types list");
         }
         ArrayList<Class<?>> columnTypes = checkColumnTypes(typesList);
+
         File fileTable = new File(rootDir + name);
+
+        
+ 
+        
+        lock.lock();
         if (!fileTable.exists()) {
-            if (!fileTable.mkdir()) {
-                throw new IOException("Cannot create directory " + fileTable.getAbsolutePath());
+            try {
+                if (!fileTable.mkdir()) {
+                    throw new IOException("Cannot create directory " + fileTable.getAbsolutePath());
+                }
+                File types = new File(rootDir + name + File.separator + "signature.tsv");
+                if (!types.createNewFile()) {
+                    throw new IOException("Cannot create file " + types.getAbsolutePath());
+                }
+                fillTypesFile(types, columnTypes);
+            } finally {
+                lock.unlock();
             }
-            File types = new File(rootDir + name + File.separator + "signature.tsv");
-            if (!types.createNewFile()) {
-                throw new IOException("Cannot create file " + types.getAbsolutePath());
-            }
-            fillTypesFile(types, columnTypes);
             DataBase table = new DataBase(name, rootDir, this);
             table.setTypes(columnTypes);
-            tableBase.put(name, table);
+            lock.lock();
+            try {
+                tableBase.put(name, table);
+            } finally {
+                lock.unlock();
+            }
             return table;
+        } else {
+            lock.unlock();
         }
         return null;
     }
@@ -170,12 +198,27 @@ public class DataBaseProvider implements TableProvider {
             throw new IllegalArgumentException("name is incorrect");
         }
         File fileTable = new File(rootDir + name);
-        if (!fileTable.exists() && tableBase.get(name) == null) {
-            throw new IllegalStateException("table not exists");
+        lock.lock();
+        try {
+            if (!fileTable.exists() && tableBase.get(name) == null) {
+                throw new IllegalStateException("table not exists");
+            }
+        } finally {
+            lock.unlock();
         }
-        doDelete(fileTable);
-        tableBase.get(name).setRemoved();
-        tableBase.remove(name);
+        lock.lock();
+        try {
+            doDelete(fileTable);
+        } finally {
+            lock.unlock();
+        }
+        lock.lock();
+        try {
+            tableBase.get(name).setRemoved();
+            tableBase.remove(name);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public static void doDelete(File currFile) throws RuntimeException {

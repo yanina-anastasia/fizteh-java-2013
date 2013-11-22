@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.Set;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
@@ -16,15 +19,24 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class DataBase implements Table {
-    protected HashMap<String, Storeable> dataMap;
-    protected HashMap<String, Storeable> commonDataMap;
+    protected ThreadLocal<HashMap<String, Storeable>> dataMap = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        public HashMap<String, Storeable> initialValue() {
+            return new HashMap<>();
+        }
+    };
+    protected HashMap<String, Storeable> commonDataMap = new HashMap<>();
     protected ArrayList<Class<?>> typesList;
     protected DataBaseProvider provider;
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock read = readWriteLock.readLock();
+    private Lock write = readWriteLock.writeLock();
+    private Lock drive = new ReentrantLock(true);
 
     private String currTable = "";
     private static String rootDir = "";
     private boolean removed = false;
-    private int size = 0;
 
     public void setRemoved() {
         removed = true;
@@ -54,13 +66,15 @@ public class DataBase implements Table {
         if (!(new File(rootDir + tableName).exists())) {
             throw new IllegalStateException("Table not exists");
         }
-        dataMap = new HashMap<>();
-        commonDataMap = new HashMap<>();
     }
 
     public void setHashMap(HashMap<String, Storeable> map) {
-        copyMap(commonDataMap, map);
-        size = commonDataMap.size();
+        write.lock();
+        try {
+            copyMap(commonDataMap, map);
+        } finally {
+            write.unlock();
+        }
     }
 
     public void setTypes(List<Class<?>> columnTypes) {
@@ -79,51 +93,12 @@ public class DataBase implements Table {
     }
 
     protected void unloadData() {
-        for (int i = 0; i < 16; ++i) {
-            File currentDir = getDirWithNum(i);
-            if (!currentDir.exists()) {
-                if (!currentDir.mkdir()) {
-                    throw new RuntimeException("Cannot unload data: cannot create directory "
-                            + currentDir.getAbsolutePath());
-                }
-            }
-            for (int j = 0; j < 16; ++j) {
-                File currentFile = getFileWithNum(j, i);
-                if (!currentFile.exists()) {
-                    try {
-                        if (!currentFile.createNewFile()) {
-                            throw new RuntimeException("Cannot unload data: cannot create file "
-                                    + currentFile.getAbsolutePath());
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException("Cannot unload data: cannot create file "
-                                + currentFile.getAbsolutePath());
-                    }
-                }
-            }
-        }
-        unloadMap();
-        for (int i = 0; i < 16; ++i) {
-            File currentDir = getDirWithNum(i);
-            if (currentDir.list().length == 0) {
-                if (!currentDir.delete()) {
-                    throw new RuntimeException("Cannot unload data: cannot delete directory "
-                            + currentDir.getAbsolutePath());
-                }
-            }
-        }
-    }
-
-    protected void unloadMap() {
         RandomAccessFile[] filesArray = new RandomAccessFile[256];
+        drive.lock();
         try {
             for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    filesArray[i * 16 + j] = new RandomAccessFile(getFileWithNum(j, i), "rw");
-                    filesArray[i * 16 + j].setLength(0);
-                }
+                DataBaseProvider.doDelete(getDirWithNum(i));
             }
-
             Set<Entry<String, Storeable>> entries = commonDataMap.entrySet();
             for (Map.Entry<String, Storeable> entry : entries) {
                 String key = entry.getKey();
@@ -136,6 +111,23 @@ public class DataBase implements Table {
                     b = (byte) Math.abs(keyBytes[0]);
                     int ndirectory = b % 16;
                     int nfile = b / 16 % 16;
+                    if (filesArray[ndirectory * 16 + nfile] == null) {
+                        File directory = getDirWithNum(ndirectory);
+                        if (!directory.exists()) {
+                            if (!directory.mkdirs()) {
+                                throw new RuntimeException("Cannot unload data correctly: cannot create directory "
+                                        + directory.getAbsolutePath());
+                            }
+                        }
+                        File file = getFileWithNum(nfile, ndirectory);
+                        if (!file.exists()) {
+                            if (!file.createNewFile()) {
+                                throw new RuntimeException("Cannot unload data correctly: cannot create file "
+                                        + file.getAbsolutePath());
+                            }
+                        }
+                        filesArray[ndirectory * 16 + nfile] = new RandomAccessFile(file, "rw");
+                    }
                     filesArray[ndirectory * 16 + nfile].writeInt(keyBytes.length);
                     filesArray[ndirectory * 16 + nfile].writeInt(valueBytes.length);
                     filesArray[ndirectory * 16 + nfile].write(keyBytes);
@@ -145,40 +137,37 @@ public class DataBase implements Table {
         } catch (IOException e) {
             throw new RuntimeException("Cannot unload file correctly", e);
         } finally {
-            try {
-                for (int i = 0; i < 16; ++i) {
-                    for (int j = 0; j < 16; ++j) {
-                        if (filesArray[i * 16 + j] != null && filesArray[i * 16 + j].length() == 0) {
-                            try {
-                                filesArray[i * 16 + j].close();
-                            } catch (Throwable e1) {
-                                // not OK
-                            }
-                            getFileWithNum(j, i).delete();
-                        }
-                        if (filesArray[i * 16 + j] != null) {
-                            try {
-                                filesArray[i * 16 + j].close();
-                            } catch (Throwable e1) {
-                                // not OK
-                            }
-                        }
+            for (int i = 0; i < 256; ++i) {
+                if (filesArray[i] != null) {
+                    try {
+                        filesArray[i].close();
+                    } catch (Throwable e) {
+                        // not OK
                     }
                 }
-            } catch (Throwable e) {
-                // not OK
             }
+            drive.unlock();
         }
     }
 
     private void mergeMaps() {
-        for (Map.Entry<String, Storeable> entry : dataMap.entrySet()) {
+        for (Map.Entry<String, Storeable> entry : dataMap.get().entrySet()) {
             String key = entry.getKey();
             Storeable val = entry.getValue();
             if (val == null) {
-                commonDataMap.remove(key);
+                write.lock();
+                try {
+                    commonDataMap.remove(key);
+                } finally {
+                    write.unlock();
+                }
             } else {
-                commonDataMap.put(key, val);
+                write.lock();
+                try {
+                    commonDataMap.put(key, val);
+                } finally {
+                    write.unlock();
+                }
             }
         }
     }
@@ -187,7 +176,12 @@ public class DataBase implements Table {
         dest.clear();
         Set<Map.Entry<String, Storeable>> entries = source.entrySet();
         for (Map.Entry<String, Storeable> entry : entries) {
-            dest.put(entry.getKey(), entry.getValue());
+            write.lock();
+            try {
+                dest.put(entry.getKey(), entry.getValue());
+            } finally {
+                write.unlock();
+            }
         }
     }
 
@@ -217,9 +211,16 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
-        Storeable val = dataMap.get(key);
-        if (val == null) {
-            val = commonDataMap.get(key);
+        Storeable val = null;
+        if (dataMap.get().containsKey(key)) {
+            val = dataMap.get().get(key);
+        } else {
+            read.lock();
+            try {
+                val = commonDataMap.get(key);
+            } finally {
+                read.unlock();
+            }
         }
         return val;
     }
@@ -234,14 +235,18 @@ public class DataBase implements Table {
             throw new IllegalArgumentException("Value is null");
         }
         provider.checkColumns(this, value);
-        Storeable oldValue = dataMap.get(key);
-        if (oldValue == null) {
-            oldValue = commonDataMap.get(key);
+        Storeable oldValue = null;
+        if (dataMap.get().containsKey(key)) {
+            oldValue = dataMap.get().get(key);
+        } else {
+            read.lock();
+            try {
+                oldValue = commonDataMap.get(key);
+            } finally {
+                read.unlock();
+            }
         }
-        dataMap.put(key, value);
-        if (oldValue == null) {
-            ++size;
-        }
+        dataMap.get().put(key, value);
         return oldValue;
     }
 
@@ -251,15 +256,19 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         checkKey(key);
-        Storeable val = dataMap.get(key);
-        if (val == null) {
-            val = commonDataMap.get(key);
+        Storeable val = null;
+        if (dataMap.get().containsKey(key)) {
+            val = dataMap.get().get(key);
+        } else {
+            read.lock();
+            try {
+                val = commonDataMap.get(key);
+            } finally {
+                read.unlock();
+            }
         }
         if (val != null) {
-            dataMap.put(key, null);
-        }
-        if (val != null) {
-            --size;
+            dataMap.get().put(key, null);
         }
         return val;
     }
@@ -268,6 +277,23 @@ public class DataBase implements Table {
     public int size() {
         if (removed) {
             throw new IllegalStateException("table not exists");
+        }
+        int size = 0;
+        read.lock();
+        try {
+            size = commonDataMap.size();
+            for (Map.Entry<String, Storeable> entry : dataMap.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                if (value == null && commonDataMap.containsKey(key)) {
+                    --size;
+                }
+                if (value != null && !commonDataMap.containsKey(key)) {
+                    ++size;
+                }
+            }
+        } finally {
+            read.unlock();
         }
         return size;
     }
@@ -278,21 +304,26 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         int changesCount = countChanges();
-        unloadData();
         mergeMaps();
-        // TODO remove copyMap(commonDataMap, dataMap);
-        size = commonDataMap.size();
+        dataMap.get().clear();
+        unloadData();
         return changesCount;
     }
 
-    protected int countChanges() {
+    public int countChanges() {
         int count = 0;
-        Set<Map.Entry<String, Storeable>> entries = dataMap.entrySet();
+        Set<Map.Entry<String, Storeable>> entries = dataMap.get().entrySet();
         for (Map.Entry<String, Storeable> entry : entries) {
             String key = entry.getKey();
             TableRow value = (TableRow) entry.getValue();
-            TableRow oldValue = (TableRow) commonDataMap.get(key);
-            if (value != oldValue
+            TableRow oldValue = null;
+            read.lock();
+            try {
+                oldValue = (TableRow) commonDataMap.get(key);
+            } finally {
+                read.unlock();
+            }
+            if ((((value == null) || (oldValue == null)) && (value != oldValue))
                     || ((value != null) && (oldValue != null) && !provider.serialize(this, value).equals(
                             provider.serialize(this, oldValue)))) {
                 count++;
@@ -307,8 +338,7 @@ public class DataBase implements Table {
             throw new IllegalStateException("table not exists");
         }
         int changesCount = countChanges();
-        dataMap.clear();
-        size = commonDataMap.size();
+        dataMap.get().clear();
         return changesCount;
     }
 

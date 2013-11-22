@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.annasavinova.filemap;
+package ru.fizteh.fivt.students.annasavinova.filemap.tests;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,8 @@ import org.junit.rules.TemporaryFolder;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.annasavinova.filemap.DBaseProviderFactory;
+import ru.fizteh.fivt.students.annasavinova.filemap.DataBase;
 
 public class DataBaseTest {
     DataBase test;
@@ -77,16 +79,11 @@ public class DataBaseTest {
 
     @Test
     public void testGetNotExistingKey() {
-        try {
             assertNull("Get not_existing_key: Expected null", test.get("not_existing_key"));
-        } catch (Exception e) {
-            fail("Unexpected exception");
-        }
     }
 
     @Test
     public void testGet() {
-        try {
             Storeable row = prov.createFor(test);
             row.setColumnAt(0, "2");
             test.put("1", row);
@@ -105,9 +102,6 @@ public class DataBaseTest {
             row.setColumnAt(0, "значение_на_русском");
             test.put("ключ_на_русском", row);
             assertSame(test.get("ключ_на_русском").getStringAt(0), "значение_на_русском");
-        } catch (Exception e) {
-            fail("Unexpected exception");
-        }
 
     }
 
@@ -139,7 +133,6 @@ public class DataBaseTest {
 
     @Test
     public void testPut() {
-        try {
             Storeable row1 = prov.createFor(test);
             row1.setColumnAt(0, "val1");
             assertNull(test.put("key", row1));
@@ -151,9 +144,6 @@ public class DataBaseTest {
             row2.setColumnAt(0, "val3");
             assertSame(test.put("key", row2), row1);
             assertSame(test.get("key"), row2);
-        } catch (Exception e) {
-            fail("Unexpected exception");
-        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -173,20 +163,15 @@ public class DataBaseTest {
 
     @Test
     public void testRemove() {
-        try {
             Storeable row = prov.createFor(test);
             row.setColumnAt(0, "tmpValue");
             test.put("tmpKey", row);
             test.remove("tmpKey");
             assertNull(test.get("tmpKey"));
-        } catch (Exception e) {
-            fail("Unexpected exception");
-        }
     }
 
     @Test
-    public void testSize() {
-        try {
+    public void testSize() throws IOException {
             int firstSize = test.size();
             assertTrue(firstSize >= 0);
             Storeable row = prov.createFor(test);
@@ -205,14 +190,10 @@ public class DataBaseTest {
             test.put("2222", row);
             test.rollback();
             assertSame(test.size() - firstSize, 1);
-        } catch (Exception e) {
-            fail("Unexpected exception");
-        }
     }
 
     @Test
-    public void testCommit() {
-        try {
+    public void testCommit() throws IOException {
             Storeable row = prov.createFor(test);
             row.setColumnAt(0, "v0");
             test.put("kk1", row);
@@ -224,15 +205,10 @@ public class DataBaseTest {
             assertSame(test.get("kk1").getStringAt(0), "v2");
             test.remove("kk1");
             assertSame(test.commit(), 1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Unexpected exception " + e.getMessage());
-        }
     }
 
     @Test
-    public void testCountChanges() {
-        try {
+    public void testCountChanges() throws IOException {
             test.commit();
             Storeable row = prov.createFor(test);
             row.setColumnAt(0, "v1");
@@ -250,14 +226,10 @@ public class DataBaseTest {
             test.put("z1", row);
             test.remove("z1");
             assertSame(test.countChanges(), 1);
-        } catch (Exception e) {
-            fail("Unexpected exception");
-        }
     }
 
     @Test
-    public void testRollback() {
-        try {
+    public void testRollback() throws IOException {
             test.commit();
             assertSame(test.rollback(), 0);
             int startSize = test.size();
@@ -277,8 +249,5 @@ public class DataBaseTest {
             assertSame(test.get("r1").getStringAt(0), "v1");
             assertSame(test.get("r2").getStringAt(0), "v1");
             assertSame(startSize + 2, test.size());
-        } catch (Exception e) {
-            fail("Unexpected exception");
-        }
     }
 }
