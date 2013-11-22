@@ -109,13 +109,13 @@ public class FileMapStoreable implements Storeable {
         return "";
     }
 
-    public int hashCode() {
-        int hash = 0;
-        for (Object col : column) {
-            hash = hash * 17 + col.hashCode();
-        }
-        return hash;
-    }
+//    public int hashCode() {
+//        int hash = 0;
+//        for (Object col : column) {
+//            hash = hash * 17 + col.hashCode();
+//        }
+//        return hash;
+//    }
 
     public boolean equals(Object obj) {
         if (obj.getClass() != this.getClass()) {

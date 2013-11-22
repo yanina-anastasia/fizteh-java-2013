@@ -281,7 +281,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
 
         Table resTable = null;
-        read.lock();
+        write.lock();
         try {
             if (mapFileMap.containsKey(name)) {
                 resTable = mapFileMap.get(name);
@@ -301,7 +301,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 }
             }
         } finally {
-            read.unlock();
+            write.unlock();
         }
         return resTable;
     }
