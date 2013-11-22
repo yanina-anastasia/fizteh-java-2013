@@ -25,12 +25,6 @@ public class MyTable implements Table {
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
         readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
-        changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
-            @Override
-            public HashMap<String, Storeable> initialValue() {
-                return new HashMap<>();
-            }
-        };
         type = new ArrayList<>();
         List<String> temp = new ArrayList<>();  //init types of table
         readTypes(temp);
@@ -47,7 +41,13 @@ public class MyTable implements Table {
     private File tableFile;
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
-    private ThreadLocal<HashMap<String, Storeable>> changesMap;
+    private static final ThreadLocal<HashMap<String, Storeable>> changesMap
+            = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        public HashMap<String, Storeable> initialValue() {
+            return new HashMap<>();
+        }
+    };
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
@@ -317,20 +317,21 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        readLock.lock();
-        try {
-            if (changesMap.get().containsKey(key)) {            // если он был изменен
-                return changesMap.get().get(key);
-            } else {
+        if (changesMap.get().containsKey(key)) {            // если он был изменен
+            return changesMap.get().get(key);
+        } else {
+            readLock.lock();
+            try {
                 if (fileMap.containsKey(key)) {
                     return fileMap.get(key);
                 } else {
                     return null;
                 }
+            } finally {
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
         }
+
     }
 
     public void addChanges(String key, Storeable value) {
@@ -342,15 +343,10 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
-        writeLock.lock();
-        try {
-            checkingValueForValid(value);
-            Storeable oldValue = get(key);
-            addChanges(key, value);
-            return oldValue;
-        } finally {
-            writeLock.unlock();
-        }
+        checkingValueForValid(value);
+        Storeable oldValue = get(key);
+        addChanges(key, value);
+        return oldValue;
     }
 
     @Override
@@ -358,16 +354,11 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        writeLock.lock();
-        try {
-            Storeable oldValue = get(key);
-            if (oldValue != null) {
-                addChanges(key, null);
-            }
-            return oldValue;
-        } finally {
-            writeLock.unlock();
+        Storeable oldValue = get(key);
+        if (oldValue != null) {
+            addChanges(key, null);
         }
+        return oldValue;
     }
 
     @Override

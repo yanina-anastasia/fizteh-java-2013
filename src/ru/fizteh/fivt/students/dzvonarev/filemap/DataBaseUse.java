@@ -28,7 +28,7 @@ public class DataBaseUse implements CommandInterface {
         }
         String tableName = str.substring(spaceIndex + 1, str.length());
         if (tableProvider == null) {
-            throw new IOException("can't use table");
+            throw new IOException("can't use table " + tableName);
         }
         if (tableProvider.getCurrentTable() != null) {
             MyTable currTable = tableProvider.getTable(tableProvider.getCurrentTable());

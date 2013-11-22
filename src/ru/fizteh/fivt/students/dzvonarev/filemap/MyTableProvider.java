@@ -168,21 +168,24 @@ public class MyTableProvider implements TableProvider {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
         File newTable = new File(workingDirectory, tableName);
-        readLock.lock();
+        /*readLock.lock();
         try {
             if (multiFileMap.containsKey(tableName)) {
                 return null;
             }
         } finally {
             readLock.unlock();
-        }
+        }                                          */
         if (!newTable.mkdir()) {
             throw new IOException("Can't create table " + tableName);
         }
+        writeTypesInFile(tableName, types);
         writeLock.lock();
         try {
-            writeTypesInFile(tableName, types);
             MyTable table = new MyTable(newTable, this);
+            if (multiFileMap.containsKey(tableName)) {
+                return null;
+            }
             multiFileMap.put(tableName, table);
             return table;
         } finally {
@@ -195,25 +198,29 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
-        if (!multiFileMap.containsKey(tableName)) {
-            throw new IllegalStateException(tableName + " not exists");
-        } else {
-            writeLock.lock();
-            try {
-                multiFileMap.remove(tableName);
-                Remove shell = new Remove();
-                ArrayList<String> myArgs = new ArrayList<>();
-                myArgs.add(workingDirectory + File.separator + tableName);
-                myArgs.add("notFromShell");
-                shell.execute(myArgs);
-                if ((currTable != null) && (currTable.equals(tableName))) {
-                    currTable = null;
-                }
-            } catch (IOException e) {
-                throw new IllegalStateException(e.getMessage() + " can't remove " + tableName, e);
-            } finally {
-                writeLock.unlock();
+        readLock.lock();
+        try {
+            if (!multiFileMap.containsKey(tableName)) {
+                throw new IllegalStateException(tableName + " not exists");
             }
+        } finally {
+            readLock.unlock();
+        }
+        writeLock.lock();
+        try {
+            multiFileMap.remove(tableName);
+            Remove shell = new Remove();
+            ArrayList<String> myArgs = new ArrayList<>();
+            myArgs.add(workingDirectory + File.separator + tableName);
+            myArgs.add("notFromShell");
+            shell.execute(myArgs);
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage() + " can't remove " + tableName, e);
+        } finally {
+            writeLock.unlock();
+        }
+        if ((currTable != null) && (currTable.equals(tableName))) {
+            currTable = null;
         }
     }
 
