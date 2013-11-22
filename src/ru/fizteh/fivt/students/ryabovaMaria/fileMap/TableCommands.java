@@ -33,7 +33,7 @@ public class TableCommands implements Table {
     private Lock writeLock;
     
     TableCommands(File directory, List<Class<?>> types, TableProvider tableProvider) throws IOException {
-        lock = new ReentrantReadWriteLock();
+        lock = new ReentrantReadWriteLock(true);
         readLock = lock.readLock();
         writeLock = lock.writeLock();
         this.tableProvider = tableProvider;
@@ -49,16 +49,17 @@ public class TableCommands implements Table {
         diff.set(diffObject);
         tableDir = directory;
         update.set(new HashMap<Integer, String>());
-        readLock.lock();
+        writeLock.lock();
         try {
             isCorrectTable();
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
     
     private void isCorrectTable() throws IOException {
         String[] listOfDirs = tableDir.list();
+        int countOk = 0;
         for (int i = 0; i < listOfDirs.length; ++i) {
             boolean ok = false;
             int value = -1;
@@ -71,12 +72,16 @@ public class TableCommands implements Table {
                 }
             }
             if (ok) {
+                ++countOk;
                 isCorrectDir(value, listOfDirs[i]);
             } else {
                 if (!(listOfDirs[i].equals("signature.tsv") && new File(tableDir, listOfDirs[i]).isFile())) {
                     throw new IllegalArgumentException("Incorrect table");
                 }
             }
+        }
+        if (countOk == listOfDirs.length) {
+            throw new IllegalArgumentException("no signature.tsv");
         }
     }
     
@@ -194,17 +199,21 @@ public class TableCommands implements Table {
             throw new IllegalArgumentException("Bad key");
         }
         getUsingDatFile(key);
+        String value;
         readLock.lock();
         try {
-            String value = lastList[numberOfDir.get()][numberOfFile.get()].get(key);
-            if (diff.get()[numberOfDir.get()][numberOfFile.get()].containsKey(key)) {
-                value = diff.get()[numberOfDir.get()][numberOfFile.get()].get(key);
-            }
-            try {
-                return tableProvider.deserialize(this, value);
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
+            value = lastList[numberOfDir.get()][numberOfFile.get()].get(key);
+        } finally {
+            readLock.unlock();
+        }
+        if (diff.get()[numberOfDir.get()][numberOfFile.get()].containsKey(key)) {
+            value = diff.get()[numberOfDir.get()][numberOfFile.get()].get(key);
+        }
+        readLock.lock();
+        try {
+            return tableProvider.deserialize(this, value);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         } finally {
             readLock.unlock();
         }
@@ -212,18 +221,23 @@ public class TableCommands implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) {
-        if (value == null || key == null || key.isEmpty() || key.matches(".*\\s.*")) {
-            throw new IllegalArgumentException("Bad args");
-        }
+        readLock.lock();
         try {
-            getUsingDatFile(key);
-            update.get().put(numberOfDir.get() * 16 + numberOfFile.get(), " ");
-            String stringValue = tableProvider.serialize(this, value);
-            Storeable answer = get(key);
-            diff.get()[numberOfDir.get()][numberOfFile.get()].put(key, stringValue);
-            return answer;
-        } catch (Exception e) {
-            throw new ColumnFormatException("incorrect args", e);
+            if (value == null || key == null || key.isEmpty() || key.matches(".*\\s.*")) {
+                throw new IllegalArgumentException("Bad args");
+            }
+            try {
+                getUsingDatFile(key);
+                update.get().put(numberOfDir.get() * 16 + numberOfFile.get(), " ");
+                String stringValue = tableProvider.serialize(this, value);
+                Storeable answer = get(key);
+                diff.get()[numberOfDir.get()][numberOfFile.get()].put(key, stringValue);
+                return answer;
+            } catch (Exception e) {
+                throw new ColumnFormatException("incorrect args", e);
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
