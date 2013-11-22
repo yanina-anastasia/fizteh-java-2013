@@ -101,6 +101,15 @@ public class MyTable implements Table {
     }
 
     private boolean differs(Storeable st1, Storeable st2) {
+        if (st1 == null && st2 == null) {
+            return true;
+        }
+        if (st1 != null && st2 == null) {
+            return true;
+        }
+        if (st1 == null && st2 != null) {
+            return true;
+        }
         String str1 = provider.serialize(this, st1);
         String str2 = provider.serialize(this, st2);
         return (!str1.equals(str2));
@@ -140,15 +149,8 @@ public class MyTable implements Table {
         } else if (oldVal != null) {
             res = oldVal;
         }
-        if (oldVal != null) {
-            if (differs(oldVal, value)) {
-                    changesMap.get().put(key, value);
-            } else {
-                changesMap.get().remove(key);
-            }
-        } else {
-            changesMap.get().put(key, value);
-        }
+        
+        changesMap.get().put(key, value);
         return res;
     }
     
@@ -171,6 +173,11 @@ public class MyTable implements Table {
             res = changesMap.get().get(key);
         } else {
             res = oldVal;
+        }
+        if (oldVal == null) {
+            changesMap.get().remove(key);
+        } else {
+            changesMap.get().put(key, null);
         }
         return res;
     }
@@ -348,7 +355,20 @@ public class MyTable implements Table {
     }
 
     public int getUncommitedChanges() {
-        return changesMap.get().size();
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
+        String key;
+        Storeable value;
+        DataBase mdb;
+        int nchanges = 0;
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
+            key = myEntry.getKey();
+            value = myEntry.getValue();
+            mdb = getDataBaseFromKey(key);
+            if (differs(value, mdb.get(key))) {
+                nchanges++;
+            }
+        }
+        return nchanges;
     }
     
     @Override
