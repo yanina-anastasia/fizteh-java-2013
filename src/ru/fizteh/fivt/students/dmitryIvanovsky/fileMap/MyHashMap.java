@@ -24,9 +24,6 @@ public class MyHashMap {
 
     private Map<String, Storeable> initMap(String key) {
         Map<String, Storeable> map = arrayMap[getHashDir(key)][getHashFile(key)];
-        if (map == null) {
-            map = new HashMap<>();
-        }
         return map;
     }
 
@@ -85,13 +82,11 @@ public class MyHashMap {
     }
 
     public void clear() {
-        for (int i = 0; i < numberDir; ++i) {
-            for (int j = 0; j < numberFile; ++j) {
-                arrayMap[i][j].clear();
-            }
+        for (String key : keySet) {
+            initMap(key).remove(key);
         }
+        keySet = new HashSet<>();
         size = 0;
-        keySet.clear();
     }
 
     public Map<String, Storeable> getMap(int i, int j) {

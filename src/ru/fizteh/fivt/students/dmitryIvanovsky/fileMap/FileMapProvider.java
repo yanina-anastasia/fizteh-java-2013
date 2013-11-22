@@ -247,7 +247,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
 
         Table resTable = null;
-        //write.lock();
+        write.lock();
         try {
 //            if (name.equals("table")) {
 //                try {
@@ -271,7 +271,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 }
             }
         } finally {
-            //write.unlock();
+            write.unlock();
         }
         return resTable;
     }
