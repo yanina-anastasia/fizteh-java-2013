@@ -13,7 +13,6 @@ class FileDatabase implements AutoCloseable {
     private static final int OFFSET_BYTES = 4;
 
     Path dbFilePath;
-    RandomAccessFile dbFile;
     Map<String, String> database = new HashMap<String, String>();
 
     public FileDatabase(Path dbFilePath) throws IOException {
@@ -21,24 +20,18 @@ class FileDatabase implements AutoCloseable {
             this.dbFilePath = dbFilePath;
             Files.createDirectories(dbFilePath.getParent());
             
-            dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw");
-            getDataFromFile();
-            
         } catch (IOException e) {
-            IOException exception = new IOException("Error while opening database file: "
+            throw new IOException("Error while opening database file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            try {
-                if (dbFile != null) {
-                    dbFile.close();
-                }
-            } catch (IOException e1) {
-                exception.addSuppressed(new IOException("Error while closing database: "
-                                + ((e1.getMessage() != null) ? e1.getMessage()
-                                        : "unknown error"), e1));
-            }
-            
-            throw exception;
         }
+        
+        try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
+            getDataFromFile(dbFile);
+        } catch (IOException e) {
+            throw new IOException("Error while opening database file: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+        
     }
 
     public String put(String key, String value) throws IOException {
@@ -59,7 +52,7 @@ class FileDatabase implements AutoCloseable {
         return database.size();
     }
 
-    public void getDataFromFile() throws IOException {
+    public void getDataFromFile(RandomAccessFile dbFile) throws IOException {
         String key;
         String value;
         ArrayList<Byte> tempKey = new ArrayList<Byte>();
@@ -100,7 +93,7 @@ class FileDatabase implements AutoCloseable {
         }
     }
 
-    void saveChanges() throws IOException {
+    void saveChanges(RandomAccessFile dbFile) throws IOException {
         int currentOffset = 0;
         long returnPosition;
         String value;
@@ -127,15 +120,21 @@ class FileDatabase implements AutoCloseable {
     
     @Override
     public void close() throws IOException {
-        saveChanges();
-        if (dbFile.length() == 0) {
-            dbFile.close();
+        try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
+            
+            saveChanges(dbFile);
+            
+        } catch (IOException e) {
+            throw new IOException("Error while closing database file: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+        
+        if (Files.size(dbFilePath) == 0) {
             Files.delete(dbFilePath);
             if (dbFilePath.getParent().toFile().list().length == 0) {
                 Files.delete(dbFilePath.getParent());
             }
         }
-        dbFile.close();
     }
     
     public void selfCheck(int nDirectory, int nFile) throws IllegalArgumentException {

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
@@ -24,7 +25,9 @@ public class TableImplementation implements Table {
     private final TableProvider tableProvider;
     private final List<Class<?>> columnTypes;
     
-    private final ReentrantReadWriteLock[][] fileLocks = new ReentrantReadWriteLock[DIR_NUM][FILES_NUM]; //change to Lock
+    FileDatabase[][] files = new FileDatabase[DIR_NUM][FILES_NUM];
+    
+    private final Lock[][] fileLocks = new Lock[DIR_NUM][FILES_NUM];
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
@@ -71,7 +74,8 @@ public class TableImplementation implements Table {
         
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                fileLocks[nDirectory][nFile] = new ReentrantReadWriteLock();
+                
+                fileLocks[nDirectory][nFile] = new ReentrantLock(true);
             }
         }
     }
@@ -295,49 +299,190 @@ public class TableImplementation implements Table {
     }
     
     public int countChanges() {
-        int changesNumber = 0;
-        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
-            for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
-                    Storeable value = putChanges.get()[nDirectory][nFile].get(key);
-                    String rawFileValue;
-                    try {
-                        rawFileValue = getValueFromFile(key);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Error while opening file: "
-                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                    }
-                    if (rawFileValue == null) {
-                        changesNumber += 1;
-                    } else {
-                        Storeable fileValue;
+        
+        writeLock.lock();
+        try {
+            int changesNumber = 0;
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                    for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                        Storeable value = putChanges.get()[nDirectory][nFile].get(key);
+                        String rawFileValue;
                         try {
-                            fileValue = tableProvider.deserialize(this, rawFileValue);
-                        } catch (ParseException e) {
-                            throw new RuntimeException("Error while deserializing value with key " + key + ": "
+                            rawFileValue = getValueFromFile(key);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Error while opening file: "
                                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
                         }
-                        if (!storeableAreEqual(value, fileValue)) {
+                        if (rawFileValue == null) {
+                            changesNumber += 1;
+                        } else {
+                            Storeable fileValue;
+                            try {
+                                fileValue = tableProvider.deserialize(this, rawFileValue);
+                            } catch (ParseException e) {
+                                throw new RuntimeException("Error while deserializing value with key " + key + ": "
+                                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                            }
+                            if (!storeableAreEqual(value, fileValue)) {
+                                changesNumber += 1;
+                            }
+                        }
+                    }
+                    
+                    for (String key : removeChanges.get()[nDirectory][nFile]) {
+                        String rawFileValue;
+                        try {
+                            rawFileValue = getValueFromFile(key);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Error while opening file: "
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                        }
+                        if (rawFileValue != null) {
                             changesNumber += 1;
                         }
                     }
                 }
-                
-                for (String key : removeChanges.get()[nDirectory][nFile]) {
-                    String rawFileValue;
-                    try {
-                        rawFileValue = getValueFromFile(key);
+            }
+            return changesNumber;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    
+    private int computeSize() throws IOException {
+        int size = 0;
+        
+        writeLock.lock();
+        try {
+            Path tableDirectory = databaseDirectory.resolve(tableName);
+            for (String dirName : tableDirectory.toFile().list()) {
+                if (dirName.equals("signature.tsv")) {
+                    continue;
+                }
+                for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
+                    try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
+                            .resolve(dirName).resolve(fileName))) {
+                        
+                        size += currentDatabase.getSize();
+                        
                     } catch (IOException e) {
-                        throw new RuntimeException("Error while opening file: "
+                        throw new IOException("Error while openning file: "
                                 + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                    }
-                    if (rawFileValue != null) {
-                        changesNumber += 1;
                     }
                 }
             }
+        } finally {
+            writeLock.unlock();
         }
-        return changesNumber;
+        
+        return size;
+    }
+    
+    private void saveAllChangesToFile(int nDirectory, int nFile) throws IOException {
+        
+        fileLocks[nDirectory][nFile].lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                Storeable value;
+                String rawValue;
+                for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                    value = putChanges.get()[nDirectory][nFile].get(key);
+                    rawValue = tableProvider.serialize(this, value);
+                    currentDatabase.put(key, rawValue);
+                }
+                
+                for (String key : removeChanges.get()[nDirectory][nFile]) {
+                    currentDatabase.remove(key);
+                }
+            }
+            catch (IOException e) {
+                throw new IOException("Error while putting value to file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        } finally {
+            fileLocks[nDirectory][nFile].unlock();
+        }
+    }
+    
+    private String getValueFromFile(String key) throws IOException {
+        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
+        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+        
+        fileLocks[nDirectory][nFile].lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                return currentDatabase.get(key);
+            }
+            catch (IOException e) {
+                throw new IOException("Error while getting value from file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        } finally {
+            fileLocks[nDirectory][nFile].unlock();
+        }
+    }
+    
+    private String putValueToFile(String key, String value) throws IOException {
+        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
+        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+        
+        fileLocks[nDirectory][nFile].lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                return currentDatabase.put(key, value);
+            }
+            catch (IOException e) {
+                throw new IOException("Error while putting value to file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        } finally {
+            fileLocks[nDirectory][nFile].unlock();
+        }
+    }
+    
+    private String removeValueFromFile(String key) throws IOException {
+        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
+        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+        
+        fileLocks[nDirectory][nFile].lock();
+        try {
+            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
+                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
+                
+                return currentDatabase.remove(key);
+            } catch (IOException e) {
+                throw new IOException("Error while removing value from file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        } finally {
+            fileLocks[nDirectory][nFile].unlock();
+        }
+    }
+    
+    static class DirectoryAndFileNumberCalculator {
+            
+        static int getnDirectory(String key) {
+            int firstByte = Math.abs(key.getBytes()[0]);
+            int nDirectory = firstByte % DIR_NUM;
+            return nDirectory;
+        }
+        
+        static int getnFile(String key) {
+            int firstByte = Math.abs(key.getBytes()[0]);
+            int nFile = firstByte / FILES_NUM % FILES_NUM;
+            return nFile;
+        }
+    }
+    
+    boolean storeableAreEqual(Storeable first, Storeable second) {
+        return tableProvider.serialize(this, first).equals(tableProvider.serialize(this, second));
     }
     
     private boolean isValidKey(final String key) {
@@ -371,139 +516,5 @@ public class TableImplementation implements Table {
             return;
         }
         throw new ColumnFormatException("Invalid value: more columns");
-    }
-    
-    private void saveAllChangesToFile(int nDirectory, int nFile) throws IOException {
-        
-        fileLocks[nDirectory][nFile].writeLock().lock();
-        try {
-            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-                
-                Storeable value;
-                String rawValue;
-                for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
-                    value = putChanges.get()[nDirectory][nFile].get(key);
-                    rawValue = tableProvider.serialize(this, value);
-                    currentDatabase.put(key, rawValue);
-                }
-                
-                for (String key : removeChanges.get()[nDirectory][nFile]) {
-                    currentDatabase.remove(key);
-                }
-            }
-            catch (IOException e) {
-                throw new IOException("Error while putting value to file: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-        } finally {
-            fileLocks[nDirectory][nFile].writeLock().unlock();
-        }
-    }
-    
-    private String getValueFromFile(String key) throws IOException {
-        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
-        
-        fileLocks[nDirectory][nFile].writeLock().lock();
-        try {
-            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-                
-                return currentDatabase.get(key);
-            }
-            catch (IOException e) {
-                throw new IOException("Error while getting value from file: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-        } finally {
-            fileLocks[nDirectory][nFile].writeLock().unlock();
-        }
-    }
-    
-    private String putValueToFile(String key, String value) throws IOException {
-        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
-        
-        fileLocks[nDirectory][nFile].writeLock().lock();
-        try {
-            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-                
-                return currentDatabase.put(key, value);
-            }
-            catch (IOException e) {
-                throw new IOException("Error while putting value to file: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-        } finally {
-            fileLocks[nDirectory][nFile].writeLock().unlock();
-        }
-    }
-    
-    private String removeValueFromFile(String key) throws IOException {
-        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
-        
-        fileLocks[nDirectory][nFile].writeLock().lock();
-        try {
-            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-                
-                return currentDatabase.remove(key);
-            } catch (IOException e) {
-                throw new IOException("Error while removing value from file: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-        } finally {
-            fileLocks[nDirectory][nFile].writeLock().unlock();
-        }
-    }
-    
-    static class DirectoryAndFileNumberCalculator {
-            
-        static int getnDirectory(String key) {
-            int firstByte = Math.abs(key.getBytes()[0]);
-            int nDirectory = firstByte % DIR_NUM;
-            return nDirectory;
-        }
-        
-        static int getnFile(String key) {
-            int firstByte = Math.abs(key.getBytes()[0]);
-            int nFile = firstByte / FILES_NUM % FILES_NUM;
-            return nFile;
-        }
-    }
-    
-    private int computeSize() throws IOException {
-        int size = 0;
-        
-        writeLock.lock();
-        try {
-            Path tableDirectory = databaseDirectory.resolve(tableName);
-            for (String dirName : tableDirectory.toFile().list()) {
-                if (dirName.equals("signature.tsv")) {
-                    continue;
-                }
-                for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
-                    try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
-                            .resolve(dirName).resolve(fileName))) {
-                        
-                        size += currentDatabase.getSize();
-                    } catch (IOException e) {
-                        throw new IOException("Error while openning file: "
-                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                    }
-                }
-            }
-        } finally {
-            writeLock.unlock();
-        }
-        
-        return size;
-    }
-    
-    boolean storeableAreEqual(Storeable first, Storeable second) {
-        return tableProvider.serialize(this, first).equals(tableProvider.serialize(this, second));
     }
 }
