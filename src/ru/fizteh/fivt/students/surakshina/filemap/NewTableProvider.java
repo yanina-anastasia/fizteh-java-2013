@@ -98,10 +98,10 @@ public class NewTableProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
+        File tableFile = new File(workingDirectory, name);
         providerController.lock();
         try {
             NewTable table = tables.get(name);
-            File tableFile = new File(workingDirectory, name);
             if (table != null && tableFile != null) {
                 currentTable = table;
                 table.loadCommitedValues(load(tableFile));
@@ -168,6 +168,7 @@ public class NewTableProvider implements TableProvider {
             for (File file : files.keySet()) {
                 File newDir = new File(workingDirectory + File.separator + table.getName() + File.separator
                         + file.getParentFile().getName());
+                providerController.lock();
                 if (!newDir.mkdirs()) {
                     throw new IOException("Can't create dir");
                 }
@@ -216,10 +217,10 @@ public class NewTableProvider implements TableProvider {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
+        File tableFile = new File(workingDirectory, name);
         providerController.lock();
         try {
             NewTable table = tables.remove(name);
-            File tableFile = new File(workingDirectory, name);
             if (table == null) {
                 throw new IllegalStateException(name + " not exists");
             } else {
@@ -259,12 +260,12 @@ public class NewTableProvider implements TableProvider {
         if (columnTypes == null || !(checkValuesName(columnTypes)) || columnTypes.size() == 0) {
             throw new IllegalArgumentException("wrong type (Incorrect column name)");
         }
+        File table = new File(workingDirectory, name);
         providerController.lock();
         try {
             if (tables.get(name) != null) {
                 return null;
             } else {
-                File table = new File(workingDirectory, name);
                 if (!table.exists()) {
                     if (!table.mkdir()) {
                         throw new IOException("Can't create dir");

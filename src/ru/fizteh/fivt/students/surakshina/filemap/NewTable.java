@@ -144,15 +144,17 @@ public class NewTable implements Table {
         }
         checkStoreable(value);
         Storeable result = null;
-        controller.readLock().lock();
-        try {
-            if (localDataMap.get().containsKey(key)) {
-                result = localDataMap.get().get(key);
-            } else if (dataMap.containsKey(key)) {
-                result = dataMap.get(key);
+        if (localDataMap.get().containsKey(key)) {
+            result = localDataMap.get().get(key);
+        } else {
+            controller.readLock().lock();
+            try {
+                if (dataMap.containsKey(key)) {
+                    result = dataMap.get(key);
+                }
+            } finally {
+                controller.readLock().unlock();
             }
-        } finally {
-            controller.readLock().unlock();
         }
         localDataMap.get().put(key, value);
         return result;
@@ -179,9 +181,9 @@ public class NewTable implements Table {
 
     public int unsavedChanges() {
         int count = 0;
-        controller.readLock().lock();
-        try {
-            for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
+        for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
+            controller.readLock().lock();
+            try {
                 if (dataMap.containsKey(entry.getKey())) {
                     if (!dataMap.get(entry.getKey()).equals(entry.getValue())) {
                         ++count;
@@ -191,9 +193,9 @@ public class NewTable implements Table {
                         ++count;
                     }
                 }
+            } finally {
+                controller.readLock().unlock();
             }
-        } finally {
-            controller.readLock().unlock();
         }
         return count;
     }
@@ -202,15 +204,17 @@ public class NewTable implements Table {
     public Storeable remove(String key) {
         checkKey(key);
         Storeable oldVal = null;
-        controller.readLock().lock();
-        try {
-            if (localDataMap.get().containsKey(key)) {
-                oldVal = localDataMap.get().get(key);
-            } else if (dataMap.containsKey(key)) {
-                oldVal = dataMap.get(key);
+        if (localDataMap.get().containsKey(key)) {
+            oldVal = localDataMap.get().get(key);
+        } else {
+            controller.readLock().lock();
+            try {
+                if (dataMap.containsKey(key)) {
+                    oldVal = dataMap.get(key);
+                }
+            } finally {
+                controller.readLock().unlock();
             }
-        } finally {
-            controller.readLock().unlock();
         }
         localDataMap.get().put(key, null);
         return oldVal;
@@ -219,19 +223,19 @@ public class NewTable implements Table {
     @Override
     public Storeable get(String key) {
         checkKey(key);
-        controller.readLock().lock();
-        try {
-            if (!localDataMap.get().containsKey(key)) {
+        if (!localDataMap.get().containsKey(key)) {
+            controller.readLock().lock();
+            try {
                 if (!dataMap.containsKey(key)) {
                     return null;
                 } else {
                     return dataMap.get(key);
                 }
-            } else {
-                return localDataMap.get().get(key);
+            } finally {
+                controller.readLock().unlock();
             }
-        } finally {
-            controller.readLock().unlock();
+        } else {
+            return localDataMap.get().get(key);
         }
     }
 
@@ -261,9 +265,10 @@ public class NewTable implements Table {
 
     @Override
     public int size() {
-        int count = dataMap.size();
+        int count = 0;
         controller.readLock().lock();
         try {
+            count = dataMap.size();
             for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey())) {
                     if (entry.getValue() == null) {
