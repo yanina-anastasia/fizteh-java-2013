@@ -57,7 +57,6 @@ public class TableCommands implements Table {
         @Override
         protected HashMap<String, String>[][] initialValue() {
             HashMap<String, String> diffObject[][] = new HashMap[16][16];
-            lastList = new HashMap[16][16];
             for (int i = 0; i < 16; ++i) {
                 for (int j = 0; j < 16; ++j) {
                     diffObject[i][j] = new HashMap<String, String>();
@@ -253,6 +252,15 @@ public class TableCommands implements Table {
         String value;
         readLock.lock();
         try {
+            if (numberOfDir.get() == null) {
+                System.out.println("numberOfDir");
+            }
+            if (numberOfFile.get() == null) {
+                System.out.println("numberOfFile");
+            }
+            if (lastList[numberOfDir.get()][numberOfFile.get()] == null) {
+                System.out.println("map lastList");
+            }
             value = lastList[numberOfDir.get()][numberOfFile.get()].get(key);
         } finally {
             readLock.unlock();
