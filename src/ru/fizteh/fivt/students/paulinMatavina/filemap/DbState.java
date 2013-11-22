@@ -125,7 +125,6 @@ public class DbState extends State {
     public int loadData() throws IOException, ParseException {    
         int result = 0;  
         dbFile = null;
-        initialChangeLock.writeLock().lock();
         try {
             File dbTempFile = new File(path);
             if (!dbTempFile.exists()) {
@@ -163,7 +162,12 @@ public class DbState extends State {
                     }
                     result++;
                     Storeable stor = provider.deserialize(table, value);
-                    initial.put(key, stor);
+                    initialChangeLock.writeLock().lock();
+                    try {
+                        initial.put(key, stor);
+                    } finally {
+                        initialChangeLock.writeLock().unlock();
+                    }
                 }
                 
                 key = key2;
@@ -178,7 +182,6 @@ public class DbState extends State {
                 throw e;
             }
         } finally {
-            initialChangeLock.writeLock().unlock();
             if (dbFile != null) {
                 try {
                     dbFile.close();
@@ -265,30 +268,30 @@ public class DbState extends State {
         Storeable change = changes.get().get(key);
         boolean exist = changes.get().containsKey(key);
         changes.get().put(key, value);
-        initialChangeLock.readLock().lock();
-        try {
-            if (exist) {
-                return change;
-            } else {
+        if (exist) {
+            return change;
+        } else {
+            initialChangeLock.readLock().lock();
+            try {
                 return initial.get(key);
-            }
-        } finally {
-            initialChangeLock.readLock().unlock();
+            } finally {
+                initialChangeLock.readLock().unlock();
+            } 
         }   
     }
     
     public Storeable get(String key) {
         Storeable change = changes.get().get(key);
         boolean exist = changes.get().containsKey(key);
-        initialChangeLock.readLock().lock();
-        try {
-            if (exist) {
-                return change;
-            } else {
+        if (exist) {
+            return change;
+        } else {
+            initialChangeLock.readLock().lock();
+            try {
                 return initial.get(key);
-            }
-        } finally {
-            initialChangeLock.readLock().unlock();
+            } finally {
+                initialChangeLock.readLock().unlock();
+            } 
         }
     }
     
@@ -297,15 +300,15 @@ public class DbState extends State {
         boolean exist = changes.get().containsKey(key);
         changes.get().put(key, null);
         
-        initialChangeLock.readLock().lock();
-        try {
-            if (exist) {
-                return change;
-            } else {
+        if (exist) {
+            return change;
+        } else {
+            initialChangeLock.readLock().lock();
+            try {
                 return initial.get(key);
-            }
-        } finally {
-            initialChangeLock.readLock().unlock();
+            } finally {
+                initialChangeLock.readLock().unlock();
+            } 
         }
     }
     
