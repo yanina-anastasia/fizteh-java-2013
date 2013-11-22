@@ -332,14 +332,18 @@ public class DistributedTable extends FileManager implements Table {
     public int commit() throws IOException {
         cacheLock.writeLock().lock();
         try {
-            boolean changed[][] = new boolean[partsNumber][partsNumber];
+            boolean changedFiles[][] = new boolean[partsNumber][partsNumber];
+            boolean removedFiles[][] = new boolean[partsNumber][partsNumber];
+            boolean changedFolders[] = new boolean[partsNumber];
             int difference = findDifference();
             for (String key : changes.get().keySet()) {
                 byte first = getFirstByte(key);
-                changed[first % partsNumber][(first / partsNumber) % partsNumber] = true;
+                changedFiles[first % partsNumber][(first / partsNumber) % partsNumber] = true;
+                changedFolders[first % partsNumber] = true;
                 if (changes.get().get(key) == null) {
                     if (cache.containsKey(key)) {
                         cache.remove(key);
+                        removedFiles[first % partsNumber][(first / partsNumber) % partsNumber] = true;
                     }
                 } else {
                     cache.put(key, changes.get().get(key));
@@ -355,29 +359,33 @@ public class DistributedTable extends FileManager implements Table {
                 serealized.get(first).put(key, DistributedTableProvider.serializeByTypesList(types, cache.get(key)));
             }
             for (int i = 0; i < partsNumber; i++) {
-                if (!Files.exists(directoriesList[i])) {
-                    Files.createDirectory(directoriesList[i]);
-                }
-                for (int j = 0; j < partsNumber; j++) {
-                    if (changed[i][j]) {
-                        if (Files.exists(filesList[i][j])) {
-                            Files.delete(filesList[i][j]);
-                        }
-                        byte first = (byte) (i + partsNumber * j);
-                        if (serealized.containsKey(first)) {
-                            Files.createFile(filesList[i][j]);
-                            HashMap<String, String> map = serealized.get(first);
-                            try (DataOutputStream outputStream
-                                         = new DataOutputStream(new FileOutputStream(filesList[i][j].toFile()))) {
-                                for (String key : map.keySet()) {
-                                    writeNextPair(outputStream, key, map.get(key));
+                if (changedFolders[i]) {
+                    if (!Files.exists(directoriesList[i])) {
+                        Files.createDirectory(directoriesList[i]);
+                    }
+                    for (int j = 0; j < partsNumber; j++) {
+                        if (changedFiles[i][j]) {
+                            if (Files.exists(filesList[i][j]) && removedFiles[i][j]) {
+                                Files.delete(filesList[i][j]);
+                            }
+                            byte first = (byte) (i + partsNumber * j);
+                            if (serealized.containsKey(first)) {
+                                if (!Files.exists(filesList[i][j])) {
+                                    Files.createFile(filesList[i][j]);
+                                }
+                                HashMap<String, String> map = serealized.get(first);
+                                try (DataOutputStream outputStream = new
+                                        DataOutputStream(new FileOutputStream(filesList[i][j].toFile(), true))) {
+                                    for (String key : map.keySet()) {
+                                        writeNextPair(outputStream, key, map.get(key));
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (directoriesList[i].toFile().list().length == 0) {
-                    Files.delete(directoriesList[i]);
+                    if (directoriesList[i].toFile().list().length == 0) {
+                        Files.delete(directoriesList[i]);
+                    }
                 }
             }
             return difference;
