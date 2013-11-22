@@ -249,13 +249,6 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         Table resTable = null;
         write.lock();
         try {
-//            if (name.equals("table")) {
-//                try {
-//                    mySystem.rm(new String[]{pathDb.resolve(name).toString()});
-//                } catch (ErrorShell errorShell) {
-//                    errorShell.printStackTrace();
-//                }
-//            }
             if (setDirTable.contains(name)) {
                 resTable = null;
             } else {

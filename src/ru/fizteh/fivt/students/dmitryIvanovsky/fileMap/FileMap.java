@@ -545,7 +545,7 @@ public class FileMap implements Table {
         }
 
         int size = tableData.size();
-        read.lock();
+        //read.lock();
         try {
             for (String key : changeTable.get().keySet()) {
                 if (tableData.containsKey(key)) {
@@ -559,7 +559,7 @@ public class FileMap implements Table {
                 }
             }
         } finally {
-            read.unlock();
+            //read.unlock();
         }
 
         return size;
