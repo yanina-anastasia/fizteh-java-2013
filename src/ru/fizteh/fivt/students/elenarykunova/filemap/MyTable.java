@@ -147,10 +147,10 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("remove: key is empty");
         }
         Storeable res = getWithoutChecking(key);
+        changesMap.put(key, null);
         if (getDataBaseFromKey(key).get(key) == null) {
             changesMap.remove(key);
         }
-        changesMap.put(key, null);
         return res;
     }
 
