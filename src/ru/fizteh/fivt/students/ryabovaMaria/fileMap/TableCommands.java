@@ -60,19 +60,6 @@ public class TableCommands implements Table {
         }
     };
     
-    /*private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal<HashMap<String, String>[][]>() {
-        @Override
-        protected HashMap<String, String>[][] initialValue() {
-            HashMap<String, String> listObject[][] = new HashMap[16][16];
-            for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    listObject[i][j] = new HashMap<String, String>();
-                }
-            }
-            return listObject;
-        }
-    };*/
-    
     private ThreadLocal<HashMap<Integer, String>> update = new ThreadLocal<HashMap<Integer, String>>() {
         @Override
         protected HashMap<Integer, String> initialValue() {
@@ -375,16 +362,6 @@ public class TableCommands implements Table {
         for (Integer file : update.get().keySet()) {
             numberOfFile.set(file % 16);
             numberOfDir.set((file - numberOfFile.get()) / 16);
-            //if (isWrite) {
-            //    HashMap<String, String>[][] listObject = new HashMap[16][16];
-            //    listObject[numberOfDir.get()][numberOfFile.get()] = new HashMap<String, String>();
-            //    list.set(listObject);
-            //    for(Map.Entry entry : lastList[numberOfDir.get()][numberOfFile.get()].entrySet()) {
-            //        String key = (String) entry.getKey();
-            //        String value = (String) entry.getValue();
-            //        list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
-            //    }
-            //}
             for (Map.Entry entry : diff.get()[numberOfDir.get()][numberOfFile.get()].entrySet()) {
                 String key = (String) entry.getKey();
                 String value = (String) entry.getValue();
@@ -392,7 +369,6 @@ public class TableCommands implements Table {
                     if (lastList[numberOfDir.get()][numberOfFile.get()].containsKey(key)) {
                         ++result;
                         if (isWrite) {
-                            //list.get()[numberOfDir.get()][numberOfFile.get()].remove(key);
                             lastList[numberOfDir.get()][numberOfFile.get()].remove(key);
                         }
                     }
@@ -400,7 +376,6 @@ public class TableCommands implements Table {
                     if (!value.equals(lastList[numberOfDir.get()][numberOfFile.get()].get(key))) {
                         ++result;
                         if (isWrite) {
-                            //list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
                             lastList[numberOfDir.get()][numberOfFile.get()].put(key, value);
                         }
                     }
@@ -408,9 +383,6 @@ public class TableCommands implements Table {
             }
             if (isWrite) {
                 writeIntoFile(numberOfDir.get(), numberOfFile.get());
-                //if (!list.get()[numberOfDir.get()][numberOfFile.get()].isEmpty()) {
-                //    list.get()[numberOfDir.get()][numberOfFile.get()].clear();
-                //}
             }
         }
         return result;
@@ -430,17 +402,8 @@ public class TableCommands implements Table {
                 if (!diff.get()[i][j].isEmpty()) {
                     diff.get()[i][j].clear();
                 }
-                //if (!lastList[i][j].isEmpty()) {
-                //    lastList[i][j].clear();
-                //}
             }
         }
-        //writeLock.lock();
-        //try {
-        //    isCorrectTable();
-        //} finally {
-        //    writeLock.unlock();
-        //}
         return result;
     }
 
