@@ -59,6 +59,10 @@ public class DatabaseTableProvider implements TableProvider {
             return null;
         }
 
+        File tableDirectory = new File(databaseDirectoryPath, name);
+        if (!tableDirectory.exists()) {
+            tableDirectory.mkdir();
+        }
         MultifileTable table = new MultifileTable(databaseDirectoryPath, name);
         tables.put(name, table);
         return table;
