@@ -15,6 +15,11 @@ import ru.fizteh.fivt.students.demidov.storeable.StoreableTable;
 import ru.fizteh.fivt.students.demidov.storeable.StoreableTableProvider;
 
 public class ParallelTableTest {
+	private volatile StoreableTable currentTable;
+	private StoreableTableProvider currentProvider;
+	private StoreableImplementation value_1, value_2;
+	private List<Class<?>> type;
+	
 	@Before
 	public void setUp() throws IOException {
 		try {
@@ -58,7 +63,8 @@ public class ParallelTableTest {
 		try {
 			anotherThread.start();
 			anotherThread.join();
-		} catch (InterruptedException catchedException) {}
+		} catch (InterruptedException catchedException) {
+		}
 		
 		Assert.assertEquals("wrong diff", value_1, currentTable.get("key_1"));
 		Assert.assertNull("wrong diff", currentTable.get("key_2"));
@@ -71,7 +77,7 @@ public class ParallelTableTest {
 				currentTable.put("key", value_1);	
 				try {
 					currentTable.commit();
-				} catch(IOException catchedException) {
+				} catch (IOException catchedException) {
 					Assert.fail(catchedException.getMessage());
 				}
 			}
@@ -80,7 +86,8 @@ public class ParallelTableTest {
 		try {
 			anotherThread.start();
 			anotherThread.join();
-		} catch (InterruptedException catchedException) {}
+		} catch (InterruptedException catchedException) {
+		}
 		
 		Assert.assertEquals("unable to get committed value", value_1, currentTable.get("key"));
 		Assert.assertEquals("wrong size", currentTable.size(), 1);
@@ -90,9 +97,4 @@ public class ParallelTableTest {
 	public void tearDown() {
 		currentProvider.removeTable("createdTable");
 	}  
-	
-	private volatile StoreableTable currentTable;
-	private StoreableTableProvider currentProvider;
-	private StoreableImplementation value_1, value_2;
-	private List<Class<?>> type;
 }

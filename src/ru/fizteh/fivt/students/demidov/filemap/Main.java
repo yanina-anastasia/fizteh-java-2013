@@ -17,7 +17,7 @@ public class Main {
 		FileMapTable fileMapTable = null;
 		try {
 			fileMapTable = new FileMapTable(path, "defaultTable");	
-		} catch(IOException catchedException) {
+		} catch (IOException catchedException) {
 			System.err.println(catchedException.getMessage());
 			System.exit(1);
 		}

@@ -14,7 +14,7 @@ public class Remove extends BasicFileMapCommand {
 		String value = null;
 		try {
 			value = currentState.remove(arguments[0]);
-		} catch(WrongTypeException catchedException) {
+		} catch (WrongTypeException catchedException) {
 			throw new IOException("wrong type (" + catchedException.getMessage() + ")");
 		}
 		

@@ -9,6 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TableTest {
+	private TableImplementation currentTable;
+	private TableProviderImplementation currentProvider;
+	
 	@Before
 	public void setUp() {
 		try {
@@ -129,8 +132,5 @@ public class TableTest {
 	@After
 	public void tearDown() {
 		currentProvider.removeTable("createdTable");
-	}  
-	
-	private TableImplementation currentTable;
-	private TableProviderImplementation currentProvider;
-} 
+	}
+}

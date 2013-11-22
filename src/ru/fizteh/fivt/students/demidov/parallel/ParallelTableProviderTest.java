@@ -13,6 +13,10 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.demidov.storeable.StoreableTableProvider;
 
 public class ParallelTableProviderTest {
+	private volatile StoreableTableProvider currentProvider;
+	static Table currentTable;
+	private List<Class<?>> type;
+	
 	@Before
 	public void setUp() throws IOException {
 		try {
@@ -49,7 +53,8 @@ public class ParallelTableProviderTest {
 		try {
 			anotherThread.start();
 			anotherThread.join();
-		} catch (InterruptedException catchedException) {}
+		} catch (InterruptedException catchedException) {
+		}
 	
 		Assert.assertNull("got removed table", currentProvider.getTable("createdTable"));
 	}
@@ -69,14 +74,11 @@ public class ParallelTableProviderTest {
 		try {
 			anotherThread.start();
 			anotherThread.join();
-		} catch (InterruptedException catchedException) {}
+		} catch (InterruptedException catchedException) {
+		}
 
 		Assert.assertSame("expected created table", currentProvider.getTable("createdTable"), currentTable);
 
 		currentProvider.removeTable("createdTable");
 	}
-	
-	private volatile StoreableTableProvider currentProvider;
-	static Table currentTable;
-	private List<Class<?>> type;
 }

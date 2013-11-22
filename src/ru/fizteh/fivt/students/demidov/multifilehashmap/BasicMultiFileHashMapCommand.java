@@ -9,6 +9,10 @@ import ru.fizteh.fivt.students.demidov.shell.Shell;
 import ru.fizteh.fivt.students.demidov.shell.ShellInterruptionException;
 
 public abstract class BasicMultiFileHashMapCommand<ElementType, TableType extends BasicTable<ElementType>> implements BasicCommand {
+	protected BasicDataBaseState<ElementType, TableType> dataBaseState;
+	private String commandName;
+	private int argumentsNumber;
+	
 	public BasicMultiFileHashMapCommand(BasicDataBaseState<ElementType, TableType> dataBaseState, String commandName, int argumentsNumber) {
 		this.dataBaseState = dataBaseState;
 		this.commandName = commandName;
@@ -24,8 +28,4 @@ public abstract class BasicMultiFileHashMapCommand<ElementType, TableType extend
 	public String getCommandName() {
 		return commandName;
 	}
-	
-	protected BasicDataBaseState<ElementType, TableType> dataBaseState;
-	private String commandName;
-	private int argumentsNumber;
 }

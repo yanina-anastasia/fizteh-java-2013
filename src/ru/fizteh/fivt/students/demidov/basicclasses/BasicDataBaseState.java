@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 public abstract class BasicDataBaseState<ElementType, TableType extends BasicTable<ElementType>> implements BasicState {
+	protected BasicTableProvider<TableType> provider;	
+	protected TableType usedTable;
+	
 	public BasicDataBaseState(BasicTableProvider<TableType> provider) {
 		this.provider = provider;
 		usedTable = null;
@@ -22,9 +25,9 @@ public abstract class BasicDataBaseState<ElementType, TableType extends BasicTab
 		}
 		try {
 			provider.removeTable(tableName);
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException.getMessage());
-		} catch(IllegalStateException catchedException) {
+		} catch (IllegalStateException catchedException) {
 			throw new IOException(catchedException.getMessage());
 		}
 	}
@@ -35,7 +38,4 @@ public abstract class BasicDataBaseState<ElementType, TableType extends BasicTab
 	abstract public String get(String key) throws IOException;
 	abstract public String put(String key, String value) throws IOException;	
 	abstract public String remove(String key) throws IOException;
-	
-	protected BasicTableProvider<TableType> provider;	
-	protected TableType usedTable;
 }

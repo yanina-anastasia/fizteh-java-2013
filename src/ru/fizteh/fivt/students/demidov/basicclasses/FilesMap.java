@@ -1,15 +1,19 @@
-package ru.fizteh.fivt.students.demidov.multifilehashmap;
+package ru.fizteh.fivt.students.demidov.basicclasses;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.fizteh.fivt.students.demidov.basicclasses.BasicTable;
 import ru.fizteh.fivt.students.demidov.filemap.FileMap;
+import ru.fizteh.fivt.students.demidov.multifilehashmap.MultiFileMapUtils;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 public class FilesMap<ElementType> {	
+	private Map<String, FileMap<ElementType>> baseFileMaps;
+	private String directoryPath;
+	private BasicTable<ElementType> table;
+	
 	public FilesMap(String directoryPath, BasicTable<ElementType> table) throws IOException { 
 		baseFileMaps = new HashMap<String, FileMap<ElementType>>();
 		this.table = table;
@@ -28,7 +32,8 @@ public class FilesMap<ElementType> {
 		
 		if (baseFileMaps.get(baseFileKey) == null) {
 			String fileMapDirectory = directoryPath + File.separator + ndirectory.toString() + ".dir";
-			baseFileMaps.put(baseFileKey, new FileMap<ElementType>(ndirectory, nfile, fileMapDirectory + File.separator + nfile.toString() + ".dat", table));
+			baseFileMaps.put(baseFileKey, new FileMap<ElementType>(ndirectory, nfile,
+			        fileMapDirectory + File.separator + nfile.toString() + ".dat", table));
 		}
 		return baseFileMaps.get(baseFileKey);
 	}
@@ -55,7 +60,8 @@ public class FilesMap<ElementType> {
 				continue;
 			}
 			File subdirectory = new File(directoryPath, subdirectoryName);
-			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir")) || (subdirectory.listFiles().length == 0))) {
+			if ((!(subdirectory.isDirectory())) || (!(subdirectoryName.matches("([0-9]|1[0-5])[.]dir"))
+			        || (subdirectory.listFiles().length == 0))) {
 				throw new IOException("wrong subdirectory " + subdirectory.getPath());
 			} else {
 				for (String baseFileName : subdirectory.list()) {
@@ -107,8 +113,4 @@ public class FilesMap<ElementType> {
 			baseFileMap.writeDataToFile();
 		}
 	}
-
-	private Map<String, FileMap<ElementType>> baseFileMaps;
-	private String directoryPath;
-	private BasicTable<ElementType> table;
 }

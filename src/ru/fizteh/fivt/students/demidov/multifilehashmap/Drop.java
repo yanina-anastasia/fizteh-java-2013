@@ -13,5 +13,5 @@ public class Drop<ElementType, TableType extends BasicTable<ElementType>> extend
 	public void executeCommand(String[] arguments, Shell usedShell) throws IOException {  
 		dataBaseState.drop(arguments[0]);
 		usedShell.curShell.getOutStream().println("dropped");
-	}	
+	}
 }
