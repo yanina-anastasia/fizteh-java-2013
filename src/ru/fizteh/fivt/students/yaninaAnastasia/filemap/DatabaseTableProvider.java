@@ -38,7 +38,7 @@ public class DatabaseTableProvider implements TableProvider {
         if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
                 || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
                 || name.startsWith(".") || name.endsWith(".")) {
-            throw new RuntimeException("Bad symbols in tablename " + name);
+            throw new RuntimeException("Bad symbols in suggested tablename " + name);
         }
         lock.readLock().lock();
         try {
