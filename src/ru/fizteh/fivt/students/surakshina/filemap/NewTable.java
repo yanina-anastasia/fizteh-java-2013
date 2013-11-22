@@ -267,9 +267,10 @@ public class NewTable implements Table {
 
     @Override
     public int size() {
-        int count = dataMap.size();
+        int count = 0;
         controller.readLock().lock();
         try {
+            count = dataMap.size();
             for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey())) {
                     if (entry.getValue() == null) {
