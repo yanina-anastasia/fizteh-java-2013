@@ -186,8 +186,8 @@ public class ExecuteCmd extends Shell {
             break;
         case "use":
             if (arg.length == 2) {
-                if (mp.getUncommitedChangesAndTrack(false) != 0) {
-                    System.err.println(mp.getUncommitedChangesAndTrack(false) + " unsaved changes");
+                if (mp.getUncommitedChanges() != 0) {
+                    System.err.println(mp.getUncommitedChanges() + " unsaved changes");
                     return ExitCode.ERR;
                 }
                 try {

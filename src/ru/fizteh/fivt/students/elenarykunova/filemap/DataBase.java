@@ -16,7 +16,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 
 public class DataBase {
 
-    private HashMap<String, String> data = new HashMap<String, String>();
+    private HashMap<String, Storeable> data = new HashMap<String, Storeable>();
     private String filePath = null;
     private String tablePath = null;
     private int ndir;
@@ -29,12 +29,15 @@ public class DataBase {
         return exists;
     }
 
+    public int getSize() {
+        return data.size();
+    }
+    
     public void loadDataToMap(HashMap<String, Storeable> map)
             throws IllegalArgumentException, ParseException {
-        Set<Map.Entry<String, String>> mySet = data.entrySet();
-        for (Map.Entry<String, String> myEntry : mySet) {
-            map.put(myEntry.getKey(),
-                    table.getProvider().deserialize(table, myEntry.getValue()));
+        Set<Map.Entry<String, Storeable>> mySet = data.entrySet();
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
+            map.put(myEntry.getKey(), myEntry.getValue());       
         }
     }
 
@@ -177,7 +180,6 @@ public class DataBase {
                 dataFile.seek(newOffset);
                 value = getValueFromFile(nextOffset, dataFile);
 
-                data.put(keyFirst, value);
                 MyStoreable val;
                 try {
                     val = (MyStoreable) table.getProvider().deserialize(table,
@@ -187,7 +189,8 @@ public class DataBase {
                             + " can't deserialize values from file "
                             + e.getMessage(), e.getErrorOffset());
                 }
-                table.getHashMap().put(keyFirst, val);
+                data.put(keyFirst, val);
+//                table.getHashMap().put(keyFirst, val);*/
 
                 keyFirst = keySecond;
                 newOffset = nextOffset;
@@ -201,19 +204,20 @@ public class DataBase {
         }
     }
 
-    public String put(String key, String value) {
+    public Storeable put(String key, Storeable value) {
         return data.put(key, value);
     }
 
-    public String get(String key) {
+    public Storeable get(String key) {
         return data.get(key);
     }
 
-    public String remove(String key) {
+    public Storeable remove(String key) {
         return data.remove(key);
     }
 
     private int getLength(String str) {
+        
         int curr = 0;
 
         curr = str.getBytes(StandardCharsets.UTF_8).length;
@@ -251,21 +255,21 @@ public class DataBase {
             }
 
             int offset = 0;
-            Set<Map.Entry<String, String>> mySet = data.entrySet();
-            for (Map.Entry<String, String> myEntry : mySet) {
+            Set<Map.Entry<String, Storeable>> mySet = data.entrySet();
+            for (Map.Entry<String, Storeable> myEntry : mySet) {
                 offset += getLength(myEntry.getKey()) + 1 + 4;
             }
             int currOffset = offset;
             dataFile.setLength(0);
             dataFile.seek(0);
-            for (Map.Entry<String, String> myEntry : mySet) {
+            for (Map.Entry<String, Storeable> myEntry : mySet) {
                 dataFile.write(myEntry.getKey().getBytes());
                 dataFile.writeByte(0);
                 dataFile.writeInt(currOffset);
-                currOffset += getLength(myEntry.getValue());
+                currOffset += getLength(table.getProvider().serialize(table, myEntry.getValue()));
             }
-            for (Map.Entry<String, String> myEntry : mySet) {
-                dataFile.write(myEntry.getValue().getBytes());
+            for (Map.Entry<String, Storeable> myEntry : mySet) {
+                dataFile.write(table.getProvider().serialize(table, myEntry.getValue()).getBytes());
             }
         } catch (RuntimeException e5) {
             t = e5;

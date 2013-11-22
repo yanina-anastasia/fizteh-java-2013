@@ -13,18 +13,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//import java.util.concurrent.locks.ReadWriteLock;
+//import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class MyTable implements Table {
 
     private DataBase[][] data = new DataBase[16][16];
     private String currTablePath = null;
     private String currTableName = null;
-    private HashMap<String, Storeable> updatedMap = new HashMap<String, Storeable>();
     private MyTableProvider provider = null;
     private List<Class<?>> types = new ArrayList<Class<?>>();
-
-    public HashMap<String, Storeable> getHashMap() {
+    private HashMap<String, Storeable> changesMap = new HashMap<String, Storeable>();
+    
+/*    private ThreadLocal<HashMap<String, Storeable>> updatedMap = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        protected HashMap<String, Storeable> initialValue() {
+            return new HashMap<String, Storeable>();
+        }
+    };
+*/
+/*    public HashMap<String, Storeable> getHashMap() {
         return updatedMap;
-    }
+    }*/
 
     public MyTableProvider getProvider() {
         return provider;
@@ -54,12 +64,19 @@ public class MyTable implements Table {
                 .contains("]"));
     }
 
+    public Storeable getWithoutChecking(String key) {
+        if (changesMap.containsKey(key)) {
+            return changesMap.get(key);
+        } else {
+            return getDataBaseFromKey(key).get(key);
+        }
+    }
+    
     public Storeable get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("get: key is empty");
         }
-        Storeable res = updatedMap.get(key);
-        return res;
+        return getWithoutChecking(key);
     }
 
     private void checkValue(Storeable value) {
@@ -82,6 +99,12 @@ public class MyTable implements Table {
         }
     }
 
+    private boolean differs(Storeable st1, Storeable st2) {
+        String str1 = provider.serialize(this, st1);
+        String str2 = provider.serialize(this, st2);
+        return (str1.equals(str2));
+    }
+    
     public Storeable put(String key, Storeable value)
             throws IllegalArgumentException, ColumnFormatException {
         if (isEmpty(key)) {
@@ -99,30 +122,54 @@ public class MyTable implements Table {
             throw new ColumnFormatException("wrong type (put: "
                     + e1.getMessage() + ")", e1);
         }
-        Storeable res = updatedMap.put(key, value);
-        return res;
+        Storeable oldVal = getDataBaseFromKey(key).get(key);
+        Storeable newVal = changesMap.get(key);
+        if (oldVal != null) {
+            if (!changesMap.containsKey(key)) {
+                changesMap.put(key, value);
+                return oldVal;
+            }
+            if (newVal != null && differs(oldVal, newVal)) {
+                changesMap.put(key, value);
+            }
+            return newVal;
+        } else {
+            changesMap.put(key, value);
+            return newVal;
+        }
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("remove: key is empty");
         }
-        Storeable res = updatedMap.put(key, null);
+        Storeable res = getWithoutChecking(key);
+        if (getDataBaseFromKey(key).get(key) == null) {
+            changesMap.remove(key);
+        }
+        changesMap.put(key, null);
         return res;
     }
 
     public int size() {
         int n = 0;
-        Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                n += data[i][j].getSize();
+            }
+        }
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.entrySet();
         for (Map.Entry<String, Storeable> myEntry : mySet) {
             if (myEntry.getValue() != null) {
                 n++;
+            } else {
+                n--;
             }
         }
         return n;
     }
 
-    public int getUncommitedChangesAndTrack(boolean trackChanges)
+/*    public int getUncommitedChangesAndTrack(boolean trackChanges)
             throws RuntimeException {
         Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
         int nchanges = 0;
@@ -165,10 +212,28 @@ public class MyTable implements Table {
             }
         }
         return nchanges;
-    }
+    }*/
 
+    public void trackChanges() {
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.entrySet();
+        String key;
+        Storeable value;
+        DataBase mdb;
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
+            key = myEntry.getKey();
+            value = myEntry.getValue();
+            mdb = getDataBaseFromKey(myEntry.getKey());
+            if (value == null) {
+                mdb.remove(key);
+            } else {
+                mdb.put(key, value);
+            }
+        }
+    }
+    
     public int commit() throws RuntimeException {
-        int nchanges = getUncommitedChangesAndTrack(true);
+        int nchanges = getUncommitedChanges();
+        trackChanges();
         if (nchanges != 0) {
             saveChanges();
         }
@@ -176,8 +241,8 @@ public class MyTable implements Table {
     }
 
     public int rollback() throws RuntimeException {
-        int nchanges = getUncommitedChangesAndTrack(false);
-        if (nchanges != 0) {
+        int nchanges = getUncommitedChanges();
+/*        if (nchanges != 0) {
             try {
                 loadFromDataMap();
             } catch (ParseException | IllegalArgumentException e) {
@@ -185,6 +250,8 @@ public class MyTable implements Table {
                         "can't read data from saved changes", e);
             }
         }
+        */
+        changesMap.clear();
         return nchanges;
     }
 
@@ -222,10 +289,10 @@ public class MyTable implements Table {
     }
 
     public void loadFromDisk() throws RuntimeException {
-        if (updatedMap != null) {
-            updatedMap.clear();
+        if (changesMap != null) {
+            changesMap.clear();
         } else {
-            updatedMap = new HashMap<String, Storeable>();
+            changesMap = new HashMap<String, Storeable>();
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
@@ -241,16 +308,16 @@ public class MyTable implements Table {
 
     public void loadFromDataMap() throws IllegalArgumentException,
             ParseException {
-        if (updatedMap != null) {
-            updatedMap.clear();
+        if (changesMap != null) {
+            changesMap.clear();
         } else {
-            updatedMap = new HashMap<String, Storeable>();
+            changesMap = new HashMap<String, Storeable>();
         }
 
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 if (data[i][j].hasFile()) {
-                    data[i][j].loadDataToMap(updatedMap);
+                    data[i][j].loadDataToMap(changesMap);
                 }
             }
         }
@@ -265,7 +332,6 @@ public class MyTable implements Table {
         currTablePath = path;
         currTableName = name;
         types = new ArrayList<Class<?>>(columnTypes);
-
         if (currTableName != null) {
             loadFromDisk();
         }
@@ -276,6 +342,10 @@ public class MyTable implements Table {
         return types.size();
     }
 
+    public int getUncommitedChanges() {
+        return changesMap.size();
+    }
+    
     @Override
     public Class<?> getColumnType(int columnIndex)
             throws IndexOutOfBoundsException {
