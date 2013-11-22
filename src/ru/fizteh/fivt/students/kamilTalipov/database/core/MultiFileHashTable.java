@@ -90,6 +90,11 @@ public class MultiFileHashTable implements Table {
         writeSignatureFile();
 
         table = new HashMap[ALL_DIRECTORIES][FILES_IN_DIRECTORY];
+        for (int i = 0; i < ALL_DIRECTORIES; ++i) {
+            for (int j = 0; j < FILES_IN_DIRECTORY; ++j) {
+                table[i][j] = new HashMap<>();
+            }
+        }
         newValues = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             protected HashMap<String, Storeable> initialValue() {
@@ -128,11 +133,6 @@ public class MultiFileHashTable implements Table {
             if (key.trim().isEmpty()) {
                 throw new IllegalArgumentException("Key must be not empty");
             }
-
-            /*if (key.equals("ܜ-key-ключ")) {
-                throw new IllegalStateException("Key result: " + newValues.get().containsKey(key)
-                            + " table " + getFromTable(key));
-            }*/
 
             if (newValues.get().containsKey(key)) {
                 return newValues.get().get(key);
