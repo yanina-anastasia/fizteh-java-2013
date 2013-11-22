@@ -202,9 +202,7 @@ public class TableImplementation implements Table {
         Storeable prevValue = putChanges.get()[nDirectory][nFile].get(key);
         if (prevValue != null) {
             putChanges.get()[nDirectory][nFile].remove(key);
-            if (originValue != null) {
-                removeChanges.get()[nDirectory][nFile].add(key);
-            }
+            removeChanges.get()[nDirectory][nFile].add(key);
             return prevValue;
         }
         
@@ -212,8 +210,8 @@ public class TableImplementation implements Table {
             return null;
         }
         
+        removeChanges.get()[nDirectory][nFile].add(key);
         if (originValue != null) {
-            removeChanges.get()[nDirectory][nFile].add(key);
             return originValue;
         } else {
             return null;
