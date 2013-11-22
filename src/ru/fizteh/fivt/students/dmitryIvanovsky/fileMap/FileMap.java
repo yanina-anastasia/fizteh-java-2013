@@ -555,7 +555,7 @@ public class FileMap implements Table {
                     }
                 } else {
                     if (changeTable.get().get(key) != null) {
-                        res += parent.serialize(this, changeTable.get().get(key));
+                        res += key;
                         ++size;
                     }
                 }
