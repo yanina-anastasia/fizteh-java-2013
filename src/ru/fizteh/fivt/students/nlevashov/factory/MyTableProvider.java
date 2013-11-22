@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 import java.io.IOException;
 import java.text.ParseException;
@@ -29,6 +31,9 @@ import java.util.List;
  * Данный интерфейс не является потокобезопасным.
  */
 public class MyTableProvider implements TableProvider {
+
+    private final ReentrantReadWriteLock readWriteLocker = new ReentrantReadWriteLock(true);
+    private final Lock locker = readWriteLocker.writeLock();
 
     HashMap<String, Table> tables;
     Path dbPath;
@@ -75,7 +80,12 @@ public class MyTableProvider implements TableProvider {
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
             throw new IllegalArgumentException("TableProvider.getTable: bad table name \"" + name + "\"");
         }
-        return tables.get(name);
+        locker.lock();
+        try {
+            return tables.get(name);
+        } finally {
+            locker.unlock();
+        }
     }
 
     /**
@@ -107,49 +117,54 @@ public class MyTableProvider implements TableProvider {
                 throw new IllegalArgumentException("TableProvider.createTable: Illegal type \"" + c.toString() + "\"");
             }
         }
-        if (tables.containsKey(name)) {
-            return null;
-        } else {
-            try {
-                Shell.cd(dbPath.toString());
-                Shell.mkdir(name);
-            } catch (IOException e) {
-                throw new IOException("TableProvider.createTable: directory making error with message \""
-                        + e.getMessage() + "\"", e);
-            }
-            try (BufferedOutputStream o = new BufferedOutputStream(
-                                              Files.newOutputStream(dbPath.resolve(name).resolve("signature.tsv")))) {
-                for (Class<?> c : columnTypes)  {
-                    if (c == Integer.class) {
-                        o.write("int".getBytes());
-                        o.write(' ');
-                    } else if (c == Long.class)  {
-                        o.write("long".getBytes());
-                        o.write(' ');
-                    } else if (c == Byte.class) {
-                        o.write("byte".getBytes());
-                        o.write(' ');
-                    } else if (c == Float.class) {
-                        o.write("float".getBytes());
-                        o.write(' ');
-                    } else if (c == Double.class) {
-                        o.write("double".getBytes());
-                        o.write(' ');
-                    } else if (c == Boolean.class) {
-                        o.write("boolean".getBytes());
-                        o.write(' ');
-                    } else {
-                        o.write("String".getBytes());
-                        o.write(' ');
-                    }
+        locker.lock();
+        try {
+            if (tables.containsKey(name)) {
+                return null;
+            } else {
+                try {
+                    Shell.cd(dbPath.toString());
+                    Shell.mkdir(name);
+                } catch (IOException e) {
+                    throw new IOException("TableProvider.createTable: directory making error with message \""
+                            + e.getMessage() + "\"", e);
                 }
-            } catch (IOException e) {
-                throw new IOException("TableProvider.createTable: making of \"signature.tsv\" error with message \""
-                        + e.getMessage() + "\"", e);
+                try (BufferedOutputStream o = new BufferedOutputStream(
+                                                  Files.newOutputStream(dbPath.resolve(name).resolve("signature.tsv")))) {
+                    for (Class<?> c : columnTypes)  {
+                        if (c == Integer.class) {
+                            o.write("int".getBytes());
+                            o.write(' ');
+                        } else if (c == Long.class)  {
+                            o.write("long".getBytes());
+                            o.write(' ');
+                        } else if (c == Byte.class) {
+                            o.write("byte".getBytes());
+                            o.write(' ');
+                        } else if (c == Float.class) {
+                            o.write("float".getBytes());
+                            o.write(' ');
+                        } else if (c == Double.class) {
+                            o.write("double".getBytes());
+                            o.write(' ');
+                        } else if (c == Boolean.class) {
+                            o.write("boolean".getBytes());
+                            o.write(' ');
+                        } else {
+                            o.write("String".getBytes());
+                            o.write(' ');
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new IOException("TableProvider.createTable: making of \"signature.tsv\" error with message \""
+                            + e.getMessage() + "\"", e);
+                }
+                Table newTable = new MyTable(dbPath.resolve(name), this);
+                tables.put(name, newTable);
+                return newTable;
             }
-            Table newTable = new MyTable(dbPath.resolve(name), this);
-            tables.put(name, newTable);
-            return newTable;
+        } finally {
+            locker.unlock();
         }
     }
 
@@ -170,17 +185,22 @@ public class MyTableProvider implements TableProvider {
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
             throw new IllegalArgumentException("TableProvider.removeTable: bad table name \"" + name + "\"");
         }
-        if (tables.containsKey(name)) {
-            try {
-                Shell.cd(dbPath.toString());
-                Shell.rm(name);
-                tables.remove(name);
-            } catch (IOException e) {
-                throw new IOException("TableProvider.removeTable: directory removing error with message \""
-                        + e.getMessage() + "\"");
+        locker.lock();
+        try {
+            if (tables.containsKey(name)) {
+                try {
+                    Shell.cd(dbPath.toString());
+                    Shell.rm(name);
+                    tables.remove(name);
+                } catch (IOException e) {
+                    throw new IOException("TableProvider.removeTable: directory removing error with message \""
+                            + e.getMessage() + "\"");
+                }
+            } else {
+                throw new IllegalStateException("TableProvider.removeTable: table doesn't exists");
             }
-        } else {
-            throw new IllegalStateException("TableProvider.removeTable: table doesn't exists");
+        } finally {
+            locker.unlock();
         }
     }
 

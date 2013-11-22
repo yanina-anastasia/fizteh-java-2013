@@ -12,7 +12,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
  * Представляет интерфейс для работы с таблицей, содержащей ключи-значения. Ключи должны быть уникальными.
@@ -26,10 +31,13 @@ public class MyTable implements Table {
 
     Path addr;
     HashMap<String, Storeable> oldMap;
-    HashMap<String, Storeable> map;
     String tableName;
     List<Class<?>> types;
     TableProvider provider;
+
+    ThreadLocal<HashMap<String, Storeable>> map;
+
+    private final ReentrantLock locker = new ReentrantLock(true);
 
     /**
      * Конструктор. Открывает и читают базу.
@@ -91,7 +99,13 @@ public class MyTable implements Table {
             }
         }
 
-        map = new HashMap<>();
+        map = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+
         for (int dirNum = 0; dirNum < 16; dirNum++) {
             Path dir = addr.resolve(Integer.toString(dirNum) + ".dir");
             for (int fileNum = 0; fileNum < 16; fileNum++) {
@@ -155,7 +169,7 @@ public class MyTable implements Table {
                                         throw new IOException("EOF too early");
                                     }
                                 }
-                                map.put(keys.get(j), provider.deserialize(this, (new String(buf, "UTF8"))));
+                                map.get().put(keys.get(j), provider.deserialize(this, (new String(buf, "UTF8"))));
                             }
                         }
                     } catch (ParseException e) {
@@ -169,7 +183,7 @@ public class MyTable implements Table {
             }
         }
         oldMap = new HashMap<>();
-        oldMap.putAll(map);
+        oldMap.putAll(map.get());
     }
 
     /**
@@ -195,7 +209,12 @@ public class MyTable implements Table {
         if ((key == null) || key.trim().isEmpty() || key.matches(".*[\\s\\t\\n].*")) {
             throw new IllegalArgumentException("Table.get: key is null or consists illegal symbol/symbols");
         }
-        return map.get(key);
+        locker.lock();
+        try {
+            return map.get().get(key);
+        } finally {
+            locker.unlock();
+        }
     }
 
     /**
@@ -247,7 +266,12 @@ public class MyTable implements Table {
                         throw new ColumnFormatException("Table.put: wrong type");
                     }
                 }
-                return map.put(key, value);
+                locker.lock();
+                try {
+                    return map.get().put(key, value);
+                } finally {
+                    locker.unlock();
+                }
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("Table.put: value has other number of columns");
             }
@@ -269,7 +293,12 @@ public class MyTable implements Table {
         if ((key == null) || key.trim().isEmpty() || key.matches(".*[\\s\\t\\n].*")) {
             throw new IllegalArgumentException("Table.remove: key is null or consists illegal symbol/symbols");
         }
-        return map.remove(key);
+        locker.lock();
+        try {
+            return map.get().remove(key);
+        } finally {
+            locker.unlock();
+        }
     }
 
     /**
@@ -279,7 +308,12 @@ public class MyTable implements Table {
      */
     @Override
     public int size() {
-        return map.size();
+        locker.lock();
+        try {
+            return map.get().size();
+        } finally {
+            locker.unlock();
+        }
     }
 
     /**
@@ -291,11 +325,16 @@ public class MyTable implements Table {
      */
     @Override
     public int commit() throws IOException {
-        int difference = mapsDifference();
-        oldMap.clear();
-        oldMap.putAll(map);
-        refreshDiskData();
-        return difference;
+        locker.lock();
+        try {
+            int difference = mapsDifference();
+            oldMap.clear();
+            oldMap.putAll(map.get());
+            refreshDiskData();
+            return difference;
+        } finally {
+            locker.unlock();
+        }
     }
 
     /**
@@ -305,10 +344,15 @@ public class MyTable implements Table {
      */
     @Override
     public int rollback() {
-        int difference = mapsDifference();
-        map.clear();
-        map.putAll(oldMap);
-        return difference;
+        locker.lock();
+        try {
+            int difference = mapsDifference();
+            map.get().clear();
+            map.get().putAll(oldMap);
+            return difference;
+        } finally {
+            locker.unlock();
+        }
     }
 
     /**
@@ -343,7 +387,7 @@ public class MyTable implements Table {
      */
     public int mapsDifference() {
         int difference = 0;
-        for (Map.Entry<String, Storeable> entry : map.entrySet()) {
+        for (Map.Entry<String, Storeable> entry : map.get().entrySet()) {
             if (!oldMap.containsKey(entry.getKey())) {
                 difference++;
             } else if (!oldMap.get(entry.getKey()).equals(entry.getValue())) {
@@ -352,7 +396,7 @@ public class MyTable implements Table {
 
         }
         for (Map.Entry<String, Storeable> entry : oldMap.entrySet()) {
-            if (!map.containsKey(entry.getKey())) {
+            if (!map.get().containsKey(entry.getKey())) {
                 difference++;
             }
         }
@@ -371,7 +415,7 @@ public class MyTable implements Table {
                 parts.get(dirNum).add(new HashMap<String, Storeable>());
             }
         }
-        for (Map.Entry<String, Storeable> entry : map.entrySet()) {
+        for (Map.Entry<String, Storeable> entry : map.get().entrySet()) {
             int hash = entry.getKey().hashCode();
             hash *= Integer.signum(hash);
             parts.get(hash % 16).get(hash / 16 % 16).put(entry.getKey(), entry.getValue());
