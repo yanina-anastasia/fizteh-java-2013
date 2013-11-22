@@ -431,6 +431,9 @@ public class MyTable implements Table {
         writeLock.lock();
         try {
             int count = getCountOfChanges();
+            if (count == 0) {
+                return 0;
+            }
             modifyFileMap();
             saveChangesOnHard();
             changesMap.get().clear();
