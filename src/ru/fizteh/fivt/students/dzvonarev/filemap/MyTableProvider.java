@@ -190,16 +190,11 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
-        readLock.lock();
+        writeLock.lock();
         try {
             if (!multiFileMap.containsKey(tableName)) {
                 throw new IllegalStateException(tableName + " not exists");
             }
-        } finally {
-            readLock.unlock();
-        }
-        writeLock.lock();
-        try {
             multiFileMap.remove(tableName);
             Remove shell = new Remove();
             ArrayList<String> myArgs = new ArrayList<>();
