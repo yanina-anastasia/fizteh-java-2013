@@ -84,20 +84,25 @@ public class DirDataBase {
     }
 
     int commit() {
-        int numberOfChanges = 0;
-        for (int i = 0; i < 16; ++i) {
-            int changesInFile = fileArray[i].numberOfChangesCounter(this.table);
-            if (changesInFile != 0) {
-                try {
-                    startWorking();
-                } catch (Exception e) {
-                    throw new IllegalArgumentException(e.getMessage(), e);
+        myWriteLock.lock();
+        try {
+            int numberOfChanges = 0;
+            for (int i = 0; i < 16; ++i) {
+                int changesInFile = fileArray[i].numberOfChangesCounter(this.table);
+                if (changesInFile != 0) {
+                    try {
+                        startWorking();
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException(e.getMessage(), e);
+                    }
+                    fileArray[i].commit(this.table);
+                    numberOfChanges += changesInFile;
                 }
-                fileArray[i].commit(this.table);
-                numberOfChanges += changesInFile;
             }
+            return numberOfChanges;
+        } finally {
+            myWriteLock.unlock();
         }
-        return numberOfChanges;
     }
 
     int rollback() {
