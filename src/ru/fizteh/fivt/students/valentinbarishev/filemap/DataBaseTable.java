@@ -42,18 +42,18 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public Table createTable(final String tableName, List<Class<?>> columnTypes) throws IOException {
+        checkName(tableName);
+        String fullPath = tableDir + File.separator + tableName;
+
+        if (columnTypes == null || columnTypes.size() == 0) {
+            throw new IllegalArgumentException("wrong type (null)");
+        }
+
+        File file = new File(fullPath);
+
         writeLock.lock();
         try {
-            checkName(tableName);
-            String fullPath = tableDir + File.separator + tableName;
-
-            if (columnTypes == null || columnTypes.size() == 0) {
-                throw new IllegalArgumentException("wrong type (null)");
-            }
-
-            File file = new File(fullPath);
-
-            if (file.exists()) {
+        if (file.exists()) {
                 return null;
             }
 
@@ -71,16 +71,15 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public void removeTable(final String tableName) throws IOException {
-        readLock.lock();
+        checkName(tableName);
+        String fullPath = tableDir + File.separator + tableName;
+
+        File file = new File(fullPath);
+        if (!file.exists()) {
+            throw new IllegalStateException("Table not exist already!");
+        }
+        writeLock.lock();
         try {
-            checkName(tableName);
-            String fullPath = tableDir + File.separator + tableName;
-
-            File file = new File(fullPath);
-            if (!file.exists()) {
-                throw new IllegalStateException("Table not exist already!");
-            }
-
             if (!tableInUse.containsKey(tableName)) {
                 DataBase base = new DataBase(tableName, this, null);
                 base.drop();
@@ -92,7 +91,7 @@ public final class DataBaseTable implements TableProvider {
                 throw new DataBaseException("Cannot delete a file " + tableName);
             }
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
 
