@@ -41,7 +41,7 @@ public class DataBaseCreate implements CommandInterface {
             throw new IllegalArgumentException(e);
         }
         if (tableProvider == null) {
-            throw new IOException("can't create table " + newName);
+            throw new IOException("can't create table");
         }
         Table newTable = tableProvider.createTable(newName, newTypes);
         if (newTable == null) {

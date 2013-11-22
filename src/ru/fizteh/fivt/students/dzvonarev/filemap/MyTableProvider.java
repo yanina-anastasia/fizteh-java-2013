@@ -129,11 +129,11 @@ public class MyTableProvider implements TableProvider {
         if (!signature.createNewFile()) {
             throw new IOException("can't create file signature.tsv");
         }
-        try (PrintWriter myWriter = new PrintWriter(signature)) {
-            for (Class<?> type : types) {
-                myWriter.write((typeToString.get(type)) + " ");
-            }
+        PrintWriter myWriter = new PrintWriter(signature);
+        for (Class<?> type : types) {
+            myWriter.write((typeToString.get(type)) + " ");
         }
+        myWriter.close();
     }
 
 
@@ -167,18 +167,23 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
-        writeLock.lock();
+        File newTable = new File(workingDirectory, tableName);
+        readLock.lock();
         try {
-            File newTable = new File(workingDirectory, tableName);
             if (multiFileMap.containsKey(tableName)) {
                 return null;
             }
-            MyTable table = new MyTable(newTable, this);
-            if (!newTable.mkdir()) {
-                throw new IOException("Can't create table " + tableName);
-            }
-            multiFileMap.put(tableName, table);
+        } finally {
+            readLock.unlock();
+        }
+        if (!newTable.mkdir()) {
+            throw new IOException("Can't create table " + tableName);
+        }
+        writeLock.lock();
+        try {
             writeTypesInFile(tableName, types);
+            MyTable table = new MyTable(newTable, this);
+            multiFileMap.put(tableName, table);
             return table;
         } finally {
             writeLock.unlock();
@@ -190,24 +195,25 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
-        writeLock.lock();
-        try {
-            if (!multiFileMap.containsKey(tableName)) {
-                throw new IllegalStateException(tableName + " not exists");
+        if (!multiFileMap.containsKey(tableName)) {
+            throw new IllegalStateException(tableName + " not exists");
+        } else {
+            writeLock.lock();
+            try {
+                multiFileMap.remove(tableName);
+                Remove shell = new Remove();
+                ArrayList<String> myArgs = new ArrayList<>();
+                myArgs.add(workingDirectory + File.separator + tableName);
+                myArgs.add("notFromShell");
+                shell.execute(myArgs);
+                if ((currTable != null) && (currTable.equals(tableName))) {
+                    currTable = null;
+                }
+            } catch (IOException e) {
+                throw new IllegalStateException(e.getMessage() + " can't remove " + tableName, e);
+            } finally {
+                writeLock.unlock();
             }
-            multiFileMap.remove(tableName);
-            Remove shell = new Remove();
-            ArrayList<String> myArgs = new ArrayList<>();
-            myArgs.add(workingDirectory + File.separator + tableName);
-            myArgs.add("notFromShell");
-            shell.execute(myArgs);
-        } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage() + " can't remove " + tableName, e);
-        } finally {
-            writeLock.unlock();
-        }
-        if ((currTable != null) && (currTable.equals(tableName))) {
-            currTable = null;
         }
     }
 

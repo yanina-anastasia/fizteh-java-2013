@@ -22,15 +22,15 @@ public class MyTable implements Table {
         tableFile = dirTable;
         tableName = dirTable.getName();
         fileMap = new HashMap<>();
+        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+        readLock = readWriteLock.readLock();
+        writeLock = readWriteLock.writeLock();
         changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
                 return new HashMap<>();
             }
         };
-        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-        readLock = readWriteLock.readLock();
-        writeLock = readWriteLock.writeLock();
         type = new ArrayList<>();
         List<String> temp = new ArrayList<>();  //init types of table
         readTypes(temp);
@@ -47,7 +47,7 @@ public class MyTable implements Table {
     private File tableFile;
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
-    private static ThreadLocal<HashMap<String, Storeable>> changesMap;
+    private ThreadLocal<HashMap<String, Storeable>> changesMap;
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
@@ -100,14 +100,14 @@ public class MyTable implements Table {
         if (!signature.exists()) {
             throw new RuntimeException("signature.tsv not existing");
         }
-        try (Scanner myScanner = new Scanner(signature)) {
-            if (!myScanner.hasNext()) {
-                throw new RuntimeException("signature.tsv: invalid file");
-            }
-            while (myScanner.hasNext()) {
-                arr.add(myScanner.next());
-            }
+        Scanner myScanner = new Scanner(signature);
+        if (!myScanner.hasNext()) {
+            throw new RuntimeException("signature.tsv: invalid file");
         }
+        while (myScanner.hasNext()) {
+            arr.add(myScanner.next());
+        }
+        myScanner.close();
     }
 
     public void readFileMap() throws RuntimeException, IOException, ParseException {
@@ -141,7 +141,9 @@ public class MyTable implements Table {
     /* READING FILEMAP */
     public void readMyFileMap(String fileName, String dir, String file)
             throws IOException, RuntimeException, ParseException {
-        try (RandomAccessFile fileReader = openFile(fileName)) {
+        RandomAccessFile fileReader = null;
+        try {
+            fileReader = openFileForRead(fileName);
             long endOfFile = fileReader.length();
             long currFilePosition = fileReader.getFilePointer();
             if (endOfFile == 0) {
@@ -175,6 +177,8 @@ public class MyTable implements Table {
             }
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage() + " " + fileName + " : file is broken", e);
+        } finally {
+            closeFile(fileReader);
         }
     }
 
@@ -272,7 +276,9 @@ public class MyTable implements Table {
     }
 
     public void writeInFile(String path, String key, Storeable value) throws IOException {
-        try (RandomAccessFile fileWriter = openFile(path)) {
+        RandomAccessFile fileWriter = null;
+        try {
+            fileWriter = openFileForWrite(path);
             fileWriter.skipBytes((int) fileWriter.length());
             byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
             byte[] valueBytes = tableProvider.serialize(this, value).getBytes(StandardCharsets.UTF_8);
@@ -282,20 +288,37 @@ public class MyTable implements Table {
             fileWriter.write(valueBytes);
         } catch (IOException e) {
             throw new IOException(e.getMessage() + " updating file " + path + " : error in writing", e);
+        } finally {
+            closeFile(fileWriter);
         }
     }
 
-    public RandomAccessFile openFile(String fileName) throws IOException {
+    public RandomAccessFile openFileForRead(String fileName) throws IOException {
         RandomAccessFile newFile;
-        if (fileName == null) {
-            throw new IOException("wrong name of file to open");
-        }
         try {
             newFile = new RandomAccessFile(fileName, "rw");
         } catch (FileNotFoundException e) {
-            throw new IOException(e.getMessage() + " error in opening file: file " + fileName + " not found", e);
+            throw new IOException(e.getMessage() + " reading from file: file " + fileName + " not found", e);
         }
         return newFile;
+    }
+
+    public RandomAccessFile openFileForWrite(String fileName) throws IOException {
+        RandomAccessFile newFile;
+        try {
+            newFile = new RandomAccessFile(fileName, "rw");
+        } catch (FileNotFoundException e) {
+            throw new IOException(e.getMessage() + " writing to file: file " + fileName + " not found", e);
+        }
+        return newFile;
+    }
+
+    public void closeFile(RandomAccessFile file) throws IOException {
+        try {
+            file.close();
+        } catch (IOException e) {
+            throw new IOException(e.getMessage() + " error in closing file", e);
+        }
     }
 
     @Override
@@ -317,21 +340,20 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        if (changesMap.get().containsKey(key)) {            // если он был изменен
-            return changesMap.get().get(key);
-        } else {
-            readLock.lock();
-            try {
+        readLock.lock();
+        try {
+            if (changesMap.get().containsKey(key)) {            // если он был изменен
+                return changesMap.get().get(key);
+            } else {
                 if (fileMap.containsKey(key)) {
                     return fileMap.get(key);
                 } else {
                     return null;
                 }
-            } finally {
-                readLock.unlock();
             }
+        } finally {
+            readLock.unlock();
         }
-
     }
 
     public void addChanges(String key, Storeable value) {
