@@ -208,15 +208,16 @@ public class StoreableTable implements Table {
         checkValue(value);
         Storeable valueOnDisk = null;
         Storeable oldValue = changedKeys.get().put(key, value);
-        if (!removedKeys.get().contains(key)) {
-            if (oldValue == null) {
-                tableLock.readLock().lock();
-                try {
-                    valueOnDisk = tableOnDisk.get(key);
-                } finally {
-                    tableLock.readLock().unlock();
-                }
-                oldValue = valueOnDisk;
+        if (!removedKeys.get().contains(key) && oldValue == null) {
+            tableLock.readLock().lock();
+            try {
+                valueOnDisk = tableOnDisk.get(key);
+            } finally {
+                tableLock.readLock().unlock();
+            }
+            oldValue = valueOnDisk;
+            if (valueOnDisk != null) {
+                removedKeys.get().add(key);
             }
         }
         return oldValue;

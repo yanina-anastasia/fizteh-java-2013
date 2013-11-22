@@ -29,7 +29,7 @@ public class StoreableTableProvider implements TableProvider {
     private final File rootDir;
 
     private HashMap<String, StoreableTable> tables;
-    private ReadWriteLock providerLock = new ReentrantReadWriteLock();
+    private ReadWriteLock providerLock = new ReentrantReadWriteLock(true);
 
     StoreableTableProvider(File rootDir) {
         if (rootDir == null) {
