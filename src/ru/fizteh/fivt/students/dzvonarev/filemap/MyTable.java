@@ -25,12 +25,6 @@ public class MyTable implements Table {
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
         readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
-        changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
-            @Override
-            public HashMap<String, Storeable> initialValue() {
-                return new HashMap<>();
-            }
-        };
         type = new ArrayList<>();
         List<String> temp = new ArrayList<>();  //init types of table
         readTypes(temp);
@@ -47,7 +41,13 @@ public class MyTable implements Table {
     private File tableFile;
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
-    private ThreadLocal<HashMap<String, Storeable>> changesMap;
+    private static final ThreadLocal<HashMap<String, Storeable>> changesMap
+            = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        public HashMap<String, Storeable> initialValue() {
+            return new HashMap<>();
+        }
+    };
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
