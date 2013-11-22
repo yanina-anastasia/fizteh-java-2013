@@ -11,8 +11,10 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.DataFormatException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,10 +29,13 @@ import javax.xml.transform.stream.StreamResult;
 import ru.fizteh.fivt.storage.structured.*;
 
 public class TableManager implements TableProvider {
-    private HashMap<String, TableData> bidDataBase = new HashMap<String, TableData>();
+    private ConcurrentHashMap<String, TableData> bidDataBase = new ConcurrentHashMap<>();
     private File mainDir;
-    private final Lock creatingLock = new ReentrantLock();
-    private final Lock deletingLock = new ReentrantLock();
+//    private final Lock creatingLock = new ReentrantLock();
+//    private final Lock deletingLock = new ReentrantLock();
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock myWriteLock = readWriteLock.writeLock();
+    private final Lock myReadLock = readWriteLock.readLock();
 
     TableManager(String nameMainDir) throws IllegalArgumentException, IOException {
         if (nameMainDir == null) {
@@ -147,7 +152,7 @@ public class TableManager implements TableProvider {
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
         TableData creatingTable = null;
-        creatingLock.lock();
+        myWriteLock.lock();
         try {
             if (!creatingTableFile.exists()) {
                 creatingTable = new TableData(creatingTableFile, columnTypes, this);
@@ -159,7 +164,7 @@ public class TableManager implements TableProvider {
                 }
             }
         } finally {
-            creatingLock.unlock();
+            myWriteLock.unlock();
         }
         return creatingTable;
     }
@@ -178,27 +183,32 @@ public class TableManager implements TableProvider {
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
-        if (!creatingTableFile.exists()) {
+        myReadLock.lock();
+        try {
+            if (!creatingTableFile.exists()) {
+                if (bidDataBase.containsKey(nameTable)) {
+                    bidDataBase.remove(nameTable);
+                }
+                return null;
+            }
             if (bidDataBase.containsKey(nameTable)) {
-                bidDataBase.remove(nameTable);
-            }
-            return null;
-        }
-        if (bidDataBase.containsKey(nameTable)) {
-            table = bidDataBase.get(nameTable);
-        } else {
-            if (creatingTableFile.exists()) {
-                try {
-                    table = new TableData(creatingTableFile, this);
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
-                } catch (IOException e) {
-                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
-                }
-                if (!bidDataBase.containsKey(nameTable)) {
-                    bidDataBase.put(nameTable, table);
+                table = bidDataBase.get(nameTable);
+            } else {
+                if (creatingTableFile.exists()) {
+                    try {
+                        table = new TableData(creatingTableFile, this);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                    }
+                    if (!bidDataBase.containsKey(nameTable)) {
+                        bidDataBase.put(nameTable, table);
+                    }
                 }
             }
+        } finally {
+            myReadLock.unlock();
         }
         return table;
     }
@@ -217,7 +227,7 @@ public class TableManager implements TableProvider {
         }
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
-        deletingLock.lock();
+        myWriteLock.lock();
         try {
             if (!creatingTableFile.exists()) {
                 throw new IllegalStateException("wrong type (Table " + nameTable + "does not exist)");
@@ -230,7 +240,7 @@ public class TableManager implements TableProvider {
                 bidDataBase.remove(nameTable);
             }
         } finally {
-            deletingLock.unlock();
+            myWriteLock.unlock();
         }
     }
 
