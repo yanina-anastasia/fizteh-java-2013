@@ -108,7 +108,32 @@ public class ParallelTest {
                 || (getCreatedFuture.get() != firstFuture.get() && getCreatedFuture.get() != secondFuture.get())) {
             fail("Таблица не вернула ссылку на свежесозданную другим потоком таблицу");
         }
+        serviceFirst.shutdown();
+        if (!serviceFirst.awaitTermination(60, TimeUnit.SECONDS)) {
+            serviceFirst.shutdownNow();
+        }
+        if (!serviceFirst.awaitTermination(60, TimeUnit.SECONDS)) {
+            System.err.println("pool did not terminate");
+            System.exit(1);
+        }
+        serviceSecond.shutdown();
+        if (!serviceSecond.awaitTermination(60, TimeUnit.SECONDS)) {
+            serviceSecond.shutdownNow();
+        }
+        if (!serviceSecond.awaitTermination(60, TimeUnit.SECONDS)) {
+            System.err.println("pool did not terminate");
+            System.exit(1);
+        }
+        serviceThread.shutdown();
+        if (!serviceThread.awaitTermination(60, TimeUnit.SECONDS)) {
+            serviceThread.shutdownNow();
+        }
+        if (!serviceThread.awaitTermination(60, TimeUnit.SECONDS)) {
+            System.err.println("pool did not terminate");
+            System.exit(1);
+        }
     }
+
 
     @Test
     public void commitsAndRollback() throws InterruptedException, ExecutionException {
@@ -196,5 +221,21 @@ public class ParallelTest {
         };
         Future checkStateOfSecondFuture = serviceSecond.submit(checkStateOfSecond);
         assertEquals(checkStateOfSecondFuture.get(), 0);
+        serviceFirst.shutdown();
+        if (!serviceFirst.awaitTermination(60, TimeUnit.SECONDS)) {
+            serviceFirst.shutdownNow();
+        }
+        if (!serviceFirst.awaitTermination(60, TimeUnit.SECONDS)) {
+            System.err.println("pool did not terminate");
+            System.exit(1);
+        }
+        serviceSecond.shutdown();
+        if (!serviceSecond.awaitTermination(60, TimeUnit.SECONDS)) {
+            serviceSecond.shutdownNow();
+        }
+        if (!serviceSecond.awaitTermination(60, TimeUnit.SECONDS)) {
+            System.err.println("pool did not terminate");
+            System.exit(1);
+        }
     }
 }
