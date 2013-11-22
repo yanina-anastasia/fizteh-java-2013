@@ -25,19 +25,19 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DistributedTable extends FileManager implements Table {
 
-    protected Path currentFile;
-    protected Path currentPath;
-    protected String tableName;
-    protected HashMap<String, Storeable> cache;
-    protected ThreadLocal<HashMap<String, Storeable>> changes;
+    private Path currentFile;
+    private Path currentPath;
+    private String tableName;
+    private HashMap<String, Storeable> cache;
+    private ThreadLocal<HashMap<String, Storeable>> changes;
 
-    protected final int partsNumber = 16;
-    protected Path[] directoriesList = new Path[partsNumber];
-    protected Path[][] filesList = new Path[partsNumber][partsNumber];
-    protected Path signature;
-    protected List<Class<?>> types;
+    private final int partsNumber = 16;
+    private Path[] directoriesList = new Path[partsNumber];
+    private Path[][] filesList = new Path[partsNumber][partsNumber];
+    private Path signature;
+    private List<Class<?>> types;
 
-    protected ReentrantReadWriteLock cacheLock;
+    private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock(true);
 
     @Override
     public String getName() {
@@ -98,7 +98,7 @@ public class DistributedTable extends FileManager implements Table {
         return fileRecordNumber;
     }
 
-    protected int readTable() throws IOException {
+    private int readTable() throws IOException {
         int directoriesNumber = 0;
         int tableSize = 0;
         if (Files.exists(signature)) {
@@ -126,7 +126,7 @@ public class DistributedTable extends FileManager implements Table {
         return tableSize;
     }
 
-    protected void createSignature(Path tableDirectory) throws IOException {
+    private void createSignature(Path tableDirectory) throws IOException {
         signature = tableDirectory.resolve("signature.tsv");
         if (!Files.exists(signature)) {
             Files.createFile(signature);
@@ -142,7 +142,7 @@ public class DistributedTable extends FileManager implements Table {
         }
     }
 
-    protected List<Class<?>> getSignature(Path tableDirectory) throws IOException {
+    private List<Class<?>> getSignature(Path tableDirectory) throws IOException {
         signature = tableDirectory.resolve("signature.tsv");
         /*
 
@@ -152,7 +152,8 @@ public class DistributedTable extends FileManager implements Table {
 
 
          */
-        if (!Files.exists(signature) || Files.isDirectory(signature)) {
+        //if (!Files.exists(signature) || Files.isDirectory(signature)) {
+        if (!Files.exists(signature) || !Files.isRegularFile(signature)) {
             throw new IOException(signature + ": file doesn't exists");
         }
         String string;
@@ -173,13 +174,13 @@ public class DistributedTable extends FileManager implements Table {
         return typeList;
     }
 
-    protected void checkTableName(String name) {
+    private void checkTableName(String name) {
         if (name == null || name.matches(".*[ \\s\\\\/].*")) {
             throw new IllegalArgumentException("invalid table name");
         }
     }
 
-    protected void initialiseTable(Path tableDirectory, String name) throws IOException {
+    private void initialiseTable(Path tableDirectory, String name) throws IOException {
         currentPath = tableDirectory;
         tableName = name;
         for (int i = 0; i < partsNumber; i++) {
@@ -188,7 +189,6 @@ public class DistributedTable extends FileManager implements Table {
                 filesList[i][j] = directoriesList[i].resolve(j + ".dat");
             }
         }
-        cacheLock = new ReentrantReadWriteLock(true);
         cache = new HashMap<>();
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
@@ -227,8 +227,8 @@ public class DistributedTable extends FileManager implements Table {
         types = getSignature(tableDirectory);
         initialiseTable(tableDirectory, name);
     }
-
-    public int changesSize() {
+    
+    private int findDifference() {
         int diff = 0;
         for (String key : changes.get().keySet()) {
             if (changes.get().get(key) == null) {
@@ -244,15 +244,18 @@ public class DistributedTable extends FileManager implements Table {
         return diff;
     }
 
-    @Override
-    public int rollback() {
-        int canceled;
+    public int changesSize() {
+        cacheLock.readLock().lock();
         try {
-            cacheLock.readLock().lock();
-            canceled = changesSize();
+            return findDifference();
         } finally {
             cacheLock.readLock().unlock();
         }
+    }
+
+    @Override
+    public int rollback() {
+        int canceled = changesSize();
         changes.get().clear();
         return canceled;
     }
@@ -265,8 +268,8 @@ public class DistributedTable extends FileManager implements Table {
         if (changes.get().containsKey(key)) {
             return changes.get().get(key);
         } else {
+            cacheLock.readLock().lock();
             try {
-                cacheLock.readLock().lock();
                 return cache.get(key);
             } finally {
                 cacheLock.readLock().unlock();
@@ -305,8 +308,8 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public int size() {
+        cacheLock.readLock().lock();
         try {
-            cacheLock.readLock().lock();
             int size = cache.size();
             for (String key : changes.get().keySet()) {
                 if (changes.get().get(key) == null) {
@@ -327,9 +330,9 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public int commit() throws IOException {
+        cacheLock.writeLock().lock();
         try {
-            cacheLock.writeLock().lock();
-            int difference = changesSize();
+            int difference = findDifference();
             for (String key : changes.get().keySet()) {
                 if (changes.get().get(key) == null) {
                     if (cache.containsKey(key)) {
@@ -392,7 +395,7 @@ public class DistributedTable extends FileManager implements Table {
         return types;
     }
 
-    protected void writeNextPair(DataOutputStream outputStream, String key, String value) throws IOException {
+    private void writeNextPair(DataOutputStream outputStream, String key, String value) throws IOException {
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
         byte[] valueBytes = value.getBytes(StandardCharsets.UTF_8);
         outputStream.writeInt(keyBytes.length);
@@ -401,7 +404,7 @@ public class DistributedTable extends FileManager implements Table {
         outputStream.write(valueBytes);
     }
 
-    protected String[] readNextPair(DataInputStream inputStream) throws IOException {
+    private String[] readNextPair(DataInputStream inputStream) throws IOException {
         if (inputStream.available() == 0) {
             return null;
         }
@@ -428,7 +431,7 @@ public class DistributedTable extends FileManager implements Table {
         return pair;
     }
 
-    protected String readValue(String key) throws IOException {
+    private String readValue(String key) throws IOException {
         if (currentFile == null || !Files.exists(currentFile)) {
             return null;
         }

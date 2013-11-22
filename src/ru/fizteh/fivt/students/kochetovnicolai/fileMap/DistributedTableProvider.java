@@ -17,15 +17,15 @@ import javax.xml.stream.*;
 
 public class DistributedTableProvider implements TableProvider {
 
-    protected HashMap<String, DistributedTable> tables;
-    protected Path currentPath;
-    protected ReadWriteLock tablesLock;
+    private HashMap<String, DistributedTable> tables;
+    private Path currentPath;
+    private ReadWriteLock tablesLock;
 
     public static boolean isValidName(String name) {
         return name != null && !name.equals("") && !name.contains(".") && !name.contains("/") && !name.contains("\\");
     }
 
-    protected boolean loadTable(String name) {
+    private boolean loadTable(String name) {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
@@ -39,11 +39,21 @@ public class DistributedTableProvider implements TableProvider {
         return tables.containsKey(name);
     }
 
-    protected boolean existsTable(String name) {
-        if (!tables.containsKey(name)) {
-            return loadTable(name);
+    public boolean existsTable(String name) {
+        tablesLock.readLock().lock();
+        try {
+            if (tables.containsKey(name)) {
+                return true;
+            }
+        } finally {
+            tablesLock.readLock().unlock();
         }
-        return tables.containsKey(name);
+        tablesLock.writeLock().lock();
+        try {
+            return loadTable(name);
+        } finally {
+            tablesLock.writeLock().unlock();
+        }
     }
 
     public DistributedTableProvider(Path workingDirectory) throws IOException, IllegalArgumentException {
@@ -66,16 +76,16 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
+        tablesLock.readLock().lock();
         try {
-            tablesLock.readLock().lock();
             if (tables.containsKey(name)) {
                 return tables.get(name);
             }
         } finally {
             tablesLock.readLock().unlock();
         }
+        tablesLock.writeLock().lock();
         try {
-            tablesLock.writeLock().lock();
             loadTable(name);
             return tables.get(name);
         } finally {
@@ -91,8 +101,8 @@ public class DistributedTableProvider implements TableProvider {
         if (!isValidName(name)) {
             throw new IllegalArgumentException("invalid table name");
         }
+        tablesLock.writeLock().lock();
         try {
-            tablesLock.writeLock().lock();
             if (loadTable(name)) {
                 return null;
             }
@@ -109,8 +119,8 @@ public class DistributedTableProvider implements TableProvider {
             throw new IllegalArgumentException("invalid table name");
         }
 
+        tablesLock.writeLock().lock();
         try {
-            tablesLock.writeLock().lock();
             if (!loadTable(name)) {
                 throw new IllegalStateException("table is not exists");
             }
@@ -126,8 +136,8 @@ public class DistributedTableProvider implements TableProvider {
         if (table == null) {
             throw new IllegalArgumentException("argument shouldn't be null");
         }
+        tablesLock.readLock().lock();
         try {
-            tablesLock.readLock().lock();
             if (!tables.containsKey(table.getName())) {
                 throw new IllegalArgumentException("invalid table");
             }
@@ -266,8 +276,8 @@ public class DistributedTableProvider implements TableProvider {
             throw new IllegalArgumentException("table shouldn't be null");
         }
         List<Class<?>> tableTypes;
+        tablesLock.readLock().lock();
         try {
-            tablesLock.readLock().lock();
             if (!tables.containsKey(table.getName())) {
                 throw new IllegalArgumentException("invalid arguments");
             }
