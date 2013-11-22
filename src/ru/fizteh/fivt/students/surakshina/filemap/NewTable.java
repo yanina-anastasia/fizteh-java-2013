@@ -22,7 +22,7 @@ public class NewTable implements Table {
     private final ArrayList<Class<?>> types;
     private ReadWriteLock controller = new ReentrantReadWriteLock(true);
 
-    private static ThreadLocal<HashMap<String, Storeable>> localMap = new ThreadLocal<HashMap<String, Storeable>>() {
+    private ThreadLocal<HashMap<String, Storeable>> localMap = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
             return new HashMap<String, Storeable>();
