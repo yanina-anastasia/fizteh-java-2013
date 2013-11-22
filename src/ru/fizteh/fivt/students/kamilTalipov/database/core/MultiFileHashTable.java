@@ -366,8 +366,7 @@ public class MultiFileHashTable implements Table {
                         + "expected not null");
             }
             if (table[file.directoryId][file.fileId].isEmpty()) {
-                throw new DatabaseException("Table [" + file.directoryId + "][" + file.fileId + "] "
-                        + "expected not empty");
+                continue;
             }
 
             File directory = FileUtils.makeDir(tableDirectory.getAbsolutePath()
@@ -519,7 +518,8 @@ public class MultiFileHashTable implements Table {
     private Storeable getFromTable(String key) {
         HashMap<String, Storeable> table = getKeyTable(key, false);
         if (table == null) {
-            return null;
+            throw new IllegalStateException("Null table get for key '" + key + "'");
+            //return null;
         }
         return table.get(key);
     }
@@ -531,7 +531,8 @@ public class MultiFileHashTable implements Table {
     private Storeable removeFromTable(String key) {
         HashMap<String, Storeable> table = getKeyTable(key, false);
         if (table == null) {
-            return null;
+            throw new IllegalStateException("Null table remove for key '" + key "'");
+            //return null;
         }
         return table.remove(key);
     }
