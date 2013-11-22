@@ -31,7 +31,7 @@ public class StorableTableImp2 implements StorableTable {
     private final StorableTableProviderImp tableProvider;
     private final StorableRowShape shape;
     private AtomicBoolean isClosed = new AtomicBoolean(false);
-    private Map<String, Storeable> mainMap;
+    private volatile Map<String, Storeable> mainMap;
     private ThreadLocal<Map<String, Storeable>> localMap = new ThreadLocal<Map<String, Storeable>>() {
         protected Map<String, Storeable> initialValue() {
             return new HashMap<>();
@@ -111,9 +111,9 @@ public class StorableTableImp2 implements StorableTable {
 
     @Override
     public int size() {
-        int size = mainMap.size();
+        tableKeeper.readLock().lock();
         try {
-            tableKeeper.readLock().lock();
+            int size = mainMap.size();
             for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
                 if (!mainMap.containsKey(entry.getKey())) {
                     if (entry.getValue() != null) {
@@ -125,20 +125,20 @@ public class StorableTableImp2 implements StorableTable {
                     }
                 }
             }
+            return size;
         }
         finally {
             tableKeeper.readLock().unlock();
         }
-        return size;
     }
 
     @Override
     public int commit() throws IOException {
         Map<Path, List<DatabaseUtils.KeyValue>> databaseChanges = new HashMap<>();
         Path tableLocation = tableProvider.tableDirectory(name);
-        int commitChanges = difference();
+        tableKeeper.writeLock().lock();
         try {
-            tableKeeper.writeLock().lock();
+            int commitChanges = difference();
             Set<Path> filesChanged = mergeTables();
             for (Path file : filesChanged) {
                 Files.deleteIfExists(file);
@@ -156,11 +156,11 @@ public class StorableTableImp2 implements StorableTable {
             }
 
             TableProviderUtils.writeTable(databaseChanges);
+            return commitChanges;
         }
         finally {
             tableKeeper.writeLock().unlock();
         }
-        return commitChanges;
     }
 
     private Set<Path> mergeTables() {
@@ -187,36 +187,43 @@ public class StorableTableImp2 implements StorableTable {
 
     @Override
     public int rollback() {
-        int rollbackSize = difference();
+        int rollbackSize;
+        tableKeeper.readLock().lock();
+        try {
+            rollbackSize = difference();
+        }
+        finally {
+            tableKeeper.readLock().unlock();
+        }
         localMap.get().clear();
         return rollbackSize;
     }
 
     public int difference() {
         int diff = 0;
-        try {
-            tableKeeper.readLock().lock();
-            for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
-                if (mainMap.containsKey(entry.getKey())) {
-                    if (!mainMap.get(entry.getKey()).equals(entry.getValue())) {
-                        ++diff;
-                    }
-                } else {
-                    if (entry.getValue() != null) {
-                        ++diff;
-                    }
+        for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
+            if (mainMap.containsKey(entry.getKey())) {
+                if (!mainMap.get(entry.getKey()).equals(entry.getValue())) {
+                    ++diff;
+                }
+            } else {
+                if (entry.getValue() != null) {
+                    ++diff;
                 }
             }
-        }
-        finally {
-            tableKeeper.readLock().unlock();
         }
         return diff;
     }
 
     @Override
     public int unsavedChanges() {
-        return difference();
+        tableKeeper.readLock().lock();
+        try {
+            return difference();
+        }
+        finally {
+          tableKeeper.readLock().unlock();
+        }
     }
 
     @Override

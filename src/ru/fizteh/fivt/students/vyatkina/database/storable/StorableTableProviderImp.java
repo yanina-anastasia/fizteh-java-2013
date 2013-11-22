@@ -43,38 +43,28 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     public Table getTable(String name) {
         isClosedCheck();
         validTableNameCheck(name);
-        loadTable(name);
+        databaseKeeper.writeLock().lock();
         try {
-            databaseKeeper.readLock().lock();
+            loadTable(name);
             return tables.get(name);
         }
         finally {
-            databaseKeeper.readLock().unlock();
+            databaseKeeper.writeLock().unlock();
         }
 
     }
 
     public void loadTable(String tableName) {
-        try {
-            databaseKeeper.readLock().lock();
-            if (tables.containsKey(tableName)) {
-                return;
-            }
+        if (tables.containsKey(tableName)) {
+            return;
         }
-        finally {
-            databaseKeeper.readLock().unlock();
-        }
-
         Path tableDirectory = tableDirectory(tableName);
         if (!Files.exists(tableDirectory)) {
             return;
         }
         Path tableSignature = tableDirectory.resolve(SIGNATURE_FILE);
         if (Files.exists(tableSignature)) {
-
             try {
-                databaseKeeper.writeLock().lock();
-
                 StorableRowShape shape = new StorableRowShape(readTableSignature(tableSignature));
                 StorableTable table = new StorableTableImp2(tableName, shape, this);
 
@@ -89,9 +79,6 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
             catch (IOException | ParseException e) {
                 throw new WrappedIOException();
             }
-            finally {
-                databaseKeeper.writeLock().unlock();
-            }
         } else {
             throw new WrappedIOException("Bad database: table without signature file");
         }
@@ -101,47 +88,37 @@ public class StorableTableProviderImp implements StorableTableProvider, RemoteTa
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
         isClosedCheck();
         validTableNameCheck(name);
-        getTable(name);
+        databaseKeeper.writeLock().lock();
         try {
-            databaseKeeper.readLock().lock();
+            loadTable(name);
+            getTable(name);
             if (tables.containsKey(name)) {
                 return null;
             }
-        }
-        finally {
-            databaseKeeper.readLock().unlock();
-        }
-        StorableRowShape shape = new StorableRowShape(columnTypes);
-        StorableTable table = new StorableTableImp2(name, shape, this);
-        table.putValuesFromDisk(new HashMap<String, Storeable>());
-        try {
-            databaseKeeper.writeLock().lock();
+            StorableRowShape shape = new StorableRowShape(columnTypes);
+            StorableTable table = new StorableTableImp2(name, shape, this);
+            table.putValuesFromDisk(new HashMap<String, Storeable>());
+
             tables.put(name, table);
             Files.createDirectory(location.resolve(name));
             writeTableSignature(tableDirectory(name), columnTypes);
+            return table;
         }
         finally {
             databaseKeeper.writeLock().unlock();
         }
-        return table;
     }
 
     @Override
     public void removeTable(String name) throws IOException {
         isClosedCheck();
         validTableNameCheck(name);
-        getTable(name);
+        databaseKeeper.writeLock().lock();
         try {
-            databaseKeeper.readLock().lock();
+            loadTable(name);
             if (!tables.containsKey(name)) {
                 throw new IllegalStateException();
             }
-        }
-        finally {
-            databaseKeeper.readLock().unlock();
-        }
-        try {
-            databaseKeeper.writeLock().lock();
             deleteTableFromDisk(tableDirectory(name).toFile());
             tables.remove(name);
         }
