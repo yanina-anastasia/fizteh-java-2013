@@ -57,12 +57,8 @@ public class StorableTableImp2 implements StorableTable {
         tableKeeper.readLock().lock();
         try {
             if (localMap.get().containsKey(key)) {
-                System.out.println("get: " + Thread.currentThread().getName() + " key = " + key);
-                System.out.println("get: " + Thread.currentThread().getName() + " localMap.get().get(key) = " + localMap.get().get(key));
                 return localMap.get().get(key);
             } else {
-                System.out.println("get: " + Thread.currentThread().getName() + " key = " + key);
-                System.out.println("get: " + Thread.currentThread().getName() + " mainMap.get().get(key) = " + mainMap.get(key));
                 return mainMap.get(key);
             }
         }
@@ -80,7 +76,6 @@ public class StorableTableImp2 implements StorableTable {
 
         Storeable oldValue = get(key);
         localMap.get().put (key,value);
-        System.out.println("put: value = " + value);
         return oldValue;
     }
 
