@@ -25,7 +25,7 @@ public class FileMap {
     };
 
 
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
     private final Lock myReadLock = readWriteLock.readLock();
 

@@ -1,10 +1,8 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
+
 import static org.junit.Assert.*;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.Table;
