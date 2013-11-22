@@ -21,13 +21,7 @@ public class TableCommands implements Table {
     private final ArrayList<Class<?>> types;
     private final TableProvider tableProvider;
     private final File tableDir;
-    //private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal();
-    //private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal();
     private HashMap<String, String>[][] lastList;
-    //private ThreadLocal<HashMap<Integer, String>> update = new ThreadLocal();
-    //private ThreadLocal<Integer> hashCode = new ThreadLocal();
-    //private ThreadLocal<Integer> numberOfDir = new ThreadLocal();
-    //private ThreadLocal<Integer> numberOfFile = new ThreadLocal();
     private ReadWriteLock lock;
     private Lock readLock;
     private Lock writeLock;
@@ -252,15 +246,6 @@ public class TableCommands implements Table {
         String value;
         readLock.lock();
         try {
-            if (numberOfDir.get() == null) {
-                System.out.println("numberOfDir");
-            }
-            if (numberOfFile.get() == null) {
-                System.out.println("numberOfFile");
-            }
-            if (lastList[numberOfDir.get()][numberOfFile.get()] == null) {
-                System.out.println("map lastList");
-            }
             value = lastList[numberOfDir.get()][numberOfFile.get()].get(key);
         } finally {
             readLock.unlock();
