@@ -24,7 +24,7 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, NewTable> tables = new HashMap<>();
     private HashMap<String, Class<?>> providerTypes;
     private HashMap<Class<?>, String> providerTypesNames;
-    Lock providerController = new ReentrantLock(true);
+    private Lock providerController = new ReentrantLock(true);
 
     public NewTableProvider(File dir) throws IOException {
         workingDirectory = dir;
@@ -163,8 +163,10 @@ public class NewTableProvider implements TableProvider {
             for (File file : files.keySet()) {
                 File newDir = new File(workingDirectory + File.separator + table.getName() + File.separator
                         + file.getParentFile().getName());
-                if (!newDir.mkdirs()) {
-                    throw new IOException("Can't create dir");
+                if (!newDir.exists()) {
+                    if (!newDir.mkdirs()) {
+                        throw new IOException("Can't create dir");
+                    }
                 }
                 File newFile = new File(newDir, file.getName());
                 WriteInDataBase.saveFile(newFile, files.get(file));
