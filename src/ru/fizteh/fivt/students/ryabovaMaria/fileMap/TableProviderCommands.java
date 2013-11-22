@@ -47,7 +47,13 @@ public class TableProviderCommands implements TableProvider {
             || name.matches(".*\\s.*")) {
             throw new IllegalArgumentException("argument contains illegal symbols");
         }
-        tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
+        readLock.lock();
+        try {
+            tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
+        } finally {
+            readLock.unlock();
+        }
+        //tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
     }
     
     @Override
