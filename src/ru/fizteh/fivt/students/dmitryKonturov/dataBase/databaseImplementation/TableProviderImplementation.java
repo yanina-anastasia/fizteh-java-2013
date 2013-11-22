@@ -14,15 +14,21 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class TableProviderImplementation implements TableProvider {
 
     private final Path workspace;
     private boolean isLoading = false;
-    private Map<String, Table> existingTables;
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock writeLock = readWriteLock.writeLock();
+    private Lock readLock =  readWriteLock.readLock();
+
+    private ConcurrentHashMap<String, Table> existingTables = new ConcurrentHashMap<>();
     static final Class[] ALLOWED_TYPES = new Class[]{
             Integer.class,
             Long.class,
@@ -46,22 +52,26 @@ public class TableProviderImplementation implements TableProvider {
     }
 
     TableProviderImplementation(Path path) throws IOException, DatabaseException {
-        workspace = path;
-        CheckDatabasesWorkspace.checkWorkspace(workspace);
-        existingTables = new HashMap<>();
-        isLoading = true;
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-            for (Path entry : stream) {
-                String tableName = entry.toFile().getName();
-                TableImplementation currentTable = new TableImplementation(tableName, this);
-                existingTables.put(tableName, currentTable);
+        writeLock.lock();
+        try {
+            workspace = path;
+            CheckDatabasesWorkspace.checkWorkspace(workspace);
+            isLoading = true;
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+                for (Path entry : stream) {
+                    String tableName = entry.toFile().getName();
+                    TableImplementation currentTable = new TableImplementation(tableName, this);
+                    existingTables.put(tableName, currentTable);
+                }
+            } catch (IOException e) {
+                throw new IOException("Fail to load existing base", e);
+            } catch (Exception e) {
+                throw new DatabaseException("Fail to load existing base", e);
             }
-        } catch (IOException e) {
-            throw new IOException("Fail to load existing base", e);
-        } catch (Exception e) {
-            throw new DatabaseException("Fail to load existing base", e);
+            isLoading = false;
+        } finally {
+            writeLock.unlock();
         }
-        isLoading = false;
     }
 
     Path getWorkspace() {
@@ -74,124 +84,104 @@ public class TableProviderImplementation implements TableProvider {
 
     @Override
     public Table getTable(String name) {
-        if (!isAllowedNameForTable(name)) {
-            throw new IllegalArgumentException("name is null or contains disallowed characters: " + name);
+        readLock.lock();
+        try {
+            if (!isAllowedNameForTable(name)) {
+                throw new IllegalArgumentException("name is null or contains disallowed characters: " + name);
+            }
+            return existingTables.get(name);
+        } finally {
+            readLock.unlock();
         }
-        return existingTables.get(name);
     }
 
-    /**
-     * Создаёт таблицу с указанным названием.
-     * Создает новую таблицу. Совершает необходимые дисковые операции.
-     *
-     * @param name        Название таблицы.
-     * @param columnTypes Типы колонок таблицы. Не может быть пустой.
-     * @return Объект, представляющий таблицу. Если таблица с указанным именем существует, возвращает null.
-     * @throws IllegalArgumentException Если название таблицы null или имеет недопустимое значение. Если список типов
-     *                                  колонок null или содержит недопустимые значения.
-     * @throws java.io.IOException      При ошибках ввода/вывода.
-     */
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
-        if (!isAllowedNameForTable(name)) {
-            throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
-        }
-        if (columnTypes == null) {
-            throw new IllegalArgumentException("columnTypes is null");
-        }
-        if (columnTypes.size() == 0) {
-            throw new IllegalArgumentException("columnTypes is empty");
-        }
-
-        for (Class<?> currentType : columnTypes) {
-            if (currentType == null) {
-                throw new ColumnFormatException("null type");
+        writeLock.lock();
+        try {
+            if (!isAllowedNameForTable(name)) {
+                throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
             }
-            boolean isAllowed = false;
-            for (Class<?> type : ALLOWED_TYPES) {
-                if (currentType.equals(type)) {
-                    isAllowed = true;
+            if (columnTypes == null) {
+                throw new IllegalArgumentException("columnTypes is null");
+            }
+            if (columnTypes.size() == 0) {
+                throw new IllegalArgumentException("columnTypes is empty");
+            }
+
+            for (Class<?> currentType : columnTypes) {
+                if (currentType == null) {
+                    throw new ColumnFormatException("null type");
+                }
+                boolean isAllowed = false;
+                for (Class<?> type : ALLOWED_TYPES) {
+                    if (currentType.equals(type)) {
+                        isAllowed = true;
+                    }
+                }
+                if (!isAllowed) {
+                    throw new IllegalArgumentException("Not all column types is allowed");
                 }
             }
-            if (!isAllowed) {
-                throw new IllegalArgumentException("Not all column types is allowed");
+            Table oldTable =  existingTables.get(name);
+            if (oldTable != null) {
+                return null;
             }
+            Table newTable;
+            try {
+                newTable = new TableImplementation(name, this, columnTypes);
+            } catch (Exception e) {
+                throw new IOException("Fail to create database", e);
+            }
+            existingTables.put(name, newTable);
+            return newTable;
+        } finally {
+            writeLock.unlock();
         }
-        Table oldTable =  existingTables.get(name);
-        if (oldTable != null) {
-            return null;
-        }
-        Table newTable;
-        try {
-            newTable = new TableImplementation(name, this, columnTypes);
-        } catch (Exception e) {
-            throw new IOException("Fail to create database", e);
-        }
-        existingTables.put(name, newTable);
-        return newTable;
     }
 
-    /**
-     * Удаляет существующую таблицу с указанным названием.
-     * <p/>
-     * Объект удаленной таблицы, если был кем-то взят с помощью {@link #getTable(String)},
-     * с этого момента должен бросать {@link IllegalStateException}.
-     *
-     * @param name Название таблицы.
-     * @throws IllegalArgumentException Если название таблицы null или имеет недопустимое значение.
-     * @throws IllegalStateException    Если таблицы с указанным названием не существует.
-     * @throws java.io.IOException      - при ошибках ввода/вывода.
-     */
     @Override
     public void removeTable(String name) throws IOException {
-        if (!isAllowedNameForTable(name)) {
-            throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
-        }
-        if (existingTables.get(name) != null) {
-            try {
-                MultiFileMapLoaderWriter.recursiveRemove(workspace.resolve(name));
-                existingTables.remove(name);
-            } catch (Exception e) {
-                throw new IOException("Cannot remove table", e);
+        writeLock.lock();
+        try {
+            if (!isAllowedNameForTable(name)) {
+                throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
             }
-        } else {
-            throw new IllegalStateException("Not exists");
+            if (existingTables.get(name) != null) {
+                try {
+                    MultiFileMapLoaderWriter.recursiveRemove(workspace.resolve(name));
+                    existingTables.remove(name);
+                } catch (Exception e) {
+                    throw new IOException("Cannot remove table", e);
+                }
+            } else {
+                throw new IllegalStateException("Not exists");
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
-    /**
-     * Преобразовывает строку в объект {@link ru.fizteh.fivt.storage.structured.Storeable}, соответствующий структуре таблицы.
-     *
-     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @param value Строка, из которой нужно прочитать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @return Прочитанный {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @throws java.text.ParseException - при каких-либо несоответстиях в прочитанных данных.
-     */
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        return JsonUtils.deserialize(this, table, value);
+        readLock.lock();
+        try {
+            return JsonUtils.deserialize(this, table, value);
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    /**
-     * Преобразовывает объект {@link ru.fizteh.fivt.storage.structured.Storeable} в строку.
-     *
-     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @param value {@link ru.fizteh.fivt.storage.structured.Storeable}, который нужно записать.
-     * @return Строка с записанным значением.
-     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException
-     *          При несоответствии типа в {@link ru.fizteh.fivt.storage.structured.Storeable} и типа колонки в таблице.
-     */
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        return JsonUtils.serialize(table, value);
+        readLock.lock();
+        try {
+            return JsonUtils.serialize(table, value);
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    /**
-     * Создает новый пустой {@link ru.fizteh.fivt.storage.structured.Storeable} для указанной таблицы.
-     *
-     * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @return Пустой {@link ru.fizteh.fivt.storage.structured.Storeable}, нацеленный на использование с этой таблицей.
-     */
     @Override
     public Storeable createFor(Table table) {
         if (table == null) {
@@ -200,16 +190,6 @@ public class TableProviderImplementation implements TableProvider {
         return new StoreableImplementation(table);
     }
 
-    /**
-     * Создает новый {@link ru.fizteh.fivt.storage.structured.Storeable} для указанной таблицы, подставляя туда переданные значения.
-     *
-     * @param table  Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
-     * @param values Список значений, которыми нужно проинициализировать поля Storeable.
-     * @return {@link ru.fizteh.fivt.storage.structured.Storeable}, проинициализированный переданными значениями.
-     * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException
-     *                                   При несоответствии типа переданного значения и колонки.
-     * @throws IndexOutOfBoundsException При несоответствии числа переданных значений и числа колонок.
-     */
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         if (table == null || values == null) {
