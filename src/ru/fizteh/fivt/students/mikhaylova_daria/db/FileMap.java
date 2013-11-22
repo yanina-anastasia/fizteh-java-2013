@@ -2,15 +2,13 @@ package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.*;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.DataFormatException;
 import ru.fizteh.fivt.storage.structured.*;
 
 public class FileMap {
-    private HashMap<String, Storeable> fileMapInitial = new HashMap<String, Storeable>();
+    private ConcurrentHashMap<String, Storeable> fileMapInitial = new ConcurrentHashMap<>();
     private ThreadLocal<HashMap<String, Storeable>> fileMapNewValue = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override protected HashMap<String, Storeable> initialValue() {
             return null;
