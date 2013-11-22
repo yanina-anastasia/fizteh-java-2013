@@ -597,8 +597,11 @@ public class MultiFileHashTable implements Table {
 
     private void removeChangesFile(HashSet<ChangedFile> changes) throws DatabaseException {
         for (ChangedFile file : changes) {
-            FileUtils.remove(new File(tableDirectory.getAbsoluteFile() + File.separator
-                    + file.getPath()));
+            File fileToDelete = new File(tableDirectory.getAbsoluteFile() + File.separator
+                                            + file.getPath());
+            if (fileToDelete.exists()) {
+                FileUtils.remove(fileToDelete);
+            }
         }
     }
 
