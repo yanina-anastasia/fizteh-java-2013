@@ -84,7 +84,7 @@ public class DirDataBase {
     }
 
     int commit() {
-        //myWriteLock.lock();
+        myWriteLock.lock();
         try {
             int numberOfChanges = 0;
             for (int i = 0; i < 16; ++i) {
@@ -101,7 +101,7 @@ public class DirDataBase {
             }
             return numberOfChanges;
         } finally {
-          //  myWriteLock.unlock();
+            myWriteLock.unlock();
         }
     }
 
