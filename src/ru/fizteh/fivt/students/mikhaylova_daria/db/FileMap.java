@@ -49,6 +49,8 @@ public class FileMap {
             fileMapRemoveKey.set(new HashSet<String>());
         }
     }
+
+
     public Storeable put(String key, Storeable value, TableData table) {
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
@@ -63,7 +65,7 @@ public class FileMap {
         } catch (Exception e) {
             throw new ColumnFormatException("Wrong typelist of value", e);
         }
-        myWriteLock.lock();
+        myReadLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -89,7 +91,7 @@ public class FileMap {
                 return fileMapInitial.get(key);
             }
         } finally {
-            myWriteLock.unlock();
+            myReadLock.unlock();
         }
     }
 
@@ -99,7 +101,7 @@ public class FileMap {
             throw new IllegalArgumentException("Table is null");
         }
         table.checkKey(key);
-        myWriteLock.lock();
+        myReadLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -120,7 +122,7 @@ public class FileMap {
                 }
             }
         } finally {
-            myWriteLock.unlock();
+            myReadLock.unlock();
         }
     }
 
@@ -232,16 +234,21 @@ public class FileMap {
 
     void setAside() {
         initialMap();
-        if (isLoaded) {
-            fileMapRemoveKey.get().clear();
-            fileMapNewValue.get().clear();
-            myWriteLock.lock();
-            try {
-                fileMapInitial.clear();
-            } finally {
-                myWriteLock.unlock();
+        myWriteLock.lock();
+        try {
+            if (isLoaded) {
+                fileMapRemoveKey.get().clear();
+                fileMapNewValue.get().clear();
+                myWriteLock.lock();
+                try {
+                    fileMapInitial.clear();
+                } finally {
+                    myWriteLock.unlock();
+                }
+                isLoaded = false;
             }
-            isLoaded = false;
+        } finally {
+            myWriteLock.unlock();
         }
     }
 
@@ -367,7 +374,7 @@ public class FileMap {
         int numberOfChanges = 0;
         Set<String> newKeys = fileMapNewValue.get().keySet();
         Set<String> oldKeys = fileMapInitial.keySet();
-        //myReadLock.lock();
+        myReadLock.lock();
         try {
             for (String key: newKeys) {
                 if (oldKeys.contains(key)) {
@@ -381,7 +388,7 @@ public class FileMap {
                 }
             }
         } finally {
-          //  myReadLock.unlock();
+            myReadLock.unlock();
         }
         Set<String> removeKeys = fileMapRemoveKey.get();
         for (String key: removeKeys) {
@@ -398,10 +405,10 @@ public class FileMap {
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
         }
-        int numberOfChanges = numberOfChangesCounter(table);
-        if (numberOfChanges != 0) {
-            myWriteLock.lock();
-            try {
+        myWriteLock.lock();
+        try {
+            int numberOfChanges = numberOfChangesCounter(table);
+            if (numberOfChanges != 0) {
                 Set<String> newKeys = fileMapNewValue.get().keySet();
                 Set<String> oldKeys = fileMapInitial.keySet();
                 for (String key: newKeys) {
@@ -427,9 +434,9 @@ public class FileMap {
                     e.printStackTrace();
                     throw new IllegalArgumentException("Writing error", e);
                 }
-            } finally {
-                myWriteLock.unlock();
             }
+        } finally {
+            myWriteLock.unlock();
         }
     }
 
@@ -446,17 +453,17 @@ public class FileMap {
             throw new IllegalArgumentException("Table is null");
         }
         initialMap();
-        if (!isLoaded) {
-            try {
-                readFile(table);
-            } catch (DataFormatException e) {
-                throw new IllegalArgumentException("Bad dates", e);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Reading error", e);
-            }
-        }
         myReadLock.lock();
         try {
+            if (!isLoaded) {
+                try {
+                    readFile(table);
+                } catch (DataFormatException e) {
+                    throw new IllegalArgumentException("Bad dates", e);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Reading error", e);
+                }
+            }
             Set<String> newKeys = fileMapNewValue.get().keySet();
             Set<String> oldKeys = fileMapInitial.keySet();
             int numberOfNew = 0;

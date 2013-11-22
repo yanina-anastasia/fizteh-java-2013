@@ -16,7 +16,7 @@ public class DirDataBase {
 
     FileMap[] fileArray = new FileMap[16];
 
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private static ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
     private final Lock myReadLock = readWriteLock.readLock();
 
