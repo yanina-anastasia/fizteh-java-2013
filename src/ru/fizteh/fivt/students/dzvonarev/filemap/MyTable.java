@@ -22,6 +22,12 @@ public class MyTable implements Table {
         tableFile = dirTable;
         tableName = dirTable.getName();
         fileMap = new HashMap<>();
+        changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
         readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
@@ -41,13 +47,7 @@ public class MyTable implements Table {
     private File tableFile;
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
-    private static ThreadLocal<HashMap<String, Storeable>> changesMap
-            = new ThreadLocal<HashMap<String, Storeable>>() {
-        @Override
-        public HashMap<String, Storeable> initialValue() {
-            return new HashMap<>();
-        }
-    };
+    private static ThreadLocal<HashMap<String, Storeable>> changesMap;
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
@@ -343,10 +343,15 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
-        checkingValueForValid(value);
-        Storeable oldValue = get(key);
-        addChanges(key, value);
-        return oldValue;
+        writeLock.lock();
+        try {
+            checkingValueForValid(value);
+            Storeable oldValue = get(key);
+            addChanges(key, value);
+            return oldValue;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
@@ -354,11 +359,16 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        Storeable oldValue = get(key);
-        if (oldValue != null) {
-            addChanges(key, null);
+        writeLock.lock();
+        try {
+            Storeable oldValue = get(key);
+            if (oldValue != null) {
+                addChanges(key, null);
+            }
+            return oldValue;
+        } finally {
+            writeLock.unlock();
         }
-        return oldValue;
     }
 
     @Override
