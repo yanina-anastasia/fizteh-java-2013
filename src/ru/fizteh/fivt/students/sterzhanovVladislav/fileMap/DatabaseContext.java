@@ -96,7 +96,7 @@ public class DatabaseContext implements Closeable {
     
     public void closeActiveTable() throws IOException {
         if (activeMap != null) {
-            activeMap.writeOut(provider.getRootDir());
+            activeMap.commit();
             activeMap = null;
         }
     }

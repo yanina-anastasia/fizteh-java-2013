@@ -5,20 +5,21 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.*;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable.StoreableUtils;
-import ru.fizteh.fivt.students.sterzhanovVladislav.shell.ShellUtility;
 
 public class FileMap implements Table {
     
     private String name = null;
-    private HashMap<String, Storeable> db = null;
+    private MultiHashMap db = null;
     private List<Class<?>> columnTypes = null;
     private FileMapProvider parentProvider = null;
     private volatile boolean destroyed = false;
@@ -85,7 +86,8 @@ public class FileMap implements Table {
         ensureTableExists();
         wLock.lock();
         try {
-            int result = estimateDiffSize();
+            Set<Integer> modifiedFiles = new HashSet<Integer>();
+            int result = estimateDiffSize(modifiedFiles);
             for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
                 String key = entry.getKey();
                 Storeable value = entry.getValue().value;
@@ -97,7 +99,7 @@ public class FileMap implements Table {
                 }
             }
             if (parentProvider != null) {
-                writeOut(parentProvider.getRootDir());
+                writeOutDiff(parentProvider.getRootDir(), modifiedFiles);
             }
             diff.remove();
             return result;
@@ -111,7 +113,7 @@ public class FileMap implements Table {
         ensureTableExists();
         rLock.lock();
         try {
-            int result = estimateDiffSize();
+            int result = estimateDiffSize(null);
             diff.remove();
             return result;
         } finally {
@@ -141,7 +143,7 @@ public class FileMap implements Table {
     
     public FileMap(String dbName, List<Class<?>> classes) {
         name = dbName;
-        db = new HashMap<String, Storeable>();
+        db = new MultiHashMap();
         diff = new ThreadLocal<HashMap<String, Diff>>() {
             @Override
             public HashMap<String, Diff> initialValue() {
@@ -158,7 +160,7 @@ public class FileMap implements Table {
     
     public FileMap(String dbName, HashMap<String, Storeable> db, List<Class<?>> classes) {
         this(dbName, classes);
-        this.db = new HashMap<String, Storeable>(db);
+        this.db = new MultiHashMap(db);
     }
 
     enum DiffType {
@@ -185,13 +187,13 @@ public class FileMap implements Table {
         ensureTableExists();
         rLock.lock();
         try {
-            return estimateDiffSize();
+            return estimateDiffSize(null);
         } finally {
             rLock.unlock();
         }
     }
     
-    public void writeOut(String dirPath) throws IOException {
+    public void writeOutDiff(String dirPath, Set<Integer> modifiedFiles) throws IOException {
         ensureTableExists();
         Path path = Paths.get(dirPath + "/" + name);
         if (path == null) {
@@ -199,13 +201,7 @@ public class FileMap implements Table {
         }
         wLock.lock();
         try {
-            try {
-                ShellUtility.removeDir(path);
-            } catch (IOException e) {
-                // Ignore
-            }
-            IOUtility.writeDatabase(db, path, columnTypes);
-            IOUtility.writeSignature(path, columnTypes);
+            IOUtility.writeDiff(modifiedFiles, db, path, columnTypes);
         } finally {
             wLock.unlock();
         }
@@ -276,7 +272,7 @@ public class FileMap implements Table {
         return diffSize;
     }
     
-    private int estimateDiffSize() {
+    private int estimateDiffSize(Set<Integer> modifiedFiles) {
         int diffSize = 0;
         for (Map.Entry<String, Diff> entry : diff.get().entrySet()) {
             String key = entry.getKey();
@@ -284,10 +280,16 @@ public class FileMap implements Table {
             if (type == DiffType.ADD) {
                 if (!db.containsKey(key) || !db.get(key).equals(entry.getValue().value)) {
                     ++diffSize;
+                    if (modifiedFiles != null) {
+                        modifiedFiles.add((int) key.getBytes()[0]);
+                    }
                 }
             } else if (type == DiffType.REMOVE) {
                 if (db.containsKey(key)) {
                     ++diffSize;
+                    if (modifiedFiles != null) {
+                        modifiedFiles.add((int) key.getBytes()[0]);
+                    }
                 }
             }
         } 
