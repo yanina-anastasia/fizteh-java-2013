@@ -34,6 +34,7 @@ public class TestsForParallel {
     Table table;
     
     Storeable value1;
+    Storeable value2;
     
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -53,10 +54,15 @@ public class TestsForParallel {
         value1.setColumnAt(0, true);
         value1.setColumnAt(1, "AA");
         value1.setColumnAt(2, 5);
+        
+        value2 = new StoreableImplementation(columnTypes);
+        value2.setColumnAt(0, true);
+        value2.setColumnAt(1, "AA");
+        value2.setColumnAt(2, 3);
     }
     
     @Test
-    public void PutSamePutCommitRollback() throws InterruptedException, ExecutionException {
+    public void putSamePutCommitRollback() throws InterruptedException, ExecutionException {
         ExecutorService executor1 = Executors.newSingleThreadExecutor();
         ExecutorService executor2 = Executors.newSingleThreadExecutor();
         Future<Storeable> future1 = executor1.submit(new Callable<Storeable>() {
@@ -95,4 +101,59 @@ public class TestsForParallel {
         executor2.shutdown();
     }
     
+    
+    @Test
+    public void putPutSameKeyCommitCommit() throws InterruptedException, ExecutionException {
+        ExecutorService executor1 = Executors.newSingleThreadExecutor();
+        ExecutorService executor2 = Executors.newSingleThreadExecutor();
+        
+        Future<Storeable> future1 = executor1.submit(new Callable<Storeable>() {
+            @Override
+            public Storeable call() {
+                return table.put("1", value1);
+            }
+        });
+        assertNull(future1.get());
+        
+        executor1.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws IOException {
+                return table.commit();
+            }
+        });
+        
+        executor1.submit(new Callable<Storeable>() {
+            @Override
+            public Storeable call() {
+                return table.put("1", value1);
+            }
+        });
+        
+        Future<Storeable> future2 = executor2.submit(new Callable<Storeable>() {
+            @Override
+            public Storeable call() {
+                return table.put("1", value2);
+            }
+        });
+        //assertNull(future2.get());
+        
+        Future<Integer> future3 = executor2.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws IOException {
+                return table.commit();
+            }
+        });
+        assertEquals(future3.get(), Integer.valueOf(1));
+        
+        Future<Integer> future4 = executor1.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws IOException {
+                return table.commit();
+            }
+        });
+        assertEquals(future4.get(), Integer.valueOf(1));
+        
+        executor1.shutdown();
+        executor2.shutdown();
+    }
 }
