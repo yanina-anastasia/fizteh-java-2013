@@ -341,8 +341,8 @@ public class TableCommands implements Table {
         try (RandomAccessFile db = new RandomAccessFile(dbFile, "rw")) {   
             db.setLength(0);
             Iterator<Map.Entry<String, String>> it;
-            it = list.get()[numOfDir][numOfFile].entrySet().iterator();
-            long[] pointers = new long[list.get()[numOfDir][numOfFile].size()];
+            it = lastList[numOfDir][numOfFile].entrySet().iterator();
+            long[] pointers = new long[lastList[numOfDir][numOfFile].size()];
             int counter = 0;
             while (it.hasNext()) {
                 Map.Entry<String, String> m = (Map.Entry<String, String>) it.next();
@@ -353,7 +353,7 @@ public class TableCommands implements Table {
                 db.seek(pointers[counter] + 4);
                 ++counter;
             }
-            it = list.get()[numOfDir][numOfFile].entrySet().iterator();
+            it = lastList[numOfDir][numOfFile].entrySet().iterator();
             counter = 0;
             while (it.hasNext()) {
                 Map.Entry<String, String> m = (Map.Entry<String, String>) it.next();
@@ -375,16 +375,16 @@ public class TableCommands implements Table {
         for (Integer file : update.get().keySet()) {
             numberOfFile.set(file % 16);
             numberOfDir.set((file - numberOfFile.get()) / 16);
-            if (isWrite) {
-                HashMap<String, String>[][] listObject = new HashMap[16][16];
-                listObject[numberOfDir.get()][numberOfFile.get()] = new HashMap<String, String>();
-                list.set(listObject);
-                for(Map.Entry entry : lastList[numberOfDir.get()][numberOfFile.get()].entrySet()) {
-                    String key = (String) entry.getKey();
-                    String value = (String) entry.getValue();
-                    list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
-                }
-            }
+            //if (isWrite) {
+            //    HashMap<String, String>[][] listObject = new HashMap[16][16];
+            //    listObject[numberOfDir.get()][numberOfFile.get()] = new HashMap<String, String>();
+            //    list.set(listObject);
+            //    for(Map.Entry entry : lastList[numberOfDir.get()][numberOfFile.get()].entrySet()) {
+            //        String key = (String) entry.getKey();
+            //        String value = (String) entry.getValue();
+            //        list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
+            //    }
+            //}
             for (Map.Entry entry : diff.get()[numberOfDir.get()][numberOfFile.get()].entrySet()) {
                 String key = (String) entry.getKey();
                 String value = (String) entry.getValue();
@@ -392,23 +392,25 @@ public class TableCommands implements Table {
                     if (lastList[numberOfDir.get()][numberOfFile.get()].containsKey(key)) {
                         ++result;
                         if (isWrite) {
-                            list.get()[numberOfDir.get()][numberOfFile.get()].remove(key);
+                            //list.get()[numberOfDir.get()][numberOfFile.get()].remove(key);
+                            lastList[numberOfDir.get()][numberOfFile.get()].remove(key);
                         }
                     }
                 } else {
                     if (!value.equals(lastList[numberOfDir.get()][numberOfFile.get()].get(key))) {
                         ++result;
                         if (isWrite) {
-                            list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
+                            //list.get()[numberOfDir.get()][numberOfFile.get()].put(key, value);
+                            lastList[numberOfDir.get()][numberOfFile.get()].put(key, value);
                         }
                     }
                 }
             }
             if (isWrite) {
                 writeIntoFile(numberOfDir.get(), numberOfFile.get());
-                if (!list.get()[numberOfDir.get()][numberOfFile.get()].isEmpty()) {
-                    list.get()[numberOfDir.get()][numberOfFile.get()].clear();
-                }
+                //if (!list.get()[numberOfDir.get()][numberOfFile.get()].isEmpty()) {
+                //    list.get()[numberOfDir.get()][numberOfFile.get()].clear();
+                //}
             }
         }
         return result;
@@ -428,17 +430,17 @@ public class TableCommands implements Table {
                 if (!diff.get()[i][j].isEmpty()) {
                     diff.get()[i][j].clear();
                 }
-                if (!lastList[i][j].isEmpty()) {
-                    lastList[i][j].clear();
-                }
+                //if (!lastList[i][j].isEmpty()) {
+                //    lastList[i][j].clear();
+                //}
             }
         }
-        writeLock.lock();
-        try {
-            isCorrectTable();
-        } finally {
-            writeLock.unlock();
-        }
+        //writeLock.lock();
+        //try {
+        //    isCorrectTable();
+        //} finally {
+        //    writeLock.unlock();
+        //}
         return result;
     }
 
