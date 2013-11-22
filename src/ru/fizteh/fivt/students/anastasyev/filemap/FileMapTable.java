@@ -331,15 +331,6 @@ public class FileMapTable implements Table {
         write.lock();
         try {
             int changesCount = 0;
-            class Pair {
-                int dir;
-                int dat;
-                Pair(int dirHash, int datHash) {
-                    dir = dirHash;
-                    dat = datHash;
-                }
-            }
-            ArrayList<Pair> changedMaps = new ArrayList<Pair>();
             for (Map.Entry<String, Storeable> entry : changedKeys.get().entrySet()) {
                 String key = entry.getKey();
                 Storeable value = entry.getValue();
@@ -348,7 +339,6 @@ public class FileMapTable implements Table {
                     int absHash = Math.abs(key.hashCode());
                     int dirHash = absHash % 16;
                     int datHash = absHash / 16 % 16;
-                    changedMaps.add(new Pair(dirHash, datHash));
                     try {
                         mapsTable[dirHash][datHash] = openFileMap(dirHash, datHash);
                     } catch (IOException e) {
@@ -366,17 +356,21 @@ public class FileMapTable implements Table {
                 changedKeys.get().clear();
                 return 0;
             }
-            for (Pair pair : changedMaps) {
-                try {
-                    mapsTable[pair.dir][pair.dat].save();
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage(), e);
-                }
-                if (mapsTable[pair.dir][pair.dat].isEmpty()) {
-                    try {
-                        mapsTable[pair.dir][pair.dat].delete();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e.getMessage(), e);
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    if (mapsTable[i][j] != null) {
+                        try {
+                            mapsTable[i][j].save();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e.getMessage(), e);
+                        }
+                        if (mapsTable[i][j].isEmpty()) {
+                            try {
+                                mapsTable[i][j].delete();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e.getMessage(), e);
+                            }
+                        }
                     }
                 }
             }
