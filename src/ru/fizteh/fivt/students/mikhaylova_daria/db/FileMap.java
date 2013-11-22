@@ -63,24 +63,26 @@ public class FileMap {
         } catch (Exception e) {
             throw new ColumnFormatException("Wrong typelist of value", e);
         }
-        if (!isLoaded) {
-            try {
-                readFile(table);
-            } catch (DataFormatException e) {
-                throw new IllegalArgumentException("Bad data", e);
-            } catch (Exception e) {
-                throw new RuntimeException("Reading error", e);
-            }
-        }
-
-        if (fileMapRemoveKey.get().contains(key)) {
-            fileMapRemoveKey.get().remove(key);
-            fileMapNewValue.get().put(key, value);
-            return null;
-        }
         myWriteLock.lock();
         try {
-            if ((!fileMapInitial.containsKey(key)) || fileMapNewValue.get().containsKey(key)) {
+            if (!isLoaded) {
+                try {
+                    readFile(table);
+                } catch (DataFormatException e) {
+                    throw new IllegalArgumentException("Bad data", e);
+                } catch (Exception e) {
+                    throw new RuntimeException("Reading error", e);
+                }
+            }
+
+            if (fileMapRemoveKey.get().contains(key)) {
+                fileMapRemoveKey.get().remove(key);
+                fileMapNewValue.get().put(key, value);
+                return null;
+            }
+            if ((!fileMapInitial.containsKey(key))) {
+                return fileMapNewValue.get().put(key, value);
+            } else if (fileMapNewValue.get().containsKey(key)) {
                 return fileMapNewValue.get().put(key, value);
             } else {
                 fileMapNewValue.get().put(key, value);
