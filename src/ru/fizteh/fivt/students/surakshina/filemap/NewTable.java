@@ -181,9 +181,9 @@ public class NewTable implements Table {
 
     public int unsavedChanges() {
         int count = 0;
-        for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
-            controller.readLock().lock();
-            try {
+        controller.readLock().lock();
+        try {
+            for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey())) {
                     if (!dataMap.get(entry.getKey()).equals(entry.getValue())) {
                         ++count;
@@ -193,9 +193,9 @@ public class NewTable implements Table {
                         ++count;
                     }
                 }
-            } finally {
-                controller.readLock().unlock();
             }
+        } finally {
+            controller.readLock().unlock();
         }
         return count;
     }
@@ -265,10 +265,9 @@ public class NewTable implements Table {
 
     @Override
     public int size() {
-        int count = 0;
+        int count = dataMap.size();
         controller.readLock().lock();
         try {
-            count = dataMap.size();
             for (Map.Entry<String, Storeable> entry : localDataMap.get().entrySet()) {
                 if (dataMap.containsKey(entry.getKey())) {
                     if (entry.getValue() == null) {
