@@ -93,12 +93,7 @@ public class TableCommands implements Table {
             }
         }
         tableDir = directory;
-        writeLock.lock();
-        try {
-            isCorrectTable();
-        } finally {
-            writeLock.unlock();
-        }
+        isCorrectTable();
     }
     
     private void isCorrectTable() throws IOException {
@@ -253,13 +248,10 @@ public class TableCommands implements Table {
         if (diff.get()[numberOfDir.get()][numberOfFile.get()].containsKey(key)) {
             value = diff.get()[numberOfDir.get()][numberOfFile.get()].get(key);
         }
-        readLock.lock();
         try {
             return tableProvider.deserialize(this, value);
         } catch (ParseException e) {
             throw new RuntimeException(e);
-        } finally {
-            readLock.unlock();
         }
     }
 
@@ -271,13 +263,7 @@ public class TableCommands implements Table {
         try {
             getUsingDatFile(key);
             update.get().put(numberOfDir.get() * 16 + numberOfFile.get(), " ");
-            readLock.lock();
-            String stringValue;
-            try {
-                stringValue = tableProvider.serialize(this, value);
-            } finally {
-                readLock.unlock();
-            }
+            String stringValue = tableProvider.serialize(this, value);
             Storeable answer = get(key);
             diff.get()[numberOfDir.get()][numberOfFile.get()].put(key, stringValue);
             return answer;
@@ -434,21 +420,26 @@ public class TableCommands implements Table {
         writeLock.lock();
         try {
             result = countChanges(true);
-            for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    if (!diff.get()[i][j].isEmpty()) {
-                        diff.get()[i][j].clear();
-                    }
-                    if (!lastList[i][j].isEmpty()) {
-                        lastList[i][j].clear();
-                    }
+        } finally {
+            writeLock.unlock();
+        }
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                if (!diff.get()[i][j].isEmpty()) {
+                    diff.get()[i][j].clear();
+                }
+                if (!lastList[i][j].isEmpty()) {
+                    lastList[i][j].clear();
                 }
             }
+        }
+        writeLock.lock();
+        try {
             isCorrectTable();
         } finally {
             writeLock.unlock();
-            return result;
         }
+        return result;
     }
 
     @Override
