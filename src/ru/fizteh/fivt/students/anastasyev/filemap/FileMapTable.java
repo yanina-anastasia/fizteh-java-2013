@@ -20,12 +20,7 @@ public class FileMapTable implements Table {
     private FileMapTableProvider provider;
     private FileMap[][] mapsTable;
 
-    private ThreadLocal<HashMap<String, Storeable>> changedKeys = new ThreadLocal<HashMap<String, Storeable>>() {
-        @Override
-        public HashMap<String, Storeable> initialValue() {
-            return new HashMap<String, Storeable>();
-        }
-    };
+    private static ThreadLocal<HashMap<String, Storeable>> changedKeys;
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
@@ -230,6 +225,12 @@ public class FileMapTable implements Table {
 
     public FileMapTable(String tableName, FileMapTableProvider newProvider) throws IOException, ParseException {
         currentFileMapTable = new File(tableName);
+        changedKeys = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
         provider = newProvider;
         if (!currentFileMapTable.exists()) {
             if (!currentFileMapTable.mkdir()) {
@@ -246,6 +247,12 @@ public class FileMapTable implements Table {
     public FileMapTable(String tableName, List<Class<?>> newColumnTypes, FileMapTableProvider newProvider)
             throws IOException, ParseException {
         currentFileMapTable = new File(tableName);
+        changedKeys = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
         if (!currentFileMapTable.exists()) {
             if (!currentFileMapTable.mkdir()) {
                 throw new IOException("Can't create " + currentFileMapTable.getName());
