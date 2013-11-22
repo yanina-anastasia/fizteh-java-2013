@@ -1,12 +1,12 @@
-package ru.fizteh.fivt.students.kislenko.storeable.test;
+package ru.fizteh.fivt.students.kislenko.parallels.test;
 
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTable;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTableProvider;
+import ru.fizteh.fivt.students.kislenko.parallels.MyTable;
+import ru.fizteh.fivt.students.kislenko.parallels.MyTableProvider;
 import ru.fizteh.fivt.students.kislenko.storeable.Value;
 
 import java.util.ArrayList;

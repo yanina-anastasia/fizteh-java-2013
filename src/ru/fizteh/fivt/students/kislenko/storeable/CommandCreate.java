@@ -28,15 +28,21 @@ public class CommandCreate implements Command<StoreableState> {
             if (types.length == 0) {
                 tableDir.delete();
                 System.out.println("wrong type (signature expected)");
-                throw new IllegalArgumentException("Signature exprcted.");
+                throw new IllegalArgumentException("Signature expected.");
             }
             types[0] = types[0].substring(1);
             types[types.length - 1] = types[types.length - 1].substring(0, types[types.length - 1].length() - 1);
+            if (types[0].isEmpty()) {
+                tableDir.delete();
+                System.out.println("wrong type (signature is empty)");
+                throw new IllegalArgumentException("Empty signature.");
+            }
             try {
                 Utils.writeColumnTypes(state.getPath().resolve(args[0]).toString(), types);
                 state.createTable(args[0]);
             } catch (Exception e) {
                 File signature = new File(tableDir, "signature.tsv");
+                System.out.println("wrong type (signature is so bad that I can't create new table with it)");
                 signature.delete();
                 tableDir.delete();
                 throw e;
