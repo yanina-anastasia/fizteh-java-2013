@@ -271,20 +271,17 @@ public class FileMapTable implements Table {
         }
         checkValueCorrectness(value);
         Storeable valueCopy = copyStoreable(value);
-        Storeable valueOnDisk;
-        read.lock();
-        try {
-            valueOnDisk = onDiskValue(key);
-        } finally {
-            read.unlock();
-        }
-        Storeable valueChanged = changedKeys.get().get(key);
-        if (!changedKeys.get().containsKey(key)) {
+        if (changedKeys.get().containsKey(key)) {
+            return changedKeys.get().put(key, valueCopy);
+        } else {
             changedKeys.get().put(key, valueCopy);
-            return valueOnDisk;
+            read.lock();
+            try {
+                return onDiskValue(key);
+            } finally {
+                read.unlock();
+            }
         }
-        changedKeys.get().put(key, valueCopy);
-        return valueChanged;
     }
 
     @Override
@@ -292,31 +289,16 @@ public class FileMapTable implements Table {
         if (isEmptyString(key) || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Wrong key");
         }
-        Storeable valueOnDisk = null;
-        read.lock();
-        try {
-            valueOnDisk = onDiskValue(key);
-        } finally {
-            read.unlock();
-        }
-        Storeable valueChanged = changedKeys.get().get(key);
-        if (valueOnDisk == null) {
-            if (!changedKeys.get().containsKey(key)) {
-                return null;
-            } else {
-                changedKeys.get().put(key, null);
-                return valueChanged;
-            }
+        if (changedKeys.get().containsKey(key)) {
+            return changedKeys.get().put(key, null);
         } else {
-            if (!changedKeys.get().containsKey(key)) {
+            read.lock();
+            try {
                 changedKeys.get().put(key, null);
-                return valueOnDisk;
+                return onDiskValue(key);
+            } finally {
+                read.unlock();
             }
-            if (valueChanged != null) {
-                changedKeys.get().put(key, null);
-                return valueChanged;
-            }
-            return null;
         }
     }
 
@@ -342,6 +324,15 @@ public class FileMapTable implements Table {
         write.lock();
         try {
             int changesCount = 0;
+            class Pair {
+                int dir;
+                int dat;
+                Pair(int dirHash, int datHash) {
+                    dir = dirHash;
+                    dat = datHash;
+                }
+            }
+            ArrayList<Pair> changedMaps = new ArrayList<Pair>();
             for (Map.Entry<String, Storeable> entry : changedKeys.get().entrySet()) {
                 String key = entry.getKey();
                 Storeable value = entry.getValue();
@@ -350,6 +341,7 @@ public class FileMapTable implements Table {
                     int absHash = Math.abs(key.hashCode());
                     int dirHash = absHash % 16;
                     int datHash = absHash / 16 % 16;
+                    changedMaps.add(new Pair(dirHash, datHash));
                     try {
                         mapsTable[dirHash][datHash] = openFileMap(dirHash, datHash);
                     } catch (IOException e) {
@@ -363,21 +355,21 @@ public class FileMapTable implements Table {
                     ++changesCount;
                 }
             }
-            for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    if (mapsTable[i][j] != null) {
-                        try {
-                            mapsTable[i][j].save();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e.getMessage(), e);
-                        }
-                        if (mapsTable[i][j].isEmpty()) {
-                            try {
-                                mapsTable[i][j].delete();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e.getMessage(), e);
-                            }
-                        }
+            if (changesCount == 0) {
+                changedKeys.get().clear();
+                return 0;
+            }
+            for (Pair pair : changedMaps) {
+                try {
+                    mapsTable[pair.dir][pair.dat].save();
+                } catch (IOException e) {
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+                if (mapsTable[pair.dir][pair.dat].isEmpty()) {
+                    try {
+                        mapsTable[pair.dir][pair.dat].delete();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e.getMessage(), e);
                     }
                 }
             }
