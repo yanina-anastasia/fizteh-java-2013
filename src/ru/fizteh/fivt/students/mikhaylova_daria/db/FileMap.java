@@ -10,12 +10,14 @@ import ru.fizteh.fivt.storage.structured.*;
 public class FileMap {
     private ConcurrentHashMap<String, Storeable> fileMapInitial = new ConcurrentHashMap<>();
     private ThreadLocal<HashMap<String, Storeable>> fileMapNewValue = new ThreadLocal<HashMap<String, Storeable>>() {
-        @Override protected HashMap<String, Storeable> initialValue() {
+        @Override
+        protected HashMap<String, Storeable> initialValue() {
             return null;
         }
     };
     private ThreadLocal<HashSet<String>> fileMapRemoveKey = new ThreadLocal<HashSet<String>>() {
-        @Override protected HashSet<String> initialValue() {
+        @Override
+        protected HashSet<String> initialValue() {
             return null;
         }
     };

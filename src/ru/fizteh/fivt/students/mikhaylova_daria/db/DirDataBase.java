@@ -1,6 +1,8 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.File;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DirDataBase {
 
@@ -13,6 +15,10 @@ public class DirDataBase {
     TableData table;
 
     FileMap[] fileArray = new FileMap[16];
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock myWriteLock = readWriteLock.writeLock();
+    private final Lock myReadLock = readWriteLock.readLock();
 
     DirDataBase() {
 
@@ -32,21 +38,31 @@ public class DirDataBase {
     }
 
     void startWorking() throws Exception {
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                throw new Exception(dir.toString() + ": Creating directory error");
+        myWriteLock.lock();
+        try {
+            if (!dir.exists()) {
+                if (!dir.mkdir()) {
+                    throw new Exception(dir.toString() + ": Creating directory error");
+                }
             }
+        } finally {
+            myWriteLock.unlock();
         }
     }
 
     void deleteEmptyDir() throws Exception {
-            File[] f = dir.listFiles();
-        if (f != null) {
-            if (f.length == 0) {
-                if (!dir.delete()) {
-                    throw new Exception("Deleting directory error");
+        myWriteLock.lock();
+        try {
+        File[] f = dir.listFiles();
+            if (f != null) {
+                if (f.length == 0) {
+                    if (!dir.delete()) {
+                        throw new Exception("Deleting directory error");
+                    }
                 }
             }
+        } finally {
+            myWriteLock.unlock();
         }
         isReady = false;
     }

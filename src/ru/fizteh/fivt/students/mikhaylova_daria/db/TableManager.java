@@ -31,8 +31,6 @@ import ru.fizteh.fivt.storage.structured.*;
 public class TableManager implements TableProvider {
     private ConcurrentHashMap<String, TableData> bidDataBase = new ConcurrentHashMap<>();
     private File mainDir;
-//    private final Lock creatingLock = new ReentrantLock();
-//    private final Lock deletingLock = new ReentrantLock();
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock myWriteLock = readWriteLock.writeLock();
     private final Lock myReadLock = readWriteLock.readLock();

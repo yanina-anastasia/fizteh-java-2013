@@ -242,7 +242,7 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = b / 16 % 16;
         Storeable removedValue;
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             try {
                 dirArray[nDirectory].startWorking();
@@ -251,7 +251,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
         return removedValue;
     }
