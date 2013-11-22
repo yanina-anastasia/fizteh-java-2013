@@ -206,19 +206,18 @@ public class StoreableTable implements Table {
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkKey(key);
         checkValue(value);
-        Storeable valueOnDisk;
-        tableLock.readLock().lock();
-        try {
-            valueOnDisk = tableOnDisk.get(key);
-        } finally {
-            tableLock.readLock().unlock();
-        }
+        Storeable valueOnDisk = null;
         Storeable oldValue = changedKeys.get().put(key, value);
-        if (!removedKeys.get().contains(key) && oldValue == null) {
-            oldValue = valueOnDisk;
-        }
-        if (valueOnDisk != null) {
-            removedKeys.get().add(key);
+        if (!removedKeys.get().contains(key)) {
+            if (oldValue == null) {
+                tableLock.readLock().lock();
+                try {
+                    valueOnDisk = tableOnDisk.get(key);
+                } finally {
+                    tableLock.readLock().unlock();
+                }
+                oldValue = valueOnDisk;
+            }
         }
         return oldValue;
     }

@@ -57,7 +57,7 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable getTable(String name) {
         checkTableName(name);
-        providerLock.readLock().lock();
+        providerLock.writeLock().lock();
         try {
             StoreableTable requestedTable = tables.get(name);
             if (requestedTable != null) {
@@ -73,7 +73,7 @@ public class StoreableTableProvider implements TableProvider {
                 }
             }
         } finally {
-            providerLock.readLock().unlock();
+            providerLock.writeLock().unlock();
         }
 
     }
