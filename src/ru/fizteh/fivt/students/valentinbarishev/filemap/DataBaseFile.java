@@ -23,19 +23,26 @@ public class DataBaseFile {
     private DataBase table;
     private TableProvider provider;
 
-    private ThreadLocal<HashMap<String, String>> diff = new ThreadLocal<HashMap<String, String>>() {
+    private static ThreadLocal<HashMap<String, String>> diff = new ThreadLocal<HashMap<String, String>>() {
         @Override
         public HashMap<String, String> initialValue() {
             return new HashMap<String, String>();
         }
     };
 
-    private ThreadLocal<HashSet<String>> deleted = new ThreadLocal<HashSet<String>>() {
+    private static ThreadLocal<HashSet<String>> deleted = new ThreadLocal<HashSet<String>>() {
         @Override
         public HashSet<String> initialValue() {
             return new HashSet<String>();
         }
     };
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock readLock = readWriteLock.readLock();
+    private Lock writeLock = readWriteLock.writeLock();
+
+    private ReentrantReadWriteLock saveReadWriteLock = new ReentrantReadWriteLock(true);
+    private Lock saveWriteLock = saveReadWriteLock.writeLock();
 
     private Map<String, String> old;
 
@@ -156,6 +163,7 @@ public class DataBaseFile {
                         throw new DataBaseException("Cannot create a file " + fileName);
                     }
                 }
+                saveWriteLock.lock();
                 try (RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw")) {
                     for (Map.Entry<String, String> node : old.entrySet()) {
                         outputFile.writeInt(node.getKey().getBytes(StandardCharsets.UTF_8).length);
@@ -164,6 +172,8 @@ public class DataBaseFile {
                         outputFile.write(node.getValue().getBytes(StandardCharsets.UTF_8));
                     }
                     outputFile.setLength(outputFile.getFilePointer());
+                } finally {
+                    saveWriteLock.unlock();
                 }
             }
         } catch (FileNotFoundException e) {
@@ -179,8 +189,13 @@ public class DataBaseFile {
         if (diff.get().containsKey(key)) {
             result = diff.get().get(key);
         } else {
-            if (old.containsKey(key)) {
-                result = old.get(key);
+            readLock.lock();
+            try {
+                if (old.containsKey(key)) {
+                    result = old.get(key);
+                }
+            } finally {
+                readLock.lock();
             }
         }
 
@@ -203,8 +218,13 @@ public class DataBaseFile {
             return diff.get().get(key);
         }
 
-        if (old.containsKey(key)) {
-            return old.get(key);
+        readLock.lock();
+        try {
+            if (old.containsKey(key)) {
+                return old.get(key);
+            }
+        } finally {
+            readLock.unlock();
         }
 
         return null;
@@ -224,9 +244,14 @@ public class DataBaseFile {
             return result;
         }
 
-        if (old.containsKey(key)) {
-            result = old.get(key);
-            deleted.get().add(key);
+        readLock.lock();
+        try {
+            if (old.containsKey(key)) {
+                result = old.get(key);
+                deleted.get().add(key);
+            }
+        } finally {
+            readLock.unlock();
         }
 
         return result;
@@ -237,13 +262,18 @@ public class DataBaseFile {
         newDeleted.addAll(deleted.get());
 
 
-        for (String key : old.keySet()) {
-            if (old.get(key).equals(diff.get().get(key))) {
-                diff.get().remove(key);
+        readLock.lock();
+        try {
+            for (String key : old.keySet()) {
+                if (old.get(key).equals(diff.get().get(key))) {
+                    diff.get().remove(key);
+                }
+                if (newDeleted.contains(key)) {
+                    newDeleted.remove(key);
+                }
             }
-            if (newDeleted.contains(key)) {
-                newDeleted.remove(key);
-            }
+        } finally {
+            readLock.unlock();
         }
 
         for (String key : deleted.get()) {
@@ -264,23 +294,35 @@ public class DataBaseFile {
 
     public int getSize() {
         normalize();
-        int result = diff.get().size() + old.size() - deleted.get().size();
-        for (String key : diff.get().keySet()) {
-            if (old.containsKey(key)) {
-                --result;
+
+        readLock.lock();
+        try {
+            int result = diff.get().size() + old.size() - deleted.get().size();
+            for (String key : diff.get().keySet()) {
+                if (old.containsKey(key)) {
+                    --result;
+                }
             }
+            return result;
+        } finally {
+            readLock.unlock();
         }
-        return result;
     }
 
     public void commit() {
         normalize();
-        for (Map.Entry<String, String> node : diff.get().entrySet()) {
-            old.put(node.getKey(), node.getValue());
-        }
 
-        for (String key : deleted.get()) {
-            old.remove(key);
+        writeLock.lock();
+        try {
+            for (Map.Entry<String, String> node : diff.get().entrySet()) {
+                old.put(node.getKey(), node.getValue());
+            }
+
+            for (String key : deleted.get()) {
+                old.remove(key);
+            }
+        } finally {
+            writeLock.unlock();
         }
 
         diff.get().clear();

@@ -20,10 +20,6 @@ public final class DataBase implements Table {
     private TableProvider provider;
     private List<Class<?>> types;
 
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private Lock readLock = readWriteLock.readLock();
-    private Lock writeLock = readWriteLock.writeLock();
-
     public final class DirFile {
         private int nDir;
         private int nFile;
@@ -195,13 +191,7 @@ public final class DataBase implements Table {
         String value = WorkWithJSON.serialize(this, storeableValue);
 
         String result;
-        readLock.lock();
-        try {
-            result = file.put(keyStr, value);
-        } finally {
-            readLock.unlock();
-        }
-
+        result = file.put(keyStr, value);
         return WorkWithJSON.deserialize(this, result);
     }
 
@@ -211,13 +201,7 @@ public final class DataBase implements Table {
         DirFile node = new DirFile(keyStr.getBytes()[0]);
 
         String result;
-        readLock.lock();
-        try {
-            result = files[node.getId()].get(keyStr);
-        } finally {
-            readLock.unlock();
-        }
-
+        result = files[node.getId()].get(keyStr);
         return WorkWithJSON.deserialize(this, result);
     }
 
@@ -228,58 +212,37 @@ public final class DataBase implements Table {
         DataBaseFile file = files[node.getId()];
 
         String result;
-        readLock.lock();
-        try {
-            result = files[node.getId()].remove(keyStr);
-        } finally {
-            readLock.unlock();
-        }
-
+        result = files[node.getId()].remove(keyStr);
         return WorkWithJSON.deserialize(this, result);
     }
 
     @Override
     public int commit() {
-        writeLock.lock();
-        try {
-            int allNew = 0;
-            for (int i = 0; i < 256; ++i) {
-                allNew += files[i].getNewKeys();
-                files[i].commit();
-            }
-            return  allNew;
-        } finally {
-            writeLock.unlock();
+        int allNew = 0;
+        for (int i = 0; i < 256; ++i) {
+            allNew += files[i].getNewKeys();
+            files[i].commit();
         }
+        return  allNew;
     }
 
     @Override
     public int size() {
-        readLock.lock();
-        try {
-            int allSize = 0;
-            for (int i = 0; i < 256; ++i) {
-                    allSize += files[i].getSize();
-            }
-            return allSize;
-        } finally {
-            readLock.unlock();
+        int allSize = 0;
+        for (int i = 0; i < 256; ++i) {
+                allSize += files[i].getSize();
         }
+        return allSize;
     }
 
     @Override
     public int rollback() {
-        writeLock.lock();
-        try {
-            int allCanceled = 0;
-            for (int i = 0; i < 256; ++i) {
-                allCanceled += files[i].getNewKeys();
-                files[i].rollback();
-            }
-            return allCanceled;
-        } finally {
-            writeLock.unlock();
+        int allCanceled = 0;
+        for (int i = 0; i < 256; ++i) {
+            allCanceled += files[i].getNewKeys();
+            files[i].rollback();
         }
+        return allCanceled;
     }
 
     @Override
