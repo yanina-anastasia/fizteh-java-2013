@@ -12,34 +12,39 @@ public class JSONLogFormatter {
     private final IdentityHashMap<Object, Boolean> objects = new IdentityHashMap<Object, Boolean>();
 
     public void writeTimestamp() {
-        jsonObject = jsonObject.put("timestamp", System.currentTimeMillis());
+        jsonObject = jsonObject.put(JSONAttributeNames.TIMESTAMP.name, System.currentTimeMillis());
     }
 
     public void writeClass(Class<?> clazz) {
-        jsonObject = jsonObject.put("class", clazz.getName());
+        jsonObject = jsonObject.put(JSONAttributeNames.CLASS.name, clazz.getName());
     }
 
     public void writeMethod(Method method) {
-        jsonObject = jsonObject.put("name", method.getName());
+        jsonObject = jsonObject.put(JSONAttributeNames.METHOD.name, method.getName());
     }
 
     public void writeArguments(Object[] args) {
+        if (args.length == 0) {
+            jsonObject = jsonObject.put(JSONAttributeNames.ARGUMENTS.name, args);
+            return;
+        }
+
         JSONArray array;
         try {
             array = makeJSONArray(Arrays.asList(args));
         } catch (NullPointerException | ClassCastException e) {
             array = new JSONArray();
         }
-        jsonObject = jsonObject.put("arguments", array);
+        jsonObject = jsonObject.put(JSONAttributeNames.ARGUMENTS.name, array);
         objects.clear();
     }
 
-    public void writeResultValue(Object result) {
-        jsonObject = jsonObject.put("returnValue", result);
+    public void writeReturnValue(Object result) {
+        jsonObject = jsonObject.put(JSONAttributeNames.RETURN_VALUE.name, result);
     }
 
     public void writeThrown(Throwable cause) {
-        jsonObject = jsonObject.put("thrown", cause.toString());
+        jsonObject = jsonObject.put(JSONAttributeNames.THROWN.name, cause.toString());
     }
 
     public String getStringRepresentation() {
@@ -69,7 +74,7 @@ public class JSONLogFormatter {
 
             if (objects.containsKey(value) && isContainer && !isEmpty) {
 
-                result.put("cyclic");
+                result.put(JSONAttributeNames.CYCLIC.name);
                 continue;
             }
 
@@ -88,5 +93,21 @@ public class JSONLogFormatter {
             result.put(value);
         }
         return result;
+    }
+}
+
+enum JSONAttributeNames {
+    TIMESTAMP("timestamp"),
+    CLASS("class"),
+    METHOD("name"),
+    ARGUMENTS("arguments"),
+    RETURN_VALUE("returnValue"),
+    THROWN("thrown"),
+    CYCLIC("cyclic");
+
+    public String name;
+
+    JSONAttributeNames(String name) {
+        this.name = name;
     }
 }

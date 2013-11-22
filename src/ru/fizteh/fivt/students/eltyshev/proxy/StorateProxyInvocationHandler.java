@@ -30,7 +30,7 @@ public class StorateProxyInvocationHandler implements InvocationHandler {
 
         try {
             result = method.invoke(implementation, args);
-            formatter.writeResultValue(result);
+            formatter.writeReturnValue(result);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             formatter.writeThrown(targetException);
