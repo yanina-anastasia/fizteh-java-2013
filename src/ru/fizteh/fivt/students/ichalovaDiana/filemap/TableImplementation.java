@@ -247,7 +247,7 @@ public class TableImplementation implements Table {
     @Override
     public int size() {
         try {
-            return computeSize() + countChanges();
+            return computeSize() + computeAdditionalSize();
         } catch (IOException e) {
             throw new RuntimeException("Error while computing size: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
@@ -345,6 +345,45 @@ public class TableImplementation implements Table {
                 }
             }
             return changesNumber;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    
+    private int computeAdditionalSize() {
+        int additionalSize = 0;
+        writeLock.lock();
+        try {
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                    for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                        String rawFileValue;
+                        try {
+                            rawFileValue = getValueFromFile(key);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Error while opening file: "
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                        }
+                        if (rawFileValue == null) {
+                            additionalSize += 1;
+                        }
+                    }
+                    
+                    for (String key : removeChanges.get()[nDirectory][nFile]) {
+                        String rawFileValue;
+                        try {
+                            rawFileValue = getValueFromFile(key);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Error while opening file: "
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                        }
+                        if (rawFileValue != null) {
+                            additionalSize -= 1;
+                        }
+                    }
+                }
+            }
+            return additionalSize;
         } finally {
             writeLock.unlock();
         }
