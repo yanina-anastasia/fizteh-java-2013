@@ -448,40 +448,30 @@ public class TableCommands implements Table {
         readLock.lock();
         try {
             result = countChanges(false);
-            for (int i = 0; i < 16; ++i) {
-                for (int j = 0; j < 16; ++j) {
-                    if (!diff.get()[i][j].isEmpty()) {
-                        diff.get()[i][j].clear();
-                    }
-                }
-            }
         } catch (IOException e) {
         } finally {
             readLock.unlock();
+        }
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                if (!diff.get()[i][j].isEmpty()) {
+                    diff.get()[i][j].clear();
+                }
+            }
         }
         return result;
     }
 
     @Override
     public int getColumnsCount() {
-        readLock.lock();
-        try {
-            return types.size();
-        } finally {
-            readLock.unlock();
-        }
+        return types.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        readLock.lock();
-        try {
-            if (columnIndex < 0 || columnIndex >= types.size()) {
-                throw new IndexOutOfBoundsException();
-            }
-            return types.get(columnIndex);
-        } finally {
-            readLock.unlock();
+        if (columnIndex < 0 || columnIndex >= types.size()) {
+            throw new IndexOutOfBoundsException();
         }
+        return types.get(columnIndex);
     }
 }
