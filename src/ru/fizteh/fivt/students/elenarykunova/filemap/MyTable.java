@@ -102,7 +102,7 @@ public class MyTable implements Table {
     private boolean differs(Storeable st1, Storeable st2) {
         String str1 = provider.serialize(this, st1);
         String str2 = provider.serialize(this, st2);
-        return (str1.equals(str2));
+        return (!str1.equals(str2));
     }
     
     public Storeable put(String key, Storeable value)
@@ -124,19 +124,22 @@ public class MyTable implements Table {
         }
         Storeable oldVal = getDataBaseFromKey(key).get(key);
         Storeable newVal = changesMap.get(key);
+        Storeable res = null;
+        if (changesMap.containsKey(key)) {
+            res = newVal;
+        } else if (oldVal != null) {
+            res = oldVal;
+        }
         if (oldVal != null) {
-            if (!changesMap.containsKey(key)) {
-                changesMap.put(key, value);
-                return oldVal;
+            if (differs(oldVal, value)) {
+                    changesMap.put(key, value);
+            } else {
+                changesMap.remove(key);
             }
-            if (newVal != null && differs(oldVal, newVal)) {
-                changesMap.put(key, value);
-            }
-            return newVal;
         } else {
             changesMap.put(key, value);
-            return newVal;
         }
+        return res;
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
@@ -160,9 +163,11 @@ public class MyTable implements Table {
         }
         Set<Map.Entry<String, Storeable>> mySet = changesMap.entrySet();
         for (Map.Entry<String, Storeable> myEntry : mySet) {
-            if (myEntry.getValue() != null) {
-                n++;
-            } else {
+            if (getDataBaseFromKey(myEntry.getKey()).get(myEntry.getKey()) == null) {
+                if (myEntry.getValue() != null) {
+                    n++;
+                }
+            } else if (myEntry.getValue() == null) {
                 n--;
             }
         }
@@ -228,6 +233,8 @@ public class MyTable implements Table {
             } else {
                 mdb.put(key, value);
             }
+            mdb.createFile();
+            mdb.hasChanged = true;
         }
     }
     
@@ -236,6 +243,7 @@ public class MyTable implements Table {
         trackChanges();
         if (nchanges != 0) {
             saveChanges();
+            changesMap.clear();
         }
         return nchanges;
     }
