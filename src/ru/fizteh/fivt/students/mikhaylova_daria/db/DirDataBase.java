@@ -16,9 +16,9 @@ public class DirDataBase {
 
     FileMap[] fileArray = new FileMap[16];
 
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private final Lock myWriteLock = readWriteLock.writeLock();
-    private final Lock myReadLock = readWriteLock.readLock();
+//    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+//    private final Lock myWriteLock = readWriteLock.writeLock();
+//    private final Lock myReadLock = readWriteLock.readLock();
 
     DirDataBase() {
 
@@ -38,7 +38,7 @@ public class DirDataBase {
     }
 
     void startWorking() throws Exception {
-        myWriteLock.lock();
+        //myWriteLock.lock();
         try {
             if (!dir.exists()) {
                 if (!dir.mkdir()) {
@@ -46,12 +46,12 @@ public class DirDataBase {
                 }
             }
         } finally {
-            myWriteLock.unlock();
+          //  myWriteLock.unlock();
         }
     }
 
     void deleteEmptyDir() throws Exception {
-        myWriteLock.lock();
+       // myWriteLock.lock();
         try {
         File[] f = dir.listFiles();
             if (f != null) {
@@ -62,7 +62,7 @@ public class DirDataBase {
                 }
             }
         } finally {
-            myWriteLock.unlock();
+            //myWriteLock.unlock();
         }
         isReady = false;
     }
@@ -84,7 +84,7 @@ public class DirDataBase {
     }
 
     int commit() {
-        myWriteLock.lock();
+        //myWriteLock.lock();
         try {
             int numberOfChanges = 0;
             for (int i = 0; i < 16; ++i) {
@@ -101,7 +101,7 @@ public class DirDataBase {
             }
             return numberOfChanges;
         } finally {
-            myWriteLock.unlock();
+          //  myWriteLock.unlock();
         }
     }
 

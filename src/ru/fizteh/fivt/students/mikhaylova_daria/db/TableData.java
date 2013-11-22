@@ -230,7 +230,12 @@ public class TableData implements Table {
         }
         int nDirectory = b % 16;
         int nFile = (b / 16) % 16;
-        return dirArray[nDirectory].fileArray[nFile].put(key, value, this);
+        myWriteLock.lock();
+        try {
+            return dirArray[nDirectory].fileArray[nFile].put(key, value, this);
+        } finally {
+            myWriteLock.unlock();
+        }
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
@@ -242,7 +247,7 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = b / 16 % 16;
         Storeable removedValue;
-//        myWriteLock.lock();
+        myWriteLock.lock();
         try {
             try {
                 dirArray[nDirectory].startWorking();
@@ -251,7 +256,7 @@ public class TableData implements Table {
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
         } finally {
-  //          myWriteLock.unlock();
+            myWriteLock.unlock();
         }
         return removedValue;
     }
@@ -282,21 +287,26 @@ public class TableData implements Table {
 
     int countChanges() {
         int numberOfChanges = 0;
-        for (int i = 0; i < 16; ++i) {
-            numberOfChanges += dirArray[i].countChanges();
+        myReadLock.lock();
+        try {
+            for (int i = 0; i < 16; ++i) {
+                numberOfChanges += dirArray[i].countChanges();
+            }
+        } finally {
+            myReadLock.unlock();
         }
         return numberOfChanges;
     }
 
     public int size() {
         int numberOfKeys = 0;
-        myWriteLock.lock();
+        myReadLock.lock();
         try {
             for (int i = 0; i < 16; ++i) {
                 numberOfKeys += dirArray[i].size();
             }
         } finally {
-            myWriteLock.unlock();
+            myReadLock.unlock();
         }
         return numberOfKeys;
     }
