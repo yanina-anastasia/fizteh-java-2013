@@ -32,7 +32,6 @@ public class DataBase implements Table {
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
-    private Lock drive = new ReentrantLock(true);
 
     private String currTable = "";
     private static String rootDir = "";
@@ -94,7 +93,7 @@ public class DataBase implements Table {
 
     protected void unloadData() {
         RandomAccessFile[] filesArray = new RandomAccessFile[256];
-        drive.lock();
+        write.lock();
         try {
             for (int i = 0; i < 16; ++i) {
                 DataBaseProvider.doDelete(getDirWithNum(i));
@@ -146,7 +145,7 @@ public class DataBase implements Table {
                     }
                 }
             }
-            drive.unlock();
+            write.unlock();
         }
     }
 
@@ -315,11 +314,11 @@ public class DataBase implements Table {
         Set<Map.Entry<String, Storeable>> entries = dataMap.get().entrySet();
         for (Map.Entry<String, Storeable> entry : entries) {
             String key = entry.getKey();
-            TableRow value = (TableRow) entry.getValue();
-            TableRow oldValue = null;
+            Storeable value = entry.getValue();
+            Storeable oldValue = null;
             read.lock();
             try {
-                oldValue = (TableRow) commonDataMap.get(key);
+                oldValue = commonDataMap.get(key);
             } finally {
                 read.unlock();
             }
