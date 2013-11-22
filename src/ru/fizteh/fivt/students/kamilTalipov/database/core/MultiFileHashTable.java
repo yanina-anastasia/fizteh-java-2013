@@ -22,7 +22,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MultiFileHashTable implements Table {
-    private final HashMap<String, Storeable>[][] table;
+    //private final HashMap<String, Storeable>[][] table;
+    private final HashMap<String, Storeable> table;
     private final ThreadLocal<HashMap<String, Storeable>> newValues;
 
     private final ArrayList<Class<?>> types;
@@ -89,12 +90,8 @@ public class MultiFileHashTable implements Table {
 
         writeSignatureFile();
 
-        table = new HashMap[ALL_DIRECTORIES][FILES_IN_DIRECTORY];
-        for (int i = 0; i < ALL_DIRECTORIES; ++i) {
-            for (int j = 0; j < FILES_IN_DIRECTORY; ++j) {
-                table[i][j] = new HashMap<>();
-            }
-        }
+        table = new HashMap<>();
+        //table = new HashMap[ALL_DIRECTORIES][FILES_IN_DIRECTORY];
         newValues = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             protected HashMap<String, Storeable> initialValue() {
@@ -265,7 +262,8 @@ public class MultiFileHashTable implements Table {
             }
 
             try {
-                writeChanges(changesFile);
+                writeTable();
+                //writeChanges(changesFile);
             } catch (DatabaseException e) {
                 throw new IOException("Database io error", e);
             }
@@ -351,9 +349,26 @@ public class MultiFileHashTable implements Table {
             return;
         }
 
-        for (int i = 0; i < ALL_DIRECTORIES; ++i) {
+        for (Map.Entry<String, Storeable> entry : table.entrySet()) {
+            byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
+            byte[] value = serialize(entry.getValue()).getBytes(StandardCharsets.UTF_8);
+
+            File directory = FileUtils.makeDir(tableDirectory.getAbsolutePath()
+                    + File.separator + getDirectoryName(key[0]) + ".dir");
+            File dbFile = FileUtils.makeFile(directory.getAbsolutePath(), getFileName(key[0]) + ".dat");
+
+            try (FileOutputStream output = new FileOutputStream(dbFile, true)) {
+
+                output.write(ByteBuffer.allocate(4).putInt(key.length).array());
+                output.write(ByteBuffer.allocate(4).putInt(value.length).array());
+                output.write(key);
+                output.write(value);
+            }
+        }
+
+        /*for (int i = 0; i < ALL_DIRECTORIES; ++i) {
             for (int j = 0; j < FILES_IN_DIRECTORY; ++j) {
-                if (table[i][j].isEmpty()) {
+                if (table[i][j] == null) {
                     continue;
                 }
 
@@ -373,7 +388,7 @@ public class MultiFileHashTable implements Table {
                     }
                 }
             }
-        }
+        }*/
     }
 
     private void readTable() throws DatabaseException, FileNotFoundException {
@@ -399,7 +414,7 @@ public class MultiFileHashTable implements Table {
 
         removeChangesFile(changes);
 
-        for (ChangedFile file : changes) {
+        /*for (ChangedFile file : changes) {
             if (table[file.directoryId][file.fileId] == null) {
                 throw new DatabaseException("Table [" + file.directoryId + "][" + file.fileId + "] "
                                             + "expected not null");
@@ -420,7 +435,7 @@ public class MultiFileHashTable implements Table {
                     output.write(value);
                 }
             }
-        }
+        }  */
     }
 
     private static List<Class<?>> getTypes(String workingDirectory,
@@ -530,13 +545,14 @@ public class MultiFileHashTable implements Table {
     }
 
     private HashMap<String, Storeable> getKeyTable(String key) {
-        byte keyByte = key.getBytes(StandardCharsets.UTF_8)[0];
+        /*byte keyByte = key.getBytes(StandardCharsets.UTF_8)[0];
         int directoryId = getDirectoryId(keyByte);
         int fileId = getFileId(keyByte);
-        /*if (table[directoryId][fileId] == null) {
+        if (table[directoryId][fileId] == null) {
             table[directoryId][fileId] = new HashMap<>();
-        }*/
-        return table[directoryId][fileId];
+        }
+        return table[directoryId][fileId];*/
+        return table;
     }
 
     private Storeable getFromTable(String key) {
@@ -545,13 +561,14 @@ public class MultiFileHashTable implements Table {
 
     private int getTableSize() {
         int size = 0;
-        for (int i = 0; i < ALL_DIRECTORIES; ++i) {
+        /*for (int i = 0; i < ALL_DIRECTORIES; ++i) {
             for (int j = 0; j < FILES_IN_DIRECTORY; ++j) {
                 if (table[i][j] != null) {
                     size += table[i][j].size();
                 }
             }
-        }
+        }*/
+        size += table.size();
         return size;
     }
 
