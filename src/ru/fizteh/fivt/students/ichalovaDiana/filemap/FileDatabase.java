@@ -14,7 +14,9 @@ class FileDatabase implements AutoCloseable {
 
     Path dbFilePath;
     Map<String, String> database = new HashMap<String, String>();
-
+    
+    boolean wasChanged = false;
+    
     public FileDatabase(Path dbFilePath) throws IOException {
         try {
             this.dbFilePath = dbFilePath;
@@ -35,6 +37,7 @@ class FileDatabase implements AutoCloseable {
     }
 
     public String put(String key, String value) throws IOException {
+        wasChanged = true;
         String oldValue = database.put(key, value);
         return oldValue;
     }
@@ -44,6 +47,7 @@ class FileDatabase implements AutoCloseable {
     }
     
     public String remove(String key) throws IOException {   
+        wasChanged = true;
         String value = database.remove(key);
         return value;
     }
@@ -120,13 +124,15 @@ class FileDatabase implements AutoCloseable {
     
     @Override
     public void close() throws IOException {
-        try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
-            
-            saveChanges(dbFile);
-            
-        } catch (IOException e) {
-            throw new IOException("Error while closing database file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        if (wasChanged) {
+            try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
+                
+                saveChanges(dbFile);
+                
+            } catch (IOException e) {
+                throw new IOException("Error while closing database file: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
         }
         
         if (Files.size(dbFilePath) == 0) {

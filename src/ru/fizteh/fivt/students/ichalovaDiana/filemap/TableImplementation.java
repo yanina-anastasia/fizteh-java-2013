@@ -100,15 +100,15 @@ public class TableImplementation implements Table {
         }
         
         String rawValue;
-        readLock.lock();
         try {
+            readLock.lock();
             try {
                 rawValue = getValueFromFile(key);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } finally {
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         
         try {
@@ -129,15 +129,16 @@ public class TableImplementation implements Table {
         isValidValue(value);
         
         String originValueString;
-        readLock.lock();
+        
         try {
+            readLock.lock();
             try {
                 originValueString = getValueFromFile(key);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } finally {
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         
         Storeable originValue;
@@ -177,16 +178,18 @@ public class TableImplementation implements Table {
         }
         
         String originValueString;
-        readLock.lock();
+        
         try {
+            readLock.lock();
             try {
                 originValueString = getValueFromFile(key);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } finally {
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        
         
         Storeable originValue;
         try {
@@ -272,10 +275,10 @@ public class TableImplementation implements Table {
     }
     
     public int countChanges() {
+        int changesNumber = 0;
         
         writeLock.lock();
         try {
-            int changesNumber = 0;
             for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
                 for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
                     for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
@@ -317,10 +320,11 @@ public class TableImplementation implements Table {
                     }
                 }
             }
-            return changesNumber;
         } finally {
             writeLock.unlock();
         }
+        return changesNumber;
+        
     }
     
     private int computeAdditionalSize() {
