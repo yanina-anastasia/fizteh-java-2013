@@ -433,10 +433,11 @@ public class MyTable implements Table {
         try {
             int count = getCountOfChanges();
             if (count == 0) {
+                changesMap.get().clear();
                 return 0;
             }
             modifyFileMap();
-            saveChangesOnHard();
+            //saveChangesOnHard();
             changesMap.get().clear();
             return count;
         } finally {
