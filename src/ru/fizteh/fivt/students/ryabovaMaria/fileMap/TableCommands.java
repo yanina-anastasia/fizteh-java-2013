@@ -21,16 +21,71 @@ public class TableCommands implements Table {
     private final ArrayList<Class<?>> types;
     private final TableProvider tableProvider;
     private final File tableDir;
-    private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal();
-    private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal();
+    //private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal();
+    //private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal();
     private HashMap<String, String>[][] lastList;
-    private ThreadLocal<HashMap<Integer, String>> update = new ThreadLocal();
-    private ThreadLocal<Integer> hashCode = new ThreadLocal();
-    private ThreadLocal<Integer> numberOfDir = new ThreadLocal();
-    private ThreadLocal<Integer> numberOfFile = new ThreadLocal();
+    //private ThreadLocal<HashMap<Integer, String>> update = new ThreadLocal();
+    //private ThreadLocal<Integer> hashCode = new ThreadLocal();
+    //private ThreadLocal<Integer> numberOfDir = new ThreadLocal();
+    //private ThreadLocal<Integer> numberOfFile = new ThreadLocal();
     private ReadWriteLock lock;
     private Lock readLock;
     private Lock writeLock;
+    
+    private ThreadLocal<Integer> hashCode = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return new Integer(0);
+        }
+    };
+    
+    private ThreadLocal<Integer> numberOfDir = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return new Integer(0);
+        }
+    };
+    
+    private ThreadLocal<Integer> numberOfFile = new ThreadLocal<Integer>() {
+        @Override
+        protected Integer initialValue() {
+            return new Integer(0);
+        }
+    };
+    
+    private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal<HashMap<String, String>[][]>() {
+        @Override
+        protected HashMap<String, String>[][] initialValue() {
+            HashMap<String, String> diffObject[][] = new HashMap[16][16];
+            lastList = new HashMap[16][16];
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    diffObject[i][j] = new HashMap<String, String>();
+                }
+            }
+            return diffObject;
+        }
+    };
+    
+    private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal<HashMap<String, String>[][]>() {
+        @Override
+        protected HashMap<String, String>[][] initialValue() {
+            HashMap<String, String> listObject[][] = new HashMap[16][16];
+            for (int i = 0; i < 16; ++i) {
+                for (int j = 0; j < 16; ++j) {
+                    listObject[i][j] = new HashMap<String, String>();
+                }
+            }
+            return listObject;
+        }
+    };
+    
+    private ThreadLocal<HashMap<Integer, String>> update = new ThreadLocal<HashMap<Integer, String>>() {
+        @Override
+        protected HashMap<Integer, String> initialValue() {
+            return new HashMap<Integer, String>();
+        }
+    };
     
     TableCommands(File directory, List<Class<?>> types, TableProvider tableProvider) throws IOException {
         lock = new ReentrantReadWriteLock(true);
@@ -38,17 +93,13 @@ public class TableCommands implements Table {
         writeLock = lock.writeLock();
         this.tableProvider = tableProvider;
         this.types = new ArrayList(types);
-        HashMap<String, String> diffObject[][] = new HashMap[16][16];
         lastList = new HashMap[16][16];
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
-                diffObject[i][j] = new HashMap<String, String>();
                 lastList[i][j] = new HashMap<String, String>();
             }
         }
-        diff.set(diffObject);
         tableDir = directory;
-        update.set(new HashMap<Integer, String>());
         writeLock.lock();
         try {
             isCorrectTable();
