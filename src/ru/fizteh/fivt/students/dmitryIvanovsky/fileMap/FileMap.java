@@ -544,8 +544,9 @@ public class FileMap implements Table {
             throw new IllegalStateException("table was deleted");
         }
 
+        String res = "";
         int size = tableData.size();
-        //read.lock();
+        read.lock();
         try {
             for (String key : changeTable.get().keySet()) {
                 if (tableData.containsKey(key)) {
@@ -554,12 +555,17 @@ public class FileMap implements Table {
                     }
                 } else {
                     if (changeTable.get().get(key) != null) {
+                        res += parent.serialize(this, changeTable.get().get(key));
                         ++size;
                     }
                 }
             }
         } finally {
-            //read.unlock();
+            read.unlock();
+        }
+
+        if (size == 2) {
+            throw new IllegalArgumentException(res);
         }
 
         return size;
