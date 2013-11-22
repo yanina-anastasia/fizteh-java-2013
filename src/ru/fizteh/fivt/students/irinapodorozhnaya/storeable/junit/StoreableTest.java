@@ -12,7 +12,6 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyStoreable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProviderFactory;
 
