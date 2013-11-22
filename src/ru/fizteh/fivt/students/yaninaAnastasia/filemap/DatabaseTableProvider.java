@@ -32,24 +32,21 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public DatabaseTable getTable(String name) throws IllegalArgumentException, IllegalStateException {
+        if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
+            throw new IllegalArgumentException("table's name cannot be null");
+        }
+        if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
+                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
+                || name.startsWith(".") || name.endsWith(".")) {
+            throw new RuntimeException("Bad symbols in tablename " + name);
+        }
         lock.readLock().lock();
         try {
-            if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
-                throw new IllegalArgumentException("table's name cannot be null");
-            }
-            if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
-                    || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
-                    || name.startsWith(".") || name.endsWith(".")) {
-                throw new RuntimeException("Bad symbols in tablename " + name);
-            }
-
             DatabaseTable table = tables.get(name);
 
             if (table == null) {
                 return table;
             }
-
-            table.putName(name);
 
             if (curTable != null && curTable.uncommittedChanges.get() > 0) {
                 throw new IllegalArgumentException(String.format("%d unsaved changes", curTable.uncommittedChanges));
@@ -65,33 +62,31 @@ public class DatabaseTableProvider implements TableProvider {
 
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, IllegalStateException {
+        if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
+            throw new IllegalArgumentException("table's name cannot be null");
+        }
+        if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
+                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
+                || name.startsWith(".") || name.endsWith(".")) {
+            throw new RuntimeException("Bad symbols in tablename " + name);
+        }
+        if (columnTypes == null || columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("column types cannot be null");
+        }
+        for (final Class<?> columnType : columnTypes) {
+            if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
+                throw new IllegalArgumentException("unknown column type");
+            }
+        }
         lock.writeLock().lock();
         try {
-            if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
-                throw new IllegalArgumentException("table's name cannot be null");
+            File tableDirectory = new File(curDir, name);
+            if (!tableDirectory.exists()) {
+                tableDirectory.mkdir();
             }
-            if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
-                    || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
-                    || name.startsWith(".") || name.endsWith(".")) {
-                throw new RuntimeException("Bad symbols in tablename " + name);
-            }
-            if (columnTypes == null || columnTypes.isEmpty()) {
-                throw new IllegalArgumentException("column types cannot be null");
-            }
-
-            for (final Class<?> columnType : columnTypes) {
-                if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
-                    throw new IllegalArgumentException("unknown column type");
-                }
-            }
-            try {
-                File tableDirectory = new File(curDir, name);
-                if (!tableDirectory.exists()) {
-                    tableDirectory.mkdir();
-                }
-                File signatureFile = new File(tableDirectory, "signature.tsv");
+            File signatureFile = new File(tableDirectory, "signature.tsv");
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile))) {
                 signatureFile.createNewFile();
-                BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
                 List<String> formattedColumnTypes = new ArrayList<String>();
                 for (final Class<?> columnType : columnTypes) {
                     formattedColumnTypes.add(ColumnTypes.fromTypeToName(columnType));
@@ -111,7 +106,6 @@ public class DatabaseTableProvider implements TableProvider {
                 }
                 String signature = sb.toString();
                 writer.write(signature);
-                writer.close();
             } catch (IOException e) {
                 System.out.println("Can't write signature file to the disk");
                 return null;
@@ -307,7 +301,7 @@ public class DatabaseTableProvider implements TableProvider {
                 throw new IllegalArgumentException("Invalid database");
             }
             List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-            for (final String columnType: signature.split("\\s")) {
+            for (final String columnType : signature.split("\\s")) {
                 Class<?> type = ColumnTypes.fromNameToType(columnType);
                 if (type == null) {
                     throw new IllegalArgumentException("unknown type");

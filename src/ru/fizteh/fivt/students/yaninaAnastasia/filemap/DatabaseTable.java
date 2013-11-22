@@ -9,8 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DatabaseTable implements Table {
     public HashMap<String, Storeable> oldData;
@@ -21,7 +21,7 @@ public class DatabaseTable implements Table {
     private String tableName;
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
-    private Lock transactionLock = new ReentrantLock(true);
+    private ReadWriteLock transactionLock = new ReentrantReadWriteLock(true);
 
 
     public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
@@ -73,10 +73,6 @@ public class DatabaseTable implements Table {
         return tableName;
     }
 
-    public void putName(String name) {
-        this.tableName = name;
-    }
-
     public Storeable get(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
@@ -87,11 +83,11 @@ public class DatabaseTable implements Table {
         if (deletedKeys.get().contains(key)) {
             return null;
         }
-        transactionLock.lock();
+        transactionLock.readLock().lock();
         try {
             return oldData.get(key);
         } finally {
-            transactionLock.unlock();
+            transactionLock.readLock().unlock();
         }
     }
 
@@ -120,11 +116,11 @@ public class DatabaseTable implements Table {
         Storeable oldValue = null;
         oldValue = modifiedData.get().get(key);
         if (oldValue == null && !deletedKeys.get().contains(key)) {
-            transactionLock.lock();
+            transactionLock.readLock().lock();
             try {
                 oldValue = oldData.get(key);
             } finally {
-                transactionLock.unlock();
+                transactionLock.readLock().unlock();
             }
         }
         modifiedData.get().put(key, value);
@@ -145,22 +141,22 @@ public class DatabaseTable implements Table {
         Storeable oldValue = null;
         oldValue = modifiedData.get().get(key);
         if (oldValue == null && !deletedKeys.get().contains(key)) {
-            transactionLock.lock();
+            transactionLock.readLock().lock();
             try {
                 oldValue = oldData.get(key);
             } finally {
-                transactionLock.unlock();
+                transactionLock.readLock().unlock();
             }
         }
         if (modifiedData.get().containsKey(key)) {
             modifiedData.get().remove(key);
-            transactionLock.lock();
+            transactionLock.readLock().lock();
             try {
                 if (oldData.containsKey(key)) {
                     deletedKeys.get().add(key);
                 }
             } finally {
-                transactionLock.unlock();
+                transactionLock.readLock().unlock();
             }
         } else {
             deletedKeys.get().add(key);
@@ -173,17 +169,17 @@ public class DatabaseTable implements Table {
     }
 
     public int size() {
-        transactionLock.lock();
+        transactionLock.readLock().lock();
         try {
             return oldData.size() + diffSize();
         } finally {
-            transactionLock.unlock();
+            transactionLock.readLock().unlock();
         }
     }
 
     public int commit() {
         int recordsCommitted = 0;
-        transactionLock.lock();
+        transactionLock.writeLock().lock();
         try {
             recordsCommitted = Math.abs(changesCount());
             for (String keyToDelete : deletedKeys.get()) {
@@ -201,7 +197,7 @@ public class DatabaseTable implements Table {
             save(tableBuilder);
             uncommittedChanges.set(0);
         } finally {
-            transactionLock.unlock();
+            transactionLock.writeLock().unlock();
         }
         return recordsCommitted;
     }
@@ -211,11 +207,11 @@ public class DatabaseTable implements Table {
 
         deletedKeys.get().clear();
         modifiedData.get().clear();
-        transactionLock.lock();
+        transactionLock.readLock().lock();
         try {
             size = oldData.size();
         } finally {
-            transactionLock.unlock();
+            transactionLock.readLock().unlock();
         }
 
         uncommittedChanges.set(0);
@@ -349,12 +345,12 @@ public class DatabaseTable implements Table {
     private int diffSize() {
         int result = 0;
         for (final String key : modifiedData.get().keySet()) {
-            transactionLock.lock();
+            transactionLock.readLock().lock();
             Storeable oldValue;
             try {
                 oldValue = oldData.get(key);
             } finally {
-                transactionLock.unlock();
+                transactionLock.readLock().unlock();
             }
             Storeable newValue = modifiedData.get().get(key);
             if (oldValue == null && newValue != null) {
@@ -362,8 +358,13 @@ public class DatabaseTable implements Table {
             }
         }
         for (final String key : deletedKeys.get()) {
-            if (oldData.containsKey(key)) {
-                result -= 1;
+            try {
+                transactionLock.readLock().lock();
+                if (oldData.containsKey(key)) {
+                    result -= 1;
+                }
+            } finally {
+                transactionLock.readLock().unlock();
             }
         }
         return result;
