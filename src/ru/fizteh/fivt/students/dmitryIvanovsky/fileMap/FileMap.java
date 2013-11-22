@@ -34,7 +34,7 @@ public class FileMap implements Table {
     private final Lock read  = readWriteLock.readLock();
     String nameTable;
     MyHashMap tableData = new MyHashMap();
-    static ThreadLocal<MyHashMap> changeTable = new ThreadLocal<MyHashMap>() {
+    ThreadLocal<MyHashMap> changeTable = new ThreadLocal<MyHashMap>() {
         @Override
         protected MyHashMap initialValue() {
             return new MyHashMap();
@@ -611,9 +611,9 @@ public class FileMap implements Table {
                 refreshTableFiles(changedKey);
             } catch (Exception e) {
                 throw new IllegalStateException(e);
+            } finally {
+                changeTable.get().clear();
             }
-
-            changeTable.get().clear();
 
         } finally {
             write.unlock();
