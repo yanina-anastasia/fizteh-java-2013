@@ -38,13 +38,12 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     private final Path pathDb;
     private final CommandShell mySystem;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final Lock read  = readWriteLock.readLock();
     private final Lock write = readWriteLock.writeLock();
     String useNameTable;
     Set<String> setDirTable;
     FileMap dbData;
     boolean out;
-    volatile ConcurrentHashMap<String, FileMap> mapFileMap = new ConcurrentHashMap<>();
+    Map<String, FileMap> mapFileMap = new ConcurrentHashMap<>();
 
     final HashSet allowType = new HashSet(){ {
         add(String.class);
@@ -183,9 +182,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             outPrint(String.format("%d unsaved changes", changeKey));
         } else {
             if (!nameTable.equals(useNameTable)) {
-                if (dbData != null) {
-                    dbData.unloadTable();
-                }
+//                if (dbData != null) {
+//                    //dbData.unloadTable();
+//                }
                 dbData = (FileMap) getTable(nameTable);
                 useNameTable = nameTable;
             }
@@ -281,7 +280,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
 
         Table resTable = null;
-        read.lock();
+        write.lock();
         try {
             if (mapFileMap.containsKey(name)) {
                 resTable = mapFileMap.get(name);
@@ -301,7 +300,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 }
             }
         } finally {
-            read.unlock();
+            write.unlock();
         }
         return resTable;
     }

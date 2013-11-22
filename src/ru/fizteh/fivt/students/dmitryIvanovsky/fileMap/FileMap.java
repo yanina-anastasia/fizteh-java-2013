@@ -6,8 +6,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Vector;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 import java.io.File;
@@ -23,10 +22,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
 
@@ -35,14 +30,14 @@ public class FileMap implements Table {
     private final Path pathDb;
     private final CommandShell mySystem;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final Lock read  = readWriteLock.readLock();
     private final Lock write = readWriteLock.writeLock();
+    private final Lock read  = readWriteLock.readLock();
     String nameTable;
-    volatile ConcurrentHashMap<String, Storeable> tableData = new ConcurrentHashMap<>();
-    ThreadLocal<Map<String, Storeable>> changeTable = new ThreadLocal<Map<String, Storeable>>() {
+    MyHashMap tableData = new MyHashMap();
+    static ThreadLocal<MyHashMap> changeTable = new ThreadLocal<MyHashMap>() {
         @Override
-        protected Map<String, Storeable> initialValue() {
-            return new HashMap<>();
+        protected MyHashMap initialValue() {
+            return new MyHashMap();
         }
     };
     boolean existDir = false;
@@ -196,7 +191,7 @@ public class FileMap implements Table {
         }
     }
 
-    public void loadTableFile(File randomFile, Map<String, Storeable> dbMap, String nameDir) throws Exception {
+    public void loadTableFile(File randomFile, MyHashMap dbMap, String nameDir) throws Exception {
         if (randomFile.isDirectory()) {
             throw new ErrorFileMap("data file can't be a directory");
         }
@@ -254,7 +249,7 @@ public class FileMap implements Table {
                     }
                     String key = new String(arrayByte, StandardCharsets.UTF_8);
 
-                    if (FileMapUtils.getHashDir(key) != intDir || FileMapUtils.getHashFile(key) != intFile) {
+                    if (tableData.getHashDir(key) != intDir || tableData.getHashFile(key) != intFile) {
                         throw new ErrorFileMap("wrong key in the file");
                     }
                     dbMap.put(key, parent.deserialize(this, value));
@@ -278,62 +273,34 @@ public class FileMap implements Table {
         }
     }
 
-    public void unloadTable() throws Exception {
+    private void refreshTableFiles(Set<String> changedKey) throws Exception {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-        mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
-        existDir = false;
-        try {
-            mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
-        } catch (Exception e) {
-            e.addSuppressed(new ErrorFileMap("I can't create a folder table " + pathDb.resolve(nameTable).toString()));
-            throw e;
-        }
-        existDir = true;
-        closeTable();
-    }
-
-    private void closeTable() throws Exception {
         writeFileTsv();
-        if (tableData.isEmpty()) {
+        if (changeTable.get().isEmpty()) {
             return;
         }
 
-        Map<String, Storeable>[][] arrayMap = new HashMap[16][16];
-        boolean[] useDir = new boolean[16];
-        for (String key : tableData.keySet()) {
-
-            int ndirectory = FileMapUtils.getHashDir(key);
-            int nfile = FileMapUtils.getHashFile(key);
-
-            if (arrayMap[ndirectory][nfile] == null) {
-                arrayMap[ndirectory][nfile] = new HashMap<String, Storeable>();
-            }
-            arrayMap[ndirectory][nfile].put(key, tableData.get(key));
-            useDir[ndirectory] = true;
+        Set<Integer> changedFiles = new HashSet<>();
+        for (String key : changedKey) {
+            changedFiles.add(tableData.getHashDir(key) * tableData.numberFile + tableData.getHashFile(key));
         }
-        for (int i = 0; i < 16; ++i) {
-            if (useDir[i]) {
-                Integer numDir = i;
-                Path tmp = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
-                try {
-                    mySystem.mkdir(new String[]{tmp.toString()});
-                } catch (Exception e) {
-                    e.addSuppressed(new ErrorFileMap("I can't create a folder table " + tmp.toString()));
-                    throw e;
+
+        for (Integer changedFile : changedFiles) {
+            Integer numDir = changedFile / tableData.numberFile;
+            Integer numFile = changedFile % tableData.numberFile;
+            Path tmp = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
+
+            if (!tableData.getMap(numDir, numFile).isEmpty()) {
+                if (!tmp.toFile().exists()) {
+                    boolean resMkdir = tmp.toFile().mkdir();
+                    if (!resMkdir) {
+                        throw new ErrorFileMap("I can't create a folder table " + tmp.toString());
+                    }
                 }
-            }
-        }
-        for (int i = 0; i < 16; ++i) {
-            if (!useDir[i]) {
-                continue;
-            }
-            for (int j = 0; j < 16; ++j) {
-                Integer numDir = i;
-                Integer numFile = j;
-                Path tmp = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
-                closeTableFile(tmp.resolve(numFile.toString() + ".dat").toFile(), arrayMap[i][j]);
+                File refreshFile = tmp.resolve(numFile.toString() + ".dat").toFile();
+                closeTableFile(refreshFile, tableData.getMap(numDir, numFile));
             }
         }
     }
@@ -463,14 +430,6 @@ public class FileMap implements Table {
         if (changeTable.get().containsKey(key)) {
             Storeable newValue = changeTable.get().get(key);
             if (newValue == null) {
-                //Storeable oldValue = tableData.get(key);
-                /*if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
-                    //changeTable.get().remove(key);
-                    return null;
-                } else {
-                    changeTable.get().put(key, value);
-                    return null;
-                } */
                 changeTable.get().put(key, value);
                 return null;
             } else {
@@ -481,9 +440,7 @@ public class FileMap implements Table {
         } else {
             if (tableData.containsKey(key)) {
                 Storeable oldValue = tableData.get(key);
-                //if (!parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
-                    changeTable.get().put(key, value);
-                //}
+                changeTable.get().put(key, value);
                 return oldValue;
             } else {
                 changeTable.get().put(key, value);
@@ -548,6 +505,7 @@ public class FileMap implements Table {
                         resValue =  value;
                     }
                 } else {
+
                     changeTable.get().remove(key);
                     resValue =  newValue;
                 }
@@ -599,33 +557,43 @@ public class FileMap implements Table {
         }
 
         int count = 0;
+        Set<String> changedKey = new HashSet<>();
         write.lock();
         try {
+
             for (String key : changeTable.get().keySet()) {
                 Storeable value = changeTable.get().get(key);
                 if (value == null) {
                     if (tableData.containsKey(key)) {
                         ++count;
+                        changedKey.add(key);
                     }
+
                     tableData.remove(key);
                 } else {
                     Storeable oldValue = tableData.get(key);
+
                     if (oldValue == null) {
                         ++count;
+                        changedKey.add(key);
                     } else {
                         if (!parent.serialize(this, value).equals(parent.serialize(this, oldValue))) {
                             ++count;
+                            changedKey.add(key);
                         }
                     }
+
                     tableData.put(key, changeTable.get().get(key));
                 }
             }
             changeTable.get().clear();
+
             try {
-                unloadTable();
+                refreshTableFiles(changedKey);
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
+
         } finally {
             write.unlock();
         }
