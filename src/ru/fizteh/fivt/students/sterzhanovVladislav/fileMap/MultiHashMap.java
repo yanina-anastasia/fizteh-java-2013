@@ -38,7 +38,7 @@ public class MultiHashMap {
     }
 
     private HashMap<String, Storeable> getMapForKey(String key) {
-        int b = Math.abs(key.getBytes()[0]);
+        int b = Math.abs((int) key.getBytes()[0]);
         return dbArray[b % 16][b / 16 % 16];
     }
     
