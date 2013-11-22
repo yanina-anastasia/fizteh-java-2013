@@ -16,7 +16,7 @@ public class TableData implements Table {
     DirDataBase[] dirArray = new DirDataBase[16];
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private static ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
     private final Lock myReadLock = readWriteLock.readLock();
 
@@ -230,12 +230,7 @@ public class TableData implements Table {
         }
         int nDirectory = b % 16;
         int nFile = (b / 16) % 16;
-        myWriteLock.lock();
-        try {
-            return dirArray[nDirectory].fileArray[nFile].put(key, value, this);
-        } finally {
-            myWriteLock.unlock();
-        }
+        return dirArray[nDirectory].fileArray[nFile].put(key, value, this);
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
@@ -247,16 +242,11 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = b / 16 % 16;
         Storeable removedValue;
-        myWriteLock.lock();
         try {
-            try {
-                dirArray[nDirectory].startWorking();
-                removedValue = dirArray[nDirectory].fileArray[nFile].remove(key, this);
-            } catch (Exception e) {
-                throw new IllegalArgumentException(e.getMessage(), e);
-            }
-        } finally {
-            myWriteLock.unlock();
+            dirArray[nDirectory].startWorking();
+            removedValue = dirArray[nDirectory].fileArray[nFile].remove(key, this);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return removedValue;
     }
@@ -270,17 +260,12 @@ public class TableData implements Table {
         int nDirectory = b % 16;
         int nFile = (b / 16) % 16;
         Storeable getValue;
-        myWriteLock.lock();
         try {
-            try {
-                dirArray[nDirectory].startWorking();
-                getValue = dirArray[nDirectory].fileArray[nFile].get(key, this);
-                dirArray[nDirectory].deleteEmptyDir();
-            } catch (Exception e) {
-                throw new IllegalArgumentException(e.getMessage(), e);
-            }
-        } finally {
-            myWriteLock.unlock();
+            dirArray[nDirectory].startWorking();
+            getValue = dirArray[nDirectory].fileArray[nFile].get(key, this);
+            dirArray[nDirectory].deleteEmptyDir();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         return getValue;
     }

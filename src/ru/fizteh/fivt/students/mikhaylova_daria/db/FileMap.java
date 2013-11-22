@@ -25,7 +25,7 @@ public class FileMap {
     };
 
 
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private static ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
     private final Lock myReadLock = readWriteLock.readLock();
 
@@ -130,7 +130,7 @@ public class FileMap {
         }
         table.checkKey(key);
         initialMap();
-       // myWriteLock.lock();
+        myReadLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -162,7 +162,7 @@ public class FileMap {
                 }
             }
         } finally {
-         //   myWriteLock.unlock();
+            myReadLock.unlock();
         }
     }
 
@@ -246,13 +246,14 @@ public class FileMap {
     }
 
     void readFile(TableData table) throws IOException, DataFormatException, ParseException {
+        isLoaded = true;
         if (table == null) {
             throw new IllegalArgumentException("Table is null");
         }
         Exception e = null;
         Storeable storeableValue;
         RandomAccessFile dataBase = null;
-        myWriteLock.lock();
+        myReadLock.lock();
         try {
             fileMapInitial.clear();
             try {
@@ -332,9 +333,8 @@ public class FileMap {
                 }
             }
         } finally {
-            myWriteLock.unlock();
+            myReadLock.unlock();
         }
-        isLoaded = true;
     }
 
 
