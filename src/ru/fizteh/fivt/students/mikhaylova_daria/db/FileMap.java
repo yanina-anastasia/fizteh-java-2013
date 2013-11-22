@@ -65,7 +65,7 @@ public class FileMap {
         } catch (Exception e) {
             throw new ColumnFormatException("Wrong typelist of value", e);
         }
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -76,7 +76,11 @@ public class FileMap {
                     throw new RuntimeException("Reading error", e);
                 }
             }
-
+        } finally {
+            myWriteLock.unlock();
+        }
+        myReadLock.lock();
+        try {
             if (fileMapRemoveKey.get().contains(key)) {
                 fileMapRemoveKey.get().remove(key);
                 fileMapNewValue.get().put(key, value);
@@ -101,7 +105,7 @@ public class FileMap {
             throw new IllegalArgumentException("Table is null");
         }
         table.checkKey(key);
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -112,6 +116,11 @@ public class FileMap {
                     throw new RuntimeException("Reading error", e);
                 }
             }
+        } finally {
+            myWriteLock.unlock();
+        }
+        myReadLock.lock();
+        try {
             if (fileMapNewValue.get().containsKey(key)) {
                 return fileMapNewValue.get().get(key);
             } else {
@@ -132,7 +141,7 @@ public class FileMap {
         }
         table.checkKey(key);
         initialMap();
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             if (!isLoaded) {
                 try {
@@ -143,6 +152,11 @@ public class FileMap {
                     throw new RuntimeException("Reading error", e);
                 }
             }
+        } finally {
+            myWriteLock.unlock();
+        }
+        myReadLock.lock();
+        try {
             if (fileMapNewValue.get().containsKey(key)) {
                 if (!fileMapInitial.containsKey(key)) {
                     return fileMapNewValue.get().remove(key);
@@ -260,7 +274,7 @@ public class FileMap {
         Exception e = null;
         Storeable storeableValue;
         RandomAccessFile dataBase = null;
-        myReadLock.lock();
+        myWriteLock.lock();
         try {
             fileMapInitial.clear();
             try {
@@ -340,7 +354,7 @@ public class FileMap {
                 }
             }
         } finally {
-            myReadLock.unlock();
+            myWriteLock.unlock();
         }
     }
 
@@ -387,14 +401,14 @@ public class FileMap {
                     ++numberOfChanges;
                 }
             }
+            Set<String> removeKeys = fileMapRemoveKey.get();
+            for (String key: removeKeys) {
+                if (oldKeys.contains(key)) {
+                    ++numberOfChanges;
+                }
+            }
         } finally {
             myReadLock.unlock();
-        }
-        Set<String> removeKeys = fileMapRemoveKey.get();
-        for (String key: removeKeys) {
-            if (oldKeys.contains(key)) {
-                ++numberOfChanges;
-            }
         }
         return numberOfChanges;
     }
