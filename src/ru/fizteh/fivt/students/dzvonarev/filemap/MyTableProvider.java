@@ -167,26 +167,18 @@ public class MyTableProvider implements TableProvider {
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
-        File newTable = new File(workingDirectory, tableName);
-        /*readLock.lock();
-        try {
-            if (multiFileMap.containsKey(tableName)) {
-                return null;
-            }
-        } finally {
-            readLock.unlock();
-        }                                          */
-        if (!newTable.mkdir()) {
-            throw new IOException("Can't create table " + tableName);
-        }
-        writeTypesInFile(tableName, types);
         writeLock.lock();
         try {
+            File newTable = new File(workingDirectory, tableName);
             MyTable table = new MyTable(newTable, this);
             if (multiFileMap.containsKey(tableName)) {
                 return null;
             }
+            if (!newTable.mkdir()) {
+                throw new IOException("Can't create table " + tableName);
+            }
             multiFileMap.put(tableName, table);
+            writeTypesInFile(tableName, types);
             return table;
         } finally {
             writeLock.unlock();
