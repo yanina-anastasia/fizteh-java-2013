@@ -260,7 +260,8 @@ public class MultiFileHashTable implements Table {
             }
 
             try {
-                writeChanges(changesFile);
+                writeTable();
+                //writeChanges(changesFile);
             } catch (DatabaseException e) {
                 throw new IOException("Database io error", e);
             }
@@ -334,6 +335,40 @@ public class MultiFileHashTable implements Table {
     private void checkState() {
         if (isRemoved) {
             throw new IllegalStateException("Table + '" + tableName + "' is removed");
+        }
+    }
+
+    private void writeTable() throws DatabaseException, IOException {
+        removeDataFiles();
+
+        writeSignatureFile();
+
+        if (getTableSize() == 0) {
+            return;
+        }
+
+        for (int i = 0; i < ALL_DIRECTORIES; ++i) {
+            for (int j = 0; j < FILES_IN_DIRECTORY; ++j) {
+                if (table[i][j] == null) {
+                    continue;
+                }
+
+                File directory = FileUtils.makeDir(tableDirectory.getAbsolutePath()
+                        + File.separator + i + ".dir");
+                File dbFile = FileUtils.makeFile(directory.getAbsolutePath(), j + ".dat");
+
+                try (FileOutputStream output = new FileOutputStream(dbFile, true)) {
+                    for (Map.Entry<String, Storeable> entry : table[i][j].entrySet()) {
+                        byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
+                        byte[] value = serialize(entry.getValue()).getBytes(StandardCharsets.UTF_8);
+
+                        output.write(ByteBuffer.allocate(4).putInt(key.length).array());
+                        output.write(ByteBuffer.allocate(4).putInt(value.length).array());
+                        output.write(key);
+                        output.write(value);
+                    }
+                }
+            }
         }
     }
 
