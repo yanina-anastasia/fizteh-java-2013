@@ -38,6 +38,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     private final Path pathDb;
     private final CommandShell mySystem;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock read  = readWriteLock.readLock();
     private final Lock write = readWriteLock.writeLock();
     String useNameTable;
     Set<String> setDirTable;
@@ -280,7 +281,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         }
 
         Table resTable = null;
-        write.lock();
+        read.lock();
         try {
             if (mapFileMap.containsKey(name)) {
                 resTable = mapFileMap.get(name);
@@ -300,7 +301,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 }
             }
         } finally {
-            write.unlock();
+            read.unlock();
         }
         return resTable;
     }
