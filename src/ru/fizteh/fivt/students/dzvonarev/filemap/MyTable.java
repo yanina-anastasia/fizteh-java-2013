@@ -340,20 +340,21 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        readLock.lock();
-        try {
-            if (changesMap.get().containsKey(key)) {            // если он был изменен
-                return changesMap.get().get(key);
-            } else {
+        if (changesMap.get().containsKey(key)) {            // если он был изменен
+            return changesMap.get().get(key);
+        } else {
+            readLock.lock();
+            try {
                 if (fileMap.containsKey(key)) {
                     return fileMap.get(key);
                 } else {
                     return null;
                 }
+            } finally {
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
         }
+
     }
 
     public void addChanges(String key, Storeable value) {
@@ -365,9 +366,9 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
+        checkingValueForValid(value);
         writeLock.lock();
         try {
-            checkingValueForValid(value);
             Storeable oldValue = get(key);
             addChanges(key, value);
             return oldValue;
