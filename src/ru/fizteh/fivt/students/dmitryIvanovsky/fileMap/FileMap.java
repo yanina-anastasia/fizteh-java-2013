@@ -600,13 +600,14 @@ public class FileMap implements Table {
                     tableData.put(key, changeTable.get().get(key));
                 }
             }
-            changeTable.get().clear();
 
             try {
                 refreshTableFiles(changedKey);
             } catch (Exception e) {
                 throw new IllegalStateException(e);
             }
+
+            changeTable.get().clear();
 
         } finally {
             write.unlock();
