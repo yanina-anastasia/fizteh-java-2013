@@ -7,20 +7,30 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.vyatkina.database.StorableTable;
 import ru.fizteh.fivt.students.vyatkina.database.storable.StorableRow;
 import ru.fizteh.fivt.students.vyatkina.database.storable.StorableRowShape;
-import ru.fizteh.fivt.students.vyatkina.database.storable.StorableTableImp;
+import ru.fizteh.fivt.students.vyatkina.database.storable.StorableTableImp2;
 import ru.fizteh.fivt.students.vyatkina.database.storable.StorableTableProviderFactory;
 import ru.fizteh.fivt.students.vyatkina.database.storable.StorableTableProviderImp;
 import ru.fizteh.fivt.students.vyatkina.database.superior.TableChecker;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class StorableTableTest {
 
-    private StorableTableImp table;
+    private StorableTable table;
     private static StorableTableProviderImp tableProvider;
     private static StorableTableProviderFactory factory;
     private final String tableName = "LittleTestTable";
@@ -34,13 +44,13 @@ public class StorableTableTest {
 
     public StorableTableTest() {
         classList = new ArrayList<>();
-        classList.add(Integer.class);
         classList.add(String.class);
+        classList.add(Integer.class);
         StorableRowShape shape = new StorableRowShape(classList);
         SAMPLE_VALUE1 = new StorableRow(shape);
         ArrayList<Object> valueList = new ArrayList<>();
-        valueList.add(new Integer(2));
         valueList.add(new String("Bla"));
+        valueList.add(new Integer(2));
         SAMPLE_VALUE2 = new StorableRow(shape, valueList);
     }
 
@@ -54,7 +64,7 @@ public class StorableTableTest {
     public void setup() throws IOException {
         factory = new StorableTableProviderFactory();
         tableProvider = StorableTableProviderImp.class.cast(factory.create(folder.getRoot().toString()));
-        table = StorableTableImp.class.cast(tableProvider.createTable(tableName, classList));
+        table = StorableTableImp2.class.cast(tableProvider.createTable(tableName, classList));
     }
 
     @After
@@ -166,6 +176,4 @@ public class StorableTableTest {
         table.remove(SAMPLE_KEY1);
         Assert.assertEquals("Rollback put,remove should be 0", 0, table.rollback());
     }
-
-
 }
