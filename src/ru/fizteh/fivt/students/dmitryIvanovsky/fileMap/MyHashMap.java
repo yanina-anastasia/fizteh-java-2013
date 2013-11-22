@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class MyHashMap extends HashMap {
+public class MyHashMap {
     int size;
     Set<String> keySet;
     final int numberDir = 16, numberFile = 16;

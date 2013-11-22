@@ -290,17 +290,31 @@ public class FileMap implements Table {
         for (Integer changedFile : changedFiles) {
             Integer numDir = changedFile / tableData.numberFile;
             Integer numFile = changedFile % tableData.numberFile;
-            Path tmp = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
+            Path refreshDir = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
+            File refreshFile = refreshDir.resolve(numFile.toString() + ".dat").toFile();
 
             if (!tableData.getMap(numDir, numFile).isEmpty()) {
-                if (!tmp.toFile().exists()) {
-                    boolean resMkdir = tmp.toFile().mkdir();
+                if (!refreshDir.toFile().exists()) {
+                    boolean resMkdir = refreshDir.toFile().mkdir();
                     if (!resMkdir) {
-                        throw new ErrorFileMap("I can't create a folder table " + tmp.toString());
+                        throw new ErrorFileMap("I can't create a folder table " + refreshDir.toString());
                     }
                 }
-                File refreshFile = tmp.resolve(numFile.toString() + ".dat").toFile();
                 closeTableFile(refreshFile, tableData.getMap(numDir, numFile));
+            } else {
+                if (refreshFile.exists()) {
+                    boolean resRmFile = refreshFile.delete();
+                    if (!resRmFile) {
+                        throw new ErrorFileMap("I can't delete file " + refreshFile.toString());
+                    }
+                }
+                String[] list = refreshDir.toFile().list();
+                if (refreshDir.toFile().isDirectory() && (list == null || list.length == 0)) {
+                    boolean resRmDir = refreshDir.toFile().delete();
+                    if (!resRmDir) {
+                        throw new ErrorFileMap("I can't delete dir " + refreshDir);
+                    }
+                }
             }
         }
     }
