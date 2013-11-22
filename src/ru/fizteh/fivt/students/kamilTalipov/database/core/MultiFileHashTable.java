@@ -129,10 +129,10 @@ public class MultiFileHashTable implements Table {
                 throw new IllegalArgumentException("Key must be not empty");
             }
 
-            if (key.equals("ܜ-key-ключ")) {
+            /*if (key.equals("ܜ-key-ключ")) {
                 throw new IllegalStateException("Key result: " + newValues.get().containsKey(key)
                             + " table " + getFromTable(key));
-            }
+            }*/
 
             if (newValues.get().containsKey(key)) {
                 return newValues.get().get(key);
