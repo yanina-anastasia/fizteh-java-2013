@@ -60,7 +60,7 @@ public class TableCommands implements Table {
         }
     };
     
-    private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal<HashMap<String, String>[][]>() {
+    /*private ThreadLocal<HashMap<String, String>[][]> list = new ThreadLocal<HashMap<String, String>[][]>() {
         @Override
         protected HashMap<String, String>[][] initialValue() {
             HashMap<String, String> listObject[][] = new HashMap[16][16];
@@ -71,7 +71,7 @@ public class TableCommands implements Table {
             }
             return listObject;
         }
-    };
+    };*/
     
     private ThreadLocal<HashMap<Integer, String>> update = new ThreadLocal<HashMap<Integer, String>>() {
         @Override
@@ -329,7 +329,7 @@ public class TableCommands implements Table {
             }
         }
         File dbFile = dbDir.toPath().resolve(fileString).normalize().toFile();
-        if (list.get()[numOfDir][numOfFile].isEmpty()) {
+        if (lastList[numOfDir][numOfFile].isEmpty()) {
             dbFile.delete();
             if (dbDir.list().length == 0) {
                 if (!dbDir.delete()) {
