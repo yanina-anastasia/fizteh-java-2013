@@ -1,43 +1,27 @@
 package ru.fizteh.fivt.students.chernigovsky.filemap;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTable;
+import ru.fizteh.fivt.students.chernigovsky.junit.ExtendedTableProvider;
 
 public class State {
-    private HashMap<String, String> hashMap;
-    private File currentTable;
-    private File dbDirectory;
+    private ExtendedTable currentTable;
+    private ExtendedTableProvider currentTableProvider;
 
-    public State(File directory) {
-        hashMap = new HashMap<String, String>();
-        dbDirectory = directory;
-    }
-    public String put(String key, String value) {
-        return hashMap.put(key, value);
-    }
-    public String get(String key) {
-        return hashMap.get(key);
-    }
-    public String remove(String key) {
-        return hashMap.remove(key);
+    public State(ExtendedTable newTable, ExtendedTableProvider newTableProvider) {
+        currentTable = newTable;
+        currentTableProvider = newTableProvider;
     }
 
-    public File getCurrentTable() {
+    public ExtendedTable getCurrentTable() {
         return currentTable;
     }
 
-    public void changeCurrentTable(File table) {
-        currentTable = table;
+    public void changeCurrentTable(ExtendedTable newCurrentTable) {
+        currentTable = newCurrentTable;
     }
 
-    public File getDbDirectory() {
-        return dbDirectory;
-    }
-
-    public Set<Map.Entry<String, String>> getEntrySet() {
-        return hashMap.entrySet();
+    public ExtendedTableProvider getCurrentTableProvider() {
+        return currentTableProvider;
     }
 
 }

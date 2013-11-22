@@ -14,7 +14,7 @@ public class CommandRemove implements Command {
             System.out.println("no table");
             return;
         }
-        String oldValue = state.remove(args[1]);
+        String oldValue = state.getCurrentTable().remove(args[1]);
         if (oldValue == null) {
             System.out.println("not found");
         } else {

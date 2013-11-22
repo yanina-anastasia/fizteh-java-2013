@@ -10,22 +10,18 @@ import java.util.Vector;
 
 public class Main {
 
-    public static Vector<CommandInterface> getCommandObjects() {
+    public static Vector<CommandInterface> getCommandObjects(MyTableProvider tableProvider) {
         Vector<CommandInterface> arr = new Vector<>();
-        Put put = new Put();
-        Get get = new Get();
-        Remove remove = new Remove();
-        Exit exit = new Exit();
-        Use use = new Use();
-        Create create = new Create();
-        Drop drop = new Drop();
-        arr.add(put);
-        arr.add(get);
-        arr.add(remove);
-        arr.add(exit);
-        arr.add(use);
-        arr.add(create);
-        arr.add(drop);
+        arr.add(new DataBasePut(tableProvider));
+        arr.add(new DataBaseGet(tableProvider));
+        arr.add(new DataBaseRemove(tableProvider));
+        arr.add(new DataBaseExit(tableProvider));
+        arr.add(new DataBaseUse(tableProvider));
+        arr.add(new DataBaseCreate(tableProvider));
+        arr.add(new DataBaseDrop(tableProvider));
+        arr.add(new DataBaseSize(tableProvider));
+        arr.add(new DataBaseCommit(tableProvider));
+        arr.add(new DataBaseRollback(tableProvider));
         return arr;
     }
 
@@ -38,6 +34,9 @@ public class Main {
         arr.add("use");
         arr.add("create");
         arr.add("drop");
+        arr.add("size");
+        arr.add("commit");
+        arr.add("rollback");
         return arr;
     }
 
@@ -60,15 +59,18 @@ public class Main {
 
 
     public static void main(String[] arr) {
+        MyTableProvider tableProvider = null;
+        String property = System.getProperty("fizteh.db.dir");
         try {
             String path = "";
-            if (!isGetPropertyValid(System.getProperty("fizteh.db.dir"))) {
+            if (!isGetPropertyValid(property)) {
                 System.out.println("error: wrong parameters");
                 System.exit(1);
             } else {
-                path = Shell.getAbsPath(System.getProperty("fizteh.db.dir"));
+                path = Shell.getAbsPath(property);
             }
-            MultiFileMap.readMultiFileMap(path);
+            MyTableProviderFactory tableProviderFactory = new MyTableProviderFactory();
+            tableProvider = tableProviderFactory.create(path);
         } catch (IOException e) {
             System.out.println(e.getMessage());
             System.exit(1);
@@ -76,7 +78,7 @@ public class Main {
             System.out.println(e.getMessage());
         }
         Vector<String> cmdName = getCommandNames();
-        Vector<CommandInterface> cmd = getCommandObjects();
+        Vector<CommandInterface> cmd = getCommandObjects(tableProvider);
         Shell shell = new Shell(cmdName, cmd);
         if (arr.length == 0) {
             shell.interactiveMode();

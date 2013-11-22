@@ -1,11 +1,12 @@
 package ru.fizteh.fivt.students.msandrikova.shell;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.io.File;
+
 import ru.fizteh.fivt.students.msandrikova.multifilehashmap.State;
 
 

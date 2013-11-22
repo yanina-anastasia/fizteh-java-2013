@@ -1,21 +1,36 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
 public class MultiDbUse implements Command {
     @Override
     public int execute(String[] args, State state) {
         String dbName = args[0];
-        MultiDbState multiState = (MultiDbState) state;
-
-        int result = multiState.changeBase(dbName);
-        if (result == 2) {
+        MyTableProvider multiState = (MyTableProvider) state;    
+        Table table = null;
+        try {
+            table = multiState.tryToGetTable(dbName);
+        } catch (Throwable e) {
+            //e.printStackTrace();
+            System.err.println("use: " + e.getMessage());
+            return 1;
+        }
+        
+        if (table == null) {
             System.out.println(dbName + " not exists");
-            return 0;
-        } else if (result == 0) {
+        } else {
+            if (multiState.getCurrTable() != null) {
+                int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum();
+                if (chNum > 0) {
+                    System.out.println(chNum + " unsaved changes");
+                    return 0;
+                }
+            } 
+            multiState.currTableName = dbName;
             System.out.println("using " + dbName);
         }
-        return result;
+        return 0;
     }
     
     @Override

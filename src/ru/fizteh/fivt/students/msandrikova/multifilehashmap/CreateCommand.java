@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.msandrikova.multifilehashmap;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.students.msandrikova.shell.Command;
 import ru.fizteh.fivt.students.msandrikova.shell.Shell;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
@@ -12,22 +11,23 @@ public class CreateCommand extends Command {
 	}
 
 	@Override
-	public void execute(String[] argumentsList, Shell myShell) {
-		if(!super.getArgsAcceptor(argumentsList.length - 1, myShell.getIsInteractive())) {
+	public void execute(String[] argumentsList, Shell shell) {
+		if(!super.getArgsAcceptor(argumentsList.length - 1, shell.getIsInteractive())) {
 			return;
 		}
 		
-		Table newTable = null;
+		ChangesCountingTable newTable = null;
+		String name = argumentsList[1];
 		
 		try {
-			newTable = myShell.getState().getTableProvider().createTable(argumentsList[1]);
+			newTable = shell.getState().tableProvider.createTable(name);
 		} catch (IllegalArgumentException e) {
-			Utils.generateAnError(e.getMessage(), this.getName(), myShell.getIsInteractive());
+			Utils.generateAnError(e.getMessage(), this.getName(), shell.getIsInteractive());
 			return;
 		}
 		
 		if(newTable == null) {
-			System.out.println(argumentsList[1] + " exists");
+			System.out.println(name + " exists");
 		} else {
 			System.out.println("created");
 		}

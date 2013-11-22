@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.vyatkina;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemLoopException;
@@ -16,7 +17,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.net.URI;
 import java.util.EnumSet;
 
 public class FileManager {
@@ -74,12 +74,17 @@ public class FileManager {
         return currentDirectory.toAbsolutePath ();
     }
 
+    public void setCurrentDirectory (Path currentDirectory) {
+        this.currentDirectory = currentDirectory;
+    }
+
     public File[] getCurrentDirectoryFiles () {
         return currentDirectory.toFile ().listFiles ();
     }
 
     public String[] getSortedCurrentDirectoryFiles () {
         File[] files = currentDirectory.toFile ().listFiles ();
+
         Arrays.sort (files, new Comparator<File> () {
             @Override
             public int compare (File o1, File o2) {
@@ -102,13 +107,12 @@ public class FileManager {
         return res;
     }
 
-    public void makeDirectory (Path dir) throws IOException {
+    public Path makeDirectory (Path dir) throws IOException {
         Path newDirectory = currentDirectory.resolve (dir);
         if (!Files.exists (newDirectory)) {
             Files.createDirectory (newDirectory);
-        } else {
-            throw new IllegalArgumentException ("Fail to create a directory: [" + newDirectory + "]: this directory already exists");
         }
+        return newDirectory;
     }
 
     public void copyFile (Path fromPath, Path toPath) throws IOException {
@@ -130,11 +134,11 @@ public class FileManager {
                         Integer.MAX_VALUE, new CopyDirectoryVisitor (fromPath, destination));
 
             }
-            catch (IOException | RuntimeException e) {
+            catch (IOException | WrappedIOException e) {
                 throw new IOException ("Fail to copy [" + fromPath + "] to [" + toPath + "] " + e);
             }
         } else {
-            throw new IllegalArgumentException ("Fail to copy [" + fromPath + "] to [" + toPath + "] file doesn't exist");
+            throw new IOException ("Fail to copy [" + fromPath + "] to [" + toPath + "] file doesn't exist");
         }
     }
 
@@ -159,7 +163,7 @@ public class FileManager {
                 // ignore
             }
             catch (IOException e) {
-                throw new RuntimeException ("Unable to create: [" + newDir + "] " + e);
+                throw new WrappedIOException ("Unable to create: [" + newDir + "] " + e);
             }
             return FileVisitResult.CONTINUE;
         }
@@ -171,7 +175,7 @@ public class FileManager {
                         copyOption);
             }
             catch (IOException e) {
-                throw new RuntimeException ("Unable to copy file [" + file + "] " + e);
+                throw new WrappedIOException ("Unable to copy file [" + file + "] " + e);
             }
 
             return FileVisitResult.CONTINUE;
@@ -186,7 +190,7 @@ public class FileManager {
                     Files.setLastModifiedTime (newDir, time);
                 }
                 catch (IOException e) {
-                    throw new RuntimeException ("Unable to copy all attributes to: [" + newDir + "] " + e);
+                    throw new WrappedIOException ("Unable to copy all attributes to: [" + newDir + "] " + e);
                 }
             }
             return FileVisitResult.CONTINUE;
@@ -195,18 +199,18 @@ public class FileManager {
         @Override
         public FileVisitResult visitFileFailed (Path file, IOException exc) {
             if (exc instanceof FileSystemLoopException) {
-                throw new RuntimeException ("Cycle detected: " + file);
+                throw new WrappedIOException ("Cycle detected: " + file);
             } else {
-                throw new RuntimeException ("Unable to copy: [" + file + "] " + exc);
+                throw new WrappedIOException ("Unable to copy: [" + file + "] " + exc);
             }
         }
     }
 
     public void deleteAllFilesInCurrentDirectory () throws IOException {
-       File [] currentDirectoryFiles = getCurrentDirectoryFiles ();
-       for (File file: currentDirectoryFiles) {
-           deleteFile (file.toPath ());
-       }
+        File[] currentDirectoryFiles = getCurrentDirectoryFiles ();
+        for (File file : currentDirectoryFiles) {
+            deleteFile (file.toPath ());
+        }
     }
 
     public void deleteFile (Path file) throws IOException {
@@ -214,12 +218,12 @@ public class FileManager {
             file = currentDirectory.resolve (file);
         }
         if (Files.notExists (file)) {
-            throw new RuntimeException ("Try to delete file [" + file + "] which doesn't exist");
+            throw new IOException ("Try to delete file [" + file + "] which doesn't exist");
         } else {
             try {
                 Files.walkFileTree (file, new DeleteDirectoryVisitor ());
             }
-            catch (IOException | RuntimeException e) {
+            catch (IOException | WrappedIOException e) {
                 throw new IOException ("Unable to delete file [" + file + "] " + e);
             }
         }
@@ -233,7 +237,7 @@ public class FileManager {
                 Files.delete (file);
             }
             catch (IOException e) {
-                throw new RuntimeException ("Unable to delete file [" + file + "] " + e);
+                throw new WrappedIOException ("Unable to delete file [" + file + "] " + e);
             }
             return FileVisitResult.CONTINUE;
         }
@@ -245,7 +249,7 @@ public class FileManager {
                     Files.delete (dir);
                 }
                 catch (IOException e) {
-                    throw new RuntimeException ("Unable to delete directory [" + dir + "] " + e);
+                    throw new WrappedIOException ("Unable to delete directory [" + dir + "] " + e);
                 }
             }
             return FileVisitResult.CONTINUE;
@@ -254,9 +258,9 @@ public class FileManager {
         @Override
         public FileVisitResult visitFileFailed (Path file, IOException exc) {
             if (exc instanceof FileSystemLoopException) {
-                throw new RuntimeException ("Cycle detected: " + file);
+                throw new WrappedIOException ("Cycle detected: " + file);
             } else {
-                throw new RuntimeException ("Unable to delete: [" + file + "] " + exc);
+                throw new WrappedIOException ("Unable to delete: [" + file + "] " + exc);
             }
         }
     }

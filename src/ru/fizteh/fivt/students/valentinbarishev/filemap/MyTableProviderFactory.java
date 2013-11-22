@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +9,8 @@ import java.io.IOException;
 public class MyTableProviderFactory implements TableProviderFactory {
 
     @Override
-    public TableProvider create(String dir) {
-        if (dir == null) {
+    public TableProvider create(String dir) throws IOException {
+        if (dir == null || dir.trim().equals("")) {
             throw new IllegalArgumentException("Dir cannot be null");
         }
 
@@ -18,11 +18,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
 
         if (!tableDirFile.exists()) {
             if (!tableDirFile.mkdirs()) {
-                try {
-                    throw new IllegalArgumentException("Cannot create directory! " + tableDirFile.getCanonicalPath());
-                } catch (IOException e) {
-                    throw new RuntimeException("Mkdirs failed", e);
-                }
+                throw new IOException("Cannot create directory! " + tableDirFile.getCanonicalPath());
             }
         }
 

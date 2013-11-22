@@ -1,6 +1,10 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
 
+import ru.fizteh.fivt.storage.structured.TableProvider;
+
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +42,6 @@ public class DataBaseFile {
         }
 
         public Node(final RandomAccessFile inputFile) throws IOException {
-            status = OLD_NODE;
-            old = true;
             try {
                 int keyLength = inputFile.readInt();
                 int valueLength = inputFile.readInt();
@@ -54,10 +56,16 @@ public class DataBaseFile {
                 }
                 inputFile.read(key);
                 inputFile.read(value);
-                oldValue = value;
+                setOld();
             } catch (Exception e) {
                 throw new DataBaseWrongFileFormat("Wrong file format! " + file.getName());
             }
+        }
+
+        public void setOld() {
+            status = OLD_NODE;
+            old = true;
+            oldValue = value;
         }
 
         public void setKey(final byte[] newKey) {
@@ -103,8 +111,13 @@ public class DataBaseFile {
     protected List<Node> data;
     private int fileNumber;
     private int direcotryNumber;
+    private DataBase table;
+    private TableProvider provider;
 
-    public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber) {
+    public DataBaseFile(final String newFileName, final int newDirectoryNumber, final int newFileNumber,
+                        DataBase newTable, TableProvider newProvider) throws IOException {
+        table = newTable;
+        provider = newProvider;
         fileName = newFileName;
         file = new File(fileName);
         data = new ArrayList<Node>();
@@ -116,11 +129,16 @@ public class DataBaseFile {
         check();
     }
 
-    public boolean check() {
+    public boolean check() throws IOException {
         for (Node node : data) {
             if (!((node.getZeroByte() % 16 == direcotryNumber) && ((node.getZeroByte() / 16) % 16 == fileNumber))) {
-                throw new DataBaseWrongFileFormat("Wrong file format key[0] =  " + String.valueOf(node.getZeroByte())
+                throw new IOException("Wrong file format key[0] =  " + String.valueOf(node.getZeroByte())
                         + " in file " + fileName);
+            }
+            try {
+                provider.deserialize(table, new String(node.value));
+            } catch (ParseException e) {
+                throw new IOException("Invalid file format! (parse exception error!)");
             }
         }
         return true;
@@ -128,14 +146,20 @@ public class DataBaseFile {
 
     private void load() {
         try {
+            if (dir.exists() && dir.list().length == 0) {
+                throw new IOException("Empty dir!");
+            }
             if (!dir.exists() || !file.exists()) {
                 return;
             }
-            RandomAccessFile inputFile = new RandomAccessFile(fileName, "rw");
-            while (inputFile.getFilePointer() < inputFile.length() - 1) {
-                data.add(new Node(inputFile));
+            try (RandomAccessFile inputFile = new RandomAccessFile(fileName, "rw")) {
+                while (inputFile.getFilePointer() < inputFile.length() - 1) {
+                    data.add(new Node(inputFile));
+                }
             }
-            inputFile.close();
+            if (data.size() == 0) {
+                throw new IOException("Empty file!");
+            }
         } catch (FileNotFoundException e) {
             throw new DataBaseException("File not found!");
         } catch (IOException e) {
@@ -181,14 +205,11 @@ public class DataBaseFile {
                         throw new DataBaseException("Cannot create a file " + fileName);
                     }
                 }
-                RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw");
-                try {
+                try (RandomAccessFile outputFile = new RandomAccessFile(fileName, "rw")) {
                     for (Node node : data) {
                         node.write(outputFile);
                     }
                     outputFile.setLength(outputFile.getFilePointer());
-                } finally {
-                    outputFile.close();
                 }
             }
         } catch (FileNotFoundException e) {
@@ -209,71 +230,59 @@ public class DataBaseFile {
     }
 
     public String put(final String keyStr, final String valueStr) {
-        try {
-            byte[] key = keyStr.getBytes("UTF-8");
-            byte[] value = valueStr.getBytes("UTF-8");
+        byte[] key = keyStr.getBytes(StandardCharsets.UTF_8);
+        byte[] value = valueStr.getBytes(StandardCharsets.UTF_8);
 
-            int index = search(key);
-            if (index == -1) {
-                data.add(new Node(key, value));
-                return null;
-            } else {
-                int status = data.get(index).status;
-                String result = null;
-                if (status != DELETED_NODE) {
-                    result = new String(data.get(index).value);
-                }
-                data.get(index).setValue(value);
-                return result;
+        int index = search(key);
+        if (index == -1) {
+            data.add(new Node(key, value));
+            return null;
+        } else {
+            int status = data.get(index).status;
+            String result = null;
+            if (status != DELETED_NODE) {
+                result = new String(data.get(index).value);
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new DataBaseException(e.getMessage());
+            data.get(index).setValue(value);
+            return result;
         }
     }
 
     public String get(final String keyStr) {
-        try {
-            byte[] key = keyStr.getBytes("UTF-8");
-            int index = search(key);
-            if (index != -1) {
-                if (data.get(index).status == DELETED_NODE) {
-                    return null;
-                }
-                return new String(data.get(index).value);
-            } else {
+        byte[] key = keyStr.getBytes(StandardCharsets.UTF_8);
+        int index = search(key);
+        if (index != -1) {
+            if (data.get(index).status == DELETED_NODE) {
                 return null;
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new DataBaseException(e.getMessage());
+            return new String(data.get(index).value);
+        } else {
+            return null;
         }
     }
 
     public String remove(final String keyStr) {
-        try {
-            byte[] key = keyStr.getBytes("UTF-8");
-            int index = search(key);
-            if (index == -1) {
-                return null;
+        byte[] key = keyStr.getBytes(StandardCharsets.UTF_8);
+        int index = search(key);
+        if (index == -1) {
+            return null;
+        } else {
+            String result;
+            if (data.get(index).status == DELETED_NODE) {
+                result = null;
             } else {
-                String result;
-                if (data.get(index).status == DELETED_NODE) {
-                    result = null;
-                } else {
-                    result = new String(data.get(index).value);
-                }
-                data.get(index).remove();
-                return result;
+                result = new String(data.get(index).value);
             }
-        } catch (UnsupportedEncodingException e) {
-            throw new DataBaseException(e.getMessage());
+            data.get(index).remove();
+            return result;
         }
     }
 
     public int getNewKeys() {
         int result = 0;
         for (Node node : data) {
-            if ((node.getStatus() == NEW_NODE) || (node.getStatus() == MODIFIED_NODE) ||
-                    ((node.getStatus() == DELETED_NODE) && (node.old))) {
+            if ((node.getStatus() == NEW_NODE) || (node.getStatus() == MODIFIED_NODE)
+                    || ((node.getStatus() == DELETED_NODE) && (node.old))) {
                 ++result;
             }
         }
@@ -292,8 +301,14 @@ public class DataBaseFile {
 
     public void commit() {
         save();
-        data.clear();
-        load();
+        for (int i = 0; i < data.size();) {
+            if (data.get(i).getStatus() == DELETED_NODE) {
+                data.remove(i);
+            } else {
+                data.get(i).setOld();
+                ++i;
+            }
+        }
     }
 
     public void rollback() {

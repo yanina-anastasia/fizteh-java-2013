@@ -2,13 +2,7 @@ package ru.fizteh.fivt.students.vyatkina;
 
 public class State {
 
-    protected IOStreams ioStreams;
-    protected FileManager fileManager;
-
-    public State (FileManager fileManager) {
-        this.fileManager = fileManager;
-        this.ioStreams = new IOStreams ();
-    }
+    protected IOStreams ioStreams = new IOStreams ();
 
     public IOStreams getIoStreams () {
         return ioStreams;
@@ -18,12 +12,16 @@ public class State {
         this.ioStreams = ioStreams;
     }
 
-    public FileManager getFileManager () {
-        return fileManager;
+    public void printUserMessage (String message) {
+        ioStreams.out.println (message);
     }
 
-    public void setFileManager (FileManager fileManager) {
-        this.fileManager = fileManager;
+    public void printErrorMessage (String message) {
+        ioStreams.err.println (message);
+    }
+
+    public void printInvitation () {
+        ioStreams.out.print ("$ ");
     }
 
 }

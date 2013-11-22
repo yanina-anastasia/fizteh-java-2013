@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
 import ru.fizteh.fivt.students.anastasyev.shell.Launcher;
-
 import java.io.IOException;
 
 public class Main {
@@ -13,10 +12,10 @@ public class Main {
             System.err.println("Use: -Dfizteh.db.dir=<directory>");
             System.exit(1);
         }
-        FileMapTableProvider fileMapTable = null;
+        FileMapTableProvider fileMapTableProvider = null;
         try {
-            fileMapTable = new FileMapTableProvider(System.getProperty("fizteh.db.dir"));
-            Launcher launcher = new Launcher(fileMapTable, args);
+            fileMapTableProvider = new FileMapTableProvider(System.getProperty("fizteh.db.dir"));
+            Launcher launcher = new Launcher(fileMapTableProvider, args);
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);

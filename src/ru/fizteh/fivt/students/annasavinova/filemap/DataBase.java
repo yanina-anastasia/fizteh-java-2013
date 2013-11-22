@@ -1,26 +1,41 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class DataBase implements Table {
-    protected HashMap<String, String> dataMap = new HashMap<>();
-    protected HashMap<String, String> oldDataMap = new HashMap<>();
+    protected HashMap<String, Storeable> dataMap;
+    protected HashMap<String, Storeable> oldDataMap;
+    protected ArrayList<Class<?>> typesList;
+    protected DataBaseProvider provider;
+
     private String currTable = "";
     private static String rootDir = "";
-    private boolean hasLoadedData = false;
+    private boolean removed = false;
 
-    public DataBase(String tableName, String root) throws IllegalArgumentException, IllegalStateException {
+    public void setRemoved() {
+        removed = true;
+    }
+
+    public DataBase(String tableName, String root, TableProvider prov) {
+        if (prov == null) {
+            throw new IllegalArgumentException("Provider is null");
+        }
+        provider = (DataBaseProvider) prov;
         if (tableName == null) {
-            IllegalArgumentException e = new IllegalArgumentException("table name is null");
-            throw e;
+            throw new IllegalArgumentException("table name is null");
         } else {
             currTable = tableName;
         }
@@ -38,7 +53,17 @@ public class DataBase implements Table {
         if (!(new File(rootDir + tableName).exists())) {
             throw new IllegalStateException("Table not exists");
         }
-        loadData();
+        dataMap = new HashMap<>();
+        oldDataMap = new HashMap<>();
+    }
+
+    public void setHashMap(HashMap<String, Storeable> map) {
+        copyMap(dataMap, map);
+        copyMap(oldDataMap, map);
+    }
+
+    public void setTypes(List<Class<?>> columnTypes) {
+        typesList = (ArrayList<Class<?>>) columnTypes;
     }
 
     protected File getDirWithNum(int dirNum) {
@@ -52,102 +77,38 @@ public class DataBase implements Table {
         return res;
     }
 
-    protected void loadData() throws RuntimeException {
-        if (!hasLoadedData) {
-            for (int i = 0; i < 16; ++i) {
-                File currentDir = getDirWithNum(i);
-                if (!currentDir.exists()) {
-                    if (!currentDir.mkdir()) {
-                        throw new RuntimeException("Cannot create new directory");
-                    }
-                } else if (!currentDir.isDirectory()) {
-                    throw new RuntimeException("Incorrect files in table");
+    protected void unloadData() {
+        for (int i = 0; i < 16; ++i) {
+            File currentDir = getDirWithNum(i);
+            if (!currentDir.exists()) {
+                if (!currentDir.mkdir()) {
+                    throw new RuntimeException("Cannot unload data: cannot create directory "
+                            + currentDir.getAbsolutePath());
                 }
-                for (int j = 0; j < 16; ++j) {
-                    File currentFile = getFileWithNum(j, i);
-                    if (!currentFile.exists()) {
-                        try {
-                            currentFile.createNewFile();
-                        } catch (IOException e) {
-                            throw new RuntimeException("Cannot create new file", e);
+            }
+            for (int j = 0; j < 16; ++j) {
+                File currentFile = getFileWithNum(j, i);
+                if (!currentFile.exists()) {
+                    try {
+                        if (!currentFile.createNewFile()) {
+                            throw new RuntimeException("Cannot unload data: cannot create file "
+                                    + currentFile.getAbsolutePath());
                         }
-                    }
-                    loadFile(currentFile, i, j);
-                }
-            }
-            hasLoadedData = true;
-        }
-    }
-
-    protected void unloadData() throws RuntimeException {
-        if (hasLoadedData) {
-            unloadMap();
-            for (int i = 0; i < 16; ++i) {
-                File currentDir = getDirWithNum(i);
-                if (currentDir.list().length == 0) {
-                    if (!currentDir.delete()) {
-                        throw new RuntimeException("Cannot unload data");
+                    } catch (IOException e) {
+                        throw new RuntimeException("Cannot unload data: cannot create file "
+                                + currentFile.getAbsolutePath());
                     }
                 }
             }
-            hasLoadedData = false;
         }
-    }
-
-    protected void loadKeyAndValue(RandomAccessFile dataFile, int dirNum, int fileNum) throws RuntimeException {
-        try {
-            int keyLong = dataFile.readInt();
-            int valueLong = dataFile.readInt();
-            if (keyLong <= 0 || valueLong <= 0) {
-                throw new RuntimeException("Cannot Load File1");
-            } else {
-                byte[] keyBytes = new byte[keyLong];
-                byte[] valueBytes = new byte[valueLong];
-                dataFile.read(keyBytes);
-                dataFile.read(valueBytes);
-                byte b = 0;
-                b = (byte) Math.abs(keyBytes[0]);
-                int ndirectory = b % 16;
-                int nfile = b / 16 % 16;
-                if (ndirectory != dirNum || nfile != fileNum) {
-                    throw new RuntimeException("Incorrect input");
+        unloadMap();
+        for (int i = 0; i < 16; ++i) {
+            File currentDir = getDirWithNum(i);
+            if (currentDir.list().length == 0) {
+                if (!currentDir.delete()) {
+                    throw new RuntimeException("Cannot unload data: cannot delete directory "
+                            + currentDir.getAbsolutePath());
                 }
-                String key = new String(keyBytes);
-                String value = new String(valueBytes);
-                dataMap.put(key, value);
-                oldDataMap.put(key, value);
-            }
-        } catch (IOException | OutOfMemoryError e) {
-            throw new RuntimeException("Cannot Load File3", e);
-        }
-    }
-
-    protected void loadFile(File data, int dirNum, int fileNum) throws RuntimeException {
-        RandomAccessFile dataFile = null;
-        try {
-            if (!data.exists()) {
-                try {
-                    data.createNewFile();
-                } catch (IOException e) {
-                    throw new RuntimeException("Cannot create new file", e);
-                }
-            }
-            dataFile = new RandomAccessFile(data, "rw");
-            dataFile.seek(0);
-            while (dataFile.getFilePointer() != dataFile.length()) {
-                loadKeyAndValue(dataFile, dirNum, fileNum);
-            }
-        } catch (FileNotFoundException e2) {
-            throw new RuntimeException("Cannot Load File4", e2);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot Load File6", e);
-        } finally {
-            try {
-                if (dataFile != null) {
-                    dataFile.close();
-                }
-            } catch (Throwable e1) {
-                // not OK
             }
         }
     }
@@ -162,13 +123,14 @@ public class DataBase implements Table {
                 }
             }
 
-            Set<Map.Entry<String, String>> entries = dataMap.entrySet();
-            for (Map.Entry<String, String> entry : entries) {
+            Set<Entry<String, Storeable>> entries = dataMap.entrySet();
+            for (Map.Entry<String, Storeable> entry : entries) {
                 String key = entry.getKey();
-                String value = entry.getValue();
+                Storeable value = entry.getValue();
                 if (value != null) {
                     byte[] keyBytes = key.getBytes("UTF-8");
-                    byte[] valueBytes = value.getBytes("UTF-8");
+                    String str = provider.serialize(this, value);
+                    byte[] valueBytes = str.getBytes("UTF-8");
                     byte b = 0;
                     b = (byte) Math.abs(keyBytes[0]);
                     int ndirectory = b % 16;
@@ -179,18 +141,26 @@ public class DataBase implements Table {
                     filesArray[ndirectory * 16 + nfile].write(valueBytes);
                 }
             }
-
         } catch (IOException e) {
             throw new RuntimeException("Cannot unload file correctly", e);
         } finally {
             try {
                 for (int i = 0; i < 16; ++i) {
                     for (int j = 0; j < 16; ++j) {
-                        if (filesArray[i * 16 + j].length() == 0) {
+                        if (filesArray[i * 16 + j] != null && filesArray[i * 16 + j].length() == 0) {
+                            try {
+                                filesArray[i * 16 + j].close();
+                            } catch (Throwable e1) {
+                                // not OK
+                            }
                             getFileWithNum(j, i).delete();
                         }
                         if (filesArray[i * 16 + j] != null) {
-                            filesArray[i * 16 + j].close();
+                            try {
+                                filesArray[i * 16 + j].close();
+                            } catch (Throwable e1) {
+                                // not OK
+                            }
                         }
                     }
                 }
@@ -200,50 +170,65 @@ public class DataBase implements Table {
         }
     }
 
-    private void copyMap(HashMap<String, String> dest, HashMap<String, String> source) {
+    private void copyMap(HashMap<String, Storeable> dest, HashMap<String, Storeable> source) {
         dest.clear();
-        Set<Map.Entry<String, String>> entries = source.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
+        Set<Map.Entry<String, Storeable>> entries = source.entrySet();
+        for (Map.Entry<String, Storeable> entry : entries) {
             dest.put(entry.getKey(), entry.getValue());
         }
     }
 
     @Override
     public String getName() {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
         return currTable;
     }
 
-    private void checkValue(String key, String name) {
+    private void checkKey(String key) {
         if (key == null) {
-            throw new IllegalArgumentException(name + " is null");
+            throw new IllegalArgumentException("Key is null");
         }
-        if (key.isEmpty()) {
-            throw new IllegalArgumentException(name + " is empty");
+        if (key.isEmpty() || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key is empty");
         }
-        if (key.matches("[\\s]+")) {
-            throw new IllegalArgumentException(name + " is empty");
+        if (key.split("\\s").length > 1 || key.contains("\t") || key.contains(System.lineSeparator())) {
+            throw new IllegalArgumentException("Key contains whitespaces");
         }
     }
 
     @Override
-    public String get(String key) throws IllegalArgumentException {
-        checkValue(key, "Key");
+    public Storeable get(String key) {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
+        checkKey(key);
         return dataMap.get(key);
     }
 
     @Override
-    public String put(String key, String value) throws IllegalArgumentException {
-        checkValue(key, "Key");
-        checkValue(value, "Value");
-        String oldValue = dataMap.get(key);
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
+        checkKey(key);
+        if (value == null) {
+            throw new IllegalArgumentException("Value is null");
+        }
+        provider.checkColumns(this, value);
+        Storeable oldValue = dataMap.get(key);
         dataMap.put(key, value);
         return oldValue;
     }
 
     @Override
-    public String remove(String key) throws IllegalArgumentException {
-        checkValue(key, "Key");
-        String val = dataMap.get(key);
+    public Storeable remove(String key) throws IllegalArgumentException {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
+        checkKey(key);
+        Storeable val = dataMap.get(key);
         if (val != null) {
             dataMap.put(key, null);
         }
@@ -252,9 +237,12 @@ public class DataBase implements Table {
 
     @Override
     public int size() {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
         int count = 0;
-        Set<Map.Entry<String, String>> entries = dataMap.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
+        Set<Map.Entry<String, Storeable>> entries = dataMap.entrySet();
+        for (Map.Entry<String, Storeable> entry : entries) {
             if (entry.getValue() != null) {
                 ++count;
             }
@@ -263,7 +251,10 @@ public class DataBase implements Table {
     }
 
     @Override
-    public int commit() {
+    public int commit() throws IOException {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
         int changesCount = countChanges();
         unloadData();
         copyMap(oldDataMap, dataMap);
@@ -272,12 +263,14 @@ public class DataBase implements Table {
 
     protected int countChanges() {
         int count = 0;
-        Set<Map.Entry<String, String>> entries = dataMap.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
+        Set<Map.Entry<String, Storeable>> entries = dataMap.entrySet();
+        for (Map.Entry<String, Storeable> entry : entries) {
             String key = entry.getKey();
-            String value = entry.getValue();
-            String oldValue = oldDataMap.get(key);
-            if (value != oldValue || ((value != null) && (oldValue != null) && !(value.equals(oldValue)))) {
+            TableRow value = (TableRow) entry.getValue();
+            TableRow oldValue = (TableRow) oldDataMap.get(key);
+            if (value != oldValue
+                    || ((value != null) && (oldValue != null) && !provider.serialize(this, value).equals(
+                            provider.serialize(this, oldValue)))) {
                 count++;
             }
         }
@@ -286,8 +279,30 @@ public class DataBase implements Table {
 
     @Override
     public int rollback() {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
         int changesCount = countChanges();
         copyMap(dataMap, oldDataMap);
         return changesCount;
+    }
+
+    @Override
+    public int getColumnsCount() {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
+        return typesList.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (removed) {
+            throw new IllegalStateException("table not exists");
+        }
+        if (columnIndex < 0 || columnIndex >= typesList.size()) {
+            throw new IndexOutOfBoundsException("Incorrect index " + columnIndex);
+        }
+        return typesList.get(columnIndex);
     }
 }

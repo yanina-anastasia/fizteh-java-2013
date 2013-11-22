@@ -1,14 +1,17 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Vector;
 import java.util.zip.DataFormatException;
+import ru.fizteh.fivt.storage.structured.*;
 
 public class FileMap {
-    private HashMap<String, String> fileMapInitial = new HashMap<String, String>();
-    private HashMap<String, String> fileMap = new HashMap<String, String>();
+    private HashMap<String, Storeable> fileMapInitial = new HashMap<String, Storeable>();
+    private HashMap<String, Storeable> fileMap = new HashMap<String, Storeable>();
     private File file;
     private int size = 0;
     private Short[] id;
@@ -23,47 +26,38 @@ public class FileMap {
         this.id = id;
     }
 
-    public String put(String key, String value) {
-        if (key == null) {
-            throw new IllegalArgumentException("key is null");
+    public Storeable put(String key, Storeable value, TableData table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
         }
-        key = key.trim();
-        if (key.isEmpty()) {
-            throw new IllegalArgumentException("key is empty");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("value is null");
-        }
-        value = value.trim();
-        if (value.isEmpty()) {
-            throw new IllegalArgumentException("value is empty");
+        table.checkKey(key);
+        try {
+            table.manager.serialize(table, value);
+        } catch (Exception e) {
+            throw new ColumnFormatException("Wrong typelist of value", e);
         }
         if (!isLoaded) {
             try {
-                readerFile();
+                readeFile(table);
             } catch (DataFormatException e) {
-                throw new RuntimeException("Bad data", e);
+                throw new IllegalArgumentException("Bad data", e);
             } catch (Exception e) {
                 throw new RuntimeException("Reading error", e);
             }
-
         }
         return fileMap.put(key, value);
     }
 
-    public String get(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("key is null");
+    public Storeable get(String key, TableData table) throws IllegalArgumentException {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
         }
-        key = key.trim();
-        if (key.isEmpty()) {
-            throw new IllegalArgumentException("key is empty");
-        }
+        table.checkKey(key);
         if (!isLoaded) {
             try {
-                readerFile();
+                readeFile(table);
             } catch (DataFormatException e) {
-                throw new RuntimeException("Bad data", e);
+                throw new IllegalArgumentException("Bad data", e);
             } catch (Exception e) {
                 throw new RuntimeException("Reading error", e);
             }
@@ -71,19 +65,16 @@ public class FileMap {
         return fileMap.get(key);
     }
 
-    public String remove(String key) throws IllegalArgumentException {
-        if (key == null) {
-            throw new IllegalArgumentException("key is null");
+    public Storeable remove(String key, TableData table) throws IllegalArgumentException {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
         }
-        key = key.trim();
-        if (key.isEmpty()) {
-            throw new IllegalArgumentException("key is empty");
-        }
+        table.checkKey(key);
         if (!isLoaded) {
             try {
-                readerFile();
+                readeFile(table);
             } catch (DataFormatException e) {
-                throw new RuntimeException("Bad data", e);
+                throw new IllegalArgumentException("Bad data", e);
             } catch (Exception e) {
                 throw new RuntimeException("Reading error", e);
             }
@@ -91,43 +82,46 @@ public class FileMap {
         return fileMap.remove(key);
     }
 
-    private void writerFile() throws Exception {
+    private void writeFile(TableData table) throws Exception {
         RandomAccessFile fileDataBase = null;
-        Exception e = new Exception("Writing error");
+        Exception e = null;
         try {
             fileDataBase = new RandomAccessFile(file, "rw");
             fileDataBase.setLength(0);
             HashMap<String, Long> offsets = new HashMap<String, Long>();
-            long currentOffsetOfValue;
             long offset = fileDataBase.getFilePointer();
             for (String key: fileMap.keySet()) {
-                fileDataBase.write(key.getBytes("UTF8"));
+                fileDataBase.write(key.getBytes(StandardCharsets.UTF_8));
                 fileDataBase.write("\0".getBytes());
                 offset = fileDataBase.getFilePointer();
                 offsets.put(key, offset);
                 fileDataBase.seek(fileDataBase.getFilePointer() + 4);
-                currentOffsetOfValue = fileDataBase.getFilePointer();
             }
 
             long currentPosition = 0;
+            long currentOffsetOfValue;
             for (String key: fileMap.keySet()) {
-                fileDataBase.write(fileMap.get(key).getBytes("UTF8")); // выписали значение
+                String value = table.manager.serialize(table, fileMap.get(key));
+                fileDataBase.write(value.getBytes(StandardCharsets.UTF_8));
                 currentPosition  = fileDataBase.getFilePointer();
-                currentOffsetOfValue = currentPosition - fileMap.get(key).getBytes("UTF8").length;
+                currentOffsetOfValue = currentPosition - value.getBytes(StandardCharsets.UTF_8).length;
                 fileDataBase.seek(offsets.get(key));
                 Integer lastOffsetInt = new Long(currentOffsetOfValue).intValue();
                 fileDataBase.writeInt(lastOffsetInt);
                 fileDataBase.seek(currentPosition);
             }
         } catch (Exception exp) {
-             e = exp;
+            e = exp;
+            throw e;
         } finally {
             try {
                 if (fileDataBase != null) {
                     fileDataBase.close();
                 }
             } catch (Throwable th) {
-                e.addSuppressed(th);
+                if (e != null) {
+                    e.addSuppressed(th);
+                }
             }
         }
         if (file.length() == 0) {
@@ -154,10 +148,13 @@ public class FileMap {
         }
     }
 
-    void readerFile() throws Exception {
-        Exception e = new Exception("Reading error");
+    void readeFile(TableData table) throws IOException, DataFormatException, ParseException {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
+        Exception e = null;
+        Storeable storeableValue;
         RandomAccessFile dataBase = null;
-        String key1;
         try {
             dataBase = new RandomAccessFile(file, "r");
             HashMap<Integer, String> offsetAndKeyMap = new HashMap<Integer, String>();
@@ -168,10 +165,10 @@ public class FileMap {
                 b *= (-1);
             }
             if (id[0] != b % 16 && id[1] != b / 16 % 16) {
-                throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                throw new DataFormatException("Illegal key in file1 " + file.toPath().toString());
             }
             if (keyAndValueLength.containsKey(key)) {
-                throw new DataFormatException("Illegal key in file " + file.toPath().toString());
+                throw new DataFormatException("Illegal key in file2 " + file.toPath().toString());
             }
             Integer offset = 0;
             try {
@@ -212,23 +209,24 @@ public class FileMap {
                 for (int i = 0; i < lengthOfValue; ++i) {
                     valueInBytes[i] = dataBase.readByte();
                 }
-                String value = new String(valueInBytes, "UTF8");
-                fileMap.put(key, value);
+                String value = new String(valueInBytes, StandardCharsets.UTF_8);
+                storeableValue = table.manager.deserialize(table, value);
+                fileMap.put(key, storeableValue);
             }
         } catch (FileNotFoundException e1) {
             e = e1;
             return;
         } catch (EOFException e2) {
             e = e2;
-            throw new DataFormatException(file.getName());
-        } catch (Exception exp) {
-            e = exp;
+            throw new DataFormatException(file.toString());
         } finally {
             if (dataBase != null) {
                 try {
                     dataBase.close();
                 } catch (Throwable th) {
-                    e.addSuppressed(th);
+                    if (e != null) {
+                        e.addSuppressed(th);
+                    }
                 }
             }
         }
@@ -245,7 +243,7 @@ public class FileMap {
         Vector<Byte> keyBuilder = new Vector<Byte>();
         try {
             byte buf = dateBase.readByte();
-            while (buf != "\0".getBytes("UTF8")[0]) {
+            while (buf != "\0".getBytes(StandardCharsets.UTF_8)[0]) {
                 keyBuilder.add(buf);
                 buf = dateBase.readByte();
             }
@@ -258,20 +256,22 @@ public class FileMap {
             for (int i = 0; i < keyBuilder.size(); ++i) {
                 keyInBytes[i] = keyBuilder.elementAt(i);
             }
-            key = new String(keyInBytes, "UTF8");
+            key = new String(keyInBytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw  new IOException(file.getName(), e);
         }
         return key;
     }
 
-    int numberOfChangesCounter() {
+    int numberOfChangesCounter(TableData table) {
         int numberOfChanges = 0;
         Set<String> newKeys = fileMap.keySet();
         Set<String> oldKeys = fileMapInitial.keySet();
         for (String key: newKeys) {
             if (oldKeys.contains(key)) {
-                if (!fileMap.get(key).equals(fileMapInitial.get(key))) {
+                String val1 = table.manager.serialize(table, fileMap.get(key));
+                String val2 = table.manager.serialize(table, fileMapInitial.get(key));
+                if (!val1.equals(val2)) {
                     ++numberOfChanges;
                 }
             } else {
@@ -287,19 +287,22 @@ public class FileMap {
     }
 
 
-    void commit() {
-        int numberOfChanges = numberOfChangesCounter();
+    void commit(TableData table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
+        int numberOfChanges = numberOfChangesCounter(table);
         if (numberOfChanges != 0) {
             try {
-                writerFile();
+                writeFile(table);
             } catch (Exception e) {
-                throw new RuntimeException("Writing error", e);
+                throw new IllegalArgumentException("Writing error", e);
             }
         }
     }
 
-    int rollback() {
-        int numberOfChanges = numberOfChangesCounter();
+    int rollback(TableData table) {
+        int numberOfChanges = numberOfChangesCounter(table);
         fileMap.clear();
         for (String key : fileMapInitial.keySet()) {
             fileMap.put(key, fileMapInitial.get(key));
@@ -307,14 +310,17 @@ public class FileMap {
         return numberOfChanges;
     }
 
-    int size() {
+    int size(TableData table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Table is null");
+        }
         if (!isLoaded) {
             try {
-                readerFile();
+                readeFile(table);
             } catch (DataFormatException e) {
-                throw new RuntimeException("Bad dates", e);
+                throw new IllegalArgumentException("Bad dates", e);
             } catch (Exception e) {
-                throw new RuntimeException("Reading error", e);
+                throw new IllegalArgumentException("Reading error", e);
             }
         }
         return fileMap.size();

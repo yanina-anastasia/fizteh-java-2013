@@ -10,13 +10,16 @@ public class DirDataBase {
 
     private boolean isReady = false;
 
+    TableData table;
+
     FileMap[] fileArray = new FileMap[16];
 
     DirDataBase() {
 
     }
 
-    DirDataBase(File directory, Short id) {
+    DirDataBase(File directory, Short id, TableData table) {
+        this.table = table;
         dir = directory;
         this.id = id;
         Short[] idFile = new Short[2];
@@ -56,7 +59,7 @@ public class DirDataBase {
     int countChanges() {
         int numberOfChanges = 0;
         for (int i = 0; i < 16; ++i) {
-            numberOfChanges += fileArray[i].numberOfChangesCounter();
+            numberOfChanges += fileArray[i].numberOfChangesCounter(this.table);
         }
         return numberOfChanges;
     }
@@ -64,7 +67,7 @@ public class DirDataBase {
     int size() {
         int numberOfKeys = 0;
         for (int i = 0; i < 16; ++i) {
-            numberOfKeys += fileArray[i].size();
+            numberOfKeys += fileArray[i].size(this.table);
         }
         return numberOfKeys;
     }
@@ -73,14 +76,14 @@ public class DirDataBase {
         int numberOfChanges = 0;
 
         for (int i = 0; i < 16; ++i) {
-            int changesInFile = fileArray[i].numberOfChangesCounter();
+            int changesInFile = fileArray[i].numberOfChangesCounter(this.table);
             if (changesInFile != 0) {
                 try {
                     startWorking();
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage(), e);
+                    throw new IllegalArgumentException(e.getMessage(), e);
                 }
-                fileArray[i].commit();
+                fileArray[i].commit(this.table);
                 numberOfChanges += changesInFile;
             }
         }
@@ -90,7 +93,7 @@ public class DirDataBase {
     int rollback() {
         int numberOfChanges = 0;
         for (int i = 0; i < 16; ++i) {
-            numberOfChanges += fileArray[i].rollback();
+            numberOfChanges += fileArray[i].rollback(this.table);
         }
         return numberOfChanges;
     }

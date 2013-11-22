@@ -82,7 +82,7 @@ public class FileStorage {
 		}
 		String key = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		if (n >= 0) {
-			if (MyTable.getFileNumber(key) != n) {
+			if (Utils.getNumberOfFile(key) != n) {
 				throw new IOException("key lies in wrong file");
 			}
 		}

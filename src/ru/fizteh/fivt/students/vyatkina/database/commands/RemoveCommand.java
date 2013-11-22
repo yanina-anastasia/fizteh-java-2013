@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
+import ru.fizteh.fivt.students.vyatkina.CommandExecutionException;
+import ru.fizteh.fivt.students.vyatkina.WrappedIOException;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
 import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
@@ -13,16 +15,22 @@ public class RemoveCommand extends DatabaseCommand {
 
     @Override
     public void execute (String[] args) {
-        String key = args[0];
-        if (state.getTable () == null) {
-            state.getIoStreams ().out.println ("no table");
+        if (!tableIsSelected ()) {
             return;
         }
-        String result = state.getTable ().remove (key);
+        String key = args[0];
+
+        String result = null;
+        try {
+            result = state.databaseAdapter.remove (key);
+        }
+        catch (WrappedIOException e) {
+           throw new CommandExecutionException (e.getMessage ());
+        }
         if (result == null) {
-            state.getIoStreams ().out.println ("not found");
+            state.printUserMessage ("not found");
         } else {
-            state.getIoStreams ().out.println ("removed");
+            state.printUserMessage ("removed");
         }
     }
 

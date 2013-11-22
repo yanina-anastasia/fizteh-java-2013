@@ -14,8 +14,9 @@ public class ExitCommand extends Command {
             throw new IllegalArgumentException("invalid usage");
         }
         //DbMain.getCurrentDatabase().write();
+
         try {
-            DbMain.getCurrentDatabase().writeToFile();
+            DbMain.saveCurrentTable();
         } catch (Exception e) {
             System.err.println("Ooops! Error: " + e.getMessage());
         }

@@ -14,7 +14,7 @@ public class CommandGet implements Command {
             System.out.println("no table");
             return;
         }
-        String value = state.get(args[1]);
+        String value = state.getCurrentTable().get(args[1]);
         if (value == null) {
             System.out.println("not found");
         } else {

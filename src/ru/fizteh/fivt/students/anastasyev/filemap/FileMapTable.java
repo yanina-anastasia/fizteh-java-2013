@@ -1,33 +1,32 @@
 package ru.fizteh.fivt.students.anastasyev.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.RandomAccessFile;
+import java.text.ParseException;
+import java.util.*;
 
 public class FileMapTable implements Table {
     private File currentFileMapTable;
+    private ArrayList<Class<?>> columnTypes;
+    private FileMapTableProvider provider;
     private FileMap[][] mapsTable;
+
     private HashMap<String, Value> changedKeys = new HashMap<String, Value>();
-    int size = 0;
+    private int size = 0;
+    private int oldSize = 0;
 
     private class Value {
-        private String value;
-        private String onDiskValue;
+        private Storeable newValue;
+        private Storeable onDiskValue;
 
-        public Value(String newValue, String newOnDisk) {
-            value = newValue;
+        public Value(Storeable newValue, Storeable newOnDisk) {
+            this.newValue = newValue;
             onDiskValue = newOnDisk;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public String getOnDisk() {
-            return onDiskValue;
         }
     }
 
@@ -35,15 +34,32 @@ public class FileMapTable implements Table {
         return (val == null || (val.isEmpty() || val.trim().isEmpty()));
     }
 
-    public FileMap getMyState(int hashCode) throws IOException {
-        int absHash = Math.abs(hashCode);
-        return mapsTable[absHash % 16][absHash / 16 % 16];
+    private void checkValueCorrectness(Storeable value) throws ColumnFormatException {
+        if (value == null) {
+            throw new IllegalArgumentException();
+        }
+        int i = 0;
+        for (; i < columnTypes.size(); ++i) {
+            try {
+                if (value.getColumnAt(i) != null) {
+                    if (!columnTypes.get(i).equals(value.getColumnAt(i).getClass())) {
+                        throw new ColumnFormatException("Wrong column format");
+                    }
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("Wrong column count");
+            }
+        }
+        try {
+            if (value.getColumnAt(i) != null) {
+                throw new ColumnFormatException("Wrong column count");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            //It's OK   Некрасивая конструкция, and I know it
+        }
     }
 
-    public FileMap openFileMap(int hashCode) throws IOException {
-        int absHash = Math.abs(hashCode);
-        int dirHash = absHash % 16;
-        int datHash = absHash / 16 % 16;
+    public FileMap openFileMap(int dirHash, int datHash) throws IOException {
         if (mapsTable[dirHash][datHash] == null) {
             File dir = new File(currentFileMapTable.toString() + File.separator + dirHash + ".dir");
             if (!dir.exists()) {
@@ -52,45 +68,37 @@ public class FileMapTable implements Table {
                 }
             }
             String datName = dir.toString() + File.separator + datHash + ".dat";
-            mapsTable[dirHash][datHash] = new FileMap(datName, dirHash, datHash);
+            try {
+                mapsTable[dirHash][datHash] = new FileMap(datName, dirHash, datHash, this, provider);
+            } catch (ParseException e) {
+                throw new IOException("incorrect newValue format", e);
+            }
         }
         return mapsTable[dirHash][datHash];
     }
 
-    public void deleteFileMap(int hashCode) throws IOException {
-        int absHash = Math.abs(hashCode);
-        mapsTable[absHash % 16][absHash / 16 % 16].delete();
-        mapsTable[absHash % 16][absHash / 16 % 16] = null;
-    }
-
-    public void dropTable() throws IOException {
-        currentFileMapTable = null;
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                if (mapsTable[i][j] != null) {
-                    mapsTable[i][j].delete();
-                    mapsTable[i][j] = null;
-                }
-            }
-        }
-    }
-
-    private void readTable() throws IOException {
+    private void readTable() throws IOException, ParseException {
         mapsTable = new FileMap[16][16];
         size = 0;
         for (int i = 0; i < 16; ++i) {
-            File dbDir = new File(currentFileMapTable.toString() + File.separator + i + ".dir");
+            File dbDir = new File(currentFileMapTable.toString(), i + ".dir");
             if (dbDir.exists()) {
                 if (!dbDir.isDirectory()) {
                     throw new IOException(i + ".dir is not table subdirectory");
                 }
+                if (dbDir.listFiles().length == 0) {
+                    throw new IOException(i + ".dir is empty dir");
+                }
                 for (int j = 0; j < 16; ++j) {
-                    File dbDat = new File(dbDir.toString() + File.separator + j + ".dat");
+                    File dbDat = new File(dbDir.toString(), j + ".dat");
                     if (dbDat.exists()) {
                         if (!dbDat.isFile()) {
                             throw new IOException(i + ".dat is not a FileMap file");
                         }
-                        mapsTable[i][j] = new FileMap(dbDat.toString(), i, j);
+                        if (dbDat.length() == 0) {
+                            throw new IOException(i + ".dat is empty");
+                        }
+                        mapsTable[i][j] = new FileMap(dbDat.toString(), i, j, this, provider);
                         if (mapsTable[i][j].isEmpty()) {
                             mapsTable[i][j].delete();
                             mapsTable[i][j] = null;
@@ -108,20 +116,87 @@ public class FileMapTable implements Table {
                 }
             }
         }
+        oldSize = size;
     }
 
-    private int changesCount() {
-        int changesCount = 0;
-        for (Map.Entry<String, Value> entry : changedKeys.entrySet()) {
-            if (entry.getValue().value != null && !entry.getValue().value.equals(entry.getValue().onDiskValue)
-                    || (entry.getValue().value == null && entry.getValue().getOnDisk() != null)) {
-                ++changesCount;
+    private boolean storeableEquals(Storeable first, Storeable second) {
+        if (first == null && second == null) {
+            return true;
+        }
+        if (first == null || second == null) {
+            return false;
+        }
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            Object val1 = first.getColumnAt(i);
+            Object val2 = second.getColumnAt(i);
+            if (val1 == null) {
+                if (val2 != null) {
+                    return false;
+                }
+            } else if (!val1.equals(val2)) {
+                return false;
             }
         }
-        return changesCount;
+        return true;
     }
 
-    public FileMapTable(String tableName) throws IOException {
+    private Storeable copyStoreable(Storeable source) {
+        Storeable copy = provider.createFor(this);
+        for (int i = 0; i < columnTypes.size(); ++i) {
+            copy.setColumnAt(i, source.getColumnAt(i));
+        }
+        return copy;
+    }
+
+    private void readSignature() throws IOException {
+        File signature = new File(currentFileMapTable, "signature.tsv");
+        if (!signature.exists()) {
+            throw new IOException("signature.tsv doesn't exists");
+        }
+        if (signature.length() == 0) {
+            throw new IOException("signature.tsv is empty");
+        }
+        columnTypes = new ArrayList<Class<?>>();
+        try (RandomAccessFile input = new RandomAccessFile(signature.toString(), "r")) {
+            while (input.getFilePointer() != input.length()) {
+                byte ch = 0;
+                Vector<Byte> v = new Vector<Byte>();
+                while (ch != ' ' && input.getFilePointer() != input.length()) {
+                    ch = input.readByte();
+                    v.add(ch);
+                }
+                byte[] res = new byte[v.size()];
+                for (int i = 0; i < v.size(); i++) {
+                    res[i] = v.elementAt(i).byteValue();
+                }
+                String type = new String(res, "UTF-8");
+                type = type.trim();
+                Class<?> classType = provider.getClassName(type);
+                if (classType == null) {
+                    throw new IOException("signature.tsv is broken");
+                }
+                columnTypes.add(classType);
+            }
+        }
+    }
+
+    public FileMapTable(String tableName, FileMapTableProvider newProvider) throws IOException, ParseException {
+        currentFileMapTable = new File(tableName);
+        provider = newProvider;
+        if (!currentFileMapTable.exists()) {
+            if (!currentFileMapTable.mkdir()) {
+                throw new IOException("Can't create " + currentFileMapTable.getName());
+            }
+        }
+        if (!currentFileMapTable.isDirectory()) {
+            throw new IOException(currentFileMapTable.getName() + " is not a directory");
+        }
+        readSignature();
+        readTable();
+    }
+
+    public FileMapTable(String tableName, List<Class<?>> newColumnTypes, FileMapTableProvider newProvider)
+            throws IOException, ParseException {
         currentFileMapTable = new File(tableName);
         if (!currentFileMapTable.exists()) {
             if (!currentFileMapTable.mkdir()) {
@@ -131,6 +206,8 @@ public class FileMapTable implements Table {
         if (!currentFileMapTable.isDirectory()) {
             throw new IOException(currentFileMapTable.getName() + " is not a directory");
         }
+        columnTypes = new ArrayList<Class<?>>(newColumnTypes);
+        provider = newProvider;
         readTable();
     }
 
@@ -140,87 +217,113 @@ public class FileMapTable implements Table {
     }
 
     @Override
-    public String put(String key, String value) throws IllegalArgumentException {
-        if (isEmptyString(key) || isEmptyString(value)) {
-            throw new IllegalArgumentException();
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        if (isEmptyString(key) || key.split("\\s").length > 1) {
+            throw new IllegalArgumentException("Wrong key");
         }
+        checkValueCorrectness(value);
+        Storeable copyValue = copyStoreable(value);
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
         int datHash = absHash / 16 % 16;
-        try {
-            mapsTable[dirHash][datHash] = openFileMap(absHash);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Can't open fileMap");
+        Storeable valueOnDisk = null;
+        if (mapsTable[dirHash][datHash] != null) {
+            valueOnDisk = mapsTable[dirHash][datHash].get(key);
         }
-        String str = mapsTable[dirHash][datHash].put(key, value);
-        Value element = changedKeys.get(key);
-        if (str == null) {
+        Value valueChanged = changedKeys.get(key);
+        if (valueOnDisk == null && valueChanged == null || valueChanged != null && valueChanged.newValue == null) {
             ++size;
-            if (element == null) {
-                changedKeys.put(key, new Value(value, null));
-            } else {
-                changedKeys.put(key, new Value(value, element.getOnDisk()));
-            }
-            return null;
+        }
+        if (valueChanged == null) {
+            changedKeys.put(key, new Value(copyValue, valueOnDisk));
+            return valueOnDisk;
         } else {
-            if (element == null) {
-                changedKeys.put(key, new Value(value, str));
+            if (storeableEquals(copyValue, valueOnDisk)) {
+                changedKeys.remove(key);
             } else {
-                changedKeys.put(key, new Value(value, element.getOnDisk()));
+                changedKeys.put(key, new Value(copyValue, valueOnDisk));
             }
-            return str;
+            return valueChanged.newValue;
         }
     }
 
     @Override
-    public String remove(String key) throws IllegalArgumentException {
-        if (isEmptyString(key)) {
-            throw new IllegalArgumentException();
+    public Storeable remove(String key) throws IllegalArgumentException {
+        if (isEmptyString(key) || key.split("\\s").length > 1) {
+            throw new IllegalArgumentException("Wrong key");
         }
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
         int datHash = absHash / 16 % 16;
-        if (mapsTable[dirHash][datHash] == null) {
-            return null;
+        Storeable valueOnDisk = null;
+        if (mapsTable[dirHash][datHash] != null) {
+            valueOnDisk = mapsTable[dirHash][datHash].get(key);
         }
-        String str = mapsTable[dirHash][datHash].remove(key);
-        if (str == null) {
-            return null;
-        } else {
-            --size;
-            Value element = changedKeys.get(key);
-            if (element == null) {
-                changedKeys.put(key, new Value(null, str));
+        Value valueChanged = changedKeys.get(key);
+        if (valueOnDisk == null) {
+            if (valueChanged == null) {
+                return null;
             } else {
-                changedKeys.put(key, new Value(null, element.getOnDisk()));
+                --size;
+                changedKeys.remove(key);
+                return valueChanged.newValue;
             }
-            return str;
+        } else {
+            changedKeys.put(key, new Value(null, valueOnDisk));
+            if (valueChanged == null) {
+                --size;
+                return valueOnDisk;
+            }
+            if (valueChanged.newValue != null) {
+                --size;
+                return valueChanged.newValue;
+            }
+            return null;
         }
     }
 
     @Override
-    public String get(String key) throws IllegalArgumentException {
-        if (isEmptyString(key)) {
-            throw new IllegalArgumentException();
+    public Storeable get(String key) throws IllegalArgumentException {
+        if (isEmptyString(key) || key.split("\\s").length > 1) {
+            throw new IllegalArgumentException("Wrong key");
+        }
+        Value valueChanged = changedKeys.get(key);
+        if (valueChanged != null) {
+            return valueChanged.newValue;
         }
         int absHash = Math.abs(key.hashCode());
         int dirHash = absHash % 16;
         int datHash = absHash / 16 % 16;
-        if (mapsTable[dirHash][datHash] == null) {
-            return null;
+        if (mapsTable[dirHash][datHash] != null) {
+            return mapsTable[dirHash][datHash].get(key);
         }
-        String str = mapsTable[dirHash][datHash].get(key);
-        if (str.equals("not found")) {
-            return null;
-        } else {
-            return str;
-        }
+        return null;
     }
 
     @Override
     public int commit() throws RuntimeException {
-        int changesCount = changesCount();
-        changedKeys.clear();
+        int changesCount = 0;
+        for (Map.Entry<String, Value> entry : changedKeys.entrySet()) {
+            String key = entry.getKey();
+            Value value = entry.getValue();
+            if (value.newValue != null && !storeableEquals(value.newValue, value.onDiskValue)
+                    || (value.newValue == null && value.onDiskValue != null)) {
+                int absHash = Math.abs(key.hashCode());
+                int dirHash = absHash % 16;
+                int datHash = absHash / 16 % 16;
+                try {
+                    mapsTable[dirHash][datHash] = openFileMap(dirHash, datHash);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("Can't open fileMap");
+                }
+                if (value.newValue == null) {
+                    mapsTable[dirHash][datHash].remove(key);
+                } else {
+                    mapsTable[dirHash][datHash].put(key, value.newValue);
+                }
+                ++changesCount;
+            }
+        }
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 if (mapsTable[i][j] != null) {
@@ -239,18 +342,16 @@ public class FileMapTable implements Table {
                 }
             }
         }
+        oldSize = size;
+        changedKeys.clear();
         return changesCount;
     }
 
     @Override
     public int rollback() throws RuntimeException {
-        try {
-            readTable();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        int changesCount = changesCount();
+        int changesCount = changedKeys.size();
         changedKeys.clear();
+        size = oldSize;
         return changesCount;
     }
 
@@ -260,6 +361,19 @@ public class FileMapTable implements Table {
     }
 
     public int uncommittedSize() {
-        return changesCount();
+        return changedKeys.size();
+    }
+
+    @Override
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
+            throw new IndexOutOfBoundsException(columnIndex + " outOfBounds");
+        }
+        return columnTypes.get(columnIndex);
     }
 }
