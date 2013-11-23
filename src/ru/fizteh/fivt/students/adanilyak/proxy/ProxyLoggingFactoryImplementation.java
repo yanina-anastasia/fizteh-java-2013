@@ -11,7 +11,7 @@ import java.lang.reflect.Proxy;
  * Date: 22.11.13
  * Time: 1:44
  */
-public class LoggingProxyFactoryImplementation implements LoggingProxyFactory {
+public class ProxyLoggingFactoryImplementation implements LoggingProxyFactory {
     @Override
     public Object wrap(Writer writer,
                        Object implementation,
