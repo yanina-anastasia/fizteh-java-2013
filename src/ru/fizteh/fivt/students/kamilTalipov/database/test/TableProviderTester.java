@@ -75,13 +75,17 @@ public class TableProviderTester {
         };
 
         ExecutorService executor = Executors.newCachedThreadPool();
+        try {
         Future<Boolean> result1 = executor.submit(task);
         Future<Boolean> result2 = executor.submit(task);
         Assert.assertEquals(true, result1.get() || result2.get());
         Assert.assertEquals(false, result1.get() == result2.get());
-
+        } finally {
         executor.shutdown();
-        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
+            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout");
+            }
+        }
     }
 
     @Test
@@ -101,13 +105,17 @@ public class TableProviderTester {
 
 
         ExecutorService executor = Executors.newCachedThreadPool();
-        Future<Table> result1 = executor.submit(task);
-        Future<Table> result2 = executor.submit(task);
-        Assert.assertEquals("Table123", result1.get().getName());
-        Assert.assertEquals("Table123", result2.get().getName());
-
-        executor.shutdown();
-        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
+        try {
+            Future<Table> result1 = executor.submit(task);
+            Future<Table> result2 = executor.submit(task);
+            Assert.assertEquals("Table123", result1.get().getName());
+            Assert.assertEquals("Table123", result2.get().getName());
+        } finally {
+            executor.shutdown();
+            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout");
+            }
+        }
     }
 
     @Test(expected = IllegalStateException.class)
@@ -119,23 +127,23 @@ public class TableProviderTester {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-                synchronized (provider) {
-                    provider.removeTable("Table2");
-                }
+                provider.removeTable("Table2");
             }
         };
 
         ExecutorService executor = Executors.newCachedThreadPool();
-        executor.submit(task);
-        executor.submit(task);
-        executor.submit(task);
-        executor.submit(task);
+        try {
+            executor.submit(task);
+            executor.submit(task);
+            executor.submit(task);
+            executor.submit(task);
 
-        synchronized (provider) {
             provider.removeTable("Table2");
+        } finally {
+            executor.shutdown();
+            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout");
+            }
         }
-
-        executor.shutdown();
-        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
 }

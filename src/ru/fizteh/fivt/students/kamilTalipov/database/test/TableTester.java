@@ -170,47 +170,55 @@ public class TableTester {
         };
 
         ExecutorService executor = Executors.newCachedThreadPool();
+        try {
         Future<Storeable> result1 = executor.submit(task);
         Future<Storeable> result2 = executor.submit(task);
         Assert.assertEquals(isEqualStoreable(result1.get(), storeable), true);
         Assert.assertEquals(isEqualStoreable(result2.get(), storeable), true);
-
-        executor.shutdown();
-        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
+        } finally {
+            executor.shutdown();
+            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout");
+            }
+        }
     }
 
     @Test
     public void parallelGetPutTest() throws InterruptedException {
         ExecutorService executor = Executors.newCachedThreadPool();
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
-                table.put("555", storeable);
-                try {
-                    table.commit();
-                } catch (IOException e) {
-                    throw new IllegalStateException("Bad test", e);
-                }
-            }
-        });
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                Storeable result = table.get("555");
-                while (result == null) {
-                    result = table.get("555");
+        try {
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    Storeable storeable = new TableRow(table, Arrays.asList(1, "hello"));
+                    table.put("555", storeable);
                     try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        throw new IllegalStateException(e);
+                        table.commit();
+                    } catch (IOException e) {
+                        throw new IllegalStateException("Bad test", e);
                     }
                 }
-            }
+            });
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    Storeable result = table.get("555");
+                    while (result == null) {
+                        result = table.get("555");
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            throw new IllegalStateException(e);
+                        }
+                    }
+                }
         });
-
+        } finally {
         executor.shutdown();
-        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
+            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout");
+            }
+        }
     }
 
     @Test
@@ -229,17 +237,21 @@ public class TableTester {
         };
 
         ExecutorService executor = Executors.newCachedThreadPool();
-        Future<Storeable> result1 = executor.submit(task);
-        Future<Storeable> result2 = executor.submit(task);
-        if (isEqualStoreable(result1.get(), storeable)) {
-            if (!isEqualStoreable(result2.get(), null)){
+        try {
+            Future<Storeable> result1 = executor.submit(task);
+            Future<Storeable> result2 = executor.submit(task);
+            if (isEqualStoreable(result1.get(), storeable)) {
+                if (!isEqualStoreable(result2.get(), null)) {
+                    throw new IllegalStateException("Bad test");
+                }
+            } else if (!isEqualStoreable(result2.get(), storeable)) {
                 throw new IllegalStateException("Bad test");
             }
-        } else if (!isEqualStoreable(result2.get(), storeable)) {
-            throw new IllegalStateException("Bad test");
+        } finally {
+            executor.shutdown();
+            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout");
+            }
         }
-
-        executor.shutdown();
-        executor.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
 }

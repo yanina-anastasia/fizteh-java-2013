@@ -658,5 +658,19 @@ public class MultiFileHashTable implements Table {
         public String getPath() {
             return directoryId + ".dir" + File.separator + fileId + ".dat";
         }
+
+        @Override
+        public boolean equals(Object object) {
+            if (!(object instanceof ChangedFile)) {
+                return false;
+            }
+            ChangedFile file = (ChangedFile) object;
+            return this.fileId == file.fileId && this.directoryId == file.directoryId;
+        }
+
+        @Override
+        public int hashCode() {
+            return directoryId * FILES_IN_DIRECTORY + fileId;
+        }
     }
 }
