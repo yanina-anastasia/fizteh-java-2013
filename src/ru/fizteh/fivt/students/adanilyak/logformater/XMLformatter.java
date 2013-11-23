@@ -82,6 +82,19 @@ public class XMLformatter implements Closeable {
                 xmlStreamWriter.writeEndElement();
                 continue;
             }
+
+            if (value.getClass().isArray()) {
+                if (inList) {
+                    xmlStreamWriter.writeStartElement("value");
+                } else {
+                    xmlStreamWriter.writeStartElement("argument");
+                }
+                xmlStreamWriter.writeStartElement(value.toString());
+                xmlStreamWriter.writeEndElement();
+                xmlStreamWriter.writeEndElement();
+                continue;
+            }
+
             // Check value, simple or iterable / array?
             isContainer = false;
             isEmpty = false;
@@ -90,16 +103,13 @@ public class XMLformatter implements Closeable {
                 isContainer = true;
                 isEmpty = !((Iterable) value).iterator().hasNext();
             }
-            if (value.getClass().isArray()) {
-                isContainer = true;
-                isEmpty = ((Object[]) value).length == 0;
-            }
 
             if (forCycleLinkSearch.containsKey(value) && isContainer && !isEmpty) {
                 xmlStreamWriter.writeStartElement("cyclic");
                 continue;
             }
             forCycleLinkSearch.put(value, true);
+            /*
             if (isContainer && isEmpty) {
                 xmlStreamWriter.writeStartElement("argument");
                 xmlStreamWriter.writeStartElement("list");
@@ -107,17 +117,8 @@ public class XMLformatter implements Closeable {
                 xmlStreamWriter.writeEndElement();
                 continue;
             }
-            if (value.getClass().isArray()) {
-                xmlStreamWriter.writeStartElement("argument");
-                xmlStreamWriter.writeStartElement("list");
-                inList = true;
-                recursivePart(Arrays.asList(value), xmlStreamWriter, inList);
-                xmlStreamWriter.writeEndElement();
-                inList = false;
-                xmlStreamWriter.writeEndElement();
-                continue;
-            }
-            if (value instanceof Iterable) {
+            */
+            if (isContainer) {
                 xmlStreamWriter.writeStartElement("argument");
                 xmlStreamWriter.writeStartElement("list");
                 inList = true;

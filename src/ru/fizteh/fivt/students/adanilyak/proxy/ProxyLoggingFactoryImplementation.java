@@ -20,7 +20,7 @@ public class ProxyLoggingFactoryImplementation implements LoggingProxyFactory {
         CheckOnCorrect.goodProxyArguments(writer, implementation, interfaceClass);
         return Proxy.newProxyInstance(
                 implementation.getClass().getClassLoader(),
-                implementation.getClass().getInterfaces(),
-                new ProxyInvocationHandler(writer, implementation, interfaceClass));
+                new Class[]{interfaceClass},
+                new ProxyInvocationHandler(writer, implementation));
     }
 }

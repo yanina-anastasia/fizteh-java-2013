@@ -14,12 +14,10 @@ import java.lang.reflect.Method;
  */
 public class ProxyInvocationHandler implements InvocationHandler {
     private final Writer writer;
-    private final Class<?> workingClass;
     private final Object implementation;
 
-    public ProxyInvocationHandler(Writer givenWriter, Object object, Class<?> clazz) {
+    public ProxyInvocationHandler(Writer givenWriter, Object object) {
         writer = givenWriter;
-        workingClass = clazz;
         implementation = object;
     }
 
