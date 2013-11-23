@@ -178,7 +178,11 @@ class FileDatabase implements AutoCloseable {
         }
     }
     
-    public void selfCheck(int nDirectory, int nFile) throws IllegalArgumentException {
+    public void selfCheck(int nDirectory, int nFile) throws IllegalArgumentException, IOException {
+        if (!isLoaded) {
+            isLoaded = true;
+            loadFileDatabase();
+        }
         for (String key : database.keySet()) {
             if (TableImplementation.DirectoryAndFileNumberCalculator.getnDirectory(key) != nDirectory
                     || TableImplementation.DirectoryAndFileNumberCalculator.getnFile(key) != nFile) {
