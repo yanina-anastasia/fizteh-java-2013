@@ -460,7 +460,8 @@ public class MyTable implements Table {
     public int diff() {
         int similars = 0;
         for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
-            if (provider.serialize(this, map.get(entry.getKey())).equals(provider.serialize(this, entry.getValue()))) {
+            Storeable s = map.get(entry.getKey());
+            if ((s != null) && (provider.serialize(this, s).equals(provider.serialize(this, entry.getValue())))) {
             //if (map.get(entry.getKey()) == entry.getValue()) {
                 similars++;
             }
