@@ -115,6 +115,8 @@ public class Calculator {
             case PLUS:
             case MINUS:
                 throw new Exception("Extra sign");
+            default:
+                throw new Exception("Incorrect symbol);
         }
         return BigInteger.ZERO;
     }

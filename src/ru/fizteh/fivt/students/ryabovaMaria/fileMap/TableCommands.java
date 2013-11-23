@@ -51,8 +51,7 @@ public class TableCommands implements Table {
         @Override
         protected HashMap<String, String> [][] initialValue() {
             HashMap<String, String> [][] diffObject = new HashMap[16][16];
-            for (int i = 0; i < 16; ++i) 
-            {
+            for (int i = 0; i < 16; ++i) {
                 for (int j = 0; j < 16; ++j) {
                     diffObject[i][j] = new HashMap<String, String>();
                 }
