@@ -21,7 +21,7 @@ public class CommandUse extends Command {
                 myState.table.save(tableBuilder);
             }
             if (myState.table != null && myState.table.uncommittedChanges.get() != 0) {
-                System.out.println(myState.table.uncommittedChanges + "unsaved changes");
+                System.out.println(myState.table.uncommittedChanges.get() + "unsaved changes");
             }
             myState.table = myState.database.getTable(args[0]);
             System.out.println("using " + args[0]);
