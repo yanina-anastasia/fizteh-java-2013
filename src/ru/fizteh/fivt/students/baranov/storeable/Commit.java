@@ -16,7 +16,8 @@ public class Commit extends BasicCommand {
         }
         for (String step: currentState.table.oldData.keySet()) {
             if (currentState.table.get(step) != null) {
-                currentState.tableProvider.tables.get(currentState.table.getName()).put(step, currentState.table.get(step));
+                String name = currentState.table.getName();
+                currentState.tableProvider.tables.get(name).put(step, currentState.table.get(step));
             }
         }
         currentState.table = currentState.tableProvider.tables.get(currentState.table.getName());
@@ -24,3 +25,4 @@ public class Commit extends BasicCommand {
         return true;
     }
 }
+

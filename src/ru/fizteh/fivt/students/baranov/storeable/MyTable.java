@@ -37,13 +37,13 @@ public class MyTable implements Table {
     }
 
     public static int getDirectoryNum(String key) {
-        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
-        return keyByte % 16;
+        int keyHash = key.hashCode();
+        return keyHash % 16;
     }
 
     public static int getFileNum(String key) {
-        int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
-        return (keyByte / 16) % 16;
+        int keyHash = key.hashCode();
+        return (keyHash / 16) % 16;
     }
 
     public String getName() {

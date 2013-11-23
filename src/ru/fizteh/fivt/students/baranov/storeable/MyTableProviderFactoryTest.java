@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.baranov.storeable;
 
-import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

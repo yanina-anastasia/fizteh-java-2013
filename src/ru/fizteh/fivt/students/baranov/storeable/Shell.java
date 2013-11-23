@@ -37,9 +37,9 @@ public class Shell {
             try {
                 commandList.get("exit").doCommand(arr, currentState);
                 System.exit(0);
-            } catch (IOException exception_2) {
+            } catch (IOException exception2) {
                 System.exit(1);
-            } catch (IllegalArgumentException exception_2) {
+            } catch (IllegalArgumentException exception2) {
                 System.err.println(exception.getMessage());
             }
             System.exit(1);
@@ -125,7 +125,8 @@ public class Shell {
         }
 
         boolean flag = false;        
-        if ((commandList.get(commandName).getCommandName().equals("put")) || (commandList.get(commandName).getCommandName().equals("create"))) {
+        if ((commandList.get(commandName).getCommandName().equals("put"))
+                || (commandList.get(commandName).getCommandName().equals("create"))) {
             flag = true;
         }
         String[] parameters = getParameters(command, flag);
@@ -137,11 +138,11 @@ public class Shell {
                 return false;
             }
 
-        } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
+        } catch (IllegalArgumentException exception) {
+            System.err.println(exception.getMessage());
             return false;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
             System.err.println("Error with input/output");
             return false;
         }

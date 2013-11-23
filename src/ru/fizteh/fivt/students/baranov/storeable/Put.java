@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.baranov.storeable;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
-import java.io.IOException;
 import java.text.ParseException;
 
 public class Put extends BasicCommand {
