@@ -47,7 +47,7 @@ public class TableCommands implements Table {
         }
     };
     
-    private ThreadLocal<HashMap<String, String> [][]> diff = new ThreadLocal<HashMap<String, String> [][]>() {
+    private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal<HashMap<String, String>[][]>() {
         @Override
         protected HashMap<String, String>[][] initialValue() {
             HashMap<String, String> [][] diffObject = new HashMap[16][16];
