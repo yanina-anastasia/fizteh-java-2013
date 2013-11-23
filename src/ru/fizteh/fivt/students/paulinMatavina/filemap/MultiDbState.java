@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
@@ -25,8 +26,15 @@ public class MultiDbState extends State implements Table {
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
+    private ReentrantReadWriteLock[][] diskOperationLock;
     
-    private void init(String dbName) throws IOException, ParseException {          
+    private void init(String dbName) throws IOException, ParseException {   
+        diskOperationLock = new ReentrantReadWriteLock[FOLDER_NUM][FILE_IN_FOLD_NUM];
+        for (int i = 0; i < FOLDER_NUM; i++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
+                diskOperationLock[i][j] = new ReentrantReadWriteLock(true);
+            }
+        }
         isDropped = false;
         data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
         shell = new ShellState();
@@ -168,7 +176,12 @@ public class MultiDbState extends State implements Table {
                 shell.mkdir(new String[] {fold});
             }
             for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
-                data[i][j].commit();
+                diskOperationLock[i][j].writeLock().lock();
+                try {
+                    data[i][j].commit();
+                } finally {
+                    diskOperationLock[i][j].writeLock().unlock();
+                }
             }
            
             File folderFile = new File(shell.makeNewSource(fold));
