@@ -79,7 +79,7 @@ public class Shell {
         }
         try {     // exit our programm
             Shell.run(input);
-        } catch (IOException | IllegalArgumentException | IllegalStateException  | IndexOutOfBoundsException e) {
+        } catch (IOException | IllegalArgumentException | IllegalStateException | IndexOutOfBoundsException e) {
             System.out.println(e.getMessage());
         }
     }
