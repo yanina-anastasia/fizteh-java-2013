@@ -26,7 +26,7 @@ public class MyTableProviderTest {
     }
 
     @Before
-    public void before() throws IOException{
+    public void before() throws IOException {
         path = folder.newFolder().getCanonicalPath();
         provider = factory.create(path);
         Assert.assertNotNull(provider);

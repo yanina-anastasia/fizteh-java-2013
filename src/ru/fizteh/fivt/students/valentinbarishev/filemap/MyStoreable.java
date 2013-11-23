@@ -51,6 +51,10 @@ public class MyStoreable implements Storeable{
         }
     }
 
+    public int getSize() {
+        return types.size();
+    }
+
     Object castTypes(Class<?> type, Object value) {
         if (value == null) {
             return null;

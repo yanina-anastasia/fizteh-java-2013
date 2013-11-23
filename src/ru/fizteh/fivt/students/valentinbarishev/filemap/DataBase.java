@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -17,6 +19,10 @@ public final class DataBase implements Table {
     private DataBaseFile[] files;
     private TableProvider provider;
     private List<Class<?>> types;
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    public Lock readLock = readWriteLock.readLock();
+    public Lock writeLock = readWriteLock.writeLock();
 
     public final class DirFile {
         private int nDir;
@@ -187,7 +193,9 @@ public final class DataBase implements Table {
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
         String value = WorkWithJSON.serialize(this, storeableValue);
-        String result = file.put(keyStr, value);
+
+        String result;
+        result = file.put(keyStr, value);
         return WorkWithJSON.deserialize(this, result);
     }
 
@@ -195,7 +203,9 @@ public final class DataBase implements Table {
     public Storeable get(final String keyStr) {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
-        String result = files[node.getId()].get(keyStr);
+
+        String result;
+        result = files[node.getId()].get(keyStr);
         return WorkWithJSON.deserialize(this, result);
     }
 
@@ -204,18 +214,25 @@ public final class DataBase implements Table {
         checkKey(keyStr);
         DirFile node = new DirFile(keyStr.getBytes()[0]);
         DataBaseFile file = files[node.getId()];
-        String result = file.remove(keyStr);
+
+        String result;
+        result = files[node.getId()].remove(keyStr);
         return WorkWithJSON.deserialize(this, result);
     }
 
     @Override
     public int commit() {
         int allNew = 0;
-        for (int i = 0; i < 256; ++i) {
-            allNew += files[i].getNewKeys();
-            files[i].commit();
+        writeLock.lock();
+        try {
+            for (int i = 0; i < 256; ++i) {
+                allNew += files[i].getNewKeys();
+                files[i].commit();
+            }
+        } finally {
+            writeLock.unlock();
         }
-        return allNew;
+        return  allNew;
     }
 
     @Override
