@@ -332,9 +332,9 @@ public class DistributedTable extends FileManager implements Table {
     public int commit() throws IOException {
         cacheLock.writeLock().lock();
         try {
-            boolean changedFiles[][] = new boolean[partsNumber][partsNumber];
-            boolean removedFiles[][] = new boolean[partsNumber][partsNumber];
-            boolean changedFolders[] = new boolean[partsNumber];
+            boolean[][] changedFiles = new boolean[partsNumber][partsNumber];
+            boolean[][] removedFiles = new boolean[partsNumber][partsNumber];
+            boolean[] changedFolders = new boolean[partsNumber];
             int difference = findDifference();
             for (String key : changes.get().keySet()) {
                 byte first = getFirstByte(key);

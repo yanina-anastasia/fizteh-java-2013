@@ -98,7 +98,7 @@ public class TableRecord implements Storeable {
         }
     }
 
-    static public void checkTypesList(List<Class<?>> columnTypes) {
+    public static void checkTypesList(List<Class<?>> columnTypes) {
         if (columnTypes == null) {
             throw new IllegalArgumentException("types list shouldn't be null");
         }
