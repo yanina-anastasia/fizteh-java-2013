@@ -226,16 +226,16 @@ public class MyTable implements Table {
         try {
             value.getColumnAt(getColumnsCount());   // to check, if value has more columns then types
             throw new ColumnFormatException("wrong type (invalid value " + value.getColumnAt(getColumnsCount()) + ")");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
-        for (int i = 0; i < getColumnsCount(); ++i) {
-            try {
-                Parser myParser = new Parser();
-                if (!myParser.canBeCastedTo(type.get(i), value.getColumnAt(i))) {
-                    throw new ColumnFormatException("wrong type (invalid value type in " + i + " column)");
+        } catch (IndexOutOfBoundsException e) {      // means that all ok
+            for (int i = 0; i < getColumnsCount(); ++i) {
+                try {
+                    Parser myParser = new Parser();
+                    if (!myParser.canBeCastedTo(type.get(i), value.getColumnAt(i))) {
+                        throw new ColumnFormatException("wrong type (invalid value type in " + i + " column)");
+                    }
+                } catch (IndexOutOfBoundsException e1) {
+                    throw new ColumnFormatException("wrong type (invalid value: it has less columns)");
                 }
-            } catch (IndexOutOfBoundsException e) {
-                throw new ColumnFormatException("wrong type (invalid value: it has less columns)");
             }
         }
     }
