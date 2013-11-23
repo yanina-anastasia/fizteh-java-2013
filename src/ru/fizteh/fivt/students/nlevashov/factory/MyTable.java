@@ -292,15 +292,22 @@ public class MyTable implements Table {
                         return null;
                     } else {
                         Storeable s = map.get(key);
-                        if (s == value) {
-                            Storeable ss = rewritings.get().get(key);
+                        if (s == null) {
+                            return rewritings.get().put(key, value);
+                        } else if (s == value) {
+                            Storeable ss = rewritings.get().remove(key);
                             if (ss == null) {
                                 return s;
                             } else {
-                                return rewritings.get().remove(key);
+                                return ss;
                             }
                         } else {
-                            return rewritings.get().put(key, value);
+                            Storeable ss = rewritings.get().put(key, value);
+                            if (ss == null) {
+                                return s;
+                            } else {
+                                return ss;
+                            }
                         }
                     }
                 } finally {
