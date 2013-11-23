@@ -129,8 +129,8 @@ public class MyTableProvider implements TableProvider {
                     throw new IOException("TableProvider.createTable: directory making error with message \""
                             + e.getMessage() + "\"", e);
                 }
-                try (BufferedOutputStream o = new BufferedOutputStream(
-                                                  Files.newOutputStream(dbPath.resolve(name).resolve("signature.tsv")))) {
+                try (BufferedOutputStream o = new BufferedOutputStream(Files.newOutputStream(dbPath.resolve(name)
+                                                                            .resolve("signature.tsv")))) {
                     for (Class<?> c : columnTypes)  {
                         if (c == Integer.class) {
                             o.write("int".getBytes());

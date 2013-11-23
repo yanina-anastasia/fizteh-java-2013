@@ -455,12 +455,13 @@ public class MyTable implements Table {
     }
 
     /**
-     * Считает минимальное количество опрераций встаки, переименования и удаления, требуемых для обновления
+     * Считает минимальное количество опрераций вставки, переименования и удаления, требуемых для обновления
      */
     public int diff() {
         int similars = 0;
         for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
-            if (map.get(entry.getKey()) == entry.getValue()) {
+            if (provider.serialize(this, map.get(entry.getKey())).equals(provider.serialize(this, entry.getValue()))) {
+            //if (map.get(entry.getKey()) == entry.getValue()) {
                 similars++;
             }
         }
