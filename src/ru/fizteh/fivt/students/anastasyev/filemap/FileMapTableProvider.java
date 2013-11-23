@@ -56,7 +56,7 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     private void writeSignature(File dir, List<String> columnTypes) throws IOException {
         File signature = new File(dir, "signature.tsv");
-        if (!signature.exists() && !signature.createNewFile()) {
+        if (!signature.createNewFile()) {
             throw new IOException("Can't create signature.tsv");
         }
         try (RandomAccessFile output = new RandomAccessFile(signature.toString(), "rw")) {
@@ -200,18 +200,11 @@ public class FileMapTableProvider extends State implements TableProvider {
             }
             types.add(typeName);
         }
-
+        write.lock();
         try {
-            read.lock();
             if (allFileMapTablesHashtable.containsKey(name)) {
                 return null;
             }
-        } finally {
-            read.unlock();
-        }
-
-        try {
-            write.lock();
             File newFileMapTable = new File(multiFileHashMapDir.toString(), name);
             FileMapTable fileMapTable = null;
             try {
@@ -230,8 +223,8 @@ public class FileMapTableProvider extends State implements TableProvider {
     @Override
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
         isBadName(name);
+        write.lock();
         try {
-            write.lock();
             FileMapTable deleteTable = allFileMapTablesHashtable.get(name);
             if (deleteTable == null) {
                 throw new IllegalStateException(name + " is not exists");
