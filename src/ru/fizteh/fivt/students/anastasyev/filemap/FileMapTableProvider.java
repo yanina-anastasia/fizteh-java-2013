@@ -31,6 +31,7 @@ public class FileMapTableProvider extends State implements TableProvider {
     private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
 
     @Override
@@ -198,6 +199,14 @@ public class FileMapTableProvider extends State implements TableProvider {
                 throw new IllegalArgumentException("Wrong column format");
             }
             types.add(typeName);
+        }
+        read.lock();
+        try {
+            if (allFileMapTablesHashtable.containsKey(name)) {
+                return null;
+            }
+        } finally {
+            read.unlock();
         }
         write.lock();
         try {
