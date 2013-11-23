@@ -217,11 +217,15 @@ public class MyTable implements Table {
         }
         locker.lock();
         try {
-            Storeable s = map.get(key);
-            if (s == null) {
-                return rewritings.get().get(key);
+            if (removings.get().contains(key)) {
+                return null;
             } else {
-                return s;
+                Storeable s = rewritings.get().get(key);
+                if (s == null) {
+                    return map.get(key);
+                } else {
+                    return s;
+                }
             }
         } finally {
             locker.unlock();
