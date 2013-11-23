@@ -7,7 +7,18 @@ import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 
 
 public class MyTableTest {
@@ -203,9 +214,5 @@ public class MyTableTest {
         Assert.assertNotNull(table.remove("abacaba"));
         Assert.assertNull(table.put("abacaba", storeable));
         Assert.assertEquals(table.commit(), 0);
-
-
     }
-
-
 }

@@ -9,11 +9,8 @@ public class WorkWithJSON {
 
     public static String serialize(Table table, Storeable value) throws ColumnFormatException {
 
-        try {
-            value.getColumnAt(table.getColumnsCount());
+        if (((MyStoreable) value).getSize() != table.getColumnsCount()) {
             throw new ColumnFormatException("Too many columns!");
-        } catch (IndexOutOfBoundsException e) {
-            table.getColumnsCount();
         }
 
         JSONArray array = new JSONArray();

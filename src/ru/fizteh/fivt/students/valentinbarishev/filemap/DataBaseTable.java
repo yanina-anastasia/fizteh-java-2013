@@ -97,29 +97,34 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public Table getTable(String tableName) {
+        checkName(tableName);
+        String fullPath = tableDir + File.separator + tableName;
+
+        File file = new File(fullPath);
+        if ((!file.exists()) || (file.isFile())) {
+            return null;
+        }
+
         readLock.lock();
         try {
-            checkName(tableName);
-            String fullPath = tableDir + File.separator + tableName;
-
-            File file = new File(fullPath);
-            if ((!file.exists()) || (file.isFile())) {
-                return null;
-            }
             if (tableInUse.containsKey(tableName)) {
                 return tableInUse.get(tableName);
-            } else {
-                try {
-                    DataBase table = new DataBase(fullPath, this, null);
-                    tableInUse.put(tableName, table);
-                    return table;
-                } catch (IOException e) {
-                    throw new DataBaseException(e.getMessage());
-                }
             }
         } finally {
             readLock.unlock();
         }
+
+        writeLock.lock();
+        try {
+            DataBase table = new DataBase(fullPath, this, null);
+            tableInUse.put(tableName, table);
+            return table;
+        } catch (IOException e) {
+            throw new DataBaseException(e.getMessage());
+        } finally {
+            writeLock.unlock();
+        }
+
     }
 
     @Override
