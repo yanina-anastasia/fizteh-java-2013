@@ -450,14 +450,22 @@ public class FileMap implements Table {
                 return oldValue;
             }
         } else {
-            if (tableData.containsKey(key)) {
-                Storeable oldValue = tableData.get(key);
-                changeTable.get().put(key, value);
-                return oldValue;
-            } else {
-                changeTable.get().put(key, value);
-                return null;
+            Storeable oldValue = null;
+            read.lock();
+            try {
+                oldValue = tableData.get(key);
+            } finally {
+                read.unlock();
             }
+            changeTable.get().put(key, value);
+            return oldValue;
+//            if (oldValue != null) {
+//                changeTable.get().put(key, value);
+//                return oldValue;
+//            } else {
+//                changeTable.get().put(key, value);
+//                return null;
+//            }
         }
     }
 
