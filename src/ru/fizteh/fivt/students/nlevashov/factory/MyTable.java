@@ -458,7 +458,13 @@ public class MyTable implements Table {
      * Считает минимальное количество опрераций встаки, переименования и удаления, требуемых для обновления
      */
     public int diff() {
-        return rewritings.get().size() + removings.get().size();
+        int similars = 0;
+        for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
+            if (map.get(entry.getKey()) == entry.getValue()) {
+                similars++;
+            }
+        }
+        return rewritings.get().size() - similars + removings.get().size();
     }
 
     /**
