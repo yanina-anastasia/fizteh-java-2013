@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import java.util.concurrent.locks.ReentrantLock;
 
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
@@ -26,11 +25,9 @@ public class MultiDbState extends State implements Table {
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
-    private ReentrantLock commitLock;
     
     private void init(String dbName) throws IOException, ParseException {          
         isDropped = false;
-        commitLock = new ReentrantLock(true);
         data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
         shell = new ShellState();
         currentDir = new File(rootPath);
@@ -164,27 +161,22 @@ public class MultiDbState extends State implements Table {
         }   
         checkDbDir(shell.currentDir.getAbsolutePath());
         int chNum = changesNum();
-        commitLock.lock();
-        try {
-            for (int i = 0; i < FOLDER_NUM; i++) {
-                String fold = Integer.toString(i) + ".dir";
-                checkFolder(shell.makeNewSource(fold));
-                if (!fileExist(fold)) {
-                    shell.mkdir(new String[] {fold});
-                }
-                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
-                    data[i][j].commit();
-                }
-               
-                File folderFile = new File(shell.makeNewSource(fold));
-                if (folderFile.exists() && folderFile.listFiles().length == 0) {
-                    String[] arg = {shell.makeNewSource(fold)};
-                    shell.rm(arg);
-                }
-            }    
-        } finally {
-            commitLock.unlock();
-        }
+        for (int i = 0; i < FOLDER_NUM; i++) {
+            String fold = Integer.toString(i) + ".dir";
+            checkFolder(shell.makeNewSource(fold));
+            if (!fileExist(fold)) {
+                shell.mkdir(new String[] {fold});
+            }
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
+                data[i][j].commit();
+            }
+           
+            File folderFile = new File(shell.makeNewSource(fold));
+            if (folderFile.exists() && folderFile.listFiles().length == 0) {
+                String[] arg = {shell.makeNewSource(fold)};
+                shell.rm(arg);
+            }
+        }   
         return chNum;
     }
     

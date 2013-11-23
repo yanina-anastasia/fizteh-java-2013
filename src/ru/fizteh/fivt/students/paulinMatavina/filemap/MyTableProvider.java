@@ -96,21 +96,15 @@ public class MyTableProvider extends State implements TableProvider {
         tableMapLock.lock();
         try {
             newTable = tableMap.get(name);
+            if (newTable == null) {
+                if (fileExist(name)) {
+                    newTable = new MultiDbState(rootDir, name, this);
+                    tableMap.put(name, newTable);
+                }
+            }  
         } finally {
             tableMapLock.unlock();
         }
-        
-        if (newTable == null) {
-            if (fileExist(name)) {
-                newTable = new MultiDbState(rootDir, name, this);
-                tableMapLock.lock();
-                try {
-                    tableMap.put(name, newTable);
-                } finally {
-                    tableMapLock.unlock();
-                }   
-            }
-        }  
         
         return newTable;
     }

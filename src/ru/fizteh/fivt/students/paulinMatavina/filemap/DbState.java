@@ -24,6 +24,7 @@ public class DbState extends State {
     private int foldNum;
     private int fileNum;
     private ReentrantReadWriteLock initialChangeLock;
+    private ReentrantReadWriteLock diskOperationsLock;
     
     public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
                                                       throws ParseException, IOException {
@@ -34,6 +35,7 @@ public class DbState extends State {
         table = newTable;
         path = dbPath;
         initialChangeLock = new ReentrantReadWriteLock(true);
+        diskOperationsLock = new ReentrantReadWriteLock(true);
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -46,17 +48,21 @@ public class DbState extends State {
     private void fileCheck() throws IOException {
         boolean newFile = false;
         File file = new File(path);
-        if (!file.exists()) {
-            file.createNewFile();
-            newFile = true;
-        }      
+        diskOperationsLock.writeLock().lock();
         try {
+            if (!file.exists()) {
+                file.createNewFile();
+                newFile = true;
+            } 
             dbFile = new RandomAccessFile(path, "rw");
-            if (dbFile.length() == 0 && !newFile) {
-                throw new IllegalStateException(path + " is an empty file");
-            }
         } catch (FileNotFoundException e) {
             throw new IllegalStateException(path + " not found");
+        } finally {
+            diskOperationsLock.writeLock().unlock();
+        }      
+        
+        if (dbFile.length() == 0 && !newFile) {
+            throw new IllegalStateException(path + " is an empty file");
         }
         return;
     }
@@ -132,49 +138,48 @@ public class DbState extends State {
             }
             changes.set(new HashMap<String, Storeable>());
             assignInitial();
-            fileCheck();  
-            if (dbFile.length() == 0) {
-                (new File(path)).delete();
-                return 0;
-            } 
             
-            int position = 0;
-            String key = getKeyFromFile(position);
-            int startOffset = dbFile.readInt();
-            int endOffset = 0;
-            int firstOffset = startOffset;
-            String value = "";
-            String key2 = "";
-            do {  
-                position += key.getBytes().length + 5;
-                if (position < firstOffset) {   
-                    key2 = getKeyFromFile(position);
-                    endOffset = dbFile.readInt();
-                    value = getValueFromFile(startOffset, endOffset);
+            diskOperationsLock.readLock().lock(); 
+            try {
+                fileCheck();              
+                int position = 0;
+                String key = getKeyFromFile(position);
+                int startOffset = dbFile.readInt();
+                int endOffset = 0;
+                int firstOffset = startOffset;
+                String value = "";
+                String key2 = "";
+                do {  
+                    position += key.getBytes().length + 5;
+                    if (position < firstOffset) {   
+                        key2 = getKeyFromFile(position);
+                        endOffset = dbFile.readInt();
+                        value = getValueFromFile(startOffset, endOffset);
+                        
+                    } else {
+                        value = getValueFromFile(startOffset, (int) dbFile.length());
+                    }
                     
-                } else {
-                    value = getValueFromFile(startOffset, (int) dbFile.length());
-                }
-                
-                if (key.getBytes().length > 0) {
-                    if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
-                        throw new RuntimeException("wrong key in file");
+                    if (key.getBytes().length > 0) {
+                        if (getFolderNum(key) != foldNum || getFileNum(key) != fileNum) {
+                            throw new RuntimeException("wrong key in file");
+                        }
+                        result++;
+                        Storeable stor = provider.deserialize(table, value);
+                        initialChangeLock.writeLock().lock();
+                        try {
+                            initial.put(key, stor);
+                        } finally {
+                            initialChangeLock.writeLock().unlock();
+                        }
                     }
-                    result++;
-                    Storeable stor = provider.deserialize(table, value);
-                    initialChangeLock.writeLock().lock();
-                    try {
-                        initial.put(key, stor);
-                    } finally {
-                        initialChangeLock.writeLock().unlock();
-                    }
-                }
-                
-                key = key2;
-                startOffset = endOffset;
-            } while (position <= firstOffset); 
-            
-            assignInitial();
+                    
+                    key = key2;
+                    startOffset = endOffset;
+                } while (position <= firstOffset); 
+            } finally {
+                diskOperationsLock.readLock().unlock();
+            }   
         } catch (IOException e) {
             if (e.getMessage() == null) {
                 throw new IOException("wrong database file " + path, e);
@@ -220,6 +225,7 @@ public class DbState extends State {
         if (getChangeNum() == 0) {
             return;
         }
+        diskOperationsLock.writeLock().lock();
         initialChangeLock.readLock().lock();
         try {
             fileCheck();
@@ -249,6 +255,7 @@ public class DbState extends State {
             }
         } finally {
             initialChangeLock.readLock().unlock();
+            diskOperationsLock.writeLock().unlock();
             if (dbFile != null) {
                 try {
                   dbFile.close();
