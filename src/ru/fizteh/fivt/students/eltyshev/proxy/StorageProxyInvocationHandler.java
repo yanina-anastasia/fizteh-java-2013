@@ -6,15 +6,13 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class StorateProxyInvocationHandler implements InvocationHandler {
+public class StorageProxyInvocationHandler implements InvocationHandler {
 
     private final Writer writer;
-    private final Class<?> targetClass;
     private final Object implementation;
 
-    public StorateProxyInvocationHandler(Writer writer, Object implementation, Class<?> targetClass) {
+    public StorageProxyInvocationHandler(Writer writer, Object implementation) {
         this.writer = writer;
-        this.targetClass = targetClass;
         this.implementation = implementation;
     }
 

@@ -4,8 +4,10 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.eltyshev.filemap.base.AbstractStorage;
+import ru.fizteh.fivt.students.eltyshev.multifilemap.DatabaseFileDescriptor;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.DistributedLoader;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.DistributedSaver;
+import ru.fizteh.fivt.students.eltyshev.multifilemap.MultifileMapUtils;
 import ru.fizteh.fivt.students.eltyshev.storable.StoreableUtils;
 
 import java.io.BufferedWriter;
@@ -109,7 +111,12 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
 
     @Override
     protected void save() throws IOException {
-        DistributedSaver.save(new StoreableTableBuilder(provider, this));
+        DistributedSaver.save(new StoreableTableBuilder(provider, this), getChangedFiles());
+    }
+
+    @Override
+    protected DatabaseFileDescriptor makeDescriptor(String key) {
+        return MultifileMapUtils.makeDescriptor(key);
     }
 
     @Override
@@ -119,7 +126,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     }
 
     private void checkTableDirectory() throws IOException {
-        File tableDirectory = new File(getDirectory(), getName());
+        File tableDirectory = new File(getDatabaseDirectory(), getName());
         if (!tableDirectory.exists()) {
             tableDirectory.mkdir();
             writeSignatureFile();
@@ -132,7 +139,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     }
 
     private void writeSignatureFile() throws IOException {
-        File tableDirectory = new File(getDirectory(), getName());
+        File tableDirectory = new File(getDatabaseDirectory(), getName());
         File signatureFile = new File(tableDirectory, DatabaseTableProvider.SIGNATURE_FILE);
         signatureFile.createNewFile();
         BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
@@ -178,9 +185,13 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         return oldData.keySet();
     }
 
+    public String getTableDirectory() {
+        File tableDirectory = new File(getDatabaseDirectory(), getName());
+        return tableDirectory.getAbsolutePath();
+    }
+
     @Override
     public String toString() {
-
-        return String.format("%s[%s]", getClass().getSimpleName(), getDirectory());
+        return String.format("%s[%s]", getClass().getSimpleName(), getTableDirectory());
     }
 }

@@ -24,11 +24,6 @@ public class JSONLogFormatter {
     }
 
     public void writeArguments(Object[] args) {
-        if (args.length == 0) {
-            jsonObject = jsonObject.put(JSONAttributeNames.ARGUMENTS.name, args);
-            return;
-        }
-
         JSONArray array;
         try {
             array = makeJSONArray(Arrays.asList(args));
@@ -59,17 +54,17 @@ public class JSONLogFormatter {
                 continue;
             }
 
+            if (value.getClass().isArray()) {
+                result.put(value.toString());
+                continue;
+            }
+
             boolean isContainer = false;
             boolean isEmpty = false;
 
             if (value instanceof Iterable) {
                 isContainer = true;
                 isEmpty = ((Iterable) value).iterator().hasNext() == false;
-            }
-
-            if (!isContainer && value.getClass().isArray()) {
-                isContainer = true;
-                isEmpty = ((Object[]) value).length == 0;
             }
 
             if (objects.containsKey(value) && isContainer && !isEmpty) {
@@ -80,12 +75,7 @@ public class JSONLogFormatter {
 
             objects.put(value, true);
 
-            if (value.getClass().isArray()) {
-                result.put(makeJSONArray(Arrays.asList(value)));
-                continue;
-            }
-
-            if (value instanceof Iterable) {
+            if (isContainer) {
                 result.put(makeJSONArray((Iterable) value));
                 continue;
             }

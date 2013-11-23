@@ -1,17 +1,27 @@
 package ru.fizteh.fivt.students.eltyshev.filemap.base;
 
+import ru.fizteh.fivt.students.eltyshev.multifilemap.DatabaseFileDescriptor;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
-    class TransactionChanges {
+    protected class TransactionChanges {
         HashMap<Key, Value> modifiedData;
         int size;
         int uncommittedChanges;
+
+        public HashSet<DatabaseFileDescriptor> getChangedFiles() {
+            return changedFiles;
+        }
+
+        HashSet<DatabaseFileDescriptor> changedFiles = new HashSet<>();
 
         TransactionChanges() {
             this.modifiedData = new HashMap<Key, Value>();
@@ -33,6 +43,7 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
                     } else {
                         oldData.put(key, (Value) newValue);
                     }
+                    changedFiles.add(makeDescriptor(key));
                     recordsChanged += 1;
                 }
             }
@@ -210,9 +221,15 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
         return recordsDeleted;
     }
 
-    public String getDirectory() {
+    public String getDatabaseDirectory() {
         return directory;
     }
+
+    public Set<DatabaseFileDescriptor> getChangedFiles() {
+        return transactionChanges.get().getChangedFiles();
+    }
+
+    protected abstract DatabaseFileDescriptor makeDescriptor(Key key);
 
     void rawPut(Key key, Value value) {
         oldData.put(key, value);
