@@ -12,8 +12,7 @@ public class ChangeDirectoryCommand extends AbstractCommand {
     
     public void execute(String[] args) throws IOException {
         File f = new File(absolutePath(args[1]));
-        if (f.isDirectory())
-        {
+        if (f.isDirectory()) {
             getState().setWorkingDirectory(f);
         } else {
             throw new IOException("cd: '" + args[1] + "': No such file or directory");

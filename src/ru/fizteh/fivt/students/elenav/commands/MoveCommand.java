@@ -22,7 +22,7 @@ public class MoveCommand extends AbstractCommand {
                     sourse.renameTo(destination);
                 } else {
                     sourse.renameTo(new File(destination.getAbsolutePath() 
-                    	              + File.separator + sourse.getName()));
+                                      + File.separator + sourse.getName()));
                 }
             }
         } else {

@@ -51,8 +51,7 @@ public class MultiFileMapState extends FilesystemState implements Table {
         if (currentValue == null) {
             if (oldValue == null) {
                 setNumberOfChanges(getNumberOfChanges() + 1);
-            }
-            else {
+            } else {
                 if (oldValue.equals(value)) {
                     setNumberOfChanges(getNumberOfChanges() - 1);
                 }

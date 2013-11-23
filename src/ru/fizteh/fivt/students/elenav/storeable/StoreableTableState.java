@@ -36,9 +36,7 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     private List<Class<?>> columnTypes = new ArrayList<>();
     private volatile HashMap<String, Storeable> startMap = new HashMap<>();
-    private ReadWriteLock lock = new ReentrantReadWriteLock(true);
-    private ReadWriteLock generalLock = new ReentrantReadWriteLock(true);
-    private final ThreadLocal<HashMap<String, Storeable>> changedKeys 
+    private ReadWriteLock lock = new ReentrantReadWriteLock(true);private final ThreadLocal<HashMap<String, Storeable>> changedKeys 
                          = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
@@ -180,14 +178,12 @@ public class StoreableTableState extends FilesystemState implements Table {
     public int commit() {
         int result = getNumberOfChanges();
         try {
-            lock.readLock().lock();
-            generalLock.writeLock().lock();
+            lock.writeLock().lock();
             write();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            generalLock.writeLock().unlock();
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
         removedKeys.get().clear();
         changedKeys.get().clear();
@@ -235,7 +231,6 @@ public class StoreableTableState extends FilesystemState implements Table {
     public void read() throws IOException {
         try {
             lock.writeLock().lock();
-            generalLock.readLock().lock();
             
             startMap.clear();
             File[] dirs = getWorkingDirectory().listFiles();
@@ -250,13 +245,11 @@ public class StoreableTableState extends FilesystemState implements Table {
                     File[] files = file.listFiles();
                     if (files != null) {
                         if (files.length == 0) {
-                            throw new IOException("can't read files: empty dir " 
-                                                                + file.getName());
+                            throw new IOException("can't read files: empty dir " + file.getName());
                         }
                         for (File f : files) {
                             if (f.length() == 0) {
-                                throw new IOException("can't read files: empty file " 
-                                                                     + f.getName());
+                                throw new IOException("can't read files: empty file " + f.getName());
                             }
                             try {
                                 readFile(f, this);
@@ -269,7 +262,6 @@ public class StoreableTableState extends FilesystemState implements Table {
             }
         } finally {
             lock.writeLock().unlock();
-            generalLock.readLock().unlock();
         }
     }
     
@@ -402,7 +394,7 @@ public class StoreableTableState extends FilesystemState implements Table {
             result = startMap.get(key);
         } finally {
             lock.readLock().unlock();
-        }
+        } 
         return result;
         
     } 
@@ -454,13 +446,4 @@ public class StoreableTableState extends FilesystemState implements Table {
     public void setLock(ReadWriteLock lock) {
         this.lock = lock;
     }
-
-    public ReadWriteLock getGeneralLock() {
-        return generalLock;
-    }
-
-    public void setGeneralLock(ReadWriteLock generalLock) {
-        this.generalLock = generalLock;
-    } 
-
 }

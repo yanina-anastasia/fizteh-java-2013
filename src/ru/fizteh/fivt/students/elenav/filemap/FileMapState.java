@@ -81,6 +81,6 @@ public class FileMapState extends FilesystemState {
     @Override
     public Storeable put(String string, Storeable string2) {
         throw new UnsupportedOperationException("Command isn't supported in this implementation");
-    }                                                                                                                             
+    }                                                                  
     
 }
