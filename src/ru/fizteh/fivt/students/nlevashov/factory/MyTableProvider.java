@@ -205,7 +205,8 @@ public class MyTableProvider implements TableProvider {
     }
 
     /**
-     * Преобразовывает строку в объект {@link ru.fizteh.fivt.storage.structured.Storeable}, соответствующий структуре таблицы.
+     * Преобразовывает строку в объект {@link ru.fizteh.fivt.storage.structured.Storeable},
+     * соответствующий структуре таблицы.
      *
      * @param table Таблица, которой должен принадлежать {@link ru.fizteh.fivt.storage.structured.Storeable}.
      * @param value Строка, из которой нужно прочитать {@link ru.fizteh.fivt.storage.structured.Storeable}.
@@ -330,7 +331,7 @@ public class MyTableProvider implements TableProvider {
             value.getColumnAt(table.getColumnsCount());
             throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
         } catch (IndexOutOfBoundsException e) {
-            try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
+            try {
                 for (int i = 0; i < table.getColumnsCount(); ++i) {
                     Class<?> c = table.getColumnType(i);
                     Object o = value.getColumnAt(i);

@@ -32,7 +32,6 @@ public class MyTable implements Table {
     List<Class<?>> types;
     TableProvider provider;
 
-    //ThreadLocal<HashMap<String, Storeable>> map;
     ThreadLocal<HashMap<String, Storeable>> rewritings;
     ThreadLocal<HashSet<String>> removings;
 
@@ -256,7 +255,7 @@ public class MyTable implements Table {
             value.getColumnAt(types.size());
             throw new ColumnFormatException("Table.put: value has other number of columns");
         } catch (IndexOutOfBoundsException e) {
-            try {                                                                    //!!!!ЗДЕСЬ ОГРОМНЕЙШИЙ КОСТЫЛЬ!!!!
+            try {
                 for (int i = 0; i < getColumnsCount(); ++i) {
                     Class<?> c = getColumnType(i);
                     Object o = value.getColumnAt(i);
@@ -310,8 +309,6 @@ public class MyTable implements Table {
                 throw new ColumnFormatException("Table.put: value has other number of columns");
             }
         }
-        //это без проверки на вшивость не верно:
-        //return map.put(key, value);
     }
 
     /**
