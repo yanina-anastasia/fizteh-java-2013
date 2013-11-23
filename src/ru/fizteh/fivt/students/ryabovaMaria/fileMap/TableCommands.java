@@ -47,11 +47,12 @@ public class TableCommands implements Table {
         }
     };
     
-    private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal<HashMap<String, String>[][]>() {
+    private ThreadLocal<HashMap<String, String> [][]> diff = new ThreadLocal<HashMap<String, String> [][]>() {
         @Override
-        protected HashMap<String, String>[][] initialValue() {
+        protected HashMap<String, String> [][] initialValue() {
             HashMap<String, String> [][] diffObject = new HashMap[16][16];
-            for (int i = 0; i < 16; ++i) {
+            for (int i = 0; i < 16; ++i) 
+            {
                 for (int j = 0; j < 16; ++j) {
                     diffObject[i][j] = new HashMap<String, String>();
                 }
