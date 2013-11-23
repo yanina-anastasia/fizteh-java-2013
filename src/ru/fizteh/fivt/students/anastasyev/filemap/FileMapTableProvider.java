@@ -56,7 +56,7 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     private void writeSignature(File dir, List<String> columnTypes) throws IOException {
         File signature = new File(dir, "signature.tsv");
-        if (!signature.createNewFile()) {
+        if (!signature.exists() && !signature.createNewFile()) {
             throw new IOException("Can't create signature.tsv");
         }
         try (RandomAccessFile output = new RandomAccessFile(signature.toString(), "rw")) {
