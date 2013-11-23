@@ -579,45 +579,61 @@ public class FileMap implements Table {
 
         int count = 0;
         Set<String> changedKey = new HashSet<>();
-        write.lock();
-        try {
-            for (String key : changeTable.get().keySet()) {
-                Storeable value = changeTable.get().get(key);
-                if (value == null) {
-                    if (tableData.containsKey(key)) {
-                        ++count;
-                        changedKey.add(key);
-                    }
 
+        for (String key : changeTable.get().keySet()) {
+            Storeable value = changeTable.get().get(key);
+
+            Storeable oldValue = null;
+            read.lock();
+            try {
+                oldValue = tableData.get(key);
+            } finally {
+                read.unlock();
+            }
+
+            if (value == null) {
+                if (oldValue != null) {
+                    ++count;
+                    changedKey.add(key);
+                }
+
+                write.lock();
+                try {
                     tableData.remove(key);
-                } else {
-                    Storeable oldValue = tableData.get(key);
+                } finally {
+                    write.unlock();
+                }
 
-                    if (oldValue == null) {
+            } else {
+                if (oldValue == null) {
+                    ++count;
+                    changedKey.add(key);
+                } else {
+                    if (!parent.serialize(this, value).equals(parent.serialize(this, oldValue))) {
                         ++count;
                         changedKey.add(key);
-                    } else {
-                        if (!parent.serialize(this, value).equals(parent.serialize(this, oldValue))) {
-                            ++count;
-                            changedKey.add(key);
-                        }
                     }
+                }
 
+                write.lock();
+                try {
                     tableData.put(key, changeTable.get().get(key));
+                } finally {
+                    write.unlock();
                 }
             }
+        }
 
-            try {
-                refreshTableFiles(changedKey);
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            } finally {
-                changeTable.get().clear();
-            }
-
+        write.lock();
+        try {
+            refreshTableFiles(changedKey);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         } finally {
             write.unlock();
+            changeTable.get().clear();
         }
+
         return count;
     }
 
@@ -628,12 +644,20 @@ public class FileMap implements Table {
         int count = 0;
         for (String key : changeTable.get().keySet()) {
             Storeable diffValue = changeTable.get().get(key);
+
+            Storeable value = null;
+            read.lock();
+            try {
+                value = tableData.get(key);
+            } finally {
+                read.unlock();
+            }
+
             if (diffValue == null) {
-                if (tableData.containsKey(key)) {
+                if (value != null) {
                     ++count;
                 }
             } else {
-                Storeable value = tableData.get(key);
                 if (value == null) {
                     ++count;
                 } else {
