@@ -40,7 +40,7 @@ public class FileMap implements Table {
     };
     boolean existDir = false;
     boolean tableDrop = false;
-    volatile FileMapProvider parent;
+    FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
