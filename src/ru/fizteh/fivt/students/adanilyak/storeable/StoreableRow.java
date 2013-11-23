@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.adanilyak.storeable;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.adanilyak.tools.StringCreationTools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,5 +115,10 @@ public class StoreableRow implements Storeable {
     @Override
     public String getStringAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
         return (String) getSomethingAt(columnIndex, String.class);
+    }
+
+    @Override
+    public String toString() {
+        return StringCreationTools.createString(getClass().getSimpleName(), row);
     }
 }

@@ -5,6 +5,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
+import ru.fizteh.fivt.students.adanilyak.tools.ContainerWorkStatus;
 import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 
@@ -23,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Date: 03.11.13
  * Time: 16:49
  */
-public class StoreableTable implements Table {
+public class StoreableTable implements Table, AutoCloseable {
     /**
      * GENERIC DATA
      */
@@ -31,6 +32,7 @@ public class StoreableTable implements Table {
     private File tableStorageDirectory;
     private List<Class<?>> columnTypes;
     private Map<String, Storeable> data;
+    private ContainerWorkStatus status;
 
     /**
      * THREAD LOCAL DATA
@@ -43,6 +45,7 @@ public class StoreableTable implements Table {
 
     public StoreableTable(File dataDirectory, TableProvider givenProvider) throws IOException {
         data = new HashMap<>();
+        status = ContainerWorkStatus.NOT_INITIALIZED;
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -64,7 +67,6 @@ public class StoreableTable implements Table {
             }
         };
 
-
         if (givenProvider == null) {
             throw new IOException("storeable table: create failed, provider is not set");
         }
@@ -72,6 +74,7 @@ public class StoreableTable implements Table {
         tableStorageDirectory = dataDirectory;
         try {
             WorkWithStoreableDataBase.readIntoDataBase(tableStorageDirectory, data, this, provider);
+            status = ContainerWorkStatus.WORKING;
         } catch (IOException | ParseException exc) {
             throw new IllegalArgumentException("Read from file failed", exc);
         }
@@ -88,6 +91,7 @@ public class StoreableTable implements Table {
         }
 
         data = new HashMap<>();
+        status = ContainerWorkStatus.NOT_INITIALIZED;
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -113,6 +117,7 @@ public class StoreableTable implements Table {
         tableStorageDirectory = dataDirectory;
         columnTypes = givenTypes;
         WorkWithStoreableDataBase.createSignatureFile(tableStorageDirectory, this);
+        status = ContainerWorkStatus.WORKING;
     }
 
     @Override
@@ -266,6 +271,18 @@ public class StoreableTable implements Table {
             throw new IndexOutOfBoundsException("get column type: bad index");
         }
         return columnTypes.get(columnIndex);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + tableStorageDirectory + "]";
+    }
+
+    @Override
+    public void close() {
+        status.isOkForOperations();
+        rollback();
+        status = ContainerWorkStatus.CLOSED;
     }
 
     private void setDefault() {

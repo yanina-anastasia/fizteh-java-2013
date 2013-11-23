@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.adanilyak.tools;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
+import java.io.Writer;
 import java.util.List;
 
 /**
@@ -89,6 +90,24 @@ public class CheckOnCorrect {
         } catch (IndexOutOfBoundsException | ColumnFormatException exc) {
             return false;
         }
+    }
+
+    public static boolean goodProxyArguments(Writer writer,
+                                             Object implementation,
+                                             Class<?> interfaceClass) {
+        if (writer == null) {
+            return false;
+        }
+        if (interfaceClass == null) {
+            return false;
+        }
+        if (!interfaceClass.isInstance(implementation)) {
+            return false;
+        }
+        if (!interfaceClass.isInterface()) {
+            return false;
+        }
+        return true;
     }
 }
 
