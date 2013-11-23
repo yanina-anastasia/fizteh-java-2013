@@ -83,15 +83,13 @@ public class MyTableProvider extends State implements TableProvider {
         try {
             return tryToGetTable(name);
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e.getMessage());
         } finally {
             readAccess.unlock();
         }
     }
     
     public MultiDbState tryToGetTable(String name) throws ParseException, IOException {
-        validate(name);
-        checkNameIsCorrect(name);
         MultiDbState newTable = null;
         tableMapLock.lock();
         try {
@@ -152,16 +150,11 @@ public class MyTableProvider extends State implements TableProvider {
             MultiDbState table = null;
             tableMapLock.lock();
             try {
-                table = tableMap.get(name);
-            } finally {
-                tableMapLock.unlock();
-            }    
-            if (table != null) {
-                table.dropped();
-            }
-            tableMapLock.lock();
-            try {
-                tableMap.put(name, null); 
+                table = tableMap.get(name);  
+                if (table != null) {
+                    table.dropped();
+                }
+                tableMap.put(name, null);
             } finally {
                 tableMapLock.unlock();
             }              
@@ -173,9 +166,6 @@ public class MyTableProvider extends State implements TableProvider {
         return;
     }
     
-    /*
-     * is an atomic method
-     */
     public boolean fileExist(String name) {
         return new File(shell.makeNewSource(name)).exists();
     }
