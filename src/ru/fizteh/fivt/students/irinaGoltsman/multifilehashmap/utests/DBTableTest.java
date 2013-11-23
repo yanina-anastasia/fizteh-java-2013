@@ -28,13 +28,14 @@ public class DBTableTest {
         tableProvider = new DBTableProvider(rootDBDirectory.newFolder());
         table = tableProvider.createTable("testTable", columnTypes);
     }
+
     @Test
     public void sizeIsZeroForNew() {
         Assert.assertEquals(0, table.size());
     }
 
     @Test
-    public void commitIsZeroForNew() throws IOException{
+    public void commitIsZeroForNew() throws IOException {
         Assert.assertEquals(0, table.commit());
     }
 
