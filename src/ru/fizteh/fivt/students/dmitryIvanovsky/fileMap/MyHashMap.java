@@ -9,7 +9,8 @@ import java.util.Set;
 public class MyHashMap {
     int size;
     Set<String> keySet;
-    final int numberDir = 16, numberFile = 16;
+    final int numberDir = 16;
+    final int numberFile = 16;
     Map<String, Storeable>[][] arrayMap = new HashMap[numberDir][numberFile];
 
     public MyHashMap() {

@@ -7,7 +7,6 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.belousova.utils.FileUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandAbstract;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
-import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
