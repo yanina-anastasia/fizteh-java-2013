@@ -31,7 +31,6 @@ public class FileMapTableProvider extends State implements TableProvider {
     private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
 
     @Override
@@ -70,8 +69,8 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     public void setCurrentTable(String name) throws IOException {
         isBadName(name);
+        write.lock();
         try {
-            write.lock();
             if (!allFileMapTablesHashtable.containsKey(name)) {
                 System.out.println(name + " not exists");
                 return;
