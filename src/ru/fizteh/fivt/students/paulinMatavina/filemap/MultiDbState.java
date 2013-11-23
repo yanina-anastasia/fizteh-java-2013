@@ -26,15 +26,10 @@ public class MultiDbState extends State implements Table {
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
-    private ReentrantReadWriteLock[][] diskOperationLock;
+    private ReentrantReadWriteLock diskOperationLock;
     
     private void init(String dbName) throws IOException, ParseException {   
-        diskOperationLock = new ReentrantReadWriteLock[FOLDER_NUM][FILE_IN_FOLD_NUM];
-        for (int i = 0; i < FOLDER_NUM; i++) {
-            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
-                diskOperationLock[i][j] = new ReentrantReadWriteLock(true);
-            }
-        }
+        diskOperationLock = new ReentrantReadWriteLock(true);
         isDropped = false;
         data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
         shell = new ShellState();
@@ -167,29 +162,27 @@ public class MultiDbState extends State implements Table {
         if (isDropped) {
             throw new IllegalStateException("table was removed");
         }   
-        checkDbDir(shell.currentDir.getAbsolutePath());
         int chNum = changesNum();
-        for (int i = 0; i < FOLDER_NUM; i++) {
-            String fold = Integer.toString(i) + ".dir";
-            checkFolder(shell.makeNewSource(fold));
-            if (!fileExist(fold)) {
-                shell.mkdir(new String[] {fold});
-            }
-            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
-                diskOperationLock[i][j].writeLock().lock();
-                try {
+        diskOperationLock.writeLock().lock();
+        try {
+            for (int i = 0; i < FOLDER_NUM; i++) {
+                String fold = Integer.toString(i) + ".dir";
+                if (!fileExist(fold)) {
+                    shell.mkdir(new String[] {fold});
+                }
+                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                     data[i][j].commit();
-                } finally {
-                    diskOperationLock[i][j].writeLock().unlock();
+                }
+               
+                File folderFile = new File(shell.makeNewSource(fold));
+                if (folderFile.exists() && folderFile.listFiles().length == 0) {
+                    String[] arg = {shell.makeNewSource(fold)};
+                    shell.rm(arg);
                 }
             }
-           
-            File folderFile = new File(shell.makeNewSource(fold));
-            if (folderFile.exists() && folderFile.listFiles().length == 0) {
-                String[] arg = {shell.makeNewSource(fold)};
-                shell.rm(arg);
-            }
-        }   
+        } finally {
+            diskOperationLock.writeLock().unlock();
+        }
         return chNum;
     }
     
