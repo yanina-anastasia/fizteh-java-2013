@@ -82,8 +82,8 @@ public class TableProviderImplementation implements TableProvider {
         if (!isAllowedNameForTable(name)) {
             throw new IllegalArgumentException("name is null or contains disallowed characters: " + name);
         }
-        readLock.lock();
         try {
+            readLock.lock();
             return existingTables.get(name);
         } finally {
             readLock.unlock();
@@ -118,24 +118,26 @@ public class TableProviderImplementation implements TableProvider {
         }
 
         Table oldTable;
-        readLock.lock();
         try {
+            readLock.lock();
             oldTable = existingTables.get(name);
+            if (oldTable != null) {
+                return null;
+            }
         } finally {
             readLock.unlock();
         }
 
-        if (oldTable != null) {
-            return null;
-        }
         Table newTable;
         try {
-            newTable = new TableImplementation(name, this, columnTypes);
-        } catch (Exception e) {
-            throw new IOException("Fail to create database", e);
-        }
-        writeLock.lock();
-        try {
+            writeLock.lock();
+
+            try {
+                newTable = new TableImplementation(name, this, columnTypes);
+            } catch (Exception e) {
+                throw new IOException("Fail to create database", e);
+            }
+
             existingTables.put(name, newTable);
         } finally {
             writeLock.unlock();
@@ -148,8 +150,8 @@ public class TableProviderImplementation implements TableProvider {
         if (!isAllowedNameForTable(name)) {
             throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
         }
-        writeLock.lock();
         try {
+            writeLock.lock();
             if (existingTables.get(name) != null) {
                 try {
                     MultiFileMapLoaderWriter.recursiveRemove(workspace.resolve(name));
