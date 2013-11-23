@@ -47,10 +47,10 @@ public class TableCommands implements Table {
         }
     };
     
-    private ThreadLocal<HashMap<String, String>[][]> diff = new ThreadLocal<HashMap<String, String>[][]>() {
+    private ThreadLocal<HashMap<String, String> [][]> diff = new ThreadLocal<HashMap<String, String> [][]>() {
         @Override
         protected HashMap<String, String>[][] initialValue() {
-            HashMap<String, String> diffObject[][] = new HashMap[16][16];
+            HashMap<String, String> [][] diffObject = new HashMap[16][16];
             for (int i = 0; i < 16; ++i) {
                 for (int j = 0; j < 16; ++j) {
                     diffObject[i][j] = new HashMap<String, String>();
@@ -200,7 +200,7 @@ public class TableCommands implements Table {
                 throw new IllegalArgumentException("Incorrect file" + dbFile.toString());
             }
             lastList[numOfDir][numOfFile].put(lastKey, lastValue);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new IOException("Incorrect table", e);
         }
     }
@@ -279,7 +279,7 @@ public class TableCommands implements Table {
             for (Map.Entry entry : diff.get()[first][second].entrySet()) {
                 String key = (String) entry.getKey();
                 String value = (String) entry.getValue();
-                if (value == null){
+                if (value == null) {
                     if (lastList[first][second].containsKey(key)) {
                         --result;
                     }
@@ -414,6 +414,7 @@ public class TableCommands implements Table {
         try {
             result = countChanges(false);
         } catch (IOException e) {
+            throw new RuntimeException(e);
         } finally {
             readLock.unlock();
         }
