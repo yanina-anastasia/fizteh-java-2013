@@ -15,11 +15,15 @@ class FileDatabase implements AutoCloseable {
     Path dbFilePath;
     Map<String, String> database = new HashMap<String, String>();
     
-    boolean wasChanged = false;
+    boolean isLoaded = false;
+    boolean isChanged = false;
     
     public FileDatabase(Path dbFilePath) throws IOException {
+        this.dbFilePath = dbFilePath;
+    }
+    
+    private void loadFileDatabase() throws IOException {
         try {
-            this.dbFilePath = dbFilePath;
             Files.createDirectories(dbFilePath.getParent());
             
         } catch (IOException e) {
@@ -34,20 +38,38 @@ class FileDatabase implements AutoCloseable {
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
         
+        if (Files.size(dbFilePath) == 0) {
+            Files.delete(dbFilePath);
+            if (dbFilePath.getParent().toFile().list().length == 0) {
+                Files.delete(dbFilePath.getParent());
+            }
+        }
     }
 
     public String put(String key, String value) throws IOException {
-        wasChanged = true;
+        if (!isLoaded) {
+            isLoaded = true;
+            loadFileDatabase();
+        }
+        isChanged = true;
         String oldValue = database.put(key, value);
         return oldValue;
     }
     
     public String get(String key) throws IOException {
+        if (!isLoaded) {
+            isLoaded = true;
+            loadFileDatabase();
+        }
         return database.get(key);
     }
     
     public String remove(String key) throws IOException {   
-        wasChanged = true;
+        if (!isLoaded) {
+            isLoaded = true;
+            loadFileDatabase();
+        }
+        isChanged = true;
         String value = database.remove(key);
         return value;
     }
@@ -120,11 +142,12 @@ class FileDatabase implements AutoCloseable {
             currentOffset += value.getBytes(StandardCharsets.UTF_8).length;
             dbFile.seek(returnPosition);
         }
+        
     }
     
     @Override
     public void close() throws IOException {
-        if (wasChanged) {
+        if (isChanged) {
             try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
                 
                 saveChanges(dbFile);

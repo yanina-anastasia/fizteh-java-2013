@@ -1,11 +1,8 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
-import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -71,7 +68,7 @@ public class TestsForParallel {
                 return table.put("1", value1);
             }
         });
-        assertNull(future1.get());
+        Assert.assertNull(future1.get());
         
         Future<Storeable> future2 = executor2.submit(new Callable<Storeable>() {
             @Override
@@ -79,7 +76,7 @@ public class TestsForParallel {
                 return table.put("1", value1);
             }
         });
-        assertNull(future2.get());
+        Assert.assertNull(future2.get());
         
         Future<Integer> future3 = executor1.submit(new Callable<Integer>() {
             @Override
@@ -87,7 +84,7 @@ public class TestsForParallel {
                 return table.commit();
             }
         });
-        assertEquals(future3.get(), Integer.valueOf(1));
+        Assert.assertEquals(future3.get(), Integer.valueOf(1));
         
         Future<Integer> future4 = executor2.submit(new Callable<Integer>() {
             @Override
@@ -95,7 +92,7 @@ public class TestsForParallel {
                 return table.rollback();
             }
         });
-        assertEquals(future4.get(), Integer.valueOf(0));
+        Assert.assertEquals(future4.get(), Integer.valueOf(0));
         
         executor1.shutdown();
         executor2.shutdown();
@@ -113,7 +110,7 @@ public class TestsForParallel {
                 return table.put("1", value1);
             }
         });
-        assertNull(future1.get());
+        Assert.assertNull(future1.get());
         
         executor1.submit(new Callable<Integer>() {
             @Override
@@ -135,7 +132,7 @@ public class TestsForParallel {
                 return table.put("1", value2);
             }
         });
-        //assertNull(future2.get());
+        //Assert.assertNull(future2.get());
         
         Future<Integer> future3 = executor2.submit(new Callable<Integer>() {
             @Override
@@ -143,7 +140,7 @@ public class TestsForParallel {
                 return table.commit();
             }
         });
-        assertEquals(future3.get(), Integer.valueOf(1));
+        Assert.assertEquals(future3.get(), Integer.valueOf(1));
         
         Future<Integer> future4 = executor1.submit(new Callable<Integer>() {
             @Override
@@ -151,7 +148,7 @@ public class TestsForParallel {
                 return table.commit();
             }
         });
-        assertEquals(future4.get(), Integer.valueOf(1));
+        Assert.assertEquals(future4.get(), Integer.valueOf(1));
         
         executor1.shutdown();
         executor2.shutdown();

@@ -67,7 +67,8 @@ public class TableImplementation implements Table {
         
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                
+                files[nDirectory][nFile] = new FileDatabase(databaseDirectory.resolve(tableName)
+                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
                 fileLocks[nDirectory][nFile] = new ReentrantLock(true);
             }
         }
@@ -399,19 +400,17 @@ public class TableImplementation implements Table {
         
         fileLocks[nDirectory][nFile].lock();
         try {
-            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-                
+            try {
                 Storeable value;
                 String rawValue;
                 for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
                     value = putChanges.get()[nDirectory][nFile].get(key);
                     rawValue = tableProvider.serialize(this, value);
-                    currentDatabase.put(key, rawValue);
+                    files[nDirectory][nFile].put(key, rawValue);
                 }
                 
                 for (String key : removeChanges.get()[nDirectory][nFile]) {
-                    currentDatabase.remove(key);
+                    files[nDirectory][nFile].remove(key);
                 }
             } catch (IOException e) {
                 throw new IOException("Error while putting value to file: "
@@ -428,6 +427,19 @@ public class TableImplementation implements Table {
         
         fileLocks[nDirectory][nFile].lock();
         try {
+            return files[nDirectory][nFile].get(key);
+        } finally {
+            fileLocks[nDirectory][nFile].unlock();
+        }
+        
+    }
+    
+    /*private String getValueFromFile(String key) throws IOException {
+        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
+        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+        
+        fileLocks[nDirectory][nFile].lock();
+        try {
             try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
                     .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
                 
@@ -439,7 +451,7 @@ public class TableImplementation implements Table {
         } finally {
             fileLocks[nDirectory][nFile].unlock();
         }
-    }
+    }*/
     
     private String putValueToFile(String key, String value) throws IOException {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
@@ -476,6 +488,23 @@ public class TableImplementation implements Table {
             }
         } finally {
             fileLocks[nDirectory][nFile].unlock();
+        }
+    }
+    
+    private void closeAllFiles(Throwable t) throws IOException {
+        for (int i = 0; i < DIR_NUM; ++i) {
+            for (int j = 0; j < FILES_NUM; ++j) {
+                if (files[i][j] != null) {
+                    try {
+                        files[i][j].close();
+                    } catch (Throwable e) {
+                        if (t != null) {
+                            t.addSuppressed(new Throwable("Error while closing file: " + i + " " + j
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e));
+                        }
+                    }
+                }
+            }
         }
     }
     
