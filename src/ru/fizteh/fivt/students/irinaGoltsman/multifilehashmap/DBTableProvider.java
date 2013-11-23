@@ -37,14 +37,9 @@ public class DBTableProvider implements TableProvider {
             throw new IllegalArgumentException(rootDirectory.getName() + ": not a directory");
         }
         rootDirectoryOfTables = rootDirectory;
-        writeLock.lock();
-        try {
-            for (File tableFile : rootDirectoryOfTables.listFiles()) {
-                Table table = new DBTable(tableFile, this);
-                allTables.put(tableFile.getName(), table);
-            }
-        } finally {
-            writeLock.unlock();
+        for (File tableFile : rootDirectoryOfTables.listFiles()) {
+            Table table = new DBTable(tableFile, this);
+            allTables.put(tableFile.getName(), table);
         }
     }
 
