@@ -32,7 +32,7 @@ public class TableImplementation implements Table {
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
     
-    private ThreadLocal<Map<String, Storeable>[][]> putChanges = new ThreadLocal<Map<String, Storeable>[][]>() {
+    private ThreadLocal<Map<String, Storeable>[][]> putChanges = new ThreadLocal<Map<String, Storeable>[][]> () {
         @Override
         protected Map<String, Storeable>[][] initialValue() {
             Map<String, Storeable>[][] tempMapArray = new HashMap[DIR_NUM][FILES_NUM];
@@ -372,24 +372,13 @@ public class TableImplementation implements Table {
         
         writeLock.lock();
         try {
-            Path tableDirectory = databaseDirectory.resolve(tableName);
                 
             for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
                 for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
                     size += files[nDirectory][nFile].getSize();
                 }
             }
-                /*for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
-                    try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
-                            .resolve(dirName).resolve(fileName))) {
-                        
-                        size += currentDatabase.getSize();
-                        
-                    } catch (IOException e) {
-                        throw new IOException("Error while openning file: "
-                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                    }
-                }*/
+            
         } finally {
             writeLock.unlock();
         }
@@ -416,8 +405,7 @@ public class TableImplementation implements Table {
             } catch (IOException e) {
                 throw new IOException("Error while putting value to file: "
                         + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-            finally {
+            } finally {
                 files[nDirectory][nFile].close();
             }
         } finally {
@@ -437,25 +425,6 @@ public class TableImplementation implements Table {
         }
         
     }
-    
-    /*private String getValueFromFile(String key) throws IOException {
-        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
-        
-        fileLocks[nDirectory][nFile].lock();
-        try {
-            try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                    .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-                
-                return currentDatabase.get(key);
-            } catch (IOException e) {
-                throw new IOException("Error while getting value from file: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-        } finally {
-            fileLocks[nDirectory][nFile].unlock();
-        }
-    }*/
     
     private String putValueToFile(String key, String value) throws IOException {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
