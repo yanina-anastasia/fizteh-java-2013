@@ -47,7 +47,7 @@ public class TableImplementation implements Table {
     private ThreadLocal<Set<String>[][]> removeChanges = new ThreadLocal<Set<String>[][]>() {
         @Override
         protected Set<String>[][] initialValue() {
-            Set<String>[][] tempSetArray = new HashSet[DIR_NUM][FILES_NUM];;
+            Set<String>[][] tempSetArray = new HashSet[DIR_NUM][FILES_NUM];
             for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
                 for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
                     tempSetArray[nDirectory][nFile] = new HashSet<String>();
@@ -377,7 +377,13 @@ public class TableImplementation implements Table {
                 if (dirName.equals("signature.tsv")) {
                     continue;
                 }
-                for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
+                
+                for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                    for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                        size += files[nDirectory][nFile].getSize();
+                    }
+                }
+                /*for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
                     try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
                             .resolve(dirName).resolve(fileName))) {
                         
@@ -387,7 +393,7 @@ public class TableImplementation implements Table {
                         throw new IOException("Error while openning file: "
                                 + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
                     }
-                }
+                }*/
             }
         } finally {
             writeLock.unlock();

@@ -74,7 +74,11 @@ class FileDatabase implements AutoCloseable {
         return value;
     }
     
-    public int getSize() {
+    public int getSize() throws IOException {
+        if (!isLoaded) {
+            isLoaded = true;
+            loadFileDatabase();
+        }
         return database.size();
     }
 
