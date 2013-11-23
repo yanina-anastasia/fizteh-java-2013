@@ -461,9 +461,16 @@ public class MyTable implements Table {
         int similars = 0;
         for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
             Storeable s = map.get(entry.getKey());
-            if ((s != null) && (provider.serialize(this, s).equals(provider.serialize(this, entry.getValue())))) {
-            //if (map.get(entry.getKey()) == entry.getValue()) {
-                similars++;
+            //if ((s != null) && (provider.serialize(this, s).equals(provider.serialize(this, entry.getValue())))) {
+            if (s != null) {
+                boolean flag = true;
+                for (int i = 0; i < types.size(); ++i) {
+                    if (!(entry.getValue().getColumnAt(i).equals(s.getColumnAt(i)))) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) similars++;
             }
         }
         return rewritings.get().size() - similars + removings.get().size();
