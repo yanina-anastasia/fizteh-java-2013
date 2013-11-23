@@ -373,16 +373,12 @@ public class TableImplementation implements Table {
         writeLock.lock();
         try {
             Path tableDirectory = databaseDirectory.resolve(tableName);
-            for (String dirName : tableDirectory.toFile().list()) {
-                if (dirName.equals("signature.tsv")) {
-                    continue;
-                }
                 
-                for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
-                    for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
-                        size += files[nDirectory][nFile].getSize();
-                    }
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILES_NUM; ++nFile) {
+                    size += files[nDirectory][nFile].getSize();
                 }
+            }
                 /*for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
                     try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
                             .resolve(dirName).resolve(fileName))) {
@@ -394,7 +390,6 @@ public class TableImplementation implements Table {
                                 + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
                     }
                 }*/
-            }
         } finally {
             writeLock.unlock();
         }
@@ -421,6 +416,9 @@ public class TableImplementation implements Table {
             } catch (IOException e) {
                 throw new IOException("Error while putting value to file: "
                         + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+            finally {
+                files[nDirectory][nFile].close();
             }
         } finally {
             fileLocks[nDirectory][nFile].unlock();

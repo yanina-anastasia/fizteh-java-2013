@@ -151,6 +151,14 @@ class FileDatabase implements AutoCloseable {
     
     @Override
     public void close() throws IOException {
+        try {
+            Files.createDirectories(dbFilePath.getParent());
+            
+        } catch (IOException e) {
+            throw new IOException("Error while opening database file: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+        
         if (isChanged) {
             try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
                 
