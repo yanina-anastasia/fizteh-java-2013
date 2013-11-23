@@ -106,33 +106,26 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public String getName() {
-        readLock.lock();
-        try {
-            checkState();
-
-            return tableName;
-        } finally {
-            readLock.unlock();
-        }
+        checkState();
+        return tableName;
     }
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
+        checkState();
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
+        }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key must be not empty");
+        }
+
+        if (newValues.get().containsKey(key)) {
+            return newValues.get().get(key);
+        }
+
         readLock.lock();
         try {
-            checkState();
-
-            if (key == null) {
-                throw new IllegalArgumentException("Key must be not null");
-            }
-            if (key.trim().isEmpty()) {
-                throw new IllegalArgumentException("Key must be not empty");
-            }
-
-            if (newValues.get().containsKey(key)) {
-                return newValues.get().get(key);
-            }
-
             return getFromTable(key);
         } finally {
             readLock.unlock();
@@ -141,62 +134,52 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        readLock.lock();
-        try {
-            checkState();
+        checkState();
 
-            if (key == null) {
-                throw new IllegalArgumentException("Key must be not null");
-            }
-            if (key.trim().isEmpty()) {
-                throw new IllegalArgumentException("Key must be not empty");
-            }
-            if (key.matches(".*\\s+.*")) {
-                throw new IllegalArgumentException("Key must not contain whitespace");
-            }
-            if (value == null) {
-                throw new IllegalArgumentException("Value must be not null");
-            }
-            if (!StoreableUtils.isCorrectStoreable(value, this)) {
-                throw new ColumnFormatException("Storeable incorrect value");
-            }
-
-            Storeable oldValue = get(key);
-            newValues.get().put(key, value);
-
-            return oldValue;
-        } finally {
-            readLock.unlock();
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
         }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key must be not empty");
+        }
+        if (key.matches(".*\\s+.*")) {
+            throw new IllegalArgumentException("Key must not contain whitespace");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Value must be not null");
+        }
+        if (!StoreableUtils.isCorrectStoreable(value, this)) {
+            throw new ColumnFormatException("Storeable incorrect value");
+        }
+
+        Storeable oldValue = get(key);
+        newValues.get().put(key, value);
+
+        return oldValue;
     }
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        readLock.lock();
-        try {
-            checkState();
+        checkState();
 
-            if (key == null) {
-                throw new IllegalArgumentException("Key must be not null");
-            }
-            if (key.trim().isEmpty()) {
-                throw new IllegalArgumentException("Key must be not empty");
-            }
-
-            Storeable oldValue = get(key);
-            newValues.get().put(key, null);
-
-            return oldValue;
-        } finally {
-            readLock.unlock();
+        if (key == null) {
+            throw new IllegalArgumentException("Key must be not null");
         }
+        if (key.trim().isEmpty()) {
+            throw new IllegalArgumentException("Key must be not empty");
+        }
+
+        Storeable oldValue = get(key);
+        newValues.get().put(key, null);
+
+        return oldValue;
     }
 
     public void removeTable() throws DatabaseException {
+        checkState();
+
         writeLock.lock();
         try {
-            checkState();
-
             isRemoved = true;
             removeDataFiles();
             FileUtils.remove(tableDirectory);
@@ -207,10 +190,9 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int size() {
+        checkState();
         readLock.lock();
         try {
-            checkState();
-
             int tableSize = getTableSize();
             for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
                 String key = entry.getKey();
@@ -235,10 +217,10 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int commit() throws IOException {
+        checkState();
+
         writeLock.lock();
         try {
-            checkState();
-
             int changes = 0;
             HashSet<ChangedFile> changesFile = new HashSet<>();
 
@@ -275,47 +257,30 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public int rollback() {
-        readLock.lock();
-        try {
-            checkState();
+        checkState();
 
-            int changes = uncommittedChanges();
-            newValues.get().clear();
-            return changes;
-        } finally {
-            readLock.unlock();
-        }
+        int changes = uncommittedChanges();
+        newValues.get().clear();
+        return changes;
     }
 
     @Override
     public int getColumnsCount() {
-        readLock.lock();
-        try {
-            checkState();
-
-            return types.size();
-        } finally {
-            readLock.unlock();
-        }
+        checkState();
+        return types.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        readLock.lock();
-        try {
-            checkState();
+        checkState();
 
-            return types.get(columnIndex);
-        } finally {
-            readLock.unlock();
-        }
+        return types.get(columnIndex);
     }
 
     public int uncommittedChanges() {
+        checkState();
         readLock.lock();
         try {
-            checkState();
-
             int changes = 0;
             for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
                 String key = entry.getKey();
@@ -332,8 +297,13 @@ public class MultiFileHashTable implements Table {
     }
 
     private void checkState() {
-        if (isRemoved) {
-            throw new IllegalStateException("Table + '" + tableName + "' is removed");
+        readLock.lock();
+        try {
+            if (isRemoved) {
+                throw new IllegalStateException("Table + '" + tableName + "' is removed");
+            }
+        } finally {
+            readLock.unlock();
         }
     }
 
@@ -395,7 +365,8 @@ public class MultiFileHashTable implements Table {
             throw new IOException("Signature file is not exist (table '" + tableName + "')");
         }
         ArrayList<Class<?>> types = new ArrayList<>();
-        try (Scanner signatureScanner = new Scanner(new FileInputStream(signatureFile))) {
+        try (FileInputStream signatureStream = new FileInputStream(signatureFile);
+             Scanner signatureScanner = new Scanner(signatureStream)) {
             if (!signatureScanner.hasNextLine()) {
                 throw new IOException("Signature file is empty (table '" + tableName + "')");
             }
@@ -448,7 +419,8 @@ public class MultiFileHashTable implements Table {
 
     private void writeSignatureFile() throws IOException {
         File signatureFile = FileUtils.makeFile(tableDirectory.getAbsolutePath(), SIGNATURE_FILE_NAME);
-        try (BufferedWriter signatureWriter = new BufferedWriter(new FileWriter(signatureFile))) {
+        try (FileWriter signatureFileWriter = new FileWriter(signatureFile);
+             BufferedWriter signatureWriter = new BufferedWriter(signatureFileWriter)) {
             for (int i = 0; i < getColumnsCount(); ++i) {
                 if (getColumnType(i).equals(Integer.class)) {
                     signatureWriter.write("int");
@@ -656,6 +628,13 @@ public class MultiFileHashTable implements Table {
 
         @Override
         public boolean equals(Object object) {
+            if (object == null) {
+                return false;
+            }
+            if (object == this) {
+                return true;
+            }
+
             if (!(object instanceof ChangedFile)) {
                 return false;
             }
