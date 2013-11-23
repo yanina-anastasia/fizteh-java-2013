@@ -404,19 +404,20 @@ public class MyTable implements Table {
     @Override
     public int commit() throws IndexOutOfBoundsException, IOException {
         writeLock.lock();
+        int count;
         try {
-            int count = getCountOfChanges();
-            if (count == 0) {
-                changesMap.get().clear();
-                return 0;
-            }
+            count = getCountOfChanges();
             modifyFileMap();
-            saveChangesOnHard();
-            changesMap.get().clear();
-            return count;
         } finally {
             writeLock.unlock();
         }
+        if (count == 0) {
+            changesMap.get().clear();
+            return 0;
+        }
+        saveChangesOnHard();
+        changesMap.get().clear();
+        return count;
     }
 
 
@@ -457,7 +458,13 @@ public class MyTable implements Table {
 
     @Override
     public int rollback() throws IndexOutOfBoundsException {
-        int count = getCountOfChanges();
+        readLock.lock();
+        int count;
+        try {
+            count = getCountOfChanges();
+        } finally {
+            readLock.unlock();
+        }
         changesMap.get().clear();
         return count;
     }
