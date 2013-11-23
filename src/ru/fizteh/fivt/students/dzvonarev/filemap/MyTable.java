@@ -47,7 +47,7 @@ public class MyTable implements Table {
     private File tableFile;
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
-    private static ThreadLocal<HashMap<String, Storeable>> changesMap;
+    private ThreadLocal<HashMap<String, Storeable>> changesMap;
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
