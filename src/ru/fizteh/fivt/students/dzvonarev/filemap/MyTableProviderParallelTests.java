@@ -46,6 +46,7 @@ public class MyTableProviderParallelTests {
             newThread.start();
             newThread.join();
         } catch (InterruptedException e) {
+            Assert.fail(e.getMessage());
         }
         Assert.assertSame("error: should get table", provider.getTable("table"), table);
     }
@@ -66,6 +67,7 @@ public class MyTableProviderParallelTests {
             newThread.start();
             newThread.join();
         } catch (InterruptedException e) {
+            Assert.fail(e.getMessage());
         }
         Assert.assertNull("error: should be no table", provider.getTable("table"));
     }

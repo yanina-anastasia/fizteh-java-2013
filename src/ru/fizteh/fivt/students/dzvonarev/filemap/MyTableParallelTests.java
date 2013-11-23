@@ -18,7 +18,8 @@ import static org.junit.Assert.assertEquals;
 public class MyTableParallelTests {
 
     private Table table;
-    private MyStoreable store1, store2;
+    private MyStoreable store1;
+    private MyStoreable store2;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -49,6 +50,7 @@ public class MyTableParallelTests {
             newThread.start();
             newThread.join();
         } catch (InterruptedException e) {
+            Assert.fail(e.getMessage());
         }
         Assert.assertEquals("error: not equal", store1, table.get("blabla"));
         Assert.assertNull("error", table.get("qwerty"));
@@ -70,6 +72,7 @@ public class MyTableParallelTests {
             newThread.start();
             newThread.join();
         } catch (InterruptedException e) {
+            Assert.fail(e.getMessage());
         }
         Assert.assertEquals("can't get commited value", store1, table.get("key"));
         Assert.assertEquals("wrong size", table.size(), 1);
@@ -84,6 +87,7 @@ public class MyTableParallelTests {
             newThread.start();
             newThread.join();
         } catch (InterruptedException e) {
+            Assert.fail(e.getMessage());
         }
         assertEquals(table.rollback(), 0);
     }
