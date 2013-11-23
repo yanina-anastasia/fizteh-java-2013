@@ -90,11 +90,6 @@ public class MultiFileHashTable implements Table {
         writeSignatureFile();
 
         table = new HashMap[ALL_DIRECTORIES][FILES_IN_DIRECTORY];
-        for (int i = 0; i < ALL_DIRECTORIES; ++i) {
-            for (int j = 0; j < FILES_IN_DIRECTORY; ++j) {
-                table[i][j] = new HashMap<>();
-            }
-        }
         newValues = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             protected HashMap<String, Storeable> initialValue() {
