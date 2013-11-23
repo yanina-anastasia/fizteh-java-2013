@@ -9,9 +9,14 @@ public abstract class ReadLockRunnable<T> {
     }
     public T invoke() {
         lock.readLock().lock();
-        T ret = runner();
-        lock.readLock().unlock();
-        return ret;
+        try {
+            T ret = runner();
+            return ret;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public abstract T runner();
