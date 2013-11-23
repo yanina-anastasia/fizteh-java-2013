@@ -48,12 +48,7 @@ public class DBTable implements Table {
         for (int i = 0; i < values.size(); i++) {
             try {
                 Storeable rowValue = tableProvider.deserialize(this, values.get(i));
-                readLock.lock();
-                try {
-                    originalTable.put(keys.get(i), rowValue);
-                } finally {
-                    readLock.unlock();
-                }
+                originalTable.put(keys.get(i), rowValue);
             } catch (ParseException e) {
                 throw new IOException(e);
             }

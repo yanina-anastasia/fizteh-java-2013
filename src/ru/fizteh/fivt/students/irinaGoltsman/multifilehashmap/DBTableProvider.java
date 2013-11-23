@@ -76,6 +76,7 @@ public class DBTableProvider implements TableProvider {
         ColumnTypes ct = new ColumnTypes();
         ct.checkTypes(columnTypes);
         Table newTable = null;
+        List<String> types = ct.convertListOfClassesToListOfStrings(columnTypes);
         writeLock.lock();
         try {
             File tableFile = new File(rootDirectoryOfTables, tableName);
@@ -85,7 +86,6 @@ public class DBTableProvider implements TableProvider {
             if (!tableFile.mkdir()) {
                 throw new IOException("table" + tableName + "can't be create");
             }
-            List<String> types = ct.convertListOfClassesToListOfStrings(columnTypes);
             FileManager.writeSignature(tableFile, types);
             newTable = new DBTable(tableFile, this);
             allTables.put(tableName, newTable);
