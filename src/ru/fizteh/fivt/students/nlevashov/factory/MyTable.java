@@ -295,7 +295,7 @@ public class MyTable implements Table {
                         if (s == value) {
                             Storeable ss = rewritings.get().get(key);
                             if (ss == null) {
-                                return value;
+                                return s;
                             } else {
                                 return rewritings.get().remove(key);
                             }
@@ -337,11 +337,11 @@ public class MyTable implements Table {
                     return rewritings.get().remove(key);
                 } else {
                     removings.get().add(key);
-                    Storeable ss = rewritings.get().get(key);
+                    Storeable ss = rewritings.get().remove(key);
                     if (ss == null) {
                         return s;
                     } else {
-                        return rewritings.get().remove(key);
+                        return ss;
                     }
                 }
             }
