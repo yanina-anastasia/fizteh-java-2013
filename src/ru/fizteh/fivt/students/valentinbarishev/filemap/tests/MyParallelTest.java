@@ -47,7 +47,7 @@ public class MyParallelTest {
             }
         };
 
-        pool = new ThreadPoolExecutor(1, 1, Long.MAX_VALUE, TimeUnit.NANOSECONDS,
+        pool = new ThreadPoolExecutor(1, 10, Long.MAX_VALUE, TimeUnit.NANOSECONDS,
                 new LinkedBlockingQueue<Runnable>(), demonFactory);
 
     }
