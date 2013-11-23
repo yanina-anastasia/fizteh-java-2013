@@ -14,10 +14,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DatabaseTable implements Table {
     public HashMap<String, Storeable> oldData;
-    public static ThreadLocal<HashMap<String, Storeable>> modifiedData;
-    public static ThreadLocal<HashSet<String>> deletedKeys;
+    public ThreadLocal<HashMap<String, Storeable>> modifiedData;
+    public ThreadLocal<HashSet<String>> deletedKeys;
     public int size;
-    public static ThreadLocal<Integer> uncommittedChanges;
+    public ThreadLocal<Integer> uncommittedChanges;
     private String tableName;
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
