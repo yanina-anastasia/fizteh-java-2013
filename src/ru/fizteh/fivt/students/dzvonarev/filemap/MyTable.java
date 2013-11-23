@@ -407,15 +407,15 @@ public class MyTable implements Table {
         int count;
         try {
             count = getCountOfChanges();
+            if (count == 0) {
+                changesMap.get().clear();
+                return 0;
+            }
             modifyFileMap();
+            saveChangesOnHard();
         } finally {
             writeLock.unlock();
         }
-        if (count == 0) {
-            changesMap.get().clear();
-            return 0;
-        }
-        saveChangesOnHard();
         changesMap.get().clear();
         return count;
     }
