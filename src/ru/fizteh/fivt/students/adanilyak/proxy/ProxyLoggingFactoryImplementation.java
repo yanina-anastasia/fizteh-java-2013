@@ -17,7 +17,9 @@ public class ProxyLoggingFactoryImplementation implements LoggingProxyFactory {
                        Object implementation,
                        Class<?> interfaceClass) {
 
-        CheckOnCorrect.goodProxyArguments(writer, implementation, interfaceClass);
+        if (!CheckOnCorrect.goodProxyArguments(writer, implementation, interfaceClass)) {
+            throw new IllegalArgumentException("proxy logging factory implementation: bad arguments");
+        }
         return Proxy.newProxyInstance(
                 implementation.getClass().getClassLoader(),
                 new Class[]{interfaceClass},
