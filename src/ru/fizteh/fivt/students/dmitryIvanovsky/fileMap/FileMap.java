@@ -459,13 +459,6 @@ public class FileMap implements Table {
             }
             changeTable.get().put(key, value);
             return oldValue;
-//            if (oldValue != null) {
-//                changeTable.get().put(key, value);
-//                return oldValue;
-//            } else {
-//                changeTable.get().put(key, value);
-//                return null;
-//            }
         }
     }
 
@@ -480,8 +473,6 @@ public class FileMap implements Table {
         }
 
         Storeable value = null;
-        read.lock();
-        try {
             if (changeTable.get().containsKey(key)) {
                 Storeable newValue = changeTable.get().get(key);
                 if (newValue == null) {
@@ -491,16 +482,13 @@ public class FileMap implements Table {
                     return value;
                 }
             } else {
-                if (tableData.containsKey(key)) {
+                read.lock();
+                try {
                     value = tableData.get(key);
-                    return value;
-                } else {
-                    value = null;
+                } finally {
+                    read.unlock();
                 }
             }
-        } finally {
-            read.unlock();
-        }
 
         return value;
     }
@@ -512,34 +500,35 @@ public class FileMap implements Table {
         }
 
         Storeable resValue = null;
+        Storeable value = null;
         read.lock();
         try {
-            if (changeTable.get().containsKey(key)) {
-                Storeable newValue = changeTable.get().get(key);
-                if (tableData.containsKey(key)) {
-                    if (newValue == null) {
-                        resValue =  null;
-                    } else {
-                        Storeable value = changeTable.get().get(key);
-                        changeTable.get().put(key, null);
-                        resValue =  value;
-                    }
-                } else {
-
-                    changeTable.get().remove(key);
-                    resValue =  newValue;
-                }
-            } else {
-                if (tableData.containsKey(key)) {
-                    Storeable value = tableData.get(key);
-                    changeTable.get().put(key, null);
-                    resValue =  value;
-                } else {
-                    resValue =  null;
-                }
-            }
+            value = tableData.get(key);
         } finally {
             read.unlock();
+        }
+
+        if (changeTable.get().containsKey(key)) {
+            Storeable newValue = changeTable.get().get(key);
+            if (value != null) {
+                if (newValue == null) {
+                    resValue =  null;
+                } else {
+                    Storeable valueChange = changeTable.get().get(key);
+                    changeTable.get().put(key, null);
+                    resValue =  valueChange;
+                }
+            } else {
+                changeTable.get().remove(key);
+                resValue =  newValue;
+            }
+        } else {
+            if (value != null) {
+                changeTable.get().put(key, null);
+                resValue =  value;
+            } else {
+                resValue =  null;
+            }
         }
 
         return resValue;
@@ -550,22 +539,34 @@ public class FileMap implements Table {
             throw new IllegalStateException("table was deleted");
         }
 
-        int size = tableData.size();
+        int size = 0;
         read.lock();
         try {
-            for (String key : changeTable.get().keySet()) {
-                if (tableData.containsKey(key)) {
-                    if (changeTable.get().get(key) == null) {
-                        --size;
-                    }
-                } else {
-                    if (changeTable.get().get(key) != null) {
-                        ++size;
-                    }
-                }
-            }
+            size = tableData.size();
         } finally {
             read.unlock();
+        }
+
+        for (String key : changeTable.get().keySet()) {
+
+            boolean containsKey;
+            read.lock();
+            try {
+                containsKey = tableData.containsKey(key);
+            } finally {
+                read.unlock();
+            }
+
+            if (containsKey) {
+                if (changeTable.get().get(key) == null) {
+                    --size;
+                }
+            } else {
+                if (changeTable.get().get(key) != null) {
+                    ++size;
+                }
+            }
+
         }
 
         return size;
