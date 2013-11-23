@@ -294,13 +294,6 @@ public class MyTable implements Table {
                         Storeable s = map.get(key);
                         if (s == null) {
                             return rewritings.get().put(key, value);
-                        } else if (s == value) {
-                            Storeable ss = rewritings.get().remove(key);
-                            if (ss == null) {
-                                return s;
-                            } else {
-                                return ss;
-                            }
                         } else {
                             Storeable ss = rewritings.get().put(key, value);
                             if (ss == null) {
@@ -461,7 +454,6 @@ public class MyTable implements Table {
         int similars = 0;
         for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
             Storeable s = map.get(entry.getKey());
-            //if ((s != null) && (provider.serialize(this, s).equals(provider.serialize(this, entry.getValue())))) {
             if (s != null) {
                 boolean flag = true;
                 for (int i = 0; i < types.size(); ++i) {
@@ -470,7 +462,9 @@ public class MyTable implements Table {
                         break;
                     }
                 }
-                if (flag) similars++;
+                if (flag) {
+                    similars++;
+                }
             }
         }
         return rewritings.get().size() - similars + removings.get().size();
