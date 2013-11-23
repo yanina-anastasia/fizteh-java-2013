@@ -43,29 +43,25 @@ public class TableImplementation implements Table {
     TableImplementation(String tableName, TableProviderImplementation tableProvider) throws IOException,
             DatabaseException {
 
-        writeLock.lock();
-        try {
-            this.tableName = tableName;
-            this.tableProvider = tableProvider;
-            this.tablePath = tableProvider.getWorkspace().resolve(tableName);
-            Path signatureFile = tablePath.resolve(StoreableUtils.getSignatureFileName());
-            this.columnTypes = StoreableUtils.loadSignatureFile(signatureFile);
-            this.columnsCount = columnTypes.size();
-            this.savedMap = new ConcurrentHashMap<>();
-            Map<String, String> tmpBase = new HashMap<>();
-            MultiFileMapLoaderWriter.loadDatabase(tableProvider.getWorkspace(), tableName, tmpBase);
-            for (Map.Entry<String, String> entry : tmpBase.entrySet()) {
-                try {
-                    Storeable storeable = tableProvider.deserialize(this, entry.getValue());
-                    savedMap.put(entry.getKey(), storeable);
-                } catch (Exception e) {
-                    throw new DatabaseException("Cannot deserialize file", e);
-                }
-
+        this.tableName = tableName;
+        this.tableProvider = tableProvider;
+        this.tablePath = tableProvider.getWorkspace().resolve(tableName);
+        Path signatureFile = tablePath.resolve(StoreableUtils.getSignatureFileName());
+        this.columnTypes = StoreableUtils.loadSignatureFile(signatureFile);
+        this.columnsCount = columnTypes.size();
+        this.savedMap = new ConcurrentHashMap<>();
+        Map<String, String> tmpBase = new HashMap<>();
+        MultiFileMapLoaderWriter.loadDatabase(tableProvider.getWorkspace(), tableName, tmpBase);
+        for (Map.Entry<String, String> entry : tmpBase.entrySet()) {
+            try {
+                Storeable storeable = tableProvider.deserialize(this, entry.getValue());
+                savedMap.put(entry.getKey(), storeable);
+            } catch (Exception e) {
+                throw new DatabaseException("Cannot deserialize file", e);
             }
-        } finally {
-            writeLock.unlock();
+
         }
+
     }
 
     /**
@@ -74,30 +70,25 @@ public class TableImplementation implements Table {
     TableImplementation(String tableName, TableProviderImplementation tableProvider, List<Class<?>> columnTypes) throws
             IOException, RuntimeException, DatabaseException {
 
-        writeLock.lock();
-        try {
-            this.tableName = tableName;
-            this.tableProvider = tableProvider;
-            this.columnTypes = new ArrayList<>();
-            for (Class<?> type : columnTypes) {
-                if (type == null) {
-                    throw new IllegalArgumentException("type can't be null");
-                }
-                if (!StoreableUtils.isSupportedType(type)) {
-                    throw new IllegalArgumentException("type no supported");
-                }
-                this.columnTypes.add(type);
+        this.tableName = tableName;
+        this.tableProvider = tableProvider;
+        this.columnTypes = new ArrayList<>();
+        for (Class<?> type : columnTypes) {
+            if (type == null) {
+                throw new IllegalArgumentException("type can't be null");
             }
-            this.columnsCount = columnTypes.size();
-            this.savedMap = new ConcurrentHashMap<>();
-            this.tablePath = tableProvider.getWorkspace().resolve(tableName);
-            Files.createDirectory(tablePath);
-            StoreableUtils.writeSignatureFile(tablePath.resolve(StoreableUtils.getSignatureFileName()),
-                                              this.columnTypes);
-
-        } finally {
-            writeLock.unlock();
+            if (!StoreableUtils.isSupportedType(type)) {
+                throw new IllegalArgumentException("type no supported");
+            }
+            this.columnTypes.add(type);
         }
+        this.columnsCount = columnTypes.size();
+        this.savedMap = new ConcurrentHashMap<>();
+        this.tablePath = tableProvider.getWorkspace().resolve(tableName);
+        Files.createDirectory(tablePath);
+        StoreableUtils.writeSignatureFile(tablePath.resolve(StoreableUtils.getSignatureFileName()),
+                                          this.columnTypes);
+
     }
 
     private boolean isTableStoreableEqual(Storeable first, Storeable second) {
@@ -117,12 +108,13 @@ public class TableImplementation implements Table {
         return result;
     }
 
-    public int getUnsavedChangesCount() {
+    public int getUnsavedChangesCount() { //need external sync
         int changesNum = 0;
         for (Map.Entry<String, Storeable> entry : currentChangesMap.get().entrySet()) {
             String key = entry.getKey();
             Storeable value = entry.getValue();
             Storeable savedValue = savedMap.get(key);
+
             if (value == null) {
                 if (savedValue != null) {
                     ++changesNum;
@@ -140,10 +132,8 @@ public class TableImplementation implements Table {
     }
 
     private void checkTableState() {
-        synchronized (tableProvider) {
-            if (!tableProvider.isProviderLoading() && tableProvider.getTable(tableName) != this) {
-                throw new IllegalStateException("Table was removed");
-            }
+        if (!tableProvider.isProviderLoading() && tableProvider.getTable(tableName) != this) {
+            throw new IllegalStateException("Table was removed");
         }
     }
 
@@ -170,9 +160,9 @@ public class TableImplementation implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Empty key");
         }
-        readLock.lock();
+        checkTableState();
         try {
-            checkTableState();
+            readLock.lock();
             if (currentChangesMap.get().containsKey(key)) {
                 return currentChangesMap.get().get(key);
             } else {
@@ -189,13 +179,11 @@ public class TableImplementation implements Table {
         if (value == null) {
             throw new IllegalArgumentException("Empty value");
         }
+        checkTableState();
+        StoreableUtils.checkStoreableBelongsToTable(this, value);
 
-        readLock.lock();
         try {
-            checkTableState();
-
-            StoreableUtils.checkStoreableBelongsToTable(this, value);
-
+            readLock.lock();
             Storeable toReturn = get(key);
             if (isTableStoreableEqual(value, savedMap.get(key))) {  // savedValue not changes
                 currentChangesMap.get().remove(key);
@@ -213,9 +201,10 @@ public class TableImplementation implements Table {
         if (key == null) {
             throw new IllegalArgumentException("Empty key");
         }
-        readLock.lock();
+        checkTableState();
         try {
-            checkTableState();
+            readLock.lock();
+
             Storeable toReturn = get(key);
             currentChangesMap.get().put(key, null);
             return toReturn;
@@ -226,9 +215,9 @@ public class TableImplementation implements Table {
 
     @Override
     public int size() {
-        readLock.lock();
+        checkTableState();
         try {
-            checkTableState();
+            readLock.lock();
             int tableSize = savedMap.size();
             for (Map.Entry<String, Storeable> entry : currentChangesMap.get().entrySet()) {
                 String key = entry.getKey();
@@ -252,9 +241,9 @@ public class TableImplementation implements Table {
 
     @Override
     public int commit() throws IOException {
-        writeLock.lock();
+        checkTableState();
         try {
-            checkTableState();
+            writeLock.lock();
             int changesNumber = 0;
             for (Map.Entry<String, Storeable> entry : currentChangesMap.get().entrySet()) {
                 String key = entry.getKey();
@@ -300,44 +289,34 @@ public class TableImplementation implements Table {
 
     @Override
     public int rollback() {
-        readLock.lock();
+        checkTableState();
+        int toReturn;
         try {
-            checkTableState();
-
-
-            int toReturn = getUnsavedChangesCount();
-            currentChangesMap.get().clear();
-            return toReturn;
+            readLock.lock();
+            toReturn = getUnsavedChangesCount();
         } finally {
             readLock.unlock();
         }
+        currentChangesMap.get().clear();
+        return toReturn;
     }
 
     @Override
     public int getColumnsCount() {
-        readLock.lock();
-        try {
-            checkTableState();
-            return columnsCount;
-        } finally {
-            readLock.unlock();
-        }
+        checkTableState();
+        return columnsCount;
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        readLock.lock();
-        try {
-            checkTableState();
-            if (columnIndex < 0) {
-                throw new IndexOutOfBoundsException("Negative index");
-            }
-            if (columnIndex >= columnsCount) {
-                throw new IndexOutOfBoundsException("Index bigger than columns count");
-            }
-            return columnTypes.get(columnIndex);
-        } finally {
-            readLock.unlock();
+        checkTableState();
+        if (columnIndex < 0) {
+            throw new IndexOutOfBoundsException("Negative index");
         }
+        if (columnIndex >= columnsCount) {
+            throw new IndexOutOfBoundsException("Index bigger than columns count");
+        }
+        return columnTypes.get(columnIndex);
+
     }
 }

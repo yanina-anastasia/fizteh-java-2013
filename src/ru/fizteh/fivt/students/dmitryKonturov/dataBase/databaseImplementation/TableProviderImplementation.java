@@ -52,26 +52,21 @@ public class TableProviderImplementation implements TableProvider {
     }
 
     TableProviderImplementation(Path path) throws IOException, DatabaseException {
-        writeLock.lock();
-        try {
-            workspace = path;
-            CheckDatabasesWorkspace.checkWorkspace(workspace);
-            isLoading = true;
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-                for (Path entry : stream) {
-                    String tableName = entry.toFile().getName();
-                    TableImplementation currentTable = new TableImplementation(tableName, this);
-                    existingTables.put(tableName, currentTable);
-                }
-            } catch (IOException e) {
-                throw new IOException("Fail to load existing base", e);
-            } catch (Exception e) {
-                throw new DatabaseException("Fail to load existing base", e);
+        workspace = path;
+        CheckDatabasesWorkspace.checkWorkspace(workspace);
+        isLoading = true;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            for (Path entry : stream) {
+                String tableName = entry.toFile().getName();
+                TableImplementation currentTable = new TableImplementation(tableName, this);
+                existingTables.put(tableName, currentTable);
             }
-            isLoading = false;
-        } finally {
-            writeLock.unlock();
+        } catch (IOException e) {
+            throw new IOException("Fail to load existing base", e);
+        } catch (Exception e) {
+            throw new DatabaseException("Fail to load existing base", e);
         }
+        isLoading = false;
     }
 
     Path getWorkspace() {
@@ -84,11 +79,11 @@ public class TableProviderImplementation implements TableProvider {
 
     @Override
     public Table getTable(String name) {
+        if (!isAllowedNameForTable(name)) {
+            throw new IllegalArgumentException("name is null or contains disallowed characters: " + name);
+        }
         readLock.lock();
         try {
-            if (!isAllowedNameForTable(name)) {
-                throw new IllegalArgumentException("name is null or contains disallowed characters: " + name);
-            }
             return existingTables.get(name);
         } finally {
             readLock.unlock();
@@ -97,56 +92,64 @@ public class TableProviderImplementation implements TableProvider {
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        if (!isAllowedNameForTable(name)) {
+            throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
+        }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("columnTypes is null");
+        }
+        if (columnTypes.size() == 0) {
+            throw new IllegalArgumentException("columnTypes is empty");
+        }
+
+        for (Class<?> currentType : columnTypes) {
+            if (currentType == null) {
+                throw new ColumnFormatException("null type");
+            }
+            boolean isAllowed = false;
+            for (Class<?> type : ALLOWED_TYPES) {
+                if (currentType.equals(type)) {
+                    isAllowed = true;
+                }
+            }
+            if (!isAllowed) {
+                throw new IllegalArgumentException("Not all column types is allowed");
+            }
+        }
+
+        Table oldTable;
+        readLock.lock();
+        try {
+            oldTable = existingTables.get(name);
+        } finally {
+            readLock.unlock();
+        }
+
+        if (oldTable != null) {
+            return null;
+        }
+        Table newTable;
+        try {
+            newTable = new TableImplementation(name, this, columnTypes);
+        } catch (Exception e) {
+            throw new IOException("Fail to create database", e);
+        }
         writeLock.lock();
         try {
-            if (!isAllowedNameForTable(name)) {
-                throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
-            }
-            if (columnTypes == null) {
-                throw new IllegalArgumentException("columnTypes is null");
-            }
-            if (columnTypes.size() == 0) {
-                throw new IllegalArgumentException("columnTypes is empty");
-            }
-
-            for (Class<?> currentType : columnTypes) {
-                if (currentType == null) {
-                    throw new ColumnFormatException("null type");
-                }
-                boolean isAllowed = false;
-                for (Class<?> type : ALLOWED_TYPES) {
-                    if (currentType.equals(type)) {
-                        isAllowed = true;
-                    }
-                }
-                if (!isAllowed) {
-                    throw new IllegalArgumentException("Not all column types is allowed");
-                }
-            }
-            Table oldTable =  existingTables.get(name);
-            if (oldTable != null) {
-                return null;
-            }
-            Table newTable;
-            try {
-                newTable = new TableImplementation(name, this, columnTypes);
-            } catch (Exception e) {
-                throw new IOException("Fail to create database", e);
-            }
             existingTables.put(name, newTable);
-            return newTable;
         } finally {
             writeLock.unlock();
         }
+        return newTable;
     }
 
     @Override
     public void removeTable(String name) throws IOException {
+        if (!isAllowedNameForTable(name)) {
+            throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
+        }
         writeLock.lock();
         try {
-            if (!isAllowedNameForTable(name)) {
-                throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
-            }
             if (existingTables.get(name) != null) {
                 try {
                     MultiFileMapLoaderWriter.recursiveRemove(workspace.resolve(name));
@@ -160,26 +163,17 @@ public class TableProviderImplementation implements TableProvider {
         } finally {
             writeLock.unlock();
         }
+
     }
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        readLock.lock();
-        try {
-            return JsonUtils.deserialize(this, table, value);
-        } finally {
-            readLock.unlock();
-        }
+        return JsonUtils.deserialize(this, table, value);
     }
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        readLock.lock();
-        try {
-            return JsonUtils.serialize(table, value);
-        } finally {
-            readLock.unlock();
-        }
+        return JsonUtils.serialize(table, value);
     }
 
     @Override
