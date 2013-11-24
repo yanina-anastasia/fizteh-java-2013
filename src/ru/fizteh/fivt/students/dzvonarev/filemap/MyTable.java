@@ -12,20 +12,25 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTable implements Table {
-
-    public class ValueNode {
-        Storeable oldValue;
-        Storeable newValue;
-    }
 
     public MyTable(File dirTable, MyTableProvider currentProvider) throws IOException, RuntimeException {
         tableProvider = currentProvider;
         tableFile = dirTable;
         tableName = dirTable.getName();
         fileMap = new HashMap<>();
-        changesMap = new HashMap<>();
+        changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+        readLock = readWriteLock.readLock();
+        writeLock = readWriteLock.writeLock();
         type = new ArrayList<>();
         List<String> temp = new ArrayList<>();  //init types of table
         readTypes(temp);
@@ -35,30 +40,34 @@ public class MyTable implements Table {
         } catch (ParseException e) {
             throw new IOException(e);
         }
+
     }
 
     private String tableName;                      // name of current table
     private File tableFile;
     private MyTableProvider tableProvider;
     private HashMap<String, Storeable> fileMap;
-    private HashMap<String, ValueNode> changesMap;
+    private ThreadLocal<HashMap<String, Storeable>> changesMap;
     private List<Class<?>> type;                   // types in this table
+    private Lock readLock;
+    private Lock writeLock;
 
     public List<Class<?>> getTypeArray() {
         return type;
     }
 
     public int getCountOfChanges() throws IndexOutOfBoundsException {
-        if (changesMap == null || changesMap.isEmpty()) {
+        if (changesMap == null || changesMap.get().isEmpty()) {
             return 0;
         }
-        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
-        Iterator<Map.Entry<String, ValueNode>> i = fileSet.iterator();
+        Set<Map.Entry<String, Storeable>> fileSet = changesMap.get().entrySet();
+        Iterator<Map.Entry<String, Storeable>> i = fileSet.iterator();
         int counter = 0;
         while (i.hasNext()) {
-            Map.Entry<String, ValueNode> currItem = i.next();
-            ValueNode value = currItem.getValue();
-            if (!equals(value.newValue, value.oldValue)) {
+            Map.Entry<String, Storeable> currItem = i.next();
+            Storeable value = currItem.getValue();
+            if (value != null && !equals(value, fileMap.get(currItem.getKey()))
+                    || value == null && fileMap.get(currItem.getKey()) != null) {
                 ++counter;
             }
         }
@@ -217,16 +226,16 @@ public class MyTable implements Table {
         try {
             value.getColumnAt(getColumnsCount());   // to check, if value has more columns then types
             throw new ColumnFormatException("wrong type (invalid value " + value.getColumnAt(getColumnsCount()) + ")");
-        } catch (IndexOutOfBoundsException ignored) {
-        }
-        for (int i = 0; i < getColumnsCount(); ++i) {
-            try {
-                Parser myParser = new Parser();
-                if (!myParser.canBeCastedTo(type.get(i), value.getColumnAt(i))) {
-                    throw new ColumnFormatException("wrong type (invalid value type in " + i + " column)");
+        } catch (IndexOutOfBoundsException e) {      // means that all ok
+            for (int i = 0; i < getColumnsCount(); ++i) {
+                try {
+                    Parser myParser = new Parser();
+                    if (!myParser.canBeCastedTo(type.get(i), value.getColumnAt(i))) {
+                        throw new ColumnFormatException("wrong type (invalid value type in " + i + " column)");
+                    }
+                } catch (IndexOutOfBoundsException e1) {
+                    throw new ColumnFormatException("wrong type (invalid value: it has less columns)");
                 }
-            } catch (IndexOutOfBoundsException e) {
-                throw new ColumnFormatException("wrong type (invalid value: it has less columns)");
             }
         }
     }
@@ -278,9 +287,6 @@ public class MyTable implements Table {
 
     public RandomAccessFile openFile(String fileName) throws IOException {
         RandomAccessFile newFile;
-        if (fileName == null) {
-            throw new IOException("wrong name of file to open");
-        }
         try {
             newFile = new RandomAccessFile(fileName, "rw");
         } catch (FileNotFoundException e) {
@@ -308,26 +314,25 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        if (changesMap.containsKey(key)) {            // если он был изменен
-            return changesMap.get(key).newValue;
+        if (changesMap.get().containsKey(key)) {            // если он был изменен
+            return changesMap.get().get(key);
         } else {
-            if (fileMap.containsKey(key)) {
-                return fileMap.get(key);
-            } else {
-                return null;
+            readLock.lock();
+            try {
+                if (fileMap.containsKey(key)) {
+                    return fileMap.get(key);
+                } else {
+                    return null;
+                }
+            } finally {
+                readLock.unlock();
             }
         }
+
     }
 
     public void addChanges(String key, Storeable value) {
-        if (changesMap.containsKey(key)) {
-            changesMap.get(key).newValue = value;
-        } else {
-            ValueNode valueNode = new ValueNode();
-            valueNode.oldValue = fileMap.get(key);
-            valueNode.newValue = value;
-            changesMap.put(key, valueNode);
-        }
+        changesMap.get().put(key, value);
     }
 
     @Override
@@ -336,9 +341,14 @@ public class MyTable implements Table {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
         checkingValueForValid(value);
-        Storeable oldValue = get(key);
-        addChanges(key, value);
-        return oldValue;
+        writeLock.lock();
+        try {
+            Storeable oldValue = get(key);
+            addChanges(key, value);
+            return oldValue;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
@@ -346,16 +356,26 @@ public class MyTable implements Table {
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
-        Storeable oldValue = get(key);
-        if (oldValue != null) {
-            addChanges(key, null);
+        writeLock.lock();
+        try {
+            Storeable oldValue = get(key);
+            if (oldValue != null) {
+                addChanges(key, null);
+            }
+            return oldValue;
+        } finally {
+            writeLock.unlock();
         }
-        return oldValue;
     }
 
     @Override
     public int size() throws IndexOutOfBoundsException {
-        return countSize() + fileMap.size();
+        readLock.lock();
+        try {
+            return countSize() + fileMap.size();
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public void clearTable() throws IOException {
@@ -383,43 +403,53 @@ public class MyTable implements Table {
 
     @Override
     public int commit() throws IndexOutOfBoundsException, IOException {
-        modifyFileMap();
-        saveChangesOnHard();
-        int count = getCountOfChanges();
-        changesMap.clear();
+        writeLock.lock();
+        int count;
+        try {
+            count = getCountOfChanges();
+            if (count == 0) {
+                changesMap.get().clear();
+                return 0;
+            }
+            modifyFileMap();
+            saveChangesOnHard();
+        } finally {
+            writeLock.unlock();
+        }
+        changesMap.get().clear();
         return count;
     }
 
 
     public void modifyFileMap() throws IndexOutOfBoundsException {
-        if (changesMap == null || changesMap.isEmpty()) {
+        if (changesMap == null || changesMap.get().isEmpty()) {
             return;
         }
-        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
-        for (Map.Entry<String, ValueNode> currItem : fileSet) {
-            ValueNode value = currItem.getValue();
-            if (!equals(value.newValue, value.oldValue)) {
-                if (value.newValue == null) {
+        Set<Map.Entry<String, Storeable>> fileSet = changesMap.get().entrySet();
+        for (Map.Entry<String, Storeable> currItem : fileSet) {
+            Storeable value = currItem.getValue();
+            if (!equals(value, fileMap.get(currItem.getKey()))) {
+                if (value == null) {
                     fileMap.remove(currItem.getKey());
                 } else {
-                    fileMap.put(currItem.getKey(), value.newValue);
+                    fileMap.put(currItem.getKey(), value);
                 }
             }
         }
     }
 
     public int countSize() throws IndexOutOfBoundsException {
-        if (changesMap == null || changesMap.isEmpty()) {
+        if (changesMap == null || changesMap.get().isEmpty()) {
             return 0;
         }
         int size = 0;
-        Set<Map.Entry<String, ValueNode>> fileSet = changesMap.entrySet();
-        for (Map.Entry<String, ValueNode> currItem : fileSet) {
-            ValueNode value = currItem.getValue();
-            if (value.oldValue == null && value.newValue != null) {
+        Set<Map.Entry<String, Storeable>> fileSet = changesMap.get().entrySet();
+        for (Map.Entry<String, Storeable> currItem : fileSet) {
+            Storeable value = currItem.getValue();
+            if (fileMap.get(currItem.getKey()) == null && value != null) {
                 ++size;
             }
-            if (value.oldValue != null && value.newValue == null) {
+            if (fileMap.get(currItem.getKey()) != null && value == null) {
                 --size;
             }
         }
@@ -428,8 +458,14 @@ public class MyTable implements Table {
 
     @Override
     public int rollback() throws IndexOutOfBoundsException {
-        int count = getCountOfChanges();
-        changesMap.clear();
+        readLock.lock();
+        int count;
+        try {
+            count = getCountOfChanges();
+        } finally {
+            readLock.unlock();
+        }
+        changesMap.get().clear();
         return count;
     }
 
