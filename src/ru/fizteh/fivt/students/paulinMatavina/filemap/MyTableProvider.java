@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.json.JSONArray;
@@ -25,13 +24,11 @@ public class MyTableProvider extends State implements TableProvider {
     private ReentrantReadWriteLock tableAccessLock;
     private Lock readAccess;
     private Lock writeAccess;
-    private ReentrantLock tableMapLock;
     
     public MyTableProvider(String dir) throws IOException {
         tableAccessLock = new ReentrantReadWriteLock(true);
         readAccess = tableAccessLock.readLock();
         writeAccess = tableAccessLock.writeLock();
-        tableMapLock = new ReentrantLock(true);
         validate(dir);
         shell = new ShellState();    
         File root = new File(shell.makeNewSource(dir));
@@ -91,7 +88,7 @@ public class MyTableProvider extends State implements TableProvider {
     
     public MultiDbState tryToGetTable(String name) throws ParseException, IOException {
         MultiDbState newTable = null;
-        tableMapLock.lock();
+        readAccess.lock();
         try {
             newTable = tableMap.get(name);
             if (newTable == null) {
@@ -101,7 +98,7 @@ public class MyTableProvider extends State implements TableProvider {
                 }
             }  
         } finally {
-            tableMapLock.unlock();
+            readAccess.unlock();
         }
         
         return newTable;
@@ -126,12 +123,7 @@ public class MyTableProvider extends State implements TableProvider {
             MultiDbState table;
             shell.mkdir(new String[] {shell.makeNewSource(name)});      
             table = new MultiDbState(rootDir, name, this, columnTypes);
-            tableMapLock.lock();
-            try {
-                tableMap.put(name, table);
-            } finally {
-                tableMapLock.unlock();
-            } 
+            tableMap.put(name, table);
             return table;
         } catch (ParseException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -148,16 +140,11 @@ public class MyTableProvider extends State implements TableProvider {
                 throw new IllegalStateException("removing not existing table");
             } 
             MultiDbState table = null;
-            tableMapLock.lock();
-            try {
-                table = tableMap.get(name);  
-                if (table != null) {
-                    table.dropped();
-                }
-                tableMap.put(name, null);
-            } finally {
-                tableMapLock.unlock();
-            }              
+            table = tableMap.get(name);  
+            if (table != null) {
+                table.dropped();
+            }
+            tableMap.put(name, null);             
             shell.rm(new String[]{name});
         } finally {
             writeAccess.unlock();
@@ -191,15 +178,15 @@ public class MyTableProvider extends State implements TableProvider {
     
     public Table getCurrTable() {
         Table answer = null;
-        if (currTableName == null) {
-            return null;
-        } else {
-            tableMapLock.lock();
-            try {
+        readAccess.lock();
+        try {
+            if (currTableName == null) {
+                return null;
+            } else {
                 answer = tableMap.get(currTableName);
-            } finally {
-                tableMapLock.unlock();
             }
+        } finally {
+            readAccess.unlock();
         }
         return answer;
     }
