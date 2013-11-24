@@ -4,7 +4,7 @@ import ru.fizteh.fivt.storage.strings.TableProviderFactory;
 
 import java.io.File;
 
-public class MyTableProviderFactory implements TableProviderFactory {
+public class MultiFileHashMapTableProviderFactory implements TableProviderFactory {
     /**
      * Возвращает объект для работы с базой данных.
      *
@@ -12,7 +12,7 @@ public class MyTableProviderFactory implements TableProviderFactory {
      * @return Объект для работы с базой данных.
      * @throws IllegalArgumentException Если значение директории null или имеет недопустимое значение.
      */
-    public ExtendedTableProvider create(String dir) {
+    public ExtendedMultiFileHashMapTableProvider create(String dir) {
         if (dir == null) {
             throw new IllegalArgumentException("dir is null");
         }
@@ -22,6 +22,6 @@ public class MyTableProviderFactory implements TableProviderFactory {
             throw new IllegalArgumentException("no such directory");
         }
 
-        return new MyTableProvider(dbDirectory, false);
+        return new MultiFileHashMapTableProvider(dbDirectory, false);
     }
 }

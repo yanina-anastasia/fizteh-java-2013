@@ -1,40 +1,78 @@
-package ru.fizteh.fivt.students.chernigovsky.multifilehashmap;
+package ru.fizteh.fivt.students.chernigovsky.storeable;
+
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import ru.fizteh.fivt.students.chernigovsky.filemap.FileMapState;
+import java.text.ParseException;
+import java.util.*;
 
-public class MultiFileHashMapUtils {
+public class StoreableUtils {
 
-    public static void delete(File file) throws IOException {
-        if (!file.exists()) {
-            return;
-        }
-        if (file.isFile()) {
-            if (file.delete()) {
-                return;
-            } else {
-                throw new IOException("Delete error");
+    public static boolean checkValue(Table table, Storeable value) {
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            try {
+                value.getColumnAt(i);
+            } catch (IndexOutOfBoundsException ex) {
+                return false;
             }
         }
-        for (File f : file.listFiles()) {
-            delete(f);
+
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            if (value.getColumnAt(i) == null) {
+            } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
+            } else if ((value.getColumnAt(i).getClass() == Long.class || value.getColumnAt(i).getClass() == Integer.class) &&
+                    table.getColumnType(i) == Long.class) {
+            } else if (value.getColumnAt(i).getClass() == Byte.class && table.getColumnType(i) == Byte.class) {
+            } else if (value.getColumnAt(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
+            } else if (value.getColumnAt(i).getClass() == Float.class && table.getColumnType(i) == Float.class) {
+            } else if (value.getColumnAt(i).getClass() == Float.class && table.getColumnType(i) == Double.class) {
+            } else if (value.getColumnAt(i).getClass() == Double.class && table.getColumnType(i) == Double.class) {
+            } else if (value.getColumnAt(i).getClass() == Boolean.class && table.getColumnType(i) == Boolean.class) {
+            } else if (value.getColumnAt(i).getClass() == String.class && table.getColumnType(i) == String.class) {
+            } else {
+                return false;
+            }
         }
-        if (!file.delete()) {
-            throw new IOException("Delete error");
+
+        try {
+            value.getColumnAt(table.getColumnsCount());
+        } catch (IndexOutOfBoundsException ex) {
+            return true;
         }
+
+        return false;
     }
 
-    public static void readTable(FileMapState fileMapState) throws IOException {
+    public static void readTable(ExtendedStoreableTable table, ExtendedStoreableTableProvider tableProvider) throws IOException{
+        File tableFolder = new File(tableProvider.getDbDirectory(), table.getName());
+        File signature = new File(tableFolder, "signature.tsv");
+        if (!signature.exists() || !signature.isFile()) {
+            throw new IOException("no signature file");
+        }
+        Scanner scanner = new Scanner(signature);
+
+        List<Class<?>> columnTypeList = new ArrayList<Class<?>>();
+        while (scanner.hasNext()) {
+            String type = scanner.next();
+            if (TypeEnum.getBySignature(type) == null) {
+                throw new IOException("wrong type (in read signature)");
+            }
+            columnTypeList.add(TypeEnum.getBySignature(type).getClazz());
+        }
+
+        if (columnTypeList.size() == 0) {
+            throw new IOException("empty signature");
+        }
+
+        table.setColumnTypeList(columnTypeList);
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
-            File tableFolder = new File(fileMapState.getCurrentTableProvider().getDbDirectory(), fileMapState.getCurrentTable().getName());
             File directory = new File(tableFolder, directoryNumber.toString() + ".dir");
             if (!directory.exists()) {
                 continue;
             }
-            if (!directory.isDirectory()) {
+            if (!directory.isDirectory() || directory.list().length == 0) {
                 throw new IOException("Corrupted database");
             }
 
@@ -43,7 +81,7 @@ public class MultiFileHashMapUtils {
                 if (!file.exists()) {
                     continue;
                 }
-                if (!file.isFile()) {
+                if (!file.isFile() || file.length() == 0) {
                     throw new IOException("Corrupted database");
                 }
 
@@ -80,7 +118,15 @@ public class MultiFileHashMapUtils {
 
                         String key = new String(keyBytes, "UTF-8");
                         String value = new String(valueBytes, "UTF-8");
-                        fileMapState.getCurrentTable().put(key, value);
+
+                        Storeable deserializedValue;
+
+                        try {
+                            deserializedValue = tableProvider.deserialize(table, value);
+                        } catch (ParseException ex) {
+                            throw new IOException("Corrupted database");
+                        }
+                        table.put(key, deserializedValue);
                     }
                 } finally {
                     dataInputStream.close();
@@ -91,15 +137,15 @@ public class MultiFileHashMapUtils {
         }
     }
 
-    public static void writeTable(FileMapState fileMapState) throws IOException {
+    public static void writeTable(ExtendedStoreableTable table, ExtendedStoreableTableProvider tableProvider) throws IOException {
 
         for (Integer directoryNumber = 0; directoryNumber < 16; ++directoryNumber) {
-            File tableFolder = new File(fileMapState.getCurrentTableProvider().getDbDirectory(), fileMapState.getCurrentTable().getName());
+            File tableFolder = new File(tableProvider.getDbDirectory(), table.getName());
             File dir = new File(tableFolder, directoryNumber.toString() + ".dir");
 
             for (Integer fileNumber = 0; fileNumber < 16; ++fileNumber) {
-                HashMap<String, String> currentMap = new HashMap<String, String>();
-                for (Map.Entry<String, String> entry : fileMapState.getCurrentTable().getEntrySet()) {
+                HashMap<String, Storeable> currentMap = new HashMap<String, Storeable>();
+                for (Map.Entry<String, Storeable> entry : table.getEntrySet()) {
                     if (Math.abs(entry.getKey().getBytes("UTF-8")[0]) % 16 == directoryNumber && Math.abs(entry.getKey().getBytes("UTF-8")[0]) / 16 % 16 == fileNumber) {
                         currentMap.put(entry.getKey(), entry.getValue());
                     }
@@ -127,11 +173,12 @@ public class MultiFileHashMapUtils {
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
                 DataOutputStream dataOutputStream = new DataOutputStream(bufferedOutputStream);
                 try {
-                    for (Map.Entry<String, String> entry : currentMap.entrySet()) {
+                    for (Map.Entry<String, Storeable> entry : currentMap.entrySet()) {
+                        String serializedValue = tableProvider.serialize(table, entry.getValue());
                         dataOutputStream.writeInt(entry.getKey().getBytes("UTF-8").length);
-                        dataOutputStream.writeInt(entry.getValue().getBytes("UTF-8").length);
+                        dataOutputStream.writeInt(serializedValue.getBytes("UTF-8").length);
                         dataOutputStream.write(entry.getKey().getBytes("UTF-8"));
-                        dataOutputStream.write(entry.getValue().getBytes("UTF-8"));
+                        dataOutputStream.write(serializedValue.getBytes("UTF-8"));
                     }
                 } finally {
                     dataOutputStream.close();

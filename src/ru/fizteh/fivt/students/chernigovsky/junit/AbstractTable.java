@@ -3,26 +3,28 @@ package ru.fizteh.fivt.students.chernigovsky.junit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class MyTable implements ExtendedTable {
-    private HashMap<String, String> hashMap;
-    private HashMap<String, String> newEntries;
-    private HashMap<String, String> changedEntries;
-    private HashMap<String, String> removedEntries;
-    boolean autoCommit;
-    String tableName;
+public abstract class AbstractTable<ValueType> {
+    private HashMap<String, ValueType> hashMap;
+    private HashMap<String, ValueType> newEntries;
+    private HashMap<String, ValueType> changedEntries;
+    private HashMap<String, ValueType> removedEntries;
+    private boolean autoCommit;
+    private String tableName;
 
-    public Set<Map.Entry<String, String>> getEntrySet() {
+    public Set<Map.Entry<String, ValueType>> getEntrySet() {
         return hashMap.entrySet();
     }
 
-    public MyTable(String name, boolean flag) {
+    public AbstractTable(String name, boolean flag) {
         tableName = name;
         autoCommit = flag;
-        hashMap = new HashMap<String, String>();
-        newEntries = new HashMap<String, String>();
-        changedEntries = new HashMap<String, String>();
-        removedEntries = new HashMap<String, String>();
+        hashMap = new HashMap<String, ValueType>();
+        newEntries = new HashMap<String, ValueType>();
+        changedEntries = new HashMap<String, ValueType>();
+        removedEntries = new HashMap<String, ValueType>();
     }
 
     public String getName(){
@@ -41,10 +43,16 @@ public class MyTable implements ExtendedTable {
      *
      * @throws IllegalArgumentException Если значение параметра key является null.
      */
-    public String get(String key) {
-        if (key == null || key.trim().isEmpty()) {
+    public ValueType get(String key) {
+        if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(key);
+        if (key.isEmpty() || matcher.find()) {
+            throw new IllegalArgumentException("key is wrong");
+        }
+
         if (removedEntries.get(key) != null) {
             return null;
         }
@@ -68,7 +76,7 @@ public class MyTable implements ExtendedTable {
      * @throws IllegalArgumentException Если значение параметров key или value является null.
      */
 
-    private String putting(String key, String value) {
+    private ValueType putting(String key, ValueType value) {
         if (hashMap.get(key) == null) {
             return newEntries.put(key, value);
         } else {
@@ -97,15 +105,21 @@ public class MyTable implements ExtendedTable {
 
     }
 
-    public String put(String key, String value) {
-        if (key == null || key.trim().isEmpty()) {
+    public ValueType put(String key, ValueType value) {
+        if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        if (value == null || value.trim().isEmpty()) {
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(key);
+        if (key.isEmpty() || matcher.find()) {
+            throw new IllegalArgumentException("key is wrong");
+        }
+
+        if (value == null) { // maybe need to check: value.trim().isEmpty()
             throw new IllegalArgumentException("value is null");
         }
 
-        String ans = putting(key, value);
+        ValueType ans = putting(key, value);
         if (autoCommit) {
             commit();
         }
@@ -122,7 +136,7 @@ public class MyTable implements ExtendedTable {
      * @throws IllegalArgumentException Если значение параметра key является null.
      */
 
-    private String removing(String key) {
+    private ValueType removing(String key) {
         if (removedEntries.get(key) != null) {
             return null;
         }
@@ -140,12 +154,17 @@ public class MyTable implements ExtendedTable {
         return null;
     }
 
-    public String remove(String key) {
+    public ValueType remove(String key) {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(key);
+        if (key.isEmpty() || matcher.find()) {
+            throw new IllegalArgumentException("key is wrong");
+        }
 
-        String ans = removing(key);
+        ValueType ans = removing(key);
         if (autoCommit) {
             commit();
         }
@@ -170,17 +189,17 @@ public class MyTable implements ExtendedTable {
     public int commit() {
         int changed = getDiffCount();
 
-        for (Map.Entry<String, String> entry : newEntries.entrySet()) {
+        for (Map.Entry<String, ValueType> entry : newEntries.entrySet()) {
             hashMap.put(entry.getKey(), entry.getValue());
         }
         newEntries.clear();
 
-        for (Map.Entry<String, String> entry : changedEntries.entrySet()) {
+        for (Map.Entry<String, ValueType> entry : changedEntries.entrySet()) {
             hashMap.put(entry.getKey(), entry.getValue());
         }
         changedEntries.clear();
 
-        for (Map.Entry<String, String> entry : removedEntries.entrySet()) {
+        for (Map.Entry<String, ValueType> entry : removedEntries.entrySet()) {
             hashMap.remove(entry.getKey());
         }
         removedEntries.clear();
