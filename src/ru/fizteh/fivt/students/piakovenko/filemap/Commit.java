@@ -8,30 +8,32 @@ import java.io.IOException;
 /**
  * Created with IntelliJ IDEA.
  * User: Pavel
- * Date: 12.10.13
- * Time: 22:45
+ * Date: 27.10.13
+ * Time: 10:21
  * To change this template use File | Settings | File Templates.
  */
-public class Remove implements Commands {
-    private final String name = "remove";
-    private GlobalFileMapState db;
+public class Commit implements Commands {
+    private final String name = "commit";
+    private GlobalFileMapState db = null;
 
-    public Remove(GlobalFileMapState dataBase) {
-        db = dataBase;
+    public Commit(GlobalFileMapState t) {
+        db = t;
     }
 
     public String getName() {
         return name;
     }
 
+
     public void perform(String[] args) throws IOException {
+        if (args.length != 1) {
+            throw new IOException("Wrong number of arguments! Usage: commit");
+        }
         if (!db.isValidTable()) {
             System.out.println("no table");
             return;
         }
-        if (args.length != 2) {
-            throw new IOException("Wrong number of arguments! Usage: get <keyValue>");
-        }
-        db.removeKey(args[1]);
+        db.commit();
     }
+
 }

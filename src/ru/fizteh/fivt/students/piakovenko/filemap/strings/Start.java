@@ -1,6 +1,4 @@
-package ru.fizteh.fivt.students.piakovenko.filemap;
-
-import ru.fizteh.fivt.students.piakovenko.filemap.strings.DataBasesFactory;
+package ru.fizteh.fivt.students.piakovenko.filemap.strings;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,15 +9,19 @@ import ru.fizteh.fivt.students.piakovenko.filemap.strings.DataBasesFactory;
  */
 
 public class Start {
-    public static int main(String[] args) {
+    public static void main(String[] args) {
         try {
             DataBasesFactory dbf = new DataBasesFactory();
-            dbf.create(System.getProperty("fizteh.db.dir"));
-            dbf.start(args);
+            try {
+                dbf.create(System.getProperty("fizteh.db.dir"));
+                dbf.start(args);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Error! " + e.getMessage());
+                System.exit(1);
+            }
         } catch (IllegalArgumentException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);
         }
-        return 0;
     }
 }

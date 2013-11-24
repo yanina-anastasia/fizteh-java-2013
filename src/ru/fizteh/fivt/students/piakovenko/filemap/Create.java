@@ -8,16 +8,16 @@ import java.io.IOException;
 /**
  * Created with IntelliJ IDEA.
  * User: Pavel
- * Date: 12.10.13
- * Time: 22:44
+ * Date: 21.10.13
+ * Time: 0:11
  * To change this template use File | Settings | File Templates.
  */
-public class Get implements Commands {
-    private final String name = "get";
-    private GlobalFileMapState db;
+public class Create implements Commands {
+    private final String name = "create";
+    private GlobalFileMapState dbc = null;
 
-    public Get(GlobalFileMapState dataBase) {
-        db = dataBase;
+    public Create(GlobalFileMapState t) {
+        dbc = t;
     }
 
     public String getName() {
@@ -25,13 +25,10 @@ public class Get implements Commands {
     }
 
     public void perform(String[] args) throws IOException {
-        if (!db.isValidTable()) {
-            System.out.println("no table");
-            return;
-        }
         if (args.length != 2) {
-            throw new IOException("Wrong number of arguments! Usage: get <keyValue>");
+            throw new IOException("Wrong number of arguments! Usage: create <keyValue>");
         }
-        db.get(args[1]);
+        dbc.createTable(args[1]);
     }
+
 }
