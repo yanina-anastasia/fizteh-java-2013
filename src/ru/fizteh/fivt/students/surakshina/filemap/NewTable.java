@@ -110,10 +110,11 @@ public class NewTable implements Table {
 
     @Override
     public int commit() throws IOException {
-        int count = unsavedChanges();
-        if (count != 0) {
-            controller.writeLock().lock();
-            try {
+        int count = 0;
+        controller.writeLock().lock();
+        try {
+            count = unsavedChanges();
+            if (count != 0) {
                 for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
                     if (dataMap.containsKey(entry.getKey()) && !dataMap.get(entry.getKey()).equals(entry.getValue())) {
                         if (entry.getValue() != null) {
@@ -128,9 +129,9 @@ public class NewTable implements Table {
                     }
                 }
                 provider.saveChanges(this);
-            } finally {
-                controller.writeLock().unlock();
             }
+        } finally {
+            controller.writeLock().unlock();
         }
         localMap.get().clear();
         return count;
@@ -183,21 +184,16 @@ public class NewTable implements Table {
 
     public int unsavedChanges() {
         int count = 0;
-        controller.readLock().lock();
-        try {
-            for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
-                if (dataMap.containsKey(entry.getKey())) {
-                    if (!dataMap.get(entry.getKey()).equals(entry.getValue())) {
-                        ++count;
-                    }
-                } else {
-                    if (entry.getValue() != null) {
-                        ++count;
-                    }
+        for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
+            if (dataMap.containsKey(entry.getKey())) {
+                if (!dataMap.get(entry.getKey()).equals(entry.getValue())) {
+                    ++count;
+                }
+            } else {
+                if (entry.getValue() != null) {
+                    ++count;
                 }
             }
-        } finally {
-            controller.readLock().unlock();
         }
         return count;
     }
@@ -228,11 +224,7 @@ public class NewTable implements Table {
         if (!localMap.get().containsKey(key)) {
             controller.readLock().lock();
             try {
-                if (!dataMap.containsKey(key)) {
-                    return null;
-                } else {
-                    return dataMap.get(key);
-                }
+                return dataMap.get(key);
             } finally {
                 controller.readLock().unlock();
             }

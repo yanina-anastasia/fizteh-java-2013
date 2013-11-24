@@ -49,6 +49,14 @@ public class NewTableProvider implements TableProvider {
             if (checkTableName(file.getName())) {
                 if (file.isDirectory()) {
                     tables.put(file.getName(), new NewTable(file.getName(), this));
+                    File tableFile = new File(workingDirectory, file.getName());
+                    HashMap<String, Storeable> map;
+                    try {
+                        map = load(tableFile, file.getName());
+                        tables.get(file.getName()).loadCommitedValues(map);
+                    } catch (ParseException e) {
+                        throw new IOException(e.getMessage(), e);
+                    }
                 } else {
                     throw new IllegalArgumentException("not a directory");
                 }
@@ -100,38 +108,30 @@ public class NewTableProvider implements TableProvider {
         }
         providerController.lock();
         try {
-            NewTable table = tables.get(name);
-            File tableFile = new File(workingDirectory, name);
-            if (table != null && tableFile != null) {
-                currentTable = table;
-                table.loadCommitedValues(load(tableFile));
+            if (tables.containsKey(name)) {
+                currentTable = tables.get(name);
+                return currentTable;
+            } else {
+                return null;
             }
-            return table;
-        } catch (IOException | ParseException e) {
-            throw new IllegalArgumentException("wrong type (Wrong key)");
         } finally {
             providerController.unlock();
         }
     }
 
-    private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
+    private HashMap<String, Storeable> load(File tableFile, String name) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
-        providerController.lock();
-        try {
-            for (File dir : tableFile.listFiles()) {
-                if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
-                    for (File file : dir.listFiles()) {
-                        if (checkNameOfFiles(file.getName()) && file.isFile()) {
-                            if (file.length() != 0) {
-                                map.putAll(ReadDataBase.loadFile(file, currentTable));
-                            }
+        for (File dir : tableFile.listFiles()) {
+            if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
+                for (File file : dir.listFiles()) {
+                    if (checkNameOfFiles(file.getName()) && file.isFile()) {
+                        if (file.length() != 0) {
+                            map.putAll(ReadDataBase.loadFile(file, new NewTable(name, this)));
                         }
                     }
                 }
-
             }
-        } finally {
-            providerController.unlock();
+
         }
         return map;
     }
