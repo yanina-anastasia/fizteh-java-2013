@@ -489,14 +489,13 @@ public class DataBase implements Table {
             int changesCount = transaction.get().commit();
             transaction.get().clearMap();
             return changesCount;
-        }
-        finally {
+        } finally {
             lock.unlock();
         }
     }
 
     public int rollback() {
-        try{
+        try {
             lock.lock();
             int count = transaction.get().calcChanges();
             transaction.get().clearMap();

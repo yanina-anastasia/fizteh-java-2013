@@ -80,10 +80,10 @@ public class DataBaseMap {
         return count;
     }
 
-    public int changesCount(Map<String, Storeable> _newMap) {
+    public int changesCount(Map<String, Storeable> newMap) {
         int count = 0;
-        for (final String key: _newMap.keySet()) {
-            Storeable tempValue = _newMap.get(key);
+        for (final String key: newMap.keySet()) {
+            Storeable tempValue = newMap.get(key);
             if (wasChanged(tempValue, map.get(key))) {
                 ++count;
             }

@@ -40,7 +40,7 @@ public class DataBasesCommander implements TableProvider {
         for (File f: directory.listFiles()) {
             if (f.getName().equals("db.dat") && f.isFile()) {
                 return f;
-			}
+            }
         }
         return null;
     }
