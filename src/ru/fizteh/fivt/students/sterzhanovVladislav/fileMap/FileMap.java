@@ -193,18 +193,13 @@ public class FileMap implements Table {
         }
     }
     
-    public void writeOutDiff(String dirPath, Set<Integer> modifiedFiles) throws IOException {
+    private void writeOutDiff(String dirPath, Set<Integer> modifiedFiles) throws IOException {
         ensureTableExists();
         Path path = Paths.get(dirPath + "/" + name);
         if (path == null) {
             throw new IllegalArgumentException("Invalid directory path");
         }
-        wLock.lock();
-        try {
-            IOUtility.writeDiff(modifiedFiles, db, path, columnTypes);
-        } finally {
-            wLock.unlock();
-        }
+        IOUtility.writeDiff(modifiedFiles, db, path, columnTypes);
     }
     
     public List<Class<?>> getSignature() {
