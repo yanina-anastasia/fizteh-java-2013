@@ -22,9 +22,9 @@ public class GlobalFileMapState {
     public GlobalFileMapState() {
     }
 
-    public GlobalFileMapState(Table _table, TableProvider _tableProvider) {
-        tableStrings = _table;
-        tableProviderStrings = _tableProvider;
+    public GlobalFileMapState(Table table, TableProvider tableProvider) {
+        tableStrings = table;
+        tableProviderStrings = tableProvider;
     }
 
     public GlobalFileMapState(ru.fizteh.fivt.storage.structured.Table table,
@@ -69,8 +69,8 @@ public class GlobalFileMapState {
 
     public void createTable(String name) throws IllegalArgumentException {
         if (isStoreableMode) {
-            throw new IllegalArgumentException("GFMS: createTable! Storeable mode is on! " +
-                    "This command can't work in this mode!");
+            throw new IllegalArgumentException("GFMS: createTable! Storeable mode is on! "
+                    + "This command can't work in this mode!");
         } else {
             tableProviderStrings.createTable(name);
         }
@@ -101,8 +101,7 @@ public class GlobalFileMapState {
     }
 
     public void put(String key, String value) throws IOException {
-        if (isStoreableMode) {
-        } else {
+        if (!isStoreableMode) {
             tableStrings.put(key, value);
         }
     }

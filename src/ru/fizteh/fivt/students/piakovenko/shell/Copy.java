@@ -28,7 +28,8 @@ public class Copy implements Commands {
         if (array.length != 3) {
             throw new IOException("Wrong arguments! Usage ~ cp <source> <destination>");
         }
-        File from, to;
+        File from;
+        File to;
         from = new File(array[1]);
         if (!from.isAbsolute()) {
             from = new File(currentStatus.getCurrentDirectory(), array[1]);

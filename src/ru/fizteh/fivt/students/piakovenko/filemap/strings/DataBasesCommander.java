@@ -27,8 +27,9 @@ public class DataBasesCommander implements TableProvider {
 
     private static File getMode(File directory) {
         for (File f : directory.listFiles()) {
-            if (f.getName().equals("db.dat") && f.isFile())
+            if (f.getName().equals("db.dat") && f.isFile()) {
                 return f;
+            }
         }
         return null;
     }
@@ -105,7 +106,8 @@ public class DataBasesCommander implements TableProvider {
                 state.changeTable(currentDataBase);
             }
             try {
-                ru.fizteh.fivt.students.piakovenko.shell.Remove.removeRecursively(filesMap.get(dataBase).returnFiledirectory());
+                ru.fizteh.fivt.students.piakovenko.shell.Remove.removeRecursively
+                        (filesMap.get(dataBase).returnFiledirectory());
             } catch (IOException e) {
                 System.err.println("Error! " + e.getMessage());
                 System.exit(1);
