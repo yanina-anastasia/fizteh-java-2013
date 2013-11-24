@@ -121,5 +121,16 @@ public class Element implements Storeable {
         return (String)storage.get(columnIndex);
     }
 
+    @Override
+     public boolean equals(Object obj) {
+        Element row = (Element) obj;
+        return row.storageClasses.equals(storageClasses) && row.storage.equals(storage);
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
+
 
 }
