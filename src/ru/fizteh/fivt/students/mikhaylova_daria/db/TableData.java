@@ -16,7 +16,7 @@ public class TableData implements Table {
     DirDataBase[] dirArray = new DirDataBase[16];
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
-    private static ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private  ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
     private final Lock myReadLock = readWriteLock.readLock();
 

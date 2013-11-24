@@ -67,7 +67,7 @@ public class TableManager implements TableProvider {
         File[] tables = mainDir.listFiles();
         File sign = new File(mainDir, "signature.tsv");
         if (tables == null) {
-             throw new IOException("Unknown error");
+            throw new IOException("Unknown error");
         }
         for (short i = 0; i < tables.length; ++i) {
             if (tables[i].isFile()) {
@@ -87,7 +87,7 @@ public class TableManager implements TableProvider {
                 sign = new File(tables[i], "signature.tsv");
                 if (!directories[j].equals(sign)) {
                     if (directories[j].isFile() || !dirNames.containsKey(directories[j].getName())) {
-                            throw new IllegalStateException(directories[j].toString() + " is not directory of table");
+                        throw new IllegalStateException(directories[j].toString() + " is not directory of table");
                     }
                     idFile[0] = dirNames.get(directories[j].getName());
                     File[] files = directories[j].listFiles();
@@ -120,7 +120,7 @@ public class TableManager implements TableProvider {
                     File[] checkOnEmpty = directories[j].listFiles();
                     if (checkOnEmpty != null) {
                         if (checkOnEmpty.length == 0) {
-                                throw new IllegalArgumentException("Empty directory: " + directories[j].toString());
+                            throw new IllegalArgumentException("Empty directory: " + directories[j].toString());
                         }
                     }
                 }
@@ -388,7 +388,7 @@ public class TableManager implements TableProvider {
         } catch (SAXException e) {
             throw new ParseException(e.getMessage(), 0);
         } catch (ParserConfigurationException e) {
-             throw new ParseException(e.getMessage(), 0);
+            throw new ParseException(e.getMessage(), 0);
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
