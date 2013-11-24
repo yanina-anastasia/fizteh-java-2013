@@ -4,7 +4,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.IOException;
 
-public class CommandCommit implements Command<MultiFileHashMapState> {
+public class CommandCommit implements Command<JUnitState> {
 
     @Override
     public String getName() {
@@ -17,7 +17,7 @@ public class CommandCommit implements Command<MultiFileHashMapState> {
     }
 
     @Override
-    public void run(MultiFileHashMapState state, String[] args) throws IOException {
+    public void run(JUnitState state, String[] args) throws IOException {
         if (state.getCurrentTable() == null) {
             System.out.println("no table");
             throw new IOException("Database haven't initialized.");

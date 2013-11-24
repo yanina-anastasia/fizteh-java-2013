@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class MultiFilemapBuilder {
-    public void build(MultiFileHashMapState state) {
+    public void build(JUnitState state) {
         File dirCreator = state.getWorkingPath().toFile();
         if (!dirCreator.exists()) {
             dirCreator.mkdir();
@@ -16,7 +16,7 @@ public class MultiFilemapBuilder {
         }
     }
 
-    public void finish(MultiFileHashMapState state) throws IOException {
+    public void finish(JUnitState state) throws IOException {
         if (state.getCurrentTable() != null) {
             Utils.dumpTable(state.getCurrentTable());
         }

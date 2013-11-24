@@ -5,7 +5,7 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 import java.io.File;
 import java.io.IOException;
 
-public class CommandUse implements Command<MultiFileHashMapState> {
+public class CommandUse implements Command<JUnitState> {
     public String getName() {
         return "use";
     }
@@ -14,7 +14,7 @@ public class CommandUse implements Command<MultiFileHashMapState> {
         return 1;
     }
 
-    public void run(MultiFileHashMapState state, String[] args) throws IOException {
+    public void run(JUnitState state, String[] args) throws IOException {
         if (state.getWorkingPath().getFileName().toString().equals(args[0])) {
             System.out.println("using " + args[0]);
             return;
