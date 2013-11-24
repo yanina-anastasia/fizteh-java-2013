@@ -24,14 +24,10 @@ public class CommandUse implements Command<MultiFileHashMapState> {
             if (table != null) {
                 Utils.dumpTable(table);
             }
-            if (!state.getWorkingTableName().equals("")) {
-                if (table != null) {
-                    table.clear();
-                }
+            if (table != null) {
+                table.clear();
             }
-            state.setWorkingPath(args[0]);
             state.setCurrentTable(args[0]);
-            state.setWorkingPath(args[0]);
             System.out.println("using " + args[0]);
         } else {
             System.out.println(args[0] + " not exists");

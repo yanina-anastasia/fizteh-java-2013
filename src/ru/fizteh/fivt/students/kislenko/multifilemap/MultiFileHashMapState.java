@@ -9,15 +9,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MultiFileHashMapState extends FatherState {
     private Path databasePath;
-    private String workingTableName;
     private MyTable currentTable;
     private MyTableProvider tables;
 
     public MultiFileHashMapState(Path p) {
         databasePath = p;
-        workingTableName = "";
         MyTableProviderFactory factory = new MyTableProviderFactory();
         tables = factory.create(p.toString());
+        currentTable = null;
     }
 
     public Path getPath() {
@@ -32,28 +31,24 @@ public class MultiFileHashMapState extends FatherState {
         tables.createTable(databasePath.resolve(tableName).toString());
     }
 
-    public String getWorkingTableName() {
-        return workingTableName;
-    }
-
-    public void setWorkingPath(String tableName) {
-        workingTableName = tableName;
-    }
-
     public MyTable getCurrentTable() {
-        if (workingTableName.equals("")) {
-            return null;
-        } else {
-            return currentTable;
-        }
+        return currentTable;
     }
 
     public Path getWorkingPath() {
-        return databasePath.resolve(workingTableName);
+        if (currentTable == null) {
+            return databasePath;
+        } else {
+            return databasePath.resolve(currentTable.getName());
+        }
     }
 
     public void setCurrentTable(String name) {
-        currentTable = tables.getTable(databasePath.resolve(name).toString());
+        if (name == null) {
+            currentTable = null;
+        } else {
+            currentTable = tables.getTable(databasePath.resolve(name).toString());
+        }
     }
 
     @Override
