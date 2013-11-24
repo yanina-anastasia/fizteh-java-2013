@@ -2,12 +2,12 @@ package ru.fizteh.fivt.students.vyatkina;
 
 public interface Command {
 
-    void execute (String[] args) throws CommandExecutionException;
+    void execute(String[] args) throws CommandExecutionException;
 
-    String getName ();
+    String getName();
 
-    int getArgumentCount ();
+    int getArgumentCount();
 
-    String [] parseArgs (String line);
+    String[] parseArgs(String line);
 
 }

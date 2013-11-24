@@ -16,35 +16,35 @@ import java.util.Set;
 
 public class FileMapMain {
 
-    static Set<Command> getFileMapCommands (DatabaseState state) {
-        Set commands = new HashSet ();
-        commands.add (new GetCommand (state));
-        commands.add (new PutCommand (state));
-        commands.add (new RemoveCommand (state));
-        commands.add (new ExitDatabaseCommand (state));
+    static Set<Command> getFileMapCommands(DatabaseState state) {
+        Set commands = new HashSet();
+        commands.add(new GetCommand(state));
+        commands.add(new PutCommand(state));
+        commands.add(new RemoveCommand(state));
+        commands.add(new ExitDatabaseCommand(state));
         return commands;
     }
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
 
         try {
-            FileMapTable fileMapTable = new FileMapTable ("LittleFilemapTable");
-            FileMapTableProvider tableProvider = new FileMapTableProvider (fileMapTable);
-            DatabaseAdapter databaseAdapter = new StringDatabaseAdapter (tableProvider, fileMapTable);
-            DatabaseState state = new DatabaseState (databaseAdapter);
+            FileMapTable fileMapTable = new FileMapTable("LittleFilemapTable");
+            FileMapTableProvider tableProvider = new FileMapTableProvider(fileMapTable);
+            DatabaseAdapter databaseAdapter = new StringDatabaseAdapter(tableProvider, fileMapTable);
+            DatabaseState state = new DatabaseState(databaseAdapter);
 
-            Set<Command> commands = getFileMapCommands (state);
+            Set<Command> commands = getFileMapCommands(state);
 
             Shell shell;
             if (args.length == 0) {
-                shell = new Shell (commands, Shell.Mode.INTERACTIVE, state);
+                shell = new Shell(commands, Shell.Mode.INTERACTIVE, state);
             } else {
-                shell = new Shell (commands, Shell.Mode.PACKET, state);
+                shell = new Shell(commands, Shell.Mode.PACKET, state);
             }
-            shell.startWork (args);
+            shell.startWork(args);
         }
         catch (TimeToFinishException e) {
-            Thread.currentThread ().isInterrupted ();
+            Thread.currentThread().isInterrupted();
         }
 
     }

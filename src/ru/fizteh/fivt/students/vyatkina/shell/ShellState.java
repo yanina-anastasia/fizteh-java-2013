@@ -7,15 +7,15 @@ public class ShellState extends State {
 
     private FileManager fileManager;
 
-    public ShellState (FileManager fileManager) {
+    public ShellState(FileManager fileManager) {
         this.fileManager = fileManager;
     }
 
-    public void setFileManager (FileManager fileManager) {
+    public void setFileManager(FileManager fileManager) {
         this.fileManager = fileManager;
     }
 
-    public FileManager getFileManager () {
+    public FileManager getFileManager() {
         return fileManager;
     }
 
