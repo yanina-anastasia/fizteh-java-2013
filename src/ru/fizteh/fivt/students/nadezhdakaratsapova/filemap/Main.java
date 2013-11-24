@@ -1,8 +1,11 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
+import ru.fizteh.fivt.students.nadezhdakaratsapova.commands.ExitCommand;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.commands.GetCommand;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.commands.PutCommand;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.commands.RemoveCommand;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.Shell;
 import ru.fizteh.fivt.students.nadezhdakaratsapova.shell.StringMethods;
-import ru.fizteh.fivt.students.nadezhdakaratsapova.commands.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +18,9 @@ public class Main {
         try {
             File dataFile = new File(System.getProperty("fizteh.db.dir"), "db.dat");
             if (!dataFile.exists()) {
-                dataFile.createNewFile();
+                throw new IOException("not such file or directory");
+                //dataFile.createNewFile();
+
             }
             FileMapState state = new FileMapState(dataFile);
             Shell fileMap = new Shell();
