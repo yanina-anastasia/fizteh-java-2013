@@ -20,8 +20,8 @@ import ru.fizteh.fivt.students.ryabovaMaria.shell.DeleteDir;
 
 public class TableProviderCommands implements TableProvider {
     private final File curDir;
-    private ThreadLocal<File> tableDir = new ThreadLocal();
-    private ThreadLocal<Table> myTable = new ThreadLocal();
+    private ThreadLocal<File> tableDir = new ThreadLocal<File>();
+    private ThreadLocal<Table> myTable = new ThreadLocal<Table>();
     private HashMap<String, Table> names;
     private ThreadLocal<List<Class<?>>> types = new ThreadLocal();
     private ReadWriteLock lock;
@@ -53,7 +53,6 @@ public class TableProviderCommands implements TableProvider {
         } finally {
             readLock.unlock();
         }
-        //tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
     }
     
     @Override
@@ -63,27 +62,27 @@ public class TableProviderCommands implements TableProvider {
         }
         isCorrectArgument(name);
         try {
-            if (!tableDir.get().exists()) {
-                return null;
-            }
-            if (!tableDir.get().isDirectory()) {
-                throw new IllegalArgumentException(name + " is not a directory");
-            }
             readLock.lock();
             try {
-                myTable.set(names.get(name));
+                if (!tableDir.get().exists()) {
+                    return null;
+                }
+                if (!tableDir.get().isDirectory()) {
+                    throw new IllegalArgumentException(name + " is not a directory");
+                }
             } finally {
                 readLock.unlock();
             }
-            if (myTable.get() == null) {
-                readSignature();
-                myTable.set(new TableCommands(tableDir.get(), types.get(), this));
-                writeLock.lock();
-                try {
+            writeLock.lock();
+            try {
+                myTable.set(names.get(name));
+                if (myTable.get() == null) {
+                    readSignature();
+                    myTable.set(new TableCommands(tableDir.get(), types.get(), this));
                     names.put(name, myTable.get());
-                } finally {
-                    writeLock.unlock();
                 }
+            } finally {
+                writeLock.unlock();
             }
             return myTable.get();
         } catch (Exception e) {
@@ -93,6 +92,7 @@ public class TableProviderCommands implements TableProvider {
     
     private void readSignature() {
         File signature = new File(tableDir.get(), "signature.tsv");
+        readLock.lock();
         if (!signature.exists()) {
             throw new IllegalArgumentException("signature.tsv not exists");
         }
@@ -186,13 +186,13 @@ public class TableProviderCommands implements TableProvider {
             throw new IllegalArgumentException("bad tablename");
         }
         isCorrectArgument(name);
-        if (!tableDir.get().isDirectory()) {
-            throw new IllegalStateException(name + " cannot be deleted");
-        }
         DeleteDir deleteTable = new DeleteDir();
         File table = new File(curDir, name);
         writeLock.lock();
         try {
+            if (!tableDir.get().isDirectory()) {
+                throw new IllegalStateException(name + " cannot be deleted");
+            }
             deleteTable.delete(table.toPath());
             names.remove(name);
         } catch (Exception e) {
@@ -243,21 +243,21 @@ public class TableProviderCommands implements TableProvider {
         types.set(columnTypes);
         isCorrectColumnTypes(new ArrayList(columnTypes));
         isCorrectArgument(name);
-        if (tableDir.get().exists()) {
-            return null;
-        }
-        if (!tableDir.get().mkdir()) {
-            throw new IllegalArgumentException(name + " cannot be created");
-        } else {
-            writeSignature();
-            myTable.set(new TableCommands(tableDir.get(), columnTypes, this));
-            writeLock.lock();
-            try {
-                names.put(name, myTable.get());
-            } finally {
-                writeLock.unlock();
+        writeLock.lock();
+        try {
+            if (tableDir.get().exists()) {
+                return null;
             }
-            return myTable.get();
+            if (!tableDir.get().mkdir()) {
+                throw new IllegalArgumentException(name + " cannot be created");
+            } else {
+                writeSignature();
+                myTable.set(new TableCommands(tableDir.get(), columnTypes, this));
+                names.put(name, myTable.get());
+                return myTable.get();
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
