@@ -46,7 +46,7 @@ public class DataBase implements Table {
         }
 
         public Storeable get(String key) {
-            if (_ewMap.containsKey(key)) {
+            if (newMap.containsKey(key)) {
                 return newMap.get(key);
             }
             return map.get(key);
@@ -70,7 +70,7 @@ public class DataBase implements Table {
 
 
         public void clearMap() {
-            _newMap.clear();
+            newMap.clear();
         }
 
         public int transactionGetSize() {
