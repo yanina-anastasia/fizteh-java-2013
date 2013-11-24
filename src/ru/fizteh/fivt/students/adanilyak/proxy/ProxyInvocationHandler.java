@@ -41,9 +41,12 @@ public class ProxyInvocationHandler implements InvocationHandler {
         } finally {
             try {
                 if (method.getDeclaringClass() != Object.class) {
+                    formatter.close();
                     writer.write(formatter.toString() + "\n");
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+                // Ignore exceptions
+            }
         }
         return result;
     }
