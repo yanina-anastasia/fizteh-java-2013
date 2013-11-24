@@ -149,24 +149,20 @@ public class DataBase implements Table {
     }
 
     private void mergeMaps() {
-        for (Map.Entry<String, Storeable> entry : dataMap.get().entrySet()) {
-            String key = entry.getKey();
-            Storeable val = entry.getValue();
-            if (val == null) {
-                write.lock();
-                try {
+        write.lock();
+        try {
+            for (Map.Entry<String, Storeable> entry : dataMap.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable val = entry.getValue();
+                if (val == null) {
                     commonDataMap.remove(key);
-                } finally {
-                    write.unlock();
-                }
-            } else {
-                write.lock();
-                try {
+
+                } else {
                     commonDataMap.put(key, val);
-                } finally {
-                    write.unlock();
                 }
             }
+        } finally {
+            write.unlock();
         }
     }
 
@@ -311,21 +307,21 @@ public class DataBase implements Table {
     public int countChanges() {
         int count = 0;
         Set<Map.Entry<String, Storeable>> entries = dataMap.get().entrySet();
-        for (Map.Entry<String, Storeable> entry : entries) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            Storeable oldValue = null;
-            read.lock();
-            try {
+        read.lock();
+        try {
+            for (Map.Entry<String, Storeable> entry : entries) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                Storeable oldValue = null;
                 oldValue = commonDataMap.get(key);
-            } finally {
-                read.unlock();
+                if ((((value == null) || (oldValue == null)) && (value != oldValue))
+                        || ((value != null) && (oldValue != null) && !provider.serialize(this, value).equals(
+                                provider.serialize(this, oldValue)))) {
+                    count++;
+                }
             }
-            if ((((value == null) || (oldValue == null)) && (value != oldValue))
-                    || ((value != null) && (oldValue != null) && !provider.serialize(this, value).equals(
-                            provider.serialize(this, oldValue)))) {
-                count++;
-            }
+        } finally {
+            read.unlock();
         }
         return count;
     }
