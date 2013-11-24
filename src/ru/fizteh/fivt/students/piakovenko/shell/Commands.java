@@ -11,5 +11,6 @@ import java.io.IOException;
  */
 public interface Commands {
     public String getName();
+
     public void perform(String[] s) throws IOException;
 }

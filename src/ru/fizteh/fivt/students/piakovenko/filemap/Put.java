@@ -9,7 +9,7 @@ public class Put implements Commands {
     private final String name = "put";
     private GlobalFileMapState db = null;
 
-    public Put (GlobalFileMapState _db) {
+    public Put(GlobalFileMapState _db) {
         db = _db;
     }
 
