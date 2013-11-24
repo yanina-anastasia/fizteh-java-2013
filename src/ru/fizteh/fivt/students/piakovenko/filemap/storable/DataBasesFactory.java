@@ -6,8 +6,6 @@ import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,7 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class DataBasesFactory implements TableProviderFactory {
     private Shell shell = null;
 
-    public TableProvider create (String dir) throws IllegalArgumentException, IOException {
+    public TableProvider create(String dir) throws IllegalArgumentException, IOException {
         if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("Directory path is invalid");
         }
@@ -32,10 +30,10 @@ public class DataBasesFactory implements TableProviderFactory {
                 throw new IllegalArgumentException("try create provider on file");
             }
             shell = new Shell();
-        return new DataBasesCommander(shell,fileMapStorage);
+        return new DataBasesCommander(shell, fileMapStorage);
     }
 
-    public void start (String[] args) {
+    public void start(String[] args) {
         shell.start(args);
     }
 }

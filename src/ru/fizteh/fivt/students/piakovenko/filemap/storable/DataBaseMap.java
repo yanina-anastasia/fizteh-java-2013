@@ -4,7 +4,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,7 +18,7 @@ public class DataBaseMap {
     private Map<String, Storeable> changedMap = new HashMap<String, Storeable>(15);
     private Map<String, Storeable> overwriteMap = new HashMap<String, Storeable>(15);
 
-    public Storeable put (String key, Storeable value) {
+    public Storeable put(String key, Storeable value) {
         Storeable oldValue = null;
         if (!map.containsKey(key)) {
             map.put(key, value);
@@ -44,7 +44,7 @@ public class DataBaseMap {
         return null;
     }
 
-    public Storeable remove (String key) {
+    public Storeable remove(String key) {
         if (!map.containsKey(key)) {
             System.out.println("not found");
         } else {
@@ -56,23 +56,22 @@ public class DataBaseMap {
         return null;
     }
 
-    public void primaryPut (String key, Storeable value) {
+    public void primaryPut(String key, Storeable value) {
             map.put(key, value);
     }
 
-    public Map<String, Storeable> getMap () {
+    public Map<String, Storeable> getMap() {
         return map;
     }
 
-    public int commit(Map<String, Storeable> _newMap) {
+    public int commit(Map<String, Storeable> newMap) {
         int count = 0;
-        for (final String key: _newMap.keySet()) {
-            Storeable tempValue = _newMap.get(key);
+        for (final String key: newMap.keySet()) {
+            Storeable tempValue = newMap.get(key);
             if (wasChanged(tempValue, map.get(key))) {
                 if (tempValue == null) {
                     map.remove(key);
-                }
-                else {
+                } else {
                     map.put(key, tempValue);
                 }
                 ++count;
@@ -92,10 +91,10 @@ public class DataBaseMap {
         return count;
     }
 
-    public int currentSize(Map<String, Storeable> _newMap) {
+    public int currentSize(Map<String, Storeable> newMap) {
         int count = map.size();
-        for (final String key: _newMap.keySet()) {
-            Storeable newValue = _newMap.get(key);
+        for (final String key: newMap.keySet()) {
+            Storeable newValue = newMap.get(key);
             Storeable oldValue = map.get(key);
             if (newValue == null && oldValue != null) {
                 --count;
