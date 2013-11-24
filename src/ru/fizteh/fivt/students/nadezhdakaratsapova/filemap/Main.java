@@ -18,8 +18,7 @@ public class Main {
         try {
             File dataFile = new File(System.getProperty("fizteh.db.dir"), "db.dat");
             if (!dataFile.exists()) {
-                throw new IOException("not such file or directory");
-                //dataFile.createNewFile();
+                dataFile.createNewFile();
 
             }
             FileMapState state = new FileMapState(dataFile);
