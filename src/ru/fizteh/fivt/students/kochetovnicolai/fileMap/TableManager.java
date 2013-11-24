@@ -11,9 +11,9 @@ import java.util.List;
 
 public class TableManager extends Manager {
 
-    protected TableMember currentTable = null;
+    protected DistributedTable currentTable = null;
     DistributedTableProvider provider;
-    HashMap<String, TableMember> tables;
+    HashMap<String, DistributedTable> tables;
 
     public boolean existsTable(String name) {
         if (!tables.containsKey(name)) {
@@ -32,16 +32,16 @@ public class TableManager extends Manager {
         tables = new HashMap<>();
     }
 
-    void setCurrentTable(TableMember table) {
+    void setCurrentTable(DistributedTable table) {
         currentTable = table;
     }
 
-    public TableMember getTable(String name) throws IllegalArgumentException {
+    public DistributedTable getTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
         }
         if (!tables.containsKey(name)) {
-            TableMember table = provider.getTable(name);
+            DistributedTable table = provider.getTable(name);
             if (table != null) {
                 tables.put(name, table);
             }
@@ -49,7 +49,7 @@ public class TableManager extends Manager {
         return tables.get(name);
     }
 
-    public TableMember createTable(String name, List<Class<?>> columnTypes) throws IllegalArgumentException {
+    public DistributedTable createTable(String name, List<Class<?>> columnTypes) throws IllegalArgumentException {
         if (name == null || columnTypes == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
         }
@@ -88,7 +88,7 @@ public class TableManager extends Manager {
         return true;
     }
 
-    public TableMember getCurrentTable() {
+    public DistributedTable getCurrentTable() {
         return currentTable;
     }
 

@@ -12,7 +12,7 @@ public class TableCommandUse extends Executable {
             return false;
         }
         try {
-            TableMember table = manager.getCurrentTable();
+            DistributedTable table = manager.getCurrentTable();
             if (table != null && table.changesSize() != 0) {
                 manager.printMessage(Integer.toString(table.changesSize()) + " unsaved changes");
                 return false;
