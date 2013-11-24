@@ -380,7 +380,13 @@ public class FileMapTable implements Table {
 
     @Override
     public int rollback() throws RuntimeException {
-        int changesCount = changesCount();
+        int changesCount;
+        read.lock();
+        try {
+            changesCount = changesCount();
+        } finally {
+            read.unlock();
+        }
         changedKeys.get().clear();
         return changesCount;
     }
@@ -396,7 +402,12 @@ public class FileMapTable implements Table {
     }
 
     public int uncommittedChangesCount() {
-        return changesCount();
+        read.lock();
+        try {
+            return changesCount();
+        } finally {
+            read.unlock();
+        }
     }
 
     @Override

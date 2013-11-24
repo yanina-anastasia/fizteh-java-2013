@@ -15,27 +15,24 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FileMapTableProvider extends State implements TableProvider {
     private File multiFileHashMapDir;
-    private Vector<Command> commands = new Vector<Command>();
-    private Hashtable<String, Class<?>> providedTypes;
-    private Hashtable<Class<?>, String> providedTypesNames;
+    private ArrayList<Command> commands = new ArrayList<>();
+    private HashMap<String, Class<?>> providedTypes;
+    private HashMap<Class<?>, String> providedTypesNames;
     private String currentFileMapTable = null;
-    private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
+    private HashMap<String, FileMapTable> allFileMapTablesHashtable = new HashMap<String, FileMapTable>();
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
 
     @Override
-    public Vector<Command> getCommands() {
+    public ArrayList<Command> getCommands() {
         return commands;
     }
 
@@ -110,8 +107,8 @@ public class FileMapTableProvider extends State implements TableProvider {
         if (!multiFileHashMapDir.isDirectory()) {
             throw new IllegalArgumentException(dbDir + " is not directory");
         }
-        providedTypes = new Hashtable<String, Class<?>>();
-        providedTypesNames = new Hashtable<Class<?>, String>();
+        providedTypes = new HashMap<String, Class<?>>();
+        providedTypesNames = new HashMap<Class<?>, String>();
 
         providedTypes.put("int", Integer.class);
         providedTypesNames.put(Integer.class, "int");
