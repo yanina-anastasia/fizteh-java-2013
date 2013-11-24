@@ -139,7 +139,7 @@ public class DataBase implements Table {
     private boolean isValidNameDirectory(String name) {
         if (name.length() < 5 || name.length() > 6) {
             return false;
-		}
+        }
         int number = Integer.parseInt(name.substring(0, name.indexOf('.')), 10);
         if (number > 15 || number < 0) {
             return false;
@@ -312,7 +312,7 @@ public class DataBase implements Table {
             Integer numberOfFile = ruleNumberFile(key);
             File directory = new File(dataBaseStorage, numberOfDirectory.toString() + ".dir");
             if (!directory.exists()) {
-                if (!directory.mkdirs()){
+                if (!directory.mkdirs()) {
                     throw new IOException("Unable to create this directory - " + directory.getCanonicalPath());
                 }
             }
