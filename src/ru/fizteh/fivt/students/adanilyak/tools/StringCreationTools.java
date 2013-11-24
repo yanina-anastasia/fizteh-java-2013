@@ -23,6 +23,7 @@ public class StringCreationTools {
                 builder.append(",");
             }
         }
+        builder.append("]");
         return builder.toString();
     }
 }
