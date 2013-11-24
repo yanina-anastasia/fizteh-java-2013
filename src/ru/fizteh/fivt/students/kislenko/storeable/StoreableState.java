@@ -1,9 +1,14 @@
 package ru.fizteh.fivt.students.kislenko.storeable;
 
+import ru.fizteh.fivt.students.kislenko.filemap.CommandUtils;
+import ru.fizteh.fivt.students.kislenko.filemap.FatherState;
+
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class StoreableState {
+public class StoreableState extends FatherState {
     private Path databasePath;
     private MyTable currentTable;
     private MyTableProvider tables;
@@ -45,5 +50,29 @@ public class StoreableState {
         } else {
             currentTable = tables.getTable(databasePath.resolve(name).toString());
         }
+    }
+
+    @Override
+    public boolean alright(AtomicReference<Exception> checkingException, AtomicReference<String> message) {
+        return CommandUtils.multiTablePutGetRemoveAlright(currentTable, checkingException, message);
+    }
+
+    @Override
+    public String get(String key, AtomicReference<Exception> exception) {
+        return currentTable.getProvider().serialize(currentTable, currentTable.get(key));
+    }
+
+    @Override
+    public void put(String key, String value, AtomicReference<Exception> exception) {
+        try {
+            currentTable.put(key, tables.deserialize(currentTable, value));
+        } catch (ParseException e) {
+            exception.set(e);
+        }
+    }
+
+    @Override
+    public void remove(String key, AtomicReference<Exception> exception) {
+        currentTable.remove(key);
     }
 }
