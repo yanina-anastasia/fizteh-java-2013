@@ -34,8 +34,9 @@ public class ProxyInvocationHandler implements InvocationHandler {
             formatter.writeClass(implementation.getClass());
             formatter.writeMethod(method);
             formatter.writeArguments(args);
-
-            result = method.invoke(implementation, args);
+            if (!method.getReturnType().equals(void.class)) {
+                result = method.invoke(implementation, args);
+            }
             formatter.writeReturnValue(result);
         } catch (InvocationTargetException exc) {
             Throwable targetException = exc.getTargetException();
