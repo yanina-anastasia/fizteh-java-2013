@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,6 +39,11 @@ public class TestsForTableProvider {
         columnTypes.add(Boolean.class);
         columnTypes.add(String.class);
         columnTypes.add(Integer.class);
+    }
+    
+    @After
+    public void delete() {
+        folder.delete();
     }
     
     @Test(expected = IllegalArgumentException.class)

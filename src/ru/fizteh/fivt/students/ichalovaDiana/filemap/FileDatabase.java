@@ -21,68 +21,97 @@ class FileDatabase implements AutoCloseable {
     public FileDatabase(Path dbFilePath) throws IOException {
         this.dbFilePath = dbFilePath;
     }
-    
-    private void loadFileDatabase() throws IOException {
-        try {
-            Files.createDirectories(dbFilePath.getParent());
-            
-        } catch (IOException e) {
-            throw new IOException("Error while opening database file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-        }
-        
-        try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
-            getDataFromFile(dbFile);
-        } catch (IOException e) {
-            throw new IOException("Error while opening database file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-        }
-        
-        if (Files.size(dbFilePath) == 0) {
-            Files.delete(dbFilePath);
-            if (dbFilePath.getParent().toFile().list().length == 0) {
-                Files.delete(dbFilePath.getParent());
-            }
-        }
-    }
 
+    public String get(String key) throws IOException {
+        loadDatabaseIfNotLoaded();
+        return database.get(key);
+    }
+    
     public String put(String key, String value) throws IOException {
-        if (!isLoaded) {
-            isLoaded = true;
-            loadFileDatabase();
-        }
+        loadDatabaseIfNotLoaded();
         isChanged = true;
         String oldValue = database.put(key, value);
         return oldValue;
     }
     
-    public String get(String key) throws IOException {
-        if (!isLoaded) {
-            isLoaded = true;
-            loadFileDatabase();
-        }
-        return database.get(key);
-    }
-    
     public String remove(String key) throws IOException {   
-        if (!isLoaded) {
-            isLoaded = true;
-            loadFileDatabase();
-        }
+        loadDatabaseIfNotLoaded();
         isChanged = true;
         String value = database.remove(key);
         return value;
     }
     
-    public int getSize() throws IOException {
-        if (!isLoaded) {
-            isLoaded = true;
-            loadFileDatabase();
-        }
+    public int size() throws IOException {
+        loadDatabaseIfNotLoaded();
         return database.size();
     }
+    
+    public void save() throws IOException {
+        if (isChanged) {
+            try {
+                Files.createDirectories(dbFilePath.getParent());
+                
+            } catch (IOException e) {
+                throw new IOException("Error while saving database file: couldn't create a directory "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+            
+            try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
+                writeDataToFile(dbFile);
+                
+            } catch (IOException e) {
+                throw new IOException("Error while saving database file or while saving changes: "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+            
+            try {
+                deleteIfEmpty();
+                
+            } catch (IOException e) {
+                throw new IOException("Error while saving database file: couldn't delete a file or a directory "
+                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+            }
+        }
+    }
+    
+    private void loadDatabaseIfNotLoaded() throws IOException {
+        if (!isLoaded) {
+            isLoaded = true;
+            loadDatabase();
+        }
+    }
+    
+    private void loadDatabase() throws IOException {
+        try {
+            Files.createDirectories(dbFilePath.getParent());
+            
+        } catch (IOException e) {
+            throw new IOException("Error while opening database file: couldn't create a directory: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+        
+        try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
+            
+            getDataFromFile(dbFile);
+        } catch (IOException e) {
+            throw new IOException("Error while opening database file or while loading data: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+        
+        try {
+            deleteIfEmpty();
+        } catch (IOException e) {
+            throw new IOException("Error while opening database file: couldn't delete a file or a directory "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+    }
+    
+    @Override
+    public void close() throws IOException {
+        save();
+    }
 
-    public void getDataFromFile(RandomAccessFile dbFile) throws IOException {
+    private void getDataFromFile(RandomAccessFile dbFile) throws IOException {
         String key;
         String value;
         ArrayList<Byte> tempKey = new ArrayList<Byte>();
@@ -123,7 +152,7 @@ class FileDatabase implements AutoCloseable {
         }
     }
 
-    void saveChanges(RandomAccessFile dbFile) throws IOException {
+    private void writeDataToFile(RandomAccessFile dbFile) throws IOException {
         int currentOffset = 0;
         long returnPosition;
         String value;
@@ -149,27 +178,7 @@ class FileDatabase implements AutoCloseable {
         
     }
     
-    @Override
-    public void close() throws IOException {
-        try {
-            Files.createDirectories(dbFilePath.getParent());
-            
-        } catch (IOException e) {
-            throw new IOException("Error while opening database file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-        }
-        
-        if (isChanged) {
-            try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
-                
-                saveChanges(dbFile);
-                
-            } catch (IOException e) {
-                throw new IOException("Error while closing database file: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-        }
-        
+    private void deleteIfEmpty() throws IOException { 
         if (Files.size(dbFilePath) == 0) {
             Files.delete(dbFilePath);
             if (dbFilePath.getParent().toFile().list().length == 0) {
@@ -179,14 +188,13 @@ class FileDatabase implements AutoCloseable {
     }
     
     public void selfCheck(int nDirectory, int nFile) throws IllegalArgumentException, IOException {
-        if (!isLoaded) {
-            isLoaded = true;
-            loadFileDatabase();
-        }
+        loadDatabaseIfNotLoaded();
+        
         for (String key : database.keySet()) {
             if (TableImplementation.DirectoryAndFileNumberCalculator.getnDirectory(key) != nDirectory
                     || TableImplementation.DirectoryAndFileNumberCalculator.getnFile(key) != nFile) {
-                throw new IllegalArgumentException("wrong key placement");
+                throw new IllegalArgumentException(
+                        String.format("Wrong key placement: %s in directory %d, file %d", key, nDirectory, nFile));
             }
         }
     }

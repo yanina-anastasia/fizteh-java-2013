@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,6 +43,11 @@ public class TestsForTable {
         value1.setColumnAt(0, true);
         value1.setColumnAt(1, "AA");
         value1.setColumnAt(2, 5);
+    }
+    
+    @After
+    public void delete() {
+        folder.delete();
     }
     
     @Test
