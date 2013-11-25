@@ -104,7 +104,12 @@ public class XMLformatter implements Closeable {
             }
 
             if (forCycleLinkSearch.containsKey(value) && isContainer && !isEmpty) {
-                xmlStreamWriter.writeStartElement("cyclic");
+                if (inList) {
+                    xmlStreamWriter.writeStartElement("value");
+                } else {
+                    xmlStreamWriter.writeStartElement("argument");
+                }
+                xmlStreamWriter.writeCharacters("cyclic");
                 xmlStreamWriter.writeEndElement();
                 continue;
             }
