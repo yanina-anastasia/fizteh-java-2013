@@ -127,7 +127,7 @@ public class XMLformatter implements Closeable {
             }
             forCycleLinkSearch.put(value, true);
             if (isContainer) {
-                if (!inCycle) {
+                if (!inCycle && !inList) {
                     xmlStreamWriter.writeStartElement("argument");
                 } else {
                     xmlStreamWriter.writeStartElement("value");
@@ -138,9 +138,22 @@ public class XMLformatter implements Closeable {
                     recursivePart((Iterable) value, xmlStreamWriter, inList, inCycle);
                     xmlStreamWriter.writeEndElement();
                 } else {
+                    for (Object inside: (Iterable) value) {
+                        if (inside instanceof Iterable) {
+                            xmlStreamWriter.writeStartElement("value");
+                            xmlStreamWriter.writeCharacters("cyclic");
+                            xmlStreamWriter.writeEndElement();
+                        } else {
+                            xmlStreamWriter.writeStartElement("value");
+                            xmlStreamWriter.writeCharacters(inside.toString());
+                            xmlStreamWriter.writeEndElement();
+                        }
+                    }
+                    /*
                     xmlStreamWriter.writeStartElement("value");
                     xmlStreamWriter.writeCharacters("cyclic");
                     xmlStreamWriter.writeEndElement();
+                    */
                     xmlStreamWriter.writeEndElement();
                     inCycle = false;
                 }

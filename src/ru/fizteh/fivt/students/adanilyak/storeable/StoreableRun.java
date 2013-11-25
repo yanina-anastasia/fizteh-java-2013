@@ -1,6 +1,11 @@
 package ru.fizteh.fivt.students.adanilyak.storeable;
 
+import ru.fizteh.fivt.students.adanilyak.logformater.XMLformatter;
 import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: Alexander
@@ -9,10 +14,13 @@ import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
  */
 public class StoreableRun {
     public static void main(String[] args) {
-        GenericShell myShell = new StoreableShell(args);
-        /*
-        List<List<?>> T = new ArrayList<>();
-        T.add(T);
+        //GenericShell myShell = new StoreableShell(args);
+
+        List<Object> T = new ArrayList<>();
+        List<Object> t = new ArrayList<>();
+        T.add(1);
+        t.add(T);
+        T.add(t);
         Object[] objs = new Object[1];
         objs[0] = T;
         try {
@@ -23,6 +31,6 @@ public class StoreableRun {
         } catch (IOException exc) {
 
         }
-        */
+
     }
 }
