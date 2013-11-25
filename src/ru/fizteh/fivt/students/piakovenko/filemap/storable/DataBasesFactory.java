@@ -17,7 +17,7 @@ import java.io.IOException;
 public class DataBasesFactory implements TableProviderFactory {
     private Shell shell = null;
 
-    synchronized public TableProvider create(String dir) throws IllegalArgumentException, IOException {
+    synchronized TableProvider create(String dir) throws IllegalArgumentException, IOException {
         Checker.stringNotEmpty(dir);
         File fileMapStorage = null;
         fileMapStorage = new File(dir);
