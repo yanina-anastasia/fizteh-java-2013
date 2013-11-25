@@ -1,11 +1,10 @@
 package ru.fizteh.fivt.students.valentinbarishev.proxy;
 
-import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
+//import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.OutputKeys;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
@@ -21,7 +20,8 @@ public class MyLogWriter {
         method = newMethod;
         args = newArgs;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        writer = new IndentingXMLStreamWriter(factory.createXMLStreamWriter(newWriter));
+        writer = factory.createXMLStreamWriter(newWriter);
+        //writer = new IndentingXMLStreamWriter(factory.createXMLStreamWriter(newWriter));
     }
 
     public void setReturnValue(Object value) {
