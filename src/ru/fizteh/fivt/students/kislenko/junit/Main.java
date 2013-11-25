@@ -3,6 +3,9 @@ package ru.fizteh.fivt.students.kislenko.junit;
 import ru.fizteh.fivt.students.kislenko.filemap.CommandGet;
 import ru.fizteh.fivt.students.kislenko.filemap.CommandPut;
 import ru.fizteh.fivt.students.kislenko.filemap.CommandRemove;
+import ru.fizteh.fivt.students.kislenko.multifilemap.CommandCreate;
+import ru.fizteh.fivt.students.kislenko.multifilemap.CommandDrop;
+import ru.fizteh.fivt.students.kislenko.multifilemap.CommandUse;
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 import ru.fizteh.fivt.students.kislenko.shell.Shell;
 

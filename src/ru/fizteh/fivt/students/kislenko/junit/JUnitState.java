@@ -2,12 +2,13 @@ package ru.fizteh.fivt.students.kislenko.junit;
 
 
 import ru.fizteh.fivt.students.kislenko.filemap.CommandUtils;
-import ru.fizteh.fivt.students.kislenko.filemap.FatherState;
+import ru.fizteh.fivt.students.kislenko.multifilemap.MultiTableFatherState;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class JUnitState extends FatherState {
+public class JUnitState extends MultiTableFatherState {
     private Path databasePath;
     private MyTable currentTable;
     private MyTableProvider tables;
@@ -31,11 +32,48 @@ public class JUnitState extends FatherState {
     }
 
     public void deleteTable(String tableName) {
-        tables.removeTable(tableName);
+        if (currentTable != null && databasePath.resolve(tableName).toString().equals(currentTable.getName())) {
+            currentTable.clear();
+            setCurrentTable(null);
+        }
+        tables.removeTable(databasePath.resolve(tableName).toString());
     }
 
-    public void createTable(String tableName) {
-        tables.createTable(databasePath.resolve(tableName).toString());
+    @Override
+    public boolean needToChangeTable(String newTableName) {
+        return currentTable == null || !currentTable.getName().equals(databasePath.resolve(newTableName).toString());
+    }
+
+    @Override
+    public boolean isTransactional() {
+        return true;
+    }
+
+    @Override
+    public void dumpOldTable() throws IOException {
+        if (currentTable != null) {
+            Utils.dumpTable(currentTable);
+            currentTable.clear();
+        }
+    }
+
+    @Override
+    public void changeTable(String tableName, AtomicReference<String> message) throws Exception {
+        if (tables.getTable(databasePath.resolve(tableName).toString()) != null) {
+            message.set("using " + tableName);
+            currentTable = tables.getTable(databasePath.resolve(tableName).toString());
+            Utils.readTable(currentTable);
+        } else {
+            message.set(tableName + " not exists");
+        }
+    }
+
+    @Override
+    public int getTableChangeCount() {
+        if (currentTable == null) {
+            return 0;
+        }
+        return currentTable.getChangeCount();
     }
 
     public MyTable getCurrentTable() {
@@ -51,7 +89,7 @@ public class JUnitState extends FatherState {
     }
 
     @Override
-    public boolean alright(AtomicReference<Exception> checkingException, AtomicReference<String> message) {
+    public boolean alrightPutGetRemove(AtomicReference<Exception> checkingException, AtomicReference<String> message) {
         return CommandUtils.multiTablePutGetRemoveAlright(currentTable, checkingException, message);
     }
 
@@ -68,5 +106,15 @@ public class JUnitState extends FatherState {
     @Override
     public void remove(String key, AtomicReference<Exception> exception) {
         currentTable.remove(key);
+    }
+
+    @Override
+    public boolean alrightCreate(String empty, AtomicReference<Exception> useless1, AtomicReference<String> useless2) {
+        return true;
+    }
+
+    @Override
+    public void createTable(String[] tableParameters) {
+        tables.createTable(databasePath.resolve(tableParameters[0]).toString());
     }
 }
