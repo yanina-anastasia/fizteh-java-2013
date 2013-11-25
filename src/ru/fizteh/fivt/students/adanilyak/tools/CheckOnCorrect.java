@@ -34,13 +34,13 @@ public class CheckOnCorrect {
             return false;
         }
         for (Class<?> type : givenTypes) {
-            if (type == Integer.class ||
-                    type == Long.class ||
-                    type == Byte.class ||
-                    type == Float.class ||
-                    type == Double.class ||
-                    type == Boolean.class ||
-                    type == String.class) {
+            if (type == Integer.class
+                    || type == Long.class
+                    || type == Byte.class
+                    || type == Float.class
+                    || type == Double.class
+                    || type == Boolean.class
+                    || type == String.class) {
                 continue;
             } else {
                 return false;
