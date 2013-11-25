@@ -29,11 +29,12 @@ public class ProxyInvocationHandler implements InvocationHandler {
         }
         Object result = null;
         XMLformatter formatter = new XMLformatter();
-        formatter.writeTimeStamp();
-        formatter.writeClass(implementation.getClass());
-        formatter.writeMethod(method);
-        formatter.writeArguments(args);
         try {
+            formatter.writeTimeStamp();
+            formatter.writeClass(implementation.getClass());
+            formatter.writeMethod(method);
+            formatter.writeArguments(args);
+
             result = method.invoke(implementation, args);
             formatter.writeReturnValue(result);
         } catch (InvocationTargetException exc) {
