@@ -36,14 +36,15 @@ public class ProxyInvocationHandler implements InvocationHandler {
             formatter.writeArguments(args);
             if (!method.getReturnType().equals(void.class)) {
                 result = method.invoke(implementation, args);
+                formatter.writeReturnValue(result);
             }
-            formatter.writeReturnValue(result);
         } catch (InvocationTargetException exc) {
             Throwable targetException = exc.getTargetException();
             formatter.writeThrown(targetException);
             throw targetException;
         } catch (Exception exc) {
             // Something went wrong
+            System.err.println("!!!TEST PRINT!!!" + exc.getMessage());
         } finally {
             try {
                 if (method.getDeclaringClass() != Object.class) {
