@@ -6,17 +6,24 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class FileDatabase implements AutoCloseable {
     private static final int OFFSET_BYTES = 4;
 
-    Path dbFilePath;
-    Map<String, String> database = new HashMap<String, String>();
+    private Path dbFilePath;
+    private Map<String, String> database = new ConcurrentHashMap<String, String>();
     
-    boolean isLoaded = false;
-    boolean isChanged = false;
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock readLock = readWriteLock.readLock();
+    private Lock writeLock = readWriteLock.writeLock();
+    
+    private volatile boolean isLoaded = false;
+    private volatile boolean isChanged = false;
     
     public FileDatabase(Path dbFilePath) throws IOException {
         this.dbFilePath = dbFilePath;
@@ -47,37 +54,70 @@ class FileDatabase implements AutoCloseable {
     }
     
     public void save() throws IOException {
-        if (isChanged) {
-            try {
-                Files.createDirectories(dbFilePath.getParent());
-                
-            } catch (IOException e) {
-                throw new IOException("Error while saving database file: couldn't create a directory "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        readLock.lock();
+        try {
+            if (isChanged) {
+                readLock.unlock();
+                writeLock.lock();
+                try {
+                    if (isChanged) {
+                        try {
+                            Files.createDirectories(dbFilePath.getParent());
+                            
+                        } catch (IOException e) {
+                            throw new IOException("Error while saving database file: "
+                                    + "couldn't create a directory "
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                        }
+                        
+                        try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
+                            writeDataToFile(dbFile);
+                            
+                        } catch (IOException e) {
+                            throw new IOException("Error while saving database file or while saving changes: "
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                        }
+                        
+                        try {
+                            deleteIfEmpty();
+                            
+                        } catch (IOException e) {
+                            throw new IOException("Error while saving database file: "
+                                    + "couldn't delete a file or a directory "
+                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                        }
+                        
+                        isChanged = false;
+                    }
+                    readLock.lock();
+                } finally {
+                    writeLock.unlock();
+                }
             }
-            
-            try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
-                writeDataToFile(dbFile);
-                
-            } catch (IOException e) {
-                throw new IOException("Error while saving database file or while saving changes: "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
-            
-            try {
-                deleteIfEmpty();
-                
-            } catch (IOException e) {
-                throw new IOException("Error while saving database file: couldn't delete a file or a directory "
-                        + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-            }
+        } finally {
+            readLock.unlock();
         }
+        
     }
     
     private void loadDatabaseIfNotLoaded() throws IOException {
-        if (!isLoaded) {
-            isLoaded = true;
-            loadDatabase();
+        readLock.lock();
+        try {
+            if (!isLoaded) {
+                readLock.unlock();
+                writeLock.lock();
+                try {
+                    if (!isLoaded) {
+                        isLoaded = true;
+                        loadDatabase();
+                    }
+                readLock.lock();
+                } finally {
+                    writeLock.unlock();
+                }
+            }
+        } finally {
+            readLock.unlock();
         }
     }
     
@@ -190,12 +230,17 @@ class FileDatabase implements AutoCloseable {
     public void selfCheck(int nDirectory, int nFile) throws IllegalArgumentException, IOException {
         loadDatabaseIfNotLoaded();
         
-        for (String key : database.keySet()) {
-            if (TableImplementation.DirectoryAndFileNumberCalculator.getnDirectory(key) != nDirectory
-                    || TableImplementation.DirectoryAndFileNumberCalculator.getnFile(key) != nFile) {
-                throw new IllegalArgumentException(
-                        String.format("Wrong key placement: %s in directory %d, file %d", key, nDirectory, nFile));
+        readLock.lock();
+        try {
+            for (String key : database.keySet()) {
+                if (TableImplementation.DirectoryAndFileNumberCalculator.getnDirectory(key) != nDirectory
+                        || TableImplementation.DirectoryAndFileNumberCalculator.getnFile(key) != nFile) {
+                    throw new IllegalArgumentException(
+                            String.format("Wrong key placement: %s in directory %d, file %d", key, nDirectory, nFile));
+                }
             }
+        } finally {
+            readLock.unlock();
         }
     }
 }
