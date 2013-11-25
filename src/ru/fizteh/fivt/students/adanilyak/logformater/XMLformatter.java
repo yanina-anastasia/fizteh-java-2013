@@ -106,24 +106,7 @@ public class XMLformatter implements Closeable {
             }
 
             if (forCycleLinkSearch.containsKey(value) && isContainer && !isEmpty) {
-                /*
-                if (inCycle) {
-                    inCycle = false;
-                    continue;
-                }
-                */
                 inCycle = true;
-                /*
-                if (inList) {
-                    xmlStreamWriter.writeStartElement("value");
-                } else {
-                    xmlStreamWriter.writeStartElement("argument");
-                }
-                xmlStreamWriter.writeCharacters("cyclic");
-                xmlStreamWriter.writeEndElement();
-                */
-                //recursivePart((Iterable) value, xmlStreamWriter, inList, inCycle);
-                //continue;
             }
             forCycleLinkSearch.put(value, true);
             if (isContainer) {
@@ -138,7 +121,7 @@ public class XMLformatter implements Closeable {
                     recursivePart((Iterable) value, xmlStreamWriter, inList, inCycle);
                     xmlStreamWriter.writeEndElement();
                 } else {
-                    for (Object inside: (Iterable) value) {
+                    for (Object inside : (Iterable) value) {
                         if (inside == null) {
                             xmlStreamWriter.writeStartElement("value");
                             xmlStreamWriter.writeStartElement("null");
@@ -156,11 +139,6 @@ public class XMLformatter implements Closeable {
                         xmlStreamWriter.writeCharacters(inside.toString());
                         xmlStreamWriter.writeEndElement();
                     }
-                    /*
-                    xmlStreamWriter.writeStartElement("value");
-                    xmlStreamWriter.writeCharacters("cyclic");
-                    xmlStreamWriter.writeEndElement();
-                    */
                     xmlStreamWriter.writeEndElement();
                     inCycle = false;
                 }
