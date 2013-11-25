@@ -96,7 +96,7 @@ public class XMLformatter implements Closeable {
                 continue;
             }
 
-            // Check value, simple or iterable / array?
+            // Check value, simple or iterable?
             isContainer = false;
             isEmpty = false;
 
@@ -116,15 +116,6 @@ public class XMLformatter implements Closeable {
                 continue;
             }
             forCycleLinkSearch.put(value, true);
-            /*
-            if (isContainer && isEmpty) {
-                xmlStreamWriter.writeStartElement("argument");
-                xmlStreamWriter.writeStartElement("list");
-                xmlStreamWriter.writeEndElement();
-                xmlStreamWriter.writeEndElement();
-                continue;
-            }
-            */
             if (isContainer) {
                 xmlStreamWriter.writeStartElement("argument");
                 xmlStreamWriter.writeStartElement("list");
