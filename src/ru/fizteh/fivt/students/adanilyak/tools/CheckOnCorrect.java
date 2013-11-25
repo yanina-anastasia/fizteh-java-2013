@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -105,6 +106,14 @@ public class CheckOnCorrect {
             return false;
         }
         if (!interfaceClass.isInterface()) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean goodMethodForProxy(Method method) {
+        String methodName = method.getName();
+        if (methodName.equals("toString") || methodName.equals("hashCode")) {
             return false;
         }
         return true;

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.proxy;
 
 import ru.fizteh.fivt.students.adanilyak.logformater.XMLformatter;
+import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
@@ -23,6 +24,9 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (!CheckOnCorrect.goodMethodForProxy(method)) {
+            throw new IllegalArgumentException("proxy invocation handler: invoke: bad method for proxy");
+        }
         Object result = null;
         XMLformatter formatter = new XMLformatter();
         formatter.writeTimeStamp();
