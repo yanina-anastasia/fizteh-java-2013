@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.kislenko.multifilemap;
 import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
+import java.io.IOException;
 
 public class CommandDrop implements Command<MultiTableFatherState> {
     @Override
@@ -21,6 +22,11 @@ public class CommandDrop implements Command<MultiTableFatherState> {
         if (!db.exists()) {
             System.out.println(args[0] + " not exists");
         } else {
+            try {
+                state.deleteTable(args[0]);
+            } catch (Exception e) {
+                throw new IOException("Can't drop - it's not table.");
+            }
             if (db.listFiles() != null) {
                 for (File dbDir : db.listFiles()) {
                     if (dbDir.listFiles() != null) {
@@ -31,7 +37,6 @@ public class CommandDrop implements Command<MultiTableFatherState> {
                     dbDir.delete();
                 }
             }
-            state.deleteTable(args[0]);
             db.delete();
             System.out.println("dropped");
         }

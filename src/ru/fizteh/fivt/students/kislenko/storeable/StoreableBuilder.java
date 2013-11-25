@@ -14,7 +14,7 @@ public class StoreableBuilder {
                 try {
                     state.createTable(file.getName());
                 } catch (Exception e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    // Something went wrong in creating new table. Just ignore it.
                 }
             }
         }
