@@ -147,14 +147,11 @@ public class XMLformatter implements Closeable {
 
     public void writeReturnValue(Object result) throws IOException {
         try {
-            xmlStreamWriter.writeStartElement("return");
             if (result != null) {
+                xmlStreamWriter.writeStartElement("return");
                 xmlStreamWriter.writeCharacters(result.toString());
-            } else {
-                xmlStreamWriter.writeStartElement("null");
                 xmlStreamWriter.writeEndElement();
             }
-            xmlStreamWriter.writeEndElement();
         } catch (XMLStreamException exc) {
             throw new IOException("xml write return value error: " + exc.getMessage());
         }
