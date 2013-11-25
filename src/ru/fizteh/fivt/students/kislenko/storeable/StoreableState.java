@@ -64,7 +64,9 @@ public class StoreableState extends MultiTableFatherState {
 
     @Override
     public int getTableChangeCount() {
-
+        if (currentTable == null) {
+            return 0;
+        }
         return currentTable.getChangeCount();
     }
 
@@ -136,6 +138,9 @@ public class StoreableState extends MultiTableFatherState {
 
     @Override
     public String get(String key, AtomicReference<Exception> exception) {
+        if (currentTable.get(key) == null) {
+            return null;
+        }
         return currentTable.getProvider().serialize(currentTable, currentTable.get(key));
     }
 

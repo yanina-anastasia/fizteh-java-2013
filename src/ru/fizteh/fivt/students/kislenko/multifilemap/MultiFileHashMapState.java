@@ -24,7 +24,8 @@ public class MultiFileHashMapState extends MultiTableFatherState {
     }
 
     @Override
-    public boolean alrightCreate(String tableName, AtomicReference<Exception> checkingException, AtomicReference<String> message) {
+    public boolean alrightCreate(String tableName, AtomicReference<Exception> checkingException,
+                                 AtomicReference<String> message) {
         return true;
     }
 

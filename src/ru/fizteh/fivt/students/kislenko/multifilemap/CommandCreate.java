@@ -14,7 +14,7 @@ public class CommandCreate implements Command<MultiTableFatherState> {
 
     @Override
     public int getArgCount() {
-        if (MultiTableFatherState.class.equals(StoreableState.class)) {
+        if (MultiTableFatherState.class.isAssignableFrom((StoreableState.class))) {
             return -1;
         }
         return 1;
@@ -38,6 +38,7 @@ public class CommandCreate implements Command<MultiTableFatherState> {
                 state.createTable(args);
             } catch (Exception e) {
                 db.delete();
+                throw e;
             }
             System.out.println("created");
         }
