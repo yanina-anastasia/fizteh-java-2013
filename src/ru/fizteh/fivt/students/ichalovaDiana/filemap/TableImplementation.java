@@ -363,6 +363,10 @@ public class TableImplementation implements Table {
     }
     
     boolean storeableAreEqual(Storeable first, Storeable second) {
+        if (first == null && second == first) {
+            return true;
+        }
+        
         if (getStoreableSize(first) != getStoreableSize(second)) {
             return false;
         }
