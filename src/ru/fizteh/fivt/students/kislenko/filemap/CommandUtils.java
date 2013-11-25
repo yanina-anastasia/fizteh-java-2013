@@ -7,7 +7,7 @@ public class CommandUtils {
     public static void assertStartingStateIsAlright(FatherState state) throws Exception {
         AtomicReference<Exception> exception = new AtomicReference<Exception>(null);
         AtomicReference<String> message = new AtomicReference<String>(null);
-        if (!state.alright(exception, message)) {
+        if (!state.alrightPutGetRemove(exception, message)) {
             System.out.println(message);
             throw exception.get();
         }

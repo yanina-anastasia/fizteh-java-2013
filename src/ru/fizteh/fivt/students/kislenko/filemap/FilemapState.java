@@ -23,7 +23,7 @@ public class FilemapState extends FatherState {
     }
 
     @Override
-    public boolean alright(AtomicReference<Exception> checkingException, AtomicReference<String> message) {
+    public boolean alrightPutGetRemove(AtomicReference<Exception> checkingException, AtomicReference<String> message) {
         return true;
     }
 

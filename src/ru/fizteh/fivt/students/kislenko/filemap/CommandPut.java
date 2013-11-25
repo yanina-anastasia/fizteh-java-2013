@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.kislenko.filemap;
 
 import ru.fizteh.fivt.students.kislenko.shell.Command;
-import ru.fizteh.fivt.students.kislenko.storeable.StoreableState;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -13,9 +12,6 @@ public class CommandPut implements Command<FatherState> {
 
     @Override
     public int getArgCount() {
-        if (FatherState.class.equals(StoreableState.class)) {
-            return -1;
-        }
         return 2;
     }
 
