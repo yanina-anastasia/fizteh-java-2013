@@ -368,6 +368,9 @@ public class TableImplementation implements Table {
         }
         
         for (int i = 0; i < getStoreableSize(first); ++i) {
+            if (first == null && second == first) {
+                continue;
+            }
             if (first.getColumnAt(i).getClass() != second.getColumnAt(i).getClass() 
                     || !first.getColumnAt(i).equals(second.getColumnAt(i))) {
                 return false;
