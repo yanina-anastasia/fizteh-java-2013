@@ -18,7 +18,7 @@ public class StoreableRun {
 
         List<Object> T = new ArrayList<>();
         List<Object> t = new ArrayList<>();
-        T.add(1);
+        T.add(null);
         t.add(T);
         T.add(t);
         Object[] objs = new Object[1];

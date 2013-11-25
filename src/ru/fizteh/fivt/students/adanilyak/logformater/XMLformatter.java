@@ -139,15 +139,22 @@ public class XMLformatter implements Closeable {
                     xmlStreamWriter.writeEndElement();
                 } else {
                     for (Object inside: (Iterable) value) {
+                        if (inside == null) {
+                            xmlStreamWriter.writeStartElement("value");
+                            xmlStreamWriter.writeStartElement("null");
+                            xmlStreamWriter.writeEndElement();
+                            xmlStreamWriter.writeEndElement();
+                            continue;
+                        }
                         if (inside instanceof Iterable) {
                             xmlStreamWriter.writeStartElement("value");
                             xmlStreamWriter.writeCharacters("cyclic");
                             xmlStreamWriter.writeEndElement();
-                        } else {
-                            xmlStreamWriter.writeStartElement("value");
-                            xmlStreamWriter.writeCharacters(inside.toString());
-                            xmlStreamWriter.writeEndElement();
+                            continue;
                         }
+                        xmlStreamWriter.writeStartElement("value");
+                        xmlStreamWriter.writeCharacters(inside.toString());
+                        xmlStreamWriter.writeEndElement();
                     }
                     /*
                     xmlStreamWriter.writeStartElement("value");
