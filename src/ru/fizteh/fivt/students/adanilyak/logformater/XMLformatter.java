@@ -72,6 +72,7 @@ public class XMLformatter implements Closeable {
             throws XMLStreamException {
         boolean isContainer;
         boolean isEmpty;
+        boolean inCycle = false;
         for (Object value : collection) {
             if (value == null) {
                 if (inList) {
@@ -106,6 +107,12 @@ public class XMLformatter implements Closeable {
             }
 
             if (forCycleLinkSearch.containsKey(value) && isContainer && !isEmpty) {
+                if (!inCycle) {
+                    inCycle = true;
+                    continue;
+                } else {
+                    inCycle = false;
+                }
                 if (inList) {
                     xmlStreamWriter.writeStartElement("value");
                 } else {
