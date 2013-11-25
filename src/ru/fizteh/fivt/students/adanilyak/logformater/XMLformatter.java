@@ -58,7 +58,9 @@ public class XMLformatter implements Closeable {
     public void writeArguments(Object[] args) throws IOException {
         try {
             xmlStreamWriter.writeStartElement("arguments");
-            recursivePart(Arrays.asList(args), xmlStreamWriter, false);
+            if (args.length != 0) {
+                recursivePart(Arrays.asList(args), xmlStreamWriter, false);
+            }
             xmlStreamWriter.writeEndElement();
         } catch (XMLStreamException exc) {
             throw new IOException("xml write arguments error: " + exc.getMessage());
