@@ -134,7 +134,7 @@ public class DatabaseStoreable implements Storeable {
         }
     }
 
-    @Override
+    /*@Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         boolean first = true;
@@ -150,5 +150,29 @@ public class DatabaseStoreable implements Storeable {
             }
         }
         return builder.toString();
+    }  */
+
+    public static String join(List<?> list, boolean nameNulls, String delimiter) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (final Object listEntry : list) {
+            if (!first) {
+                sb.append(delimiter);
+            }
+            first = false;
+            if (listEntry == null) {
+                if (nameNulls) {
+                    sb.append("null");
+                }
+            } else {
+                sb.append(listEntry.toString());
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", getClass().getSimpleName(), join(columns, false, ","));
     }
 }

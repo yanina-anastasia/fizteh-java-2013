@@ -14,13 +14,15 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DatabaseTableProvider implements TableProvider {
+public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     public DatabaseTable curTable = null;
     HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     String curDir;
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+    boolean isClosed;
 
     public DatabaseTableProvider(String directory) {
+        isClosed = false;
         if (directory == null || directory.isEmpty()) {
             throw new IllegalArgumentException("Error with the property");
         }
@@ -32,6 +34,9 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public DatabaseTable getTable(String name) throws IllegalArgumentException, IllegalStateException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
@@ -62,6 +67,9 @@ public class DatabaseTableProvider implements TableProvider {
 
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, IllegalStateException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
@@ -136,6 +144,9 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
@@ -169,6 +180,9 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (value == null || value.isEmpty()) {
             throw new IllegalArgumentException("value cannot be null or empty");
         }
@@ -213,6 +227,9 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (value == null) {
             throw new IllegalArgumentException("value cannot be null");
         }
@@ -232,6 +249,9 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Storeable createFor(Table table) {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (table == null) {
             return null;
         }
@@ -244,6 +264,9 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
         }
@@ -430,5 +453,21 @@ public class DatabaseTableProvider implements TableProvider {
         } else {
             throw new IllegalArgumentException("File has incorrect format");
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", getClass().getSimpleName(), curDir);
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is already closed");
+        }
+        for (final String tableName : tables.keySet()) {
+            tables.get(tableName).close();
+        }
+        isClosed = true;
     }
 }

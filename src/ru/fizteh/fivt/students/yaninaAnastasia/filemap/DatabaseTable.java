@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DatabaseTable implements Table {
+public class DatabaseTable implements Table, AutoCloseable {
     public HashMap<String, Storeable> oldData;
     public ThreadLocal<HashMap<String, Storeable>> modifiedData;
     public ThreadLocal<HashSet<String>> deletedKeys;
@@ -22,9 +22,11 @@ public class DatabaseTable implements Table {
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
     private ReadWriteLock transactionLock = new ReentrantReadWriteLock(true);
+    boolean isClosed;
 
 
     public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
+        isClosed = false;
         this.tableName = name;
         oldData = new HashMap<String, Storeable>();
         modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
@@ -72,6 +74,9 @@ public class DatabaseTable implements Table {
     }
 
     public String getName() {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (tableName == null) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
@@ -79,6 +84,9 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
@@ -97,6 +105,9 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
         }
@@ -140,6 +151,9 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
         }
@@ -174,6 +188,9 @@ public class DatabaseTable implements Table {
     }
 
     public int size() {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         transactionLock.readLock().lock();
         try {
             return oldData.size() + diffSize();
@@ -183,6 +200,9 @@ public class DatabaseTable implements Table {
     }
 
     public int commit() {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         int recordsCommitted = 0;
         transactionLock.writeLock().lock();
         try {
@@ -208,6 +228,9 @@ public class DatabaseTable implements Table {
     }
 
     public int rollback() {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         int recordsDeleted = Math.abs(changesCount());
 
         deletedKeys.get().clear();
@@ -225,8 +248,11 @@ public class DatabaseTable implements Table {
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("wrong index");
         }
         return columnTypes.get(columnIndex);
     }
@@ -411,6 +437,9 @@ public class DatabaseTable implements Table {
     }
 
     public int getColumnsCount() {
+        if (isClosed) {
+            throw new IllegalArgumentException("It is closed");
+        }
         return columnTypes.size();
     }
 
@@ -434,5 +463,19 @@ public class DatabaseTable implements Table {
             return;
         }
         throw new ColumnFormatException("Alien storeable with more columns");
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", getClass().getSimpleName(), new File(provider.curDir, tableName).toString());
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (isClosed) {
+            throw new IllegalStateException("It is closed");
+        }
+        rollback();
+        isClosed = true;
     }
 }
