@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.ProviderWriter;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.DiffCountingTable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
@@ -64,5 +65,10 @@ public class StringTable extends GenericTable<String> implements DiffCountingTab
     @Override
     public void checkRoot(File root) throws ValidityCheckFailedException {
     	ValidityChecker.checkMultiTableRoot(root);
+    }
+
+    @Override
+    protected void storeOnCommit() throws IOException, ValidityCheckFailedException {
+    	ProviderWriter.writeMultiTable(this, new File(specificProvider.getRoot(), getName()), specificProvider);
     }
 }

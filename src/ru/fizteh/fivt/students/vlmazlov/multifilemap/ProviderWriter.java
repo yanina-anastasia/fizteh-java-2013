@@ -37,44 +37,7 @@ public class ProviderWriter {
 
     }
 
-    public static <V> void writeMultiTable
-    (GenericTable<V> table, File root, GenericTableProvider<V, ? extends GenericTable<V>> provider) 
-    throws IOException, ValidityCheckFailedException {
-
-        ArrayList<ArrayList<GenericTable<V>>> tableParts = 
-        new ArrayList<ArrayList<GenericTable<V>>>(DIRECTORIES_QUANTITY);
-    
-        for (int i = 0;i < DIRECTORIES_QUANTITY;++i) {
-            tableParts.add(i, new ArrayList<GenericTable<V>>(FILES_QUANTITY));
-            for (int j = 0;j < FILES_QUANTITY;++j) {
-                tableParts.get(i).add(j, table.clone());
-            }
-        }
-
-      //  System.out.println(tableParts.size());
-
-        splitTable(tableParts, table);
-
-        for (int i = 0;i < DIRECTORIES_QUANTITY;++i) {
-            File directory = new File(root, i + ".dir");
-
-            if (!directory.exists()) {
-
-                if (!directory.mkdir()) {
-                    throw new IOException("Unable to create directory "  + directory.getName());
-                }
-            }
-            
-            for (int j = 0;j < FILES_QUANTITY;++j) {
-                TableWriter.writeTable(directory, new File(directory, j + ".dat"), tableParts.get(i).get(j), provider);
-            }
-        }
-
-        dumpGarbage(root);
-    }
-
-    /*
-     public static <V, T extends GenericTable<V>> void writeMultiTable
+    public static <V, T extends GenericTable<V>> void writeMultiTable
     (T table, File root, GenericTableProvider<V, T> provider) 
     throws IOException, ValidityCheckFailedException {
 
@@ -109,7 +72,6 @@ public class ProviderWriter {
 
         dumpGarbage(root);
     }
-    */
 
     private static void dumpGarbage(File root) {
         for (File directory : root.listFiles()) {

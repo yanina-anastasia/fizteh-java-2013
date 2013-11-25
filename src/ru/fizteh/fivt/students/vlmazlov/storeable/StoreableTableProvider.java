@@ -171,7 +171,6 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
         } finally {
             scanner.close();
         }  
-
     }
 
     @Override

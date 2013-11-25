@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.io.File;
+import java.io.IOException;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.ProviderWriter;
 import ru.fizteh.fivt.students.vlmazlov.filemap.GenericTable;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
@@ -68,5 +70,10 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
     @Override
     public void checkRoot(File root) throws ValidityCheckFailedException {
     	ValidityChecker.checkMultiStoreableTableRoot(root);
+    }
+
+    @Override
+    protected void storeOnCommit() throws IOException, ValidityCheckFailedException {
+    	ProviderWriter.writeMultiTable(this, new File(specificProvider.getRoot(), getName()), specificProvider);
     }
 }

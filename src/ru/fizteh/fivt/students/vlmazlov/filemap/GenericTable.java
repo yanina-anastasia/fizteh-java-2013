@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.GenericTableProvider;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ProviderWriter;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReadWriteLock;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
@@ -166,6 +165,8 @@ public abstract class GenericTable<V> implements Iterable<Map.Entry<String, V>>,
         return name;
     }
 
+    protected abstract void storeOnCommit() throws IOException, ValidityCheckFailedException;
+
     public int commit() {
     	int diffNum;
 
@@ -175,8 +176,7 @@ public abstract class GenericTable<V> implements Iterable<Map.Entry<String, V>>,
             diffNum = getDiffCount();
 
 	        pushChanges();
-
-            ProviderWriter.writeMultiTable(this, new File(provider.getRoot(), getName()), provider);    
+            storeOnCommit();
 
 	    } catch (IOException ex) {
             throw new RuntimeException("Unable to write table to the disc: " + ex.getMessage());

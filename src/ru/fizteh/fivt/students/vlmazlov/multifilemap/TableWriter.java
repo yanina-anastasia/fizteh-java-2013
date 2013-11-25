@@ -26,9 +26,8 @@ public class TableWriter {
         dataBaseStorage.writeInt(offSet);
     }
 
-    public static <V> void writeTable
-    (File root, File storage, GenericTable<V> table, 
-        GenericTableProvider<V, ? extends GenericTable<V>> provider) throws IOException { 
+    public static <V, T extends GenericTable<V>> void writeTable
+    (File root, File storage, T table, GenericTableProvider<V, T> provider) throws IOException { 
         
         if (root == null) {
             throw new FileNotFoundException("Directory not specified");
