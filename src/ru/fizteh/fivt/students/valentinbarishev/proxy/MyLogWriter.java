@@ -1,0 +1,113 @@
+package ru.fizteh.fivt.students.valentinbarishev.proxy;
+
+import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.OutputKeys;
+import java.io.Writer;
+import java.lang.reflect.Method;
+import java.util.IdentityHashMap;
+
+public class MyLogWriter {
+    private Method method;
+    private Object[] args;
+    private XMLStreamWriter writer;
+    private Object returnValue = null;
+    private Throwable exception = null;
+
+    public MyLogWriter(Method newMethod, Object[] newArgs, Writer newWriter) throws XMLStreamException {
+        method = newMethod;
+        args = newArgs;
+        XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        writer = new IndentingXMLStreamWriter(factory.createXMLStreamWriter(newWriter));
+    }
+
+    public void setReturnValue(Object value) {
+        returnValue = value;
+    }
+
+    public void setException(Throwable newException) {
+        exception = newException;
+    }
+
+    private void writeNull() throws XMLStreamException {
+        writer.writeStartElement("null");
+        writer.writeEndElement();
+    }
+
+    private void writeObject(Object object) throws XMLStreamException {
+        writer.writeCharacters(object.toString());
+    }
+
+    private void writeList(Iterable object, IdentityHashMap<Object, Boolean> map) throws XMLStreamException {
+        if (map.containsKey(object)) {
+            writer.writeCharacters("cyclic");
+        }
+        for (Object i : object) {
+            writer.writeStartElement("value");
+
+            if (i == null) {
+                writeNull();
+            } else {
+                if (i instanceof Iterable) {
+                    writer.writeStartElement("list");
+                    map.put(object, true);
+                    writeList(object, map);
+                    writer.writeEndElement();
+                } else {
+                    writeObject(i);
+                }
+            }
+            writer.writeEndElement();
+        }
+    }
+
+    private void writeArguments() throws XMLStreamException {
+        for (int i = 0; i < args.length; ++i) {
+            writer.writeStartElement("argument");
+
+            if (args[i] == null) {
+                writeNull();
+            } else {
+                if (args[i] instanceof Iterable) {
+                    writer.writeStartElement("list");
+                    writeList((Iterable) args[i], new IdentityHashMap<Object, Boolean>());
+                    writer.writeEndElement();
+                } else {
+                    writeObject(args[i]);
+                }
+            }
+            writer.writeEndElement();
+        }
+    }
+
+    public void write() throws XMLStreamException {
+        writer.writeStartElement("invoke");
+
+        writer.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
+        writer.writeAttribute("name", method.getName());
+        writer.writeAttribute("class", method.getDeclaringClass().getName());
+
+        writer.writeStartElement("arguments");
+        writeArguments();
+        writer.writeEndElement();
+
+        if (exception != null) {
+            writer.writeStartElement("thrown");
+            writer.writeCharacters(exception.getClass().toString() + ": " + exception.getMessage());
+            writer.writeEndElement();
+        } else {
+            if (method.getReturnType() != Void.class) {
+                writer.writeStartElement("return");
+                writer.writeCharacters(returnValue.toString());
+                writer.writeEndElement();
+            }
+        }
+
+        writer.writeEndElement();
+
+        writer.close();
+    }
+}

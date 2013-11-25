@@ -16,13 +16,15 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
-public final class DataBaseTable implements TableProvider {
+public final class DataBaseTable implements TableProvider, AutoCloseable {
     private String tableDir;
     private Map<String, DataBase> tableInUse;
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock readLock = readWriteLock.readLock();
     private Lock writeLock = readWriteLock.writeLock();
+
+    private ClassState state = new ClassState(this);
 
     public DataBaseTable(String newTableDir) {
         tableDir = newTableDir;
@@ -42,6 +44,7 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public Table createTable(final String tableName, List<Class<?>> columnTypes) throws IOException {
+        state.check();
         checkName(tableName);
         String fullPath = tableDir + File.separator + tableName;
 
@@ -71,6 +74,7 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public void removeTable(final String tableName) throws IOException {
+        state.check();
         checkName(tableName);
         String fullPath = tableDir + File.separator + tableName;
 
@@ -81,11 +85,12 @@ public final class DataBaseTable implements TableProvider {
         writeLock.lock();
         try {
             if (!tableInUse.containsKey(tableName)) {
-                DataBase base = new DataBase(tableName, this, null);
-                base.drop();
+                try (DataBase base = new DataBase(tableName, this, null)) {
+                    base.drop();
+                }
             } else {
                 tableInUse.get(tableName).drop();
-                tableInUse.remove(tableName);
+                tableInUse.remove(tableName).close();
             }
             if (!file.delete()) {
                 throw new DataBaseException("Cannot delete a file " + tableName);
@@ -97,6 +102,7 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public Table getTable(String tableName) {
+        state.check();
         checkName(tableName);
         String fullPath = tableDir + File.separator + tableName;
 
@@ -129,6 +135,7 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        state.check();
         JSONArray json = new JSONArray(value);
         List<Object> values = new ArrayList<>();
         for (int i = 0; i < json.length(); ++i) {
@@ -149,17 +156,41 @@ public final class DataBaseTable implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        state.check();
         return WorkWithJSON.serialize(table, value);
     }
 
     @Override
     public Storeable createFor(Table table) {
+        state.check();
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        state.check();
         return new MyStoreable(table, values);
+    }
+
+    @Override
+    public String toString() {
+        state.check();
+        return String.format("%s[%s]", getClass().getSimpleName(), tableDir);
+    }
+
+    @Override
+    public void close() {
+        state.check();
+        writeLock.lock();
+        try {
+            state.close();
+            for (DataBase table : tableInUse.values()) {
+                table.close();
+            }
+            tableInUse.clear();
+        } finally {
+            writeLock.unlock();
+        }
     }
 }
 
