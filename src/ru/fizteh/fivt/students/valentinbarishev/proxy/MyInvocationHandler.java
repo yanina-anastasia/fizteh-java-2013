@@ -18,7 +18,7 @@ public class MyInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
-        MyLogWriter log = new MyLogWriter(method, args, writer);
+        MyLogWriter log = new MyLogWriter(method, args);
         try {
             result = method.invoke(implementation, args);
             log.setReturnValue(result);
@@ -28,7 +28,8 @@ public class MyInvocationHandler implements InvocationHandler {
             throw exception;
         } finally {
             try {
-                log.write();
+                writer.write(log.write());
+                writer.write(System.lineSeparator());
             } catch (Exception e) {
                 //silent
             }

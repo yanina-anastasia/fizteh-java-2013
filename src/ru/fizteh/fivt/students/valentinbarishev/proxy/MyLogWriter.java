@@ -1,10 +1,9 @@
 package ru.fizteh.fivt.students.valentinbarishev.proxy;
 
-//import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
@@ -15,13 +14,14 @@ public class MyLogWriter {
     private XMLStreamWriter writer;
     private Object returnValue = null;
     private Throwable exception = null;
+    private StringWriter stringWriter;
 
-    public MyLogWriter(Method newMethod, Object[] newArgs, Writer newWriter) throws XMLStreamException {
+    public MyLogWriter(Method newMethod, Object[] newArgs) throws XMLStreamException {
         method = newMethod;
         args = newArgs;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        writer = factory.createXMLStreamWriter(newWriter);
-        //writer = new IndentingXMLStreamWriter(factory.createXMLStreamWriter(newWriter));
+        stringWriter = new StringWriter();
+        writer = factory.createXMLStreamWriter(stringWriter);
     }
 
     public void setReturnValue(Object value) {
@@ -83,7 +83,7 @@ public class MyLogWriter {
         }
     }
 
-    public void write() throws XMLStreamException {
+    public String write() throws XMLStreamException {
         writer.writeStartElement("invoke");
 
         writer.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
@@ -108,6 +108,6 @@ public class MyLogWriter {
 
         writer.writeEndElement();
 
-        writer.close();
+        return stringWriter.toString();
     }
 }

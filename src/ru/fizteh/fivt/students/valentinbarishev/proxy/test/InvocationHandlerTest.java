@@ -44,8 +44,13 @@ public class InvocationHandlerTest {
 
         table = provider.createTable("simple", types);
 
+
+        writer.flush();
+        writer.close();
+
         FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
         char[] buf = new char[10000];
+        reader.read(buf);
         System.out.println(buf);
     }
 
@@ -65,6 +70,9 @@ public class InvocationHandlerTest {
         table = proxyProvider.getTable("simple");
 
         proxyProvider.createFor(table);
+
+        writer.flush();
+        writer.close();
 
         FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
         char[] buf = new char[20000];
@@ -89,6 +97,8 @@ public class InvocationHandlerTest {
         } catch (IllegalArgumentException e) {
 
         }
+        writer.flush();
+        writer.close();
 
         FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
         char[] buf = new char[20000];
