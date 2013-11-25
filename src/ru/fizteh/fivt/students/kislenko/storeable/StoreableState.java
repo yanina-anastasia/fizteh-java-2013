@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.kislenko.storeable;
 
 import ru.fizteh.fivt.students.kislenko.filemap.CommandUtils;
-import ru.fizteh.fivt.students.kislenko.multifilemap.MultiTableFatherState;
+import ru.fizteh.fivt.students.kislenko.junit.TransactionalFatherState;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class StoreableState extends MultiTableFatherState {
+public class StoreableState extends TransactionalFatherState {
     private Path databasePath;
     private MyTable currentTable;
     private MyTableProvider tables;
@@ -156,5 +156,42 @@ public class StoreableState extends MultiTableFatherState {
     @Override
     public void remove(String key, AtomicReference<Exception> exception) {
         currentTable.remove(key);
+    }
+
+    @Override
+    public boolean hasCurrentTable() {
+        return currentTable != null;
+    }
+
+    @Override
+    public void dumpCurrentTable() throws IOException {
+        if (currentTable == null) {
+            return;
+        }
+        Utils.dumpTable(currentTable);
+    }
+
+    @Override
+    public int commitCurrentTable() throws IOException {
+        if (currentTable == null) {
+            return 0;
+        }
+        return currentTable.commit();
+    }
+
+    @Override
+    public int rollbackCurrentTable() {
+        if (currentTable == null) {
+            return 0;
+        }
+        return currentTable.rollback();
+    }
+
+    @Override
+    public int getCurrentTableSize() {
+        if (currentTable == null) {
+            return 0;
+        }
+        return currentTable.size();
     }
 }

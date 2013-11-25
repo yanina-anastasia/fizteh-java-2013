@@ -2,13 +2,12 @@ package ru.fizteh.fivt.students.kislenko.junit;
 
 
 import ru.fizteh.fivt.students.kislenko.filemap.CommandUtils;
-import ru.fizteh.fivt.students.kislenko.multifilemap.MultiTableFatherState;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class JUnitState extends MultiTableFatherState {
+public class JUnitState extends TransactionalFatherState {
     private Path databasePath;
     private MyTable currentTable;
     private MyTableProvider tables;
@@ -116,5 +115,42 @@ public class JUnitState extends MultiTableFatherState {
     @Override
     public void createTable(String[] tableParameters) {
         tables.createTable(databasePath.resolve(tableParameters[0]).toString());
+    }
+
+    @Override
+    public boolean hasCurrentTable() {
+        return currentTable != null;
+    }
+
+    @Override
+    public void dumpCurrentTable() throws IOException {
+        if (currentTable == null) {
+            return;
+        }
+        Utils.dumpTable(currentTable);
+    }
+
+    @Override
+    public int commitCurrentTable() {
+        if (currentTable == null) {
+            return 0;
+        }
+        return currentTable.commit();
+    }
+
+    @Override
+    public int rollbackCurrentTable() {
+        if (currentTable == null) {
+            return 0;
+        }
+        return currentTable.rollback();
+    }
+
+    @Override
+    public int getCurrentTableSize() {
+        if (currentTable == null) {
+            return 0;
+        }
+        return currentTable.size();
     }
 }
