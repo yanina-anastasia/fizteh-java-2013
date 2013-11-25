@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenko786.filemap;
+package ru.fizteh.fivt.students.ermolenko.filemap;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

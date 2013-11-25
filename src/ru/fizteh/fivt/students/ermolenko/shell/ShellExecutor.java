@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenko786.shell;
+package ru.fizteh.fivt.students.ermolenko.shell;
 
 public class ShellExecutor extends Executor<ShellState> {
 

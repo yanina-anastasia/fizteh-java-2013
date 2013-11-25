@@ -1,7 +1,7 @@
-package ru.fizteh.fivt.students.ermolenko786.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 
-import ru.fizteh.fivt.students.ermolenko786.filemap.FileMapState;
-import ru.fizteh.fivt.students.ermolenko786.filemap.FileMapUtils;
+import ru.fizteh.fivt.students.ermolenko.filemap.FileMapState;
+import ru.fizteh.fivt.students.ermolenko.filemap.FileMapUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

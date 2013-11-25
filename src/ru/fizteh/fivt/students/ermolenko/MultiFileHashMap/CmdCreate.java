@@ -1,6 +1,6 @@
-package ru.fizteh.fivt.students.ermolenko786.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 
-import ru.fizteh.fivt.students.ermolenko786.shell.Command;
+import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
 import java.io.IOException;
 

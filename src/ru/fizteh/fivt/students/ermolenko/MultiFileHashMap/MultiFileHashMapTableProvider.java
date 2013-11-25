@@ -1,8 +1,8 @@
-package ru.fizteh.fivt.students.ermolenko786.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.ermolenko786.shell.Rm;
+import ru.fizteh.fivt.students.ermolenko.shell.Rm;
 
 import java.io.File;
 import java.io.IOException;
