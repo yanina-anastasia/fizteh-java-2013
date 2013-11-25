@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
     private Map<String, T> tables;
     private final String root;
-    protected ReadWriteLock providerLock;
     protected final boolean autoCommit;
 
 	public GenericTableProvider(String root, boolean autoCommit) throws ValidityCheckFailedException {
@@ -27,7 +26,6 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
         this.root = root;
         tables = new HashMap<String, T>();
         this.autoCommit = autoCommit;
-        providerLock = new ReentrantReadWriteLock();
 	}
 	
     protected abstract T instantiateTable(String name, Object[] args);
@@ -39,62 +37,46 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        providerLock.readLock().lock();
 
-        try {
-        	return tables.get(name);
-        } finally {
-            providerLock.readLock().unlock();
-        }
+        return tables.get(name);
     }
 
-    public T createTable(String name, Object[] args) {
+    public synchronized T createTable(String name, Object[] args) {
     	try {
             ValidityChecker.checkMultiTableName(name);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        providerLock.writeLock().lock();
         T newTable = null;
 
-        try { 
-        	if (tables.get(name) != null) {
-                return null;
-            }
-
-            newTable = instantiateTable(name, args);
-
-            tables.put(name, newTable);
-
-            (new File(root, name)).mkdir();
-        } finally {
-            providerLock.writeLock().unlock();
+        if (tables.get(name) != null) {
+            return null;
         }
+
+        newTable = instantiateTable(name, args);
+
+        tables.put(name, newTable);
+
+        (new File(root, name)).mkdir();
 
         return newTable;
     }
 
-    public void removeTable(String name) {
+    public synchronized void removeTable(String name) {
     	try {
             ValidityChecker.checkMultiTableName(name);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        providerLock.writeLock().lock();
+        T oldTable = tables.remove(name);
 
-        try {
-        	T oldTable = tables.remove(name);
+        if (oldTable == null) {
+            throw new IllegalStateException("Table " + name + " doesn't exist");
+        } 
 
-            if (oldTable == null) {
-                throw new IllegalStateException("Table " + name + " doesn't exist");
-            } 
-
-            FileUtils.recursiveDelete(new File(root, name));
-        } finally {
-            providerLock.writeLock().unlock();
-        }
+        FileUtils.recursiveDelete(new File(root, name));
     }
 
     public String getRoot() {
