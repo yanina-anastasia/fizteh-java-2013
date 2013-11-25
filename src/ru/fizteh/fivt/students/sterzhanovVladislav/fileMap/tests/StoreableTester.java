@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable;
+package ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.tests;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,11 +7,12 @@ import org.junit.*;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.sterzhanovVladislav.fileMap.storeable.StoreableRow;
 import static org.junit.Assert.*;
 
 public class StoreableTester {
-    public static Storeable row;
-    public static List<Class<?>> sampleSignature;
+    public Storeable row;
+    public List<Class<?>> sampleSignature;
     
     @Before
     public void init() {
@@ -24,6 +25,24 @@ public class StoreableTester {
         row = new StoreableRow(sampleSignature);
         row.setColumnAt(0, "Test string value");
         row = new StoreableRow(null);
+    }
+
+    public void equalTest() {
+        sampleSignature.add(String.class);
+        row = new StoreableRow(sampleSignature);
+        Storeable otherRow = new StoreableRow(sampleSignature);
+        row.setColumnAt(0, "Test string value");
+        otherRow.setColumnAt(0, "Test string value");
+        assertEquals(row, otherRow);
+    }
+
+    public void unequalTest() {
+        sampleSignature.add(String.class);
+        row = new StoreableRow(sampleSignature);
+        Storeable otherRow = new StoreableRow(sampleSignature);
+        row.setColumnAt(0, "Test string value");
+        otherRow.setColumnAt(0, "Other string value");
+        assertNotEquals(row, otherRow);
     }
 
     @Test(expected = ColumnFormatException.class)
