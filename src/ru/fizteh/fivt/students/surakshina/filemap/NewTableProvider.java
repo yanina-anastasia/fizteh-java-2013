@@ -8,6 +8,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.json.*;
 
@@ -22,6 +24,7 @@ public class NewTableProvider implements TableProvider {
     private HashMap<String, NewTable> tables = new HashMap<>();
     private HashMap<String, Class<?>> providerTypes;
     private HashMap<Class<?>, String> providerTypesNames;
+    private Lock providerController = new ReentrantLock(true);
 
     public NewTableProvider(File dir) throws IOException {
         workingDirectory = dir;
@@ -46,6 +49,14 @@ public class NewTableProvider implements TableProvider {
             if (checkTableName(file.getName())) {
                 if (file.isDirectory()) {
                     tables.put(file.getName(), new NewTable(file.getName(), this));
+                    File tableFile = new File(workingDirectory, file.getName());
+                    HashMap<String, Storeable> map;
+                    try {
+                        map = load(tableFile, file.getName());
+                        tables.get(file.getName()).loadCommitedValues(map);
+                    } catch (ParseException e) {
+                        throw new IOException(e.getMessage(), e);
+                    }
                 } else {
                     throw new IllegalArgumentException("not a directory");
                 }
@@ -90,43 +101,32 @@ public class NewTableProvider implements TableProvider {
         return file.matches("(([0-9])|(1[0-5]))\\.dat");
     }
 
-    private File getFile(String key) {
-        byte c = 0;
-        c = (byte) Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
-        int ndirectory = c % 16;
-        int nfile = c / 16 % 16;
-        File fileDir = new File(workingDirectory + File.separator + currentTable.getName() + File.separator
-                + ndirectory + ".dir");
-        File file = new File(fileDir, nfile + ".dat");
-        return file;
-    }
-
     @Override
     public Table getTable(String name) {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
-        NewTable table = tables.get(name);
-        File tableFile = new File(workingDirectory, name);
-        if (table != null && tableFile != null) {
-            currentTable = table;
-            try {
-                table.loadCommitedValues(load(tableFile));
-            } catch (IOException | ParseException e) {
-                throw new IllegalArgumentException("wrong type (Wrong key)");
+        providerController.lock();
+        try {
+            if (tables.containsKey(name)) {
+                currentTable = tables.get(name);
+                return currentTable;
+            } else {
+                return null;
             }
+        } finally {
+            providerController.unlock();
         }
-        return table;
     }
 
-    private HashMap<String, Storeable> load(File tableFile) throws IOException, ParseException {
+    private HashMap<String, Storeable> load(File tableFile, String name) throws IOException, ParseException {
         HashMap<String, Storeable> map = new HashMap<String, Storeable>();
         for (File dir : tableFile.listFiles()) {
             if (checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory()) {
                 for (File file : dir.listFiles()) {
                     if (checkNameOfFiles(file.getName()) && file.isFile()) {
                         if (file.length() != 0) {
-                            map.putAll(ReadDataBase.loadFile(file, currentTable));
+                            map.putAll(ReadDataBase.loadFile(file, new NewTable(name, this)));
                         }
                     }
                 }
@@ -136,24 +136,44 @@ public class NewTableProvider implements TableProvider {
         return map;
     }
 
-    private boolean checkTableName(String name) {
-        return !((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9а-яА-Я]+")));
-
+    private void removeTableFromDisk(NewTable table) {
+        File tableFile = new File(workingDirectory, table.getName());
+        for (File dir : tableFile.listFiles()) {
+            if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
+                    || (dir.getName().equals("signature.tsv"))) {
+                if (dir.getName().equals("signature.tsv")) {
+                    continue;
+                }
+                for (File file : dir.listFiles()) {
+                    if (checkNameOfFiles(file.getName()) && file.isFile()) {
+                        file.delete();
+                    }
+                }
+                dir.delete();
+            }
+        }
     }
 
     public void saveChanges(NewTable table) throws IOException {
-        HashMap<File, HashMap<String, String>> files = makeFiles(table);
-        removeTable(table.getName());
         currentTable = table;
-        createTable(currentTable.getName(), currentTable.getSignature());
-        for (File file : files.keySet()) {
-            File newDir = new File(workingDirectory + File.separator + currentTable.getName() + File.separator
-                    + file.getParentFile().getName());
-            newDir.mkdirs();
-            File newFile = new File(newDir, file.getName());
-            WriteInDataBase.saveFile(newFile, files.get(file));
+        HashMap<File, HashMap<String, String>> files = makeFiles(table);
+        providerController.lock();
+        try {
+            removeTableFromDisk(table);
+            for (File file : files.keySet()) {
+                File newDir = new File(workingDirectory + File.separator + table.getName() + File.separator
+                        + file.getParentFile().getName());
+                if (!newDir.exists()) {
+                    if (!newDir.mkdirs()) {
+                        throw new IOException("Can't create dir");
+                    }
+                }
+                File newFile = new File(newDir, file.getName());
+                WriteInDataBase.saveFile(newFile, files.get(file));
+            }
+        } finally {
+            providerController.unlock();
         }
-        tables.put(table.getName(), table);
     }
 
     private HashMap<File, HashMap<String, String>> makeFiles(NewTable table) {
@@ -171,38 +191,59 @@ public class NewTableProvider implements TableProvider {
         return files;
     }
 
+    private File getFile(String key) {
+        byte c = 0;
+        c = (byte) Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
+        int ndirectory = c % 16;
+        int nfile = c / 16 % 16;
+        File fileDir = new File(workingDirectory + File.separator + currentTable.getName() + File.separator
+                + ndirectory + ".dir");
+        File file = new File(fileDir, nfile + ".dat");
+        return file;
+    }
+
+    private boolean checkTableName(String name) {
+        return !((name == null) || (name.trim().isEmpty()) || (!name.matches("[a-zA-Z0-9а-яА-Я]+")));
+
+    }
+
     @Override
     public void removeTable(String name) {
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
-        NewTable table = tables.remove(name);
-        File tableFile = new File(workingDirectory, name);
-        if (table == null) {
-            throw new IllegalStateException(name + " not exists");
-        } else {
-            if (currentTable != null) {
-                if (table.getName().equals(currentTable.getName())) {
-                    currentTable = null;
-                }
-            }
-            for (File dir : tableFile.listFiles()) {
-                if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
-                        || (dir.getName().equals("signature.tsv"))) {
-                    if (dir.getName().equals("signature.tsv")) {
-                        dir.delete();
-                        break;
-                    } else {
-                        for (File file : dir.listFiles()) {
-                            if (checkNameOfFiles(file.getName()) && file.isFile()) {
-                                file.delete();
-                            }
-                        }
-                        dir.delete();
+        providerController.lock();
+        try {
+            NewTable table = tables.remove(name);
+            File tableFile = new File(workingDirectory, name);
+            if (table == null) {
+                throw new IllegalStateException(name + " not exists");
+            } else {
+                if (currentTable != null) {
+                    if (table.getName().equals(currentTable.getName())) {
+                        currentTable = null;
                     }
                 }
+                for (File dir : tableFile.listFiles()) {
+                    if ((checkNameOfDataBaseDirectory(dir.getName()) && dir.isDirectory())
+                            || (dir.getName().equals("signature.tsv"))) {
+                        if (dir.getName().equals("signature.tsv")) {
+                            dir.delete();
+                            break;
+                        } else {
+                            for (File file : dir.listFiles()) {
+                                if (checkNameOfFiles(file.getName()) && file.isFile()) {
+                                    file.delete();
+                                }
+                            }
+                            dir.delete();
+                        }
+                    }
+                }
+                tableFile.delete();
             }
-            tableFile.delete();
+        } finally {
+            providerController.unlock();
         }
     }
 
@@ -214,24 +255,33 @@ public class NewTableProvider implements TableProvider {
         if (columnTypes == null || !(checkValuesName(columnTypes)) || columnTypes.size() == 0) {
             throw new IllegalArgumentException("wrong type (Incorrect column name)");
         }
-        if (tables.get(name) != null) {
-            return null;
-        } else {
-            File table = new File(workingDirectory, name);
-            table.mkdir();
-            File file = new File(workingDirectory + File.separator + name + File.separator + "signature.tsv");
-            PrintStream newFile = new PrintStream(file);
-            for (int i = 0; i < columnTypes.size(); ++i) {
-                if (columnTypes.get(i) == null) {
-                    newFile.close();
-                    throw new IllegalArgumentException("wrong type (Incorrect column name)");
+        providerController.lock();
+        try {
+            if (tables.get(name) != null) {
+                return null;
+            } else {
+                File table = new File(workingDirectory, name);
+                if (!table.exists()) {
+                    if (!table.mkdir()) {
+                        throw new IOException("Can't create dir");
+                    }
                 }
-                newFile.print(getNameString(columnTypes.get(i)));
-                newFile.print(" ");
+                File file = new File(workingDirectory + File.separator + name + File.separator + "signature.tsv");
+                PrintStream newFile = new PrintStream(file);
+                for (int i = 0; i < columnTypes.size(); ++i) {
+                    if (columnTypes.get(i) == null) {
+                        newFile.close();
+                        throw new IllegalArgumentException("wrong type (Incorrect column name)");
+                    }
+                    newFile.print(getNameString(columnTypes.get(i)));
+                    newFile.print(" ");
+                }
+                newFile.close();
             }
-            newFile.close();
             tables.put(name, new NewTable(name, this));
             return tables.get(name);
+        } finally {
+            providerController.unlock();
         }
     }
 
