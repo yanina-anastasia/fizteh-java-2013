@@ -71,7 +71,7 @@ public abstract class GenericTable<V> implements Iterable<Map.Entry<String, V>>,
         deleted.get().remove(key);
 
         if (autoCommit) {
-            commit();
+            pushChanges();
         }
         return returnValue;
     }
@@ -131,7 +131,7 @@ public abstract class GenericTable<V> implements Iterable<Map.Entry<String, V>>,
        	changed.get().remove(key);
 
         if (autoCommit) {
-            commit();
+            pushChanges();
         }
         return returnValue;
     }
