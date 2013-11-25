@@ -19,13 +19,14 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class DataBase implements Table {
     private String name;
     private RandomAccessFile raDataBaseFile = null;
-    //private DataBaseMap map = null;
     private Map<String, Storeable> map = null;
     private Shell shell = null;
     private File dataBaseStorage = null;
@@ -33,6 +34,7 @@ public class DataBase implements Table {
     private final String nameOfFileWithTypes = "signature.tsv";
     private ThreadLocal<Transaction> transaction;
     protected final Lock lock = new ReentrantLock(true);
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
     private class Transaction {
         private Map<String, Storeable> newMap;
@@ -205,7 +207,7 @@ public class DataBase implements Table {
             }
             try {
                 map.put(new String(key, StandardCharsets.UTF_8), JSONSerializer.deserialize(
-				this, new String(value, StandardCharsets.UTF_8)));
+                        this, new String(value, StandardCharsets.UTF_8)));
             } catch (ParseException e) {
                 System.err.println("readFromFile: problem with desereliaze" + e.getMessage());
                 System.exit(1);
@@ -353,29 +355,6 @@ public class DataBase implements Table {
         }
     }
 
-    private void readClasses() throws IOException {
-        File fileWithClasses = null;
-        if (dataBaseStorage.isDirectory()) {
-            fileWithClasses = new File(nameOfFileWithTypes);
-        } else {
-            fileWithClasses = new File(dataBaseStorage.getParent(), nameOfFileWithTypes);
-        }
-        if (!fileWithClasses.exists()) {
-            throw new IOException("no file with classes!");
-        }
-        BufferedReader reader = new BufferedReader(new FileReader(fileWithClasses));
-        String types = reader.readLine();
-        Class<?> temp = null;
-        for (String type : types.trim().split("\\s")) {
-            temp = ColumnTypes.fromNameToType(type);
-            if (temp == null) {
-                throw new IOException("wrong type!");
-            } else {
-                storeableClasses.add(temp);
-            }
-        }
-    }
-
     public DataBase(Shell sl, File storage, TableProvider parent, List<Class<?>> columnTypes) {
         map = new HashMap<String, Storeable>();
         shell  = sl;
@@ -442,32 +421,34 @@ public class DataBase implements Table {
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Table name cannot be null");
+        try {
+            readWriteLock.readLock().lock();
+            Checker.stringNotEmpty(key);
+            return transaction.get().get(key);
+        } finally {
+            readWriteLock.readLock().unlock();
         }
-        return transaction.get().get(key);
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if ((key == null) || (key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Key can not be null");
+        try {
+            readWriteLock.writeLock().lock();
+            Checker.stringNotEmpty(key);
+            Checker.keyFormat(key);
+            if (value == null) {
+                throw new IllegalArgumentException("Value cannot be null");
+            }
+            checkAlienStoreable(value);
+            Storeable oldValue = transaction.get().get(key);
+            transaction.get().put(key, value);
+            return oldValue;
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
-        if (key.matches("\\s*") || key.split("\\s+").length != 1) {
-            throw new IllegalArgumentException("Key contains whitespaces");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("Value cannot be null");
-        }
-        checkAlienStoreable(value);
-        Storeable oldValue = transaction.get().get(key);
-        transaction.get().put(key, value);
-        return oldValue;
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Key name cannot be null");
-        }
+        Checker.stringNotEmpty(key);
         Storeable oldValue = transaction.get().get(key);
         transaction.get().put(key, null);
         transaction.get().calcChanges();

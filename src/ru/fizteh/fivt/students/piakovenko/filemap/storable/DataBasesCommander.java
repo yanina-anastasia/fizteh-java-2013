@@ -5,8 +5,6 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.piakovenko.filemap.*;
-import ru.fizteh.fivt.students.piakovenko.filemap.storable.JSON.JSONArray;
-import ru.fizteh.fivt.students.piakovenko.filemap.storable.JSON.JSONException;
 import ru.fizteh.fivt.students.piakovenko.filemap.storable.JSON.JSONSerializer;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 
@@ -32,8 +30,7 @@ public class DataBasesCommander implements TableProvider {
     private DataBase currentDataBase = null;
     private Map<String, DataBase> filesMap = new HashMap<String, DataBase>();
     private Shell shell = null;
-    private GlobalFileMapState state = null;
-    private static final String TABLE_NAME_FORMAT = "[A-Za-zА-Яа-я0-9]+";
+    private GlobalFileMapState state = null;;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
     private static File getMode(File directory) {
@@ -51,24 +48,6 @@ public class DataBasesCommander implements TableProvider {
         }
     }
 
-
-    public DataBasesCommander() {
-        shell = new Shell();
-        dataBaseDirectory = new File(System.getProperty("fizteh.db.dir"));
-        File modeFile = null;
-        if ((modeFile = getMode(dataBaseDirectory)) != null) {
-            currentDataBase = new DataBase(shell, modeFile, this);
-            state  = new GlobalFileMapState(currentDataBase, this);
-            currentDataBase.initialize(state);
-            shell.changeInvitation("Database $ ");
-        } else {
-            state  = new GlobalFileMapState(currentDataBase, this);
-            fulfillFiles();
-            initialize(state);
-            shell.changeInvitation("MultiFile Database $ ");
-        }
-    }
-
     public DataBasesCommander(Shell s, File storage) {
         shell = s;
         dataBaseDirectory = storage;
@@ -77,12 +56,12 @@ public class DataBasesCommander implements TableProvider {
             currentDataBase = new DataBase(shell, modeFile, this);
             state  = new GlobalFileMapState(currentDataBase, this);
             currentDataBase.initialize(state);
-            shell.changeInvitation("Database $ ");
+            shell.changeInvitation(" $ ");
         } else {
             fulfillFiles();
             state  = new GlobalFileMapState(currentDataBase, this);
             initialize(state);
-            shell.changeInvitation("MultiFile Database $ ");
+            shell.changeInvitation(" $ ");
         }
     }
 
@@ -121,7 +100,7 @@ public class DataBasesCommander implements TableProvider {
                 }
                 try {
                     ru.fizteh.fivt.students.piakovenko.shell.Remove.removeRecursively(
-					filesMap.get(dataBase).returnFiledirectory());
+                            filesMap.get(dataBase).returnFiledirectory());
                 } catch (IOException e) {
                     System.err.println("Error! " + e.getMessage());
                     System.exit(1);
@@ -139,29 +118,9 @@ public class DataBasesCommander implements TableProvider {
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, IllegalArgumentException {
-        if (name == null || name.trim().equals("")) {
-            throw new IllegalArgumentException("Null pointer to name!");
-        }
-        if (!name.matches(TABLE_NAME_FORMAT)) {
-            throw new RuntimeException("incorrect table name");
-        }
-        if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
-            throw new IllegalArgumentException("table's name cannot be null");
-        }
-        if (name.contains("\\") || name.contains("/") || name.contains(">") || name.contains("<")
-                || name.contains("\"") || name.contains(":") || name.contains("?") || name.contains("|")
-                || name.startsWith(".") || name.endsWith(".")) {
-            throw new RuntimeException("Bad symbols in tablename " + name);
-        }
-        if (columnTypes == null || columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("column types cannot be null");
-        }
-
-        for (final Class<?> columnType : columnTypes) {
-            if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
-                throw new IllegalArgumentException("unknown column type");
-            }
-        }
+        Checker.stringNotEmpty(name);
+        Checker.correctTableName(name);
+        Checker.checkColumnTypes(columnTypes);
         try {
             readWriteLock.writeLock().lock();
             if (filesMap.containsKey(name)) {
@@ -169,7 +128,7 @@ public class DataBasesCommander implements TableProvider {
             } else {
                 File newFileMap = new File(dataBaseDirectory, name);
                 if (newFileMap.isFile()) {
-                    throw  new IllegalArgumentException("try create table on file");
+                    throw new IllegalArgumentException("try create table on file");
                 }
                 if (!newFileMap.mkdirs()) {
                     System.err.println("Unable to create this directory - " + name);
@@ -187,12 +146,8 @@ public class DataBasesCommander implements TableProvider {
 
     @Override
     public Table getTable(String name) throws IllegalArgumentException {
-        if (name == null || name.trim().equals("")) {
-            throw new IllegalArgumentException("Null pointer to name of Table");
-        }
-        if (!name.matches(TABLE_NAME_FORMAT)) {
-            throw new RuntimeException("incorrect table name");
-        }
+        Checker.stringNotEmpty(name);
+        Checker.correctTableName(name);
         try {
             readWriteLock.readLock().lock();
             if (filesMap.containsKey(name)) {
@@ -222,9 +177,7 @@ public class DataBasesCommander implements TableProvider {
     }
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (values.size() != table.getColumnsCount()) {
-            throw new IndexOutOfBoundsException("Size of table and size of values are not equal!");
-        }
+        Checker.equalSizes(values.size(), table.getColumnsCount());
         List<Class<?>> typesList = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             typesList.add(table.getColumnType(i));

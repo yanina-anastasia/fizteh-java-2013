@@ -17,19 +17,19 @@ import java.io.IOException;
 public class DataBasesFactory implements TableProviderFactory {
     private Shell shell = null;
 
-    public TableProvider create(String dir) throws IllegalArgumentException, IOException {
-        if (dir == null || dir.trim().isEmpty()) {
-            throw new IllegalArgumentException("Directory path is invalid");
-        }
+    synchronized public TableProvider create(String dir) throws IllegalArgumentException, IOException {
+        Checker.stringNotEmpty(dir);
         File fileMapStorage = null;
-            fileMapStorage = new File(dir);
-            if (!fileMapStorage.exists()) {
-                throw new IOException("no such file!" + fileMapStorage.getCanonicalPath());
+        fileMapStorage = new File(dir);
+        if (fileMapStorage.isFile()) {
+            throw new IllegalArgumentException("try create provider on file");
+        }
+        if (!fileMapStorage.exists()) {
+            if (!fileMapStorage.mkdir()) {
+                throw new IOException("Can't create the directory " + fileMapStorage.getCanonicalPath());
             }
-            if (fileMapStorage.isFile()) {
-                throw new IllegalArgumentException("try create provider on file");
-            }
-            shell = new Shell();
+        }
+        shell = new Shell();
         return new DataBasesCommander(shell, fileMapStorage);
     }
 
