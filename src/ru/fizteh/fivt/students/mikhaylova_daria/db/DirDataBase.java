@@ -19,7 +19,6 @@ public class DirDataBase {
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
-    private final Lock myReadLock = readWriteLock.readLock();
 
 
     private final Lock creatingLock = new ReentrantLock();
