@@ -11,7 +11,11 @@ public class MultiFilemapBuilder {
         }
         if (dirCreator.listFiles() != null) {
             for (File file : dirCreator.listFiles()) {
-                state.createTable(file.getName());
+                try {
+                    state.createTable(new String[]{file.getName()});
+                } catch (Exception e) {
+                    // Ignored
+                }
             }
         }
     }
