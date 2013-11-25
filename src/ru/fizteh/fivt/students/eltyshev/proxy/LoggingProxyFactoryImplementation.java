@@ -5,7 +5,7 @@ import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 import java.io.Writer;
 import java.lang.reflect.Proxy;
 
-public class StorageLoggingProxyFactory implements LoggingProxyFactory {
+public class LoggingProxyFactoryImplementation implements LoggingProxyFactory {
     @Override
     public Object wrap(Writer writer, Object implementation, Class<?> interfaceClass) {
 
@@ -28,6 +28,6 @@ public class StorageLoggingProxyFactory implements LoggingProxyFactory {
         return Proxy.newProxyInstance(
                 implementation.getClass().getClassLoader(),
                 new Class[]{interfaceClass},
-                new StorageProxyInvocationHandler(writer, implementation));
+                new ProxyInvocationHandler(writer, implementation));
     }
 }

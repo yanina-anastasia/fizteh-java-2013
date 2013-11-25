@@ -6,12 +6,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class StorageProxyInvocationHandler implements InvocationHandler {
+public class ProxyInvocationHandler implements InvocationHandler {
 
     private final Writer writer;
     private final Object implementation;
 
-    public StorageProxyInvocationHandler(Writer writer, Object implementation) {
+    public ProxyInvocationHandler(Writer writer, Object implementation) {
         this.writer = writer;
         this.implementation = implementation;
     }
