@@ -64,4 +64,9 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
     protected boolean isValueEqual(Storeable first, Storeable second) {
 	   	return specificProvider.serialize(this, first).equals(specificProvider.serialize(this, second));
     }
+
+    @Override
+    public void checkRoot(File root) throws ValidityCheckFailedException {
+    	ValidityChecker.checkMultiStoreableTableRoot(root);
+    }
 }

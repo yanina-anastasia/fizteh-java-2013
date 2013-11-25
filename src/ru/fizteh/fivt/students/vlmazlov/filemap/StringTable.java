@@ -60,4 +60,9 @@ public class StringTable extends GenericTable<String> implements DiffCountingTab
 	public StringTable clone() {
         return new StringTable(specificProvider, getName(), autoCommit);
     }
+
+    @Override
+    public void checkRoot(File root) throws ValidityCheckFailedException {
+    	ValidityChecker.checkMultiTableRoot(root);
+    }
 }

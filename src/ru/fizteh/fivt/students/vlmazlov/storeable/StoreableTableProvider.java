@@ -65,7 +65,7 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
         return table;
     }
-
+    
     @Override
 	public Storeable deserialize(StoreableTable table, String value) throws ParseException {
 		return this.deserialize((Table)table, value);
@@ -186,16 +186,6 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     public void write() throws IOException, ValidityCheckFailedException {
-      for (Map.Entry<StoreableTable, File> entry : ProviderWriter.getTableDirMap(this).entrySet()) {
-
-        ValidityChecker.checkMultiStoreableTableRoot(entry.getValue());
-
-        providerLock.writeLock().lock();
-        try {
-           ProviderWriter.writeMultiTable(entry.getKey(), entry.getValue(), this);
-        } finally {
-            providerLock.writeLock().unlock();
-        }
-      }
+        ProviderWriter.writeProvider(this);
     }
 }

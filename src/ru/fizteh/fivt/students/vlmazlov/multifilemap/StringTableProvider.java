@@ -53,11 +53,6 @@ public class StringTableProvider extends GenericTableProvider<String, StringTabl
 
     @Override
     public void write() throws IOException, ValidityCheckFailedException {
-      for (Map.Entry<StringTable, File> entry : ProviderWriter.getTableDirMap(this).entrySet()) {
-
-        ValidityChecker.checkMultiTableRoot(entry.getValue());
-
-        ProviderWriter.writeMultiTable(entry.getKey(), entry.getValue(), this);
-      }
+      ProviderWriter.writeProvider(this);
     }
   }

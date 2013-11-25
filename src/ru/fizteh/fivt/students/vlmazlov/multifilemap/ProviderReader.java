@@ -58,8 +58,13 @@ public class ProviderReader {
                 ValidityChecker.checkMultiFileStorageFile(file, FILES_QUANTITY);
 
                 TableReader.readTable(directory, file, tableParts.get(getNum(directory)).get(getNum(file)), provider);
-                //iterating is only possible over commited entries
-                tableParts.get(getNum(directory)).get(getNum(file)).commit();
+
+                /*
+                Only pushed changes can be iterated over.
+                The parts are created in writeMultiTable exclusively for each thread;
+                therefore, synchronization is unnecessary.
+                */
+                tableParts.get(getNum(directory)).get(getNum(file)).pushChanges();
 
                 checkKeys(tableParts.get(getNum(directory)).get(getNum(file)), file, directory);
             }

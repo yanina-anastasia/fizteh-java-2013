@@ -1,18 +1,21 @@
 package ru.fizteh.fivt.students.vlmazlov.filemap;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.GenericTableProvider;
+import ru.fizteh.fivt.students.vlmazlov.multifilemap.ProviderWriter;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReadWriteLock;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
 import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
 
-public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneable {
-    private volatile Map<String, V> commited;
+public abstract class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneable {
+    private Map<String, V> commited;
     protected GenericTableProvider<V, ? extends GenericTable<V>> provider;
 
     private final ThreadLocal<HashMap<String, V>> changed = new ThreadLocal<HashMap<String, V>>() {
@@ -31,7 +34,6 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     protected final boolean autoCommit;
 
     private ReadWriteLock getCommitLock;
-    private ReadWriteLock writeCommitLock;
 
     public GenericTable(GenericTableProvider<V, ? extends GenericTable<V>> provider, String name) {
         this(provider, name, true);
@@ -45,7 +47,6 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
         this.autoCommit = autoCommit;
         //fair queue
         getCommitLock = new ReentrantReadWriteLock(true);
-        writeCommitLock = new ReentrantReadWriteLock(false);
     }
 
     public Iterator iterator() {
@@ -166,23 +167,24 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     }
 
     public int commit() {
-    	int diffNum = getDiffCount();
+    	int diffNum;
 
-        writeCommitLock.readLock().lock();
         getCommitLock.writeLock().lock();
 
         try {
-	        for (Map.Entry<String, V> entry: changed.get().entrySet()) {
-	            commited.put(entry.getKey(), entry.getValue());
-	        }
+            diffNum = getDiffCount();
 
-	        for (String entry : deleted.get()) {
-	            commited.remove(entry);
-	        }
-	    } finally {
+	        pushChanges();
+
+            ProviderWriter.writeMultiTable(this, new File(provider.getRoot(), getName()), provider);    
+
+	    } catch (IOException ex) {
+            throw new RuntimeException("Unable to write table to the disc: " + ex.getMessage());
+        } catch (ValidityCheckFailedException ex) {
+            throw new RuntimeException("Validity check failed: " + ex.getMessage());
+        } finally {
 
 	        getCommitLock.writeLock().unlock();
-	        writeCommitLock.readLock().unlock();
     	}
 
         changed.get().clear();
@@ -192,7 +194,14 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
     }
 
     public int rollback() {
-    	int diffNum = getDiffCount();
+        int diffNum;
+        
+        getCommitLock.readLock().lock();
+        try {
+    	   diffNum = getDiffCount();
+        } finally {
+            getCommitLock.readLock().unlock();
+        }
 
         changed.get().clear();
         deleted.get().clear();
@@ -200,47 +209,47 @@ public class GenericTable<V> implements Iterable<Map.Entry<String, V>>, Cloneabl
         return diffNum;
     }
 
+    //should be locked from the outside, unless made sure that the object is thread-unique
+    //synchronized, just to be safe
+
+    public synchronized void pushChanges() {
+        for (Map.Entry<String, V> entry: changed.get().entrySet()) {
+            commited.put(entry.getKey(), entry.getValue());
+        }
+
+        for (String entry : deleted.get()) {
+            commited.remove(entry);
+        }
+    }
+
+    //should be locked from the outside, unless made sure that the object is thread-unique 
     public int getDiffCount() {
 
     	int diffCount = 0;
     	
-    	getCommitLock.readLock().lock();
+        for (Map.Entry<String, V> entry: changed.get().entrySet()) {    
 
-    	try {
-        	for (Map.Entry<String, V> entry: changed.get().entrySet()) {    
-
-		    	if ((commited.get(entry.getKey()) == null) ||
-		    	 (!isValueEqual(entry.getValue(), commited.get(entry.getKey())))) {
-				    ++diffCount;
-				}
+		    if ((commited.get(entry.getKey()) == null) ||
+                (!isValueEqual(entry.getValue(), commited.get(entry.getKey())))) {
+                
+                ++diffCount;
 			}
+		}
 
-			for (String entry : deleted.get()) {
-				if (commited.get(entry) != null) {
-				    ++diffCount; 
-			   	}
+		for (String entry : deleted.get()) {
+			if (commited.get(entry) != null) {
+                ++diffCount; 
 			}
-        } finally {
-            getCommitLock.readLock().unlock();
-       	}
-
+		}
         return diffCount;
    	}
 
-    public GenericTable<V> clone() {
-        return new GenericTable<V>(provider, name, autoCommit);
-    }
-
-    public void startWriting() {
-        writeCommitLock.writeLock().lock();
-    }
-
-    public void finishWriting() {
-        writeCommitLock.writeLock().unlock();
-    }
+    public abstract GenericTable<V> clone();
 
     //both != null
     protected boolean isValueEqual(V first, V second) {
     	return first.equals(second);
     }
+
+    public abstract void checkRoot(File root) throws ValidityCheckFailedException;
 }
