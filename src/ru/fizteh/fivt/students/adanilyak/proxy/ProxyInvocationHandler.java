@@ -25,7 +25,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (!CheckOnCorrect.goodMethodForProxy(method)) {
-            throw new IllegalArgumentException("proxy invocation handler: invoke: bad method for proxy");
+            return null;
         }
         Object result = null;
         XMLformatter formatter = new XMLformatter();
