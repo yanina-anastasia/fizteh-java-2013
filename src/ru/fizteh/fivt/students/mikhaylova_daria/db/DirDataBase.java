@@ -19,6 +19,7 @@ public class DirDataBase {
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
+    private final Lock myReadLock = readWriteLock.readLock();
 
 
     private final Lock creatingLock = new ReentrantLock();
@@ -43,7 +44,6 @@ public class DirDataBase {
     void startWorking() throws Exception {
         creatingLock.lock();
         try {
-
             if (!dir.exists()) {
                 if (!dir.mkdir()) {
                     throw new Exception(dir.toString() + ": Creating directory error");
@@ -53,6 +53,7 @@ public class DirDataBase {
             creatingLock.unlock();
         }
     }
+
 
     void deleteEmptyDir() throws Exception {
         creatingLock.lock();

@@ -243,7 +243,6 @@ public class TableData implements Table {
         int nFile = b / 16 % 16;
         Storeable removedValue;
         try {
-            dirArray[nDirectory].startWorking();
             removedValue = dirArray[nDirectory].fileArray[nFile].remove(key, this);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage(), e);
@@ -261,9 +260,7 @@ public class TableData implements Table {
         int nFile = (b / 16) % 16;
         Storeable getValue;
         try {
-            dirArray[nDirectory].startWorking();
             getValue = dirArray[nDirectory].fileArray[nFile].get(key, this);
-            dirArray[nDirectory].deleteEmptyDir();
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
