@@ -89,8 +89,7 @@ public class XMLformatter implements Closeable {
                 } else {
                     xmlStreamWriter.writeStartElement("argument");
                 }
-                xmlStreamWriter.writeStartElement(value.toString());
-                xmlStreamWriter.writeEndElement();
+                xmlStreamWriter.writeCharacters(value.toString());
                 xmlStreamWriter.writeEndElement();
                 continue;
             }
