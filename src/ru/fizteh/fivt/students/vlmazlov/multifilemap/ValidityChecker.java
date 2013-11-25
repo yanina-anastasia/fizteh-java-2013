@@ -192,7 +192,7 @@ public class ValidityChecker {
 		}
 
 		Pattern pattern = null;
-		pattern = pattern.compile("\\s+");
+		pattern = pattern.compile("\\s+|[\\r\\n]");
 		Matcher matcher = pattern.matcher(key);
 
 		if ((key.trim().length() < MIN_KEY_LEN) || (key.trim().length() > MAX_KEY_LEN) || (matcher.find())) {
