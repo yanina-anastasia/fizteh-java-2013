@@ -59,7 +59,7 @@ public class XMLformatter implements Closeable {
         try {
             xmlStreamWriter.writeStartElement("arguments");
             if (args != null) {
-                recursivePart(Arrays.asList(args), xmlStreamWriter, false);
+                recursivePart(Arrays.asList(args), xmlStreamWriter, false, false);
             }
             xmlStreamWriter.writeEndElement();
         } catch (XMLStreamException exc) {
@@ -68,11 +68,10 @@ public class XMLformatter implements Closeable {
         forCycleLinkSearch.clear();
     }
 
-    private void recursivePart(Iterable collection, XMLStreamWriter xmlStreamWriter, boolean inList)
+    private void recursivePart(Iterable collection, XMLStreamWriter xmlStreamWriter, boolean inList, boolean inCycle)
             throws XMLStreamException {
         boolean isContainer;
         boolean isEmpty;
-        boolean inCycle = false;
         for (Object value : collection) {
             if (value == null) {
                 if (inList) {
@@ -107,12 +106,14 @@ public class XMLformatter implements Closeable {
             }
 
             if (forCycleLinkSearch.containsKey(value) && isContainer && !isEmpty) {
-                if (!inCycle) {
-                    inCycle = true;
-                    continue;
-                } else {
+                /*
+                if (inCycle) {
                     inCycle = false;
+                    continue;
                 }
+                */
+                inCycle = true;
+                /*
                 if (inList) {
                     xmlStreamWriter.writeStartElement("value");
                 } else {
@@ -120,17 +121,31 @@ public class XMLformatter implements Closeable {
                 }
                 xmlStreamWriter.writeCharacters("cyclic");
                 xmlStreamWriter.writeEndElement();
-                continue;
+                */
+                //recursivePart((Iterable) value, xmlStreamWriter, inList, inCycle);
+                //continue;
             }
             forCycleLinkSearch.put(value, true);
             if (isContainer) {
-                xmlStreamWriter.writeStartElement("argument");
+                if (!inCycle) {
+                    xmlStreamWriter.writeStartElement("argument");
+                } else {
+                    xmlStreamWriter.writeStartElement("value");
+                }
                 xmlStreamWriter.writeStartElement("list");
                 inList = true;
-                recursivePart((Iterable) value, xmlStreamWriter, inList);
+                if (!inCycle) {
+                    recursivePart((Iterable) value, xmlStreamWriter, inList, inCycle);
+                    xmlStreamWriter.writeEndElement();
+                } else {
+                    xmlStreamWriter.writeStartElement("value");
+                    xmlStreamWriter.writeCharacters("cyclic");
+                    xmlStreamWriter.writeEndElement();
+                    xmlStreamWriter.writeEndElement();
+                    inCycle = false;
+                }
                 xmlStreamWriter.writeEndElement();
                 inList = false;
-                xmlStreamWriter.writeEndElement();
                 continue;
             }
             if (inList) {

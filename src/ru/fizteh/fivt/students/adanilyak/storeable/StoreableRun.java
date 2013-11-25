@@ -10,5 +10,19 @@ import ru.fizteh.fivt.students.adanilyak.userinterface.GenericShell;
 public class StoreableRun {
     public static void main(String[] args) {
         GenericShell myShell = new StoreableShell(args);
+        /*
+        List<List<?>> T = new ArrayList<>();
+        T.add(T);
+        Object[] objs = new Object[1];
+        objs[0] = T;
+        try {
+            XMLformatter my = new XMLformatter();
+            my.writeArguments(objs);
+            my.close();
+            System.out.println(my.toString());
+        } catch (IOException exc) {
+
+        }
+        */
     }
 }
