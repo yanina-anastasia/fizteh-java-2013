@@ -1,10 +1,11 @@
 package ru.fizteh.fivt.students.valentinbarishev.proxy;
 
+import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
+
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
 
@@ -21,7 +22,7 @@ public class MyLogWriter {
         args = newArgs;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         stringWriter = new StringWriter();
-        writer = factory.createXMLStreamWriter(stringWriter);
+        writer = new IndentingXMLStreamWriter(factory.createXMLStreamWriter(stringWriter));
     }
 
     public void setReturnValue(Object value) {
@@ -44,6 +45,7 @@ public class MyLogWriter {
     private void writeList(Iterable object, IdentityHashMap<Object, Boolean> map) throws XMLStreamException {
         if (map.containsKey(object)) {
             writer.writeCharacters("cyclic");
+            return;
         }
         for (Object i : object) {
             writer.writeStartElement("value");

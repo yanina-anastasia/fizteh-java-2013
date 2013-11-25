@@ -107,4 +107,22 @@ public class InvocationHandlerTest {
     }
 
 
+    @Test
+    public void testTestInterface() throws IOException {
+        Writer writer = new FileWriter(folder.newFile("file"));
+        List<Object> list = new ArrayList<>();
+        list.add(list);
+        list.add(new Integer(123));
+        TestInterface test = (TestInterface) logFactory.wrap(writer, new TestClass(), TestInterface.class);
+        test.arrayParameter(list);
+        writer.flush();
+        writer.close();
+
+        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
+        char[] buf = new char[20000];
+        reader.read(buf);
+        System.out.println(buf);
+    }
+
+
 }
