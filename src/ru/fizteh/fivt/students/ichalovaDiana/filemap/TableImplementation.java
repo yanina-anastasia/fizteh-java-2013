@@ -365,19 +365,21 @@ public class TableImplementation implements Table {
     boolean storeableAreEqual(Storeable first, Storeable second) {
         if (first == null && second == null) {
             return true;
+        } else if (!(first != null && second != null)) {
+            return false;
         }
         
         if (getStoreableSize(first) != getStoreableSize(second)) {
             return false;
         }
         
-        for (int i = 0; i < getStoreableSize(first); ++i) {
-            if (first == null && second == null) {
+        for (int columnIndex = 0; columnIndex < getStoreableSize(first); ++columnIndex) {
+            if (first.getColumnAt(columnIndex) == null && second.getColumnAt(columnIndex) == null) {
                 continue;
             }
-            if (first == null || second == null 
-                    || first.getColumnAt(i).getClass() != second.getColumnAt(i).getClass() 
-                    || !first.getColumnAt(i).equals(second.getColumnAt(i))) {
+            if (first.getColumnAt(columnIndex) == null || second.getColumnAt(columnIndex) == null 
+                    || first.getColumnAt(columnIndex).getClass() != second.getColumnAt(columnIndex).getClass() 
+                    || !first.getColumnAt(columnIndex).equals(second.getColumnAt(columnIndex))) {
                 return false;
             }
         }
