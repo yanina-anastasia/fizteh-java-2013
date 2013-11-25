@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko786.multifilehashmap;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +23,7 @@ public class MultiFileHashMapState {
 
     public MultiFileHashMapTable createTable(String name) throws IOException {
 
-        MultiFileHashMapTable tmp = provider.createTable(name);
-        return tmp;
+        return provider.createTable(name);
     }
 
     public MultiFileHashMapTable getTable(String name) throws IOException {

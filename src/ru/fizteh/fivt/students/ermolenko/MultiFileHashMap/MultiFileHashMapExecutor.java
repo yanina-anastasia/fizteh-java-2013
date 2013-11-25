@@ -1,7 +1,7 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko786.multifilehashmap;
 
-import ru.fizteh.fivt.students.ermolenko.shell.Command;
-import ru.fizteh.fivt.students.ermolenko.shell.Executor;
+import ru.fizteh.fivt.students.ermolenko786.shell.Command;
+import ru.fizteh.fivt.students.ermolenko786.shell.Executor;
 
 public class MultiFileHashMapExecutor extends Executor<MultiFileHashMapState> {
 

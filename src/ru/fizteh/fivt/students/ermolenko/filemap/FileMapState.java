@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenko.filemap;
+package ru.fizteh.fivt.students.ermolenko786.filemap;
 
 import java.io.File;
 import java.util.HashMap;

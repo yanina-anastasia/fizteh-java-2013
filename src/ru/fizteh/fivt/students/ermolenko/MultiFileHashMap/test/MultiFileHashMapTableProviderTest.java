@@ -1,20 +1,22 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap.test;
+package ru.fizteh.fivt.students.ermolenko786.multifilehashmap.test;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapTableProvider;
-import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapTableProviderFactory;
+import ru.fizteh.fivt.students.ermolenko786.multifilehashmap.MultiFileHashMapTableProvider;
+import ru.fizteh.fivt.students.ermolenko786.multifilehashmap.MultiFileHashMapTableProviderFactory;
 
 import java.io.File;
 
 public class MultiFileHashMapTableProviderTest {
+
     private static File database;
     private static MultiFileHashMapTableProvider tableProvider;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
+
         database = new File("javatest").getCanonicalFile();
         database.mkdir();
         MultiFileHashMapTableProviderFactory factory = new MultiFileHashMapTableProviderFactory();
@@ -23,6 +25,7 @@ public class MultiFileHashMapTableProviderTest {
 
     @Before
     public void setUp() throws Exception {
+
         tableProvider.createTable("existingTable");
     }
 

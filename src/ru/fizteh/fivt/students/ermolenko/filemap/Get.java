@@ -1,6 +1,6 @@
-package ru.fizteh.fivt.students.ermolenko.filemap;
+package ru.fizteh.fivt.students.ermolenko786.filemap;
 
-import ru.fizteh.fivt.students.ermolenko.shell.Command;
+import ru.fizteh.fivt.students.ermolenko786.shell.Command;
 
 import java.io.IOException;
 

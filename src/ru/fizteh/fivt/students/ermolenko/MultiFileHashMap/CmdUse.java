@@ -1,6 +1,6 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko786.multifilehashmap;
 
-import ru.fizteh.fivt.students.ermolenko.shell.Command;
+import ru.fizteh.fivt.students.ermolenko786.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,9 @@ public class CmdUse implements Command<MultiFileHashMapState> {
 
         Map<String, String> tmpDataBase = inState.getTable(args[0]).getDataBase();
         File tmpDataFile = inState.getTable(args[0]).getDataFile();
+
         MultiFileHashMapUtils.read(tmpDataFile, tmpDataBase);
+
         inState.setCurrentTable(args[0], tmpDataBase, tmpDataFile);
 
         System.out.println("using " + args[0]);

@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko786.multifilehashmap;
 
 import ru.fizteh.fivt.storage.strings.Table;
 

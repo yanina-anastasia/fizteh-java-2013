@@ -1,9 +1,9 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap.test;
+package ru.fizteh.fivt.students.ermolenko786.multifilehashmap.test;
 
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapTable;
+import ru.fizteh.fivt.students.ermolenko786.multifilehashmap.MultiFileHashMapTable;
 
 import java.io.File;
 
