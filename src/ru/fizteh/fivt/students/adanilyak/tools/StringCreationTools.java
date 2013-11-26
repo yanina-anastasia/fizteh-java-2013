@@ -15,13 +15,7 @@ public class StringCreationTools {
         for (Integer i = 0; i < storeableListOfObjects.size(); ++i) {
             object = storeableListOfObjects.get(i);
             if (object != null) {
-                if (object.getClass() == String.class) {
-                    builder.append("\"");
-                    builder.append(object);
-                    builder.append("\"");
-                } else {
-                    builder.append(object.toString());
-                }
+                builder.append(object.toString());
             } else {
                 builder.append("");
             }
