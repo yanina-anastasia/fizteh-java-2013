@@ -15,14 +15,17 @@ import java.io.IOException;
 public class StoreableTableProviderFactory implements TableProviderFactory, AutoCloseable {
     WorkStatus status;
 
+    public StoreableTableProviderFactory() {
+        status = WorkStatus.WORKING;
+    }
+
     @Override
     public TableProvider create(String directoryWithTables) throws IOException {
-        status = WorkStatus.NOT_INITIALIZED;
+        status.isOkForOperations();
         if (directoryWithTables == null || directoryWithTables.trim().isEmpty()) {
             throw new IllegalArgumentException("Directory not set or set incorrectly");
         }
         File file = new File(directoryWithTables);
-        status = WorkStatus.WORKING;
         return new StoreableTableProvider(file);
     }
 

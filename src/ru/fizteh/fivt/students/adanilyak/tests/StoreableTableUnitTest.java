@@ -318,4 +318,10 @@ public class StoreableTableUnitTest {
         testTableEng = tableProvider.createTable("testTable20", typesTestListOne);
         Assert.assertNotNull(testTableEng);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void getAfterClose() {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.get("key");
+    }
 }

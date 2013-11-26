@@ -2,8 +2,10 @@ package ru.fizteh.fivt.students.adanilyak.tests;
 
 import org.junit.Before;
 import org.junit.Test;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProviderFactory;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -13,6 +15,7 @@ import java.io.IOException;
  */
 public class StoreableTableProviderFactoryUnitTest {
     StoreableTableProviderFactory testProviderFactory;
+    String sandBoxDirectory = "/Users/Alexander/Documents/JavaDataBase/SandBox";
 
     @Before
     public void setUpTestObject() {
@@ -31,5 +34,11 @@ public class StoreableTableProviderFactoryUnitTest {
         } catch (IOException exc) {
             System.err.println("storeable table provider factory unit test: create: something went wrong");
         }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void createAfterClose() throws IOException {
+        testProviderFactory.close();
+        testProviderFactory.create(sandBoxDirectory);
     }
 }
