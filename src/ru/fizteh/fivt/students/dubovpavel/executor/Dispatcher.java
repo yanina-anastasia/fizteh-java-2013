@@ -24,7 +24,7 @@ public class Dispatcher {
 
     public String getInitProperty(String key) throws DispatcherException {
         String value = System.getProperty(key);
-        if(value == null) {
+        if (value == null) {
             shutdown = true;
             throw new DispatcherException(callbackWriter(MessageType.ERROR, String.format("'%s' property is null", key)));
         } else {
@@ -46,7 +46,7 @@ public class Dispatcher {
 
     public synchronized String callbackWriter(MessageType type, String msg) {
         PrintStream stream;
-        if(type == MessageType.SUCCESS || type == MessageType.WARNING) {
+        if (type == MessageType.SUCCESS || type == MessageType.WARNING) {
             stream = System.out;
         } else {
             stream = System.err;
@@ -66,32 +66,32 @@ public class Dispatcher {
     public void sortOut(String commandSequence) throws DispatcherException {
         try {
             ArrayList<Command> commands = parser.getCommands(this, commandSequence);
-            for(Command command: commands) {
+            for (Command command : commands) {
                 try {
-                    if(shutdown) {
+                    if (shutdown) {
                         break;
                     }
                     boolean performed = false;
-                    for(Performer performer: performers) {
-                        if(performer.pertains(command)) {
+                    for (Performer performer : performers) {
+                        if (performer.pertains(command)) {
                             performer.execute(this, command);
                             performed = true;
                             break;
                         }
                     }
-                    if(!performed) {
+                    if (!performed) {
                         callbackWriter(MessageType.ERROR, String.format("%s is not correct", command.getDescription()));
                     }
-                } catch(PerformerException e) {
+                } catch (PerformerException e) {
                     invalidOperations++;
-                    if(forwarding) {
+                    if (forwarding) {
                         throw new DispatcherException(e.getMessage());
                     }
                 }
             }
-        } catch(Parser.IncorrectSyntaxException e) {
+        } catch (Parser.IncorrectSyntaxException e) {
             invalidSequences++;
-            if(forwarding) {
+            if (forwarding) {
                 throw new DispatcherException(e.getMessage());
             }
         }

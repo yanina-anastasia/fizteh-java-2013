@@ -15,7 +15,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     protected HashMap<String, V> localDict = new HashMap<>();
 
     private void checkValid() {
-        if(savingEndPoint == null) {
+        if (savingEndPoint == null) {
             throw new RuntimeException("DataBase pointer was null");
         }
     }
@@ -27,19 +27,19 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
 
     public void open() throws DataBaseException {
         checkValid();
-        try(DataInputStream db = new DataInputStream(new FileInputStream(savingEndPoint))) {
-            while(true) {
+        try (DataInputStream db = new DataInputStream(new FileInputStream(savingEndPoint))) {
+            while (true) {
                 int keyLength;
                 try {
                     keyLength = db.readInt();
                 } catch (EOFException e) {
                     break;
                 }
-                if(keyLength <= 0 || keyLength > MAXLENGTH) {
+                if (keyLength <= 0 || keyLength > MAXLENGTH) {
                     throw new DataBaseException(String.format("Key length must be in [1; %d]", MAXLENGTH));
                 }
                 int valueLength = db.readInt();
-                if(valueLength <= 0 || valueLength > MAXLENGTH) {
+                if (valueLength <= 0 || valueLength > MAXLENGTH) {
                     throw new DataBaseException(String.format("Value length must be in [1; %d]", MAXLENGTH));
                 }
                 byte[] keyBuffer = new byte[keyLength];
@@ -73,8 +73,8 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
 
     public void save() throws DataBaseException {
         checkValid();
-        try(DataOutputStream db = new DataOutputStream(new FileOutputStream(savingEndPoint))) {
-            for(Map.Entry<String, V> entry: localDict.entrySet()) {
+        try (DataOutputStream db = new DataOutputStream(new FileOutputStream(savingEndPoint))) {
+            for (Map.Entry<String, V> entry : localDict.entrySet()) {
                 byte[] key = entry.getKey().getBytes(charset);
                 byte[] value = builder.serialize(entry.getValue()).getBytes(charset);
                 db.writeInt(key.length);
@@ -82,7 +82,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
                 db.write(key);
                 db.write(value);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new DataBaseException(String.format("Conformity saving: IOException: %s", e.getMessage()));
         } catch (Serial.SerialException e) {
             throw new DataBaseException(String.format("Conformity saving: SerialException (serialization): %s", e.getMessage()));
@@ -94,7 +94,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     protected V put(HashMap<String, V> dict, String key, V value) {
-        if(dict.containsKey(key)) {
+        if (dict.containsKey(key)) {
             V old = dict.get(key);
             dict.put(key, value);
             return old;
@@ -109,7 +109,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     protected V remove(HashMap<String, V> dict, String key) {
-        if(dict.containsKey(key)) {
+        if (dict.containsKey(key)) {
             V removing = dict.get(key);
             dict.remove(key);
             return removing;
@@ -123,7 +123,7 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     protected V get(HashMap<String, V> dict, String key) {
-        if(dict.containsKey(key)) {
+        if (dict.containsKey(key)) {
             return dict.get(key);
         } else {
             return null;

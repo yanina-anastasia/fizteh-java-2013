@@ -8,10 +8,10 @@ public class TableStoreableBuilder extends WrappedMindfulDataBaseMultiFileHashMa
     protected ArrayList<Class<?>> fields;
 
     protected ArrayList<Class<?>> cloneFields(ArrayList<Class<?>> types) {
-        if(types == null) {
+        if (types == null) {
             return new ArrayList<>();
         } else {
-            return (ArrayList<Class<?>>)types.clone();
+            return (ArrayList<Class<?>>) types.clone();
         }
     }
 

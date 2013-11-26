@@ -24,7 +24,7 @@ public class TableProviderStoreable<DB extends FileRepresentativeDataBase<Storea
 
     private ArrayList<Class<?>> collectFields(Table table) {
         ArrayList<Class<?>> result = new ArrayList<>();
-        for(int i = 0; i < table.getColumnsCount(); i++) {
+        for (int i = 0; i < table.getColumnsCount(); i++) {
             result.add(table.getColumnType(i));
         }
         return result;
@@ -37,11 +37,11 @@ public class TableProviderStoreable<DB extends FileRepresentativeDataBase<Storea
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
-        if(columnTypes == null || columnTypes.size() == 0) {
+        if (columnTypes == null || columnTypes.size() == 0) {
             throw new IllegalArgumentException();
         }
-        for(Class<?> type: columnTypes) {
-            if(!TypeNamesMatcher.nameByClass.containsKey(type)) {
+        for (Class<?> type : columnTypes) {
+            if (!TypeNamesMatcher.nameByClass.containsKey(type)) {
                 throw new IllegalArgumentException();
             }
         }
@@ -68,15 +68,15 @@ public class TableProviderStoreable<DB extends FileRepresentativeDataBase<Storea
     }
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        if(values == null) {
+        if (values == null) {
             throw new IllegalArgumentException("Value is null");
         }
         StoreableImpl row = new StoreableImpl(collectFields(table));
-        if(values.size() != row.size()) {
+        if (values.size() != row.size()) {
             throw new IllegalArgumentException("Value size mismatches");
         }
         int i = 0;
-        for(Object value : values) {
+        for (Object value : values) {
             row.setColumnAt(i++, value);
         }
         return row;

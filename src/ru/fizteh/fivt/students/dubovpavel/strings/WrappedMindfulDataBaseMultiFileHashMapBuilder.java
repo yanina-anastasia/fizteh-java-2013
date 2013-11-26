@@ -6,6 +6,7 @@ import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDat
 
 public abstract class WrappedMindfulDataBaseMultiFileHashMapBuilder<V> extends DataBaseBuilder<FileRepresentativeDataBase<V>> {
     protected Dispatcher dispatcher;
+
     public void setDispatcher(Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
     }

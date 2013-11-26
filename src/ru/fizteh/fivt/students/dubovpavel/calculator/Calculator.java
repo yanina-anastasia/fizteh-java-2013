@@ -29,7 +29,9 @@ class Calculator {
         DIVISION,
         OBRACKET,
         CBRACKET
-    };
+    }
+
+    ;
 
     private enum State {
         START,
@@ -41,7 +43,9 @@ class Calculator {
         OBRACKET,
         CBRACKET,
         UNARYMinus
-    };
+    }
+
+    ;
 
     private String expression;
     private ArrayList<Token<Lexem, Integer>> lexems = new ArrayList<Token<Lexem, Integer>>();
@@ -50,32 +54,33 @@ class Calculator {
         this.expression = expression;
         int pointer = 0;
         lexems.add(new Token<Lexem, Integer>(Lexem.OBRACKET, -1));
-        while(pointer < expression.length()) {
+        while (pointer < expression.length()) {
             char currentSymbol = expression.charAt(pointer);
-            if(currentSymbol == '+') { //Can not use switch here because I need range of values to determine if it is a number.
+            if (currentSymbol == '+') { //Can not use switch here because I need range of values to determine if it is a number.
                 lexems.add(new Token<Lexem, Integer>(Lexem.ADDITION, pointer));
-            } else if(currentSymbol == '-') {
+            } else if (currentSymbol == '-') {
                 lexems.add(new Token<Lexem, Integer>(Lexem.SUBTRACTION, pointer));
-            } else if(currentSymbol == '*') {
+            } else if (currentSymbol == '*') {
                 lexems.add(new Token<Lexem, Integer>(Lexem.MULTIPLICATION, pointer));
-            } else if(currentSymbol == '/') {
+            } else if (currentSymbol == '/') {
                 lexems.add(new Token<Lexem, Integer>(Lexem.DIVISION, pointer));
-            } else if(currentSymbol == '(')  {
+            } else if (currentSymbol == '(') {
                 lexems.add(new Token<Lexem, Integer>(Lexem.OBRACKET, pointer));
-            } else if(currentSymbol == ')') {
+            } else if (currentSymbol == ')') {
                 lexems.add(new Token<Lexem, Integer>(Lexem.CBRACKET, pointer));
-            } else if('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= LASTLETTER) {
+            } else if ('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= LASTLETTER) {
                 do {
                     pointer++;
-                    if(pointer < expression.length()) {
+                    if (pointer < expression.length()) {
                         currentSymbol = expression.charAt(pointer);
                     } else {
                         break;
                     }
-                } while('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= LASTLETTER);
+                }
+                while ('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= LASTLETTER);
                 pointer--;
                 lexems.add(new Token<Lexem, Integer>(Lexem.NUMBER, pointer));
-            } else if(!Character.isWhitespace(currentSymbol)) {
+            } else if (!Character.isWhitespace(currentSymbol)) {
                 throw new InappropriateSymbolException(String.format("Inappropriate symbol '%c' found.", currentSymbol));
             }
             pointer++;
@@ -99,7 +104,7 @@ class Calculator {
 
     private void performOperation(Stack<Integer> numbers, Lexem lexem) throws ArithmeticException {
         Integer a = numbers.pop(), b = numbers.pop(), result; // Stack is not empty because we use automata, which garantees us correct syntax.
-        switch(lexem) {
+        switch (lexem) {
             case ADDITION:
                 result = SafeInteger.add(b, a);
                 break;
@@ -110,7 +115,7 @@ class Calculator {
                 result = SafeInteger.multiply(b, a);
                 break;
             case DIVISION:
-                if(a == 0) throw new ArithmeticException("Division by zero occured.");
+                if (a == 0) throw new ArithmeticException("Division by zero occured.");
                 else
                     result = SafeInteger.divide(b, a);
                 break;
@@ -123,7 +128,7 @@ class Calculator {
     private void popBracketBlock(Stack<Integer> numbers, Stack<Lexem> operations) throws InvalidLexemMetException, ArithmeticException {
         try {
             Lexem currentLexem;
-            while((currentLexem = operations.pop()) != Lexem.OBRACKET) {
+            while ((currentLexem = operations.pop()) != Lexem.OBRACKET) {
                 performOperation(numbers, currentLexem);
             }
         } catch (EmptyStackException e) {
@@ -132,7 +137,7 @@ class Calculator {
     }
 
     private int getOperationPriority(Lexem operation) {
-        switch(operation) {
+        switch (operation) {
             case ADDITION:
             case SUBTRACTION:
                 return 0;
@@ -147,13 +152,13 @@ class Calculator {
     }
 
     private void pushOperation(Stack<Integer> numbers, Stack<Lexem> operations, Lexem operation) throws ArithmeticException {
-        while(!operations.empty() && getOperationPriority(operations.peek()) >= getOperationPriority(operation))
+        while (!operations.empty() && getOperationPriority(operations.peek()) >= getOperationPriority(operation))
             performOperation(numbers, operations.pop());
         operations.push(operation);
     }
 
     private State operationToState(Lexem operation) {
-        switch(operation) {
+        switch (operation) {
             case ADDITION:
                 return State.ADDITION;
             case SUBTRACTION:
@@ -171,11 +176,11 @@ class Calculator {
         State state = State.START;
         Stack<Lexem> operations = new Stack<Lexem>();
         Stack<Integer> numbers = new Stack<Integer>();
-        for(int i = 0; i < lexems.size(); i++) {
+        for (int i = 0; i < lexems.size(); i++) {
             Lexem lexemType = lexems.get(i).getLexem();
-            switch(state) { //If we identify Lexem with State this code might be shorter; I don't like to use dirty tricks on Java tho.
+            switch (state) { //If we identify Lexem with State this code might be shorter; I don't like to use dirty tricks on Java tho.
                 case START:
-                    switch(lexemType) {
+                    switch (lexemType) {
                         case OBRACKET:
                             operations.push(Lexem.OBRACKET);
                             state = State.OBRACKET;
@@ -183,9 +188,9 @@ class Calculator {
                         default:
                             throw new InvalidLexemMetException(getInvalidLexemMetExceptionText(i));
                     }
-                break;
+                    break;
                 case OBRACKET:
-                    if(lexemType == Lexem.SUBTRACTION) {
+                    if (lexemType == Lexem.SUBTRACTION) {
                         numbers.push(-1);
                         pushOperation(numbers, operations, Lexem.MULTIPLICATION);
                         state = State.UNARYMinus;
@@ -204,7 +209,7 @@ class Calculator {
                         default:
                             throw new InvalidLexemMetException(getInvalidLexemMetExceptionText(i));
                     }
-                break;
+                    break;
                 case NUMBER:
                     switch (lexemType) {
                         case ADDITION:
@@ -221,12 +226,12 @@ class Calculator {
                         default:
                             throw new InvalidLexemMetException(getInvalidLexemMetExceptionText(i));
                     }
-                break;
+                    break;
                 case ADDITION:
                 case SUBTRACTION:
                 case MULTIPLICATION:
                 case DIVISION:
-                    switch(lexemType) {
+                    switch (lexemType) {
                         case NUMBER:
                             numbers.push(getNumber(i));
                             state = State.NUMBER;
@@ -238,7 +243,7 @@ class Calculator {
                         default:
                             throw new InvalidLexemMetException(getInvalidLexemMetExceptionText(i));
                     }
-                break;
+                    break;
                 case CBRACKET:
                     switch (lexemType) {
                         case ADDITION:
@@ -257,10 +262,10 @@ class Calculator {
                     }
             }
         }
-        if(!operations.empty()) {
+        if (!operations.empty()) {
             throw new InvalidLexemMetException("Expression is incorrect.");
         }
-        if(numbers.size() != 1) {//It should never happen as far as I understand.
+        if (numbers.size() != 1) {//It should never happen as far as I understand.
             throw new RuntimeException(BUG);
         }
         return numbers.pop();

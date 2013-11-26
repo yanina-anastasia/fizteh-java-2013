@@ -9,6 +9,7 @@ import java.util.Map;
 public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap<V> {
     private HashMap<String, V> oldDict;
     protected ObjectTransformer<V> transformer;
+
     MindfulDataBaseMultiFileHashMap(File path, ObjectTransformer<V> transformer) {
         super(path, transformer);
         oldDict = new HashMap<>();
@@ -17,7 +18,7 @@ public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap
 
     protected void copyHashMap(HashMap<String, V> from, HashMap<String, V> to) {
         to.clear();
-        for(Map.Entry<String, V> entry: from.entrySet()) {
+        for (Map.Entry<String, V> entry : from.entrySet()) {
             to.put(entry.getKey(), transformer.copy(entry.getValue()));
         }
     }
@@ -38,6 +39,7 @@ public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap
     public int size() {
         return size(localDict);
     }
+
     protected int size(HashMap<String, V> dict) {
         return dict.size();
     }
@@ -48,13 +50,13 @@ public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap
 
     protected int getDiff(HashMap<String, V> dict) {
         int diff = 0;
-        for(Map.Entry<String, V> entry: dict.entrySet()) { // Check for new and changed values
-            if(!oldDict.containsKey(entry.getKey()) || !transformer.equal(oldDict.get(entry.getKey()), entry.getValue())) { // Order of .equals is important here
+        for (Map.Entry<String, V> entry : dict.entrySet()) { // Check for new and changed values
+            if (!oldDict.containsKey(entry.getKey()) || !transformer.equal(oldDict.get(entry.getKey()), entry.getValue())) { // Order of .equals is important here
                 diff++;
             }
         }
-        for(Map.Entry<String, V> entry: oldDict.entrySet()) { // Check for removed values
-            if(!dict.containsKey(entry.getKey())) {
+        for (Map.Entry<String, V> entry : oldDict.entrySet()) { // Check for removed values
+            if (!dict.containsKey(entry.getKey())) {
                 diff++;
             }
         }

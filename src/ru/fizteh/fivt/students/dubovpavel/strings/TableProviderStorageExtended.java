@@ -18,20 +18,20 @@ public class TableProviderStorageExtended<DB extends FileRepresentativeDataBase>
     }
 
     public DB getTable(String name) {
-        if(name == null || name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if(!isNameValid(name)) {
+        if (!isNameValid(name)) {
             throw new RuntimeException();
         }
         return storage.getDataBase(name);
     }
 
     public DB createTableExplosive(String name) throws IOException {
-        if(name == null || name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if(!isNameValid(name)) {
+        if (!isNameValid(name)) {
             throw new RuntimeException();
         }
         try {
@@ -42,10 +42,10 @@ public class TableProviderStorageExtended<DB extends FileRepresentativeDataBase>
     }
 
     public void removeTableExplosive(String name) throws IOException {
-        if(name == null || name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        if(storage.dropExplosive(name) == null) {
+        if (storage.dropExplosive(name) == null) {
             throw new IllegalStateException();
         }
     }

@@ -11,11 +11,12 @@ public class TypeNamesMatcher {
 
     private static void generateCorrespondings(String type, String[] correspondings) {
         HashSet<Class<?>> classes = new HashSet<>();
-        for(String corresponding: correspondings) {
+        for (String corresponding : correspondings) {
             classes.add(classByName.get(corresponding));
         }
         castableClasses.put(classByName.get(type), classes);
     }
+
     static {
         classByName = new HashMap<>();
         classByName.put("int", Integer.class);
@@ -26,20 +27,22 @@ public class TypeNamesMatcher {
         classByName.put("double", Double.class);
         classByName.put("String", String.class);
     }
+
     static {
         nameByClass = new HashMap<>();
-        for(Map.Entry<String, Class<?>> entry: classByName.entrySet()) {
+        for (Map.Entry<String, Class<?>> entry : classByName.entrySet()) {
             nameByClass.put(entry.getValue(), entry.getKey());
         }
     }
+
     static {
         castableClasses = new HashMap<>();
-        generateCorrespondings("long", new String[] {"long", "int", "byte"});
-        generateCorrespondings("int", new String[] {"int", "byte"});
-        generateCorrespondings("byte", new String[] {"int", "byte"});
-        generateCorrespondings("boolean", new String[] {"boolean"});
-        generateCorrespondings("float", new String[] {"double", "int", "byte", "long", "float"});
-        generateCorrespondings("double", new String[] {"double", "int", "byte", "long", "float"});
-        generateCorrespondings("String", new String[] {"int", "long", "byte", "boolean", "float", "double", "String"});
+        generateCorrespondings("long", new String[]{"long", "int", "byte"});
+        generateCorrespondings("int", new String[]{"int", "byte"});
+        generateCorrespondings("byte", new String[]{"int", "byte"});
+        generateCorrespondings("boolean", new String[]{"boolean"});
+        generateCorrespondings("float", new String[]{"double", "int", "byte", "long", "float"});
+        generateCorrespondings("double", new String[]{"double", "int", "byte", "long", "float"});
+        generateCorrespondings("String", new String[]{"int", "long", "byte", "boolean", "float", "double", "String"});
     }
 }

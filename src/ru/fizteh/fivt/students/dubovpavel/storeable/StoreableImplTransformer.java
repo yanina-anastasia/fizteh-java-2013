@@ -11,22 +11,23 @@ import java.util.ArrayList;
 
 public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
     private ArrayList<Class<?>> fields;
+
     public StoreableImplTransformer(ArrayList<Class<?>> types) {
         fields = types;
     }
 
     public boolean equal(Storeable left, Storeable right) {
-        for(int index = 0;; index++) {
+        for (int index = 0; ; index++) {
             Object leftValue, rightValue;
             try {
                 leftValue = left.getColumnAt(index);
                 try {
                     rightValue = right.getColumnAt(index);
-                    if(leftValue == null) {
-                        if(rightValue != null) {
+                    if (leftValue == null) {
+                        if (rightValue != null) {
                             return false;
                         }
-                    } else if(!leftValue.equals(rightValue)) {
+                    } else if (!leftValue.equals(rightValue)) {
                         return false;
                     }
                 } catch (IndexOutOfBoundsException eRight) {
@@ -36,7 +37,7 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
                 try {
                     rightValue = right.getColumnAt(index);
                     return false;
-                } catch(IndexOutOfBoundsException eRight) {
+                } catch (IndexOutOfBoundsException eRight) {
                     return true;
                 }
             }
@@ -45,16 +46,16 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
 
     public String serialize(Storeable obj) throws ColumnFormatException {
         JSONArray json = new JSONArray();
-        for(int i = 0; i < fields.size(); i++) {
+        for (int i = 0; i < fields.size(); i++) {
             Object value = obj.getColumnAt(i);
             try {
-                if(value == null) {
+                if (value == null) {
                     json.put(value);
                 } else {
-                    if(fields.get(i).equals(String.class)) {
+                    if (fields.get(i).equals(String.class)) {
                         json.put(value.toString());
                     } else {
-                        json.put(fields.get(i).getMethod("valueOf", new Class[] {String.class}).invoke(null, value.toString()));
+                        json.put(fields.get(i).getMethod("valueOf", new Class[]{String.class}).invoke(null, value.toString()));
                     }
                 }
             } catch (Exception e) {
@@ -68,11 +69,11 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
         try {
             JSONArray json = new JSONArray(obj);
             StoreableImpl storeable = new StoreableImpl(fields);
-            if(json.length() != fields.size()) {
+            if (json.length() != fields.size()) {
                 throw new ParseException("JSON length and fields size mismatch", -1);
             }
-            for(int i = 0; i < fields.size(); i++) {
-                if(json.isNull(i)) {
+            for (int i = 0; i < fields.size(); i++) {
+                if (json.isNull(i)) {
                     storeable.setColumnAt(i, null);
                 } else {
                     storeable.setColumnAt(i, json.get(i));
@@ -89,8 +90,8 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
     }
 
     public Storeable copy(Storeable obj) { // obj must be checked already
-        StoreableImpl newObj = new StoreableImpl((ArrayList<Class<?>>)fields.clone());
-        for(int i = 0; i < fields.size(); i++) {
+        StoreableImpl newObj = new StoreableImpl((ArrayList<Class<?>>) fields.clone());
+        for (int i = 0; i < fields.size(); i++) {
             newObj.setColumnAt(i, obj.getColumnAt(i));
         }
         return newObj;

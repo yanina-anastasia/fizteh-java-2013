@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Storage <DB extends FileRepresentativeDataBase> {
+public class Storage<DB extends FileRepresentativeDataBase> {
     private File dir;
     protected HashMap<String, DB> storage;
     private DB cursor;
@@ -17,10 +17,10 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     private DataBaseBuilder<DB> builder;
 
     public void save() throws StorageException {
-        for(Map.Entry<String, DB> entry: storage.entrySet()) {
+        for (Map.Entry<String, DB> entry : storage.entrySet()) {
             try {
                 entry.getValue().save();
-            } catch(DataBaseHandler.DataBaseException e) {
+            } catch (DataBaseHandler.DataBaseException e) {
                 throw new StorageException(String.format("Saving: Database %s: %s", entry.getKey(), e.getMessage()));
             }
         }
@@ -32,21 +32,21 @@ public class Storage <DB extends FileRepresentativeDataBase> {
         this.dispatcher = dispatcher;
         dir = new File(path);
         cursor = null;
-        if(!dir.isDirectory()) {
+        if (!dir.isDirectory()) {
             dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("Storage loading: '%s' is not a directory. Empty storage applied", dir.getPath()));
             dir.mkdir();
         } else {
-            for(File folder: dir.listFiles()) {
-                if(folder.isDirectory()) {
+            for (File folder : dir.listFiles()) {
+                if (folder.isDirectory()) {
                     builder.setPath(folder);
                     DB dataBase = builder.construct();
                     try {
                         dataBase.open();
-                    } catch(DataBaseHandler.DataBaseException e) {
+                    } catch (DataBaseHandler.DataBaseException e) {
                         this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                 String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
-                        if(!e.acceptable) {
+                        if (!e.acceptable) {
                             this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                     "Database denied");
                             System.exit(-1);
@@ -71,21 +71,21 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     }
 
     public DB createExplosive(String key) throws IOException, StorageException {
-        if(storage.containsKey(key)) {
+        if (storage.containsKey(key)) {
             dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                     String.format("%s exists", key));
             return null;
         } else {
             File newData = new File(dir, key);
             try {
-                if(!newData.getCanonicalFile().getName().equals(key)) {
+                if (!newData.getCanonicalFile().getName().equals(key)) {
                     throw new StorageException("Can not create table with this name");
                 }
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e.getMessage()); // See the note for PerformerShell
             }
-            if(!newData.isDirectory()) {
-                if(!newData.mkdir()) {
+            if (!newData.isDirectory()) {
+                if (!newData.mkdir()) {
                     throw new IOException(String.format("Can not create directory '%s'", newData.getPath()));
                 }
             }
@@ -112,16 +112,16 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     }
 
     public DB dropExplosive(String key) throws IOException {
-        if(storage.containsKey(key)) {
+        if (storage.containsKey(key)) {
             DB value = storage.get(key);
-            if(value.getPath().isDirectory()) {
+            if (value.getPath().isDirectory()) {
                 try {
                     new PerformerRemove().removeObject(storage.get(key).getPath());
-                } catch(PerformerRemove.PerformerRemoveException e) {
+                } catch (PerformerRemove.PerformerRemoveException e) {
                     throw new IOException(String.format("Drop: Can not remove: %s", e.getMessage()));
                 }
             }
-            if(cursor != null && cursor.getPath().getName().equals(key)) {
+            if (cursor != null && cursor.getPath().getName().equals(key)) {
                 cursor = null;
             }
             storage.remove(key);
@@ -134,7 +134,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     }
 
     public void setCurrent(String key) {
-        if(storage.containsKey(key)) {
+        if (storage.containsKey(key)) {
             cursor = storage.get(key);
             dispatcher.callbackWriter(Dispatcher.MessageType.SUCCESS,
                     String.format("using %s", key));
@@ -149,7 +149,7 @@ public class Storage <DB extends FileRepresentativeDataBase> {
     }
 
     public DB getDataBase(String name) {
-        if(storage.containsKey(name)) {
+        if (storage.containsKey(name)) {
             return storage.get(name);
         } else {
             return null;

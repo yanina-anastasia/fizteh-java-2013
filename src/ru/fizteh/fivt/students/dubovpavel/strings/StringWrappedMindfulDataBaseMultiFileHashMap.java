@@ -12,7 +12,7 @@ public class StringWrappedMindfulDataBaseMultiFileHashMap extends WrappedMindful
 
     @Override
     public String put(String key, String value) {
-        if(value == null || value.contains("\n")) {
+        if (value == null || value.contains("\n")) {
             throw new IllegalArgumentException();
         }
         return super.put(key, value);

@@ -27,19 +27,19 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
 
     @Override
     public void open() throws DataBaseException {
-        try(BufferedReader reader = new BufferedReader(new FileReader(new File(root, "signature.tsv")))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(root, "signature.tsv")))) {
             String line = reader.readLine();
-            if(line == null) {
+            if (line == null) {
                 throw new IOException("EOF reached");
             }
             String[] types = line.split("\\s+");
-            if(types.length == 0) {
+            if (types.length == 0) {
                 throw new IOException("Line is empty");
             }
             fields.clear();
-            for(String type: types) {
+            for (String type : types) {
                 Class<?> T = TypeNamesMatcher.classByName.get(type);
-                if(T == null) {
+                if (T == null) {
                     generateLoadingError("DataBaseException", String.format("Signature file contains unsupported type %s", type), false);
                 } else {
                     fields.add(T);
@@ -53,9 +53,9 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
 
     @Override
     public void save() throws DataBaseException {
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(new File(root, "signature.tsv")))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(root, "signature.tsv")))) {
             StringBuilder joiner = new StringBuilder();
-            for(Class<?> type: fields) {
+            for (Class<?> type : fields) {
                 joiner.append(TypeNamesMatcher.nameByClass.get(type));
                 joiner.append(' ');
             }
@@ -72,13 +72,13 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
 
     @Override
     protected Storeable put(HashMap<String, Storeable> dict, String key, Storeable value) throws ColumnFormatException {
-        if(value == null) {
+        if (value == null) {
             throw new IllegalArgumentException();
         }
-        for(int i = 0; i < fields.size(); i++) {
+        for (int i = 0; i < fields.size(); i++) {
             try {
                 Object cell = value.getColumnAt(i);
-                if(cell != null && !cell.getClass().equals(fields.get(i))) {
+                if (cell != null && !cell.getClass().equals(fields.get(i))) {
                     throw new ColumnFormatException(String.format("Type at column %s mismatches", i));
                 }
             } catch (IndexOutOfBoundsException e) {
@@ -92,7 +92,7 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
         } catch (IndexOutOfBoundsException e) {
             error = false;
         }
-        if(error) {
+        if (error) {
             throw new ColumnFormatException("Size of value mismtaches signature");
         }
         return super.put(dict, key, value);
@@ -103,7 +103,7 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if(columnIndex >= fields.size()) throw new IndexOutOfBoundsException("Index is out of bound");
+        if (columnIndex >= fields.size()) throw new IndexOutOfBoundsException("Index is out of bound");
         return fields.get(columnIndex);
     }
 

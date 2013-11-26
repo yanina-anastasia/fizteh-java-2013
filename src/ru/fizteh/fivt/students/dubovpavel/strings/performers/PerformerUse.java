@@ -13,9 +13,9 @@ public class PerformerUse<D extends Dispatcher & StorageAccessible<Storage<Mindf
     }
 
     public void execute(D dispatcher, Command command) {
-        if(dispatcher.getStorage().getCurrent() != null) {
+        if (dispatcher.getStorage().getCurrent() != null) {
             int diff = dispatcher.getStorage().getCurrent().getDiff();
-            if(diff != 0) {
+            if (diff != 0) {
                 dispatcher.callbackWriter(Dispatcher.MessageType.WARNING, String.format("%d unsaved changes", diff));
                 return;
             }

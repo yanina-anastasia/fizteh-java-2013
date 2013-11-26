@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMultiFileHashMap<V> {
     private Dispatcher dispatcher;
     private static final Pattern whitespacePattern;
+
     static {
         whitespacePattern = Pattern.compile("\\s");
     }
@@ -21,7 +22,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
 
     @Override
     protected V get(HashMap<String, V> dict, String key) {
-        if(key == null) {
+        if (key == null) {
             throw new IllegalArgumentException();
         }
         return super.get(dict, key);
@@ -29,7 +30,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
 
     @Override
     protected V put(HashMap<String, V> dict, String key, V value) {
-        if(key == null || key.isEmpty() || whitespacePattern.matcher(key).find()) {
+        if (key == null || key.isEmpty() || whitespacePattern.matcher(key).find()) {
             throw new IllegalArgumentException();
         }
         return super.put(dict, key, value);
@@ -37,7 +38,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
 
     @Override
     protected V remove(HashMap<String, V> dict, String key) {
-        if(key == null) {
+        if (key == null) {
             throw new IllegalArgumentException();
         }
         return super.remove(dict, key);

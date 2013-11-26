@@ -18,7 +18,7 @@ public class PerformerSafeDataBaseOperationWrapper<D extends Dispatcher & DataBa
     }
 
     public void execute(D dispatcher, Command command) throws PerformerException {
-        if(dispatcher.getDataBase() == null) {
+        if (dispatcher.getDataBase() == null) {
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, "no table");
         } else {
             performer.execute(dispatcher, command);

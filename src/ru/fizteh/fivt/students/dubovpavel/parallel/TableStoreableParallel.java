@@ -29,19 +29,19 @@ public class TableStoreableParallel extends TableStoreable implements Table {
     private HashMap<String, Storeable> getDict() {
         Long curThread = Thread.currentThread().getId();
         HashMap<String, Storeable> curDict = threadDict.get();
-        if(curDict != null) {
-            if(sync.contains(curThread)) {
+        if (curDict != null) {
+            if (sync.contains(curThread)) {
                 return curDict;
             } else {
                 HashSet<String> changed = affected.get();
                 HashMap<String, Storeable> localDictMix = new HashMap<>();
-                for(Map.Entry<String, Storeable> entry: localDict.entrySet()) {
-                    if(!changed.contains(entry.getKey())) {
+                for (Map.Entry<String, Storeable> entry : localDict.entrySet()) {
+                    if (!changed.contains(entry.getKey())) {
                         localDictMix.put(entry.getKey(), getTransformer().copy(entry.getValue()));
                     }
                 }
-                for(String change: changed) {
-                    if(curDict.containsKey(change)) {
+                for (String change : changed) {
+                    if (curDict.containsKey(change)) {
                         localDictMix.put(change, curDict.get(change));
                     }
                 }
@@ -126,7 +126,7 @@ public class TableStoreableParallel extends TableStoreable implements Table {
             localDict = new HashMap<>();
             copyHashMap(getDict(), localDict);
             int committed = super.commit();
-            if(committed == -1) {
+            if (committed == -1) {
                 localDict = memorized;
             } else {
                 affected.get().clear();
