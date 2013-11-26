@@ -13,18 +13,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Filemap implements Table {
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+public class MyTable implements Table {
 
     private DataBase[][] data = new DataBase[16][16];
     private String currTablePath = null;
     private String currTableName = null;
-    private HashMap<String, Storeable> updatedMap = new HashMap<String, Storeable>();
     private MyTableProvider provider = null;
     private List<Class<?>> types = new ArrayList<Class<?>>();
-
-    public HashMap<String, Storeable> getHashMap() {
-        return updatedMap;
-    }
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock read = readWriteLock.readLock();
+    private Lock write = readWriteLock.writeLock();
+    
+    
+    private ThreadLocal<HashMap<String, Storeable>> changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        protected HashMap<String, Storeable> initialValue() {
+            return new HashMap<String, Storeable>();
+        }
+    };
 
     public MyTableProvider getProvider() {
         return provider;
@@ -34,11 +43,11 @@ public class Filemap implements Table {
         return currTablePath;
     }
 
-    protected int getDataBaseNumberFromKey(String key) throws RuntimeException {
+    protected DataBase getDataBaseFromKey(String key) throws RuntimeException {
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
         int nfile = hashcode / 16 % 16;
-        return ndir * 16 + nfile;
+        return data[ndir][nfile];
     }
 
     public String getName() {
@@ -53,13 +62,22 @@ public class Filemap implements Table {
         return (!provider.hasBadSymbols(key) && !key.contains("[") && !key
                 .contains("]"));
     }
-
+   
+//read
     public Storeable get(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("get: key is empty");
         }
-        Storeable res = updatedMap.get(key);
-        return res;
+        if (changesMap.get().containsKey(key)) {
+            return changesMap.get().get(key);
+        } else {
+            read.lock();
+            try {
+                return getDataBaseFromKey(key).get(key);
+            } finally {
+                read.unlock();
+            }
+        } 
     }
 
     private void checkValue(Storeable value) {
@@ -82,6 +100,22 @@ public class Filemap implements Table {
         }
     }
 
+    private boolean differs(Storeable st1, Storeable st2) {
+        if (st1 == null && st2 == null) {
+            return true;
+        }
+        if (st1 != null && st2 == null) {
+            return true;
+        }
+        if (st1 == null && st2 != null) {
+            return true;
+        }
+        String str1 = provider.serialize(this, st1);
+        String str2 = provider.serialize(this, st2);
+        return (!str1.equals(str2));
+    }
+
+//read
     public Storeable put(String key, Storeable value)
             throws IllegalArgumentException, ColumnFormatException {
         if (isEmpty(key)) {
@@ -99,97 +133,119 @@ public class Filemap implements Table {
             throw new ColumnFormatException("wrong type (put: "
                     + e1.getMessage() + ")", e1);
         }
-        Storeable res = updatedMap.put(key, value);
+        
+        Storeable oldVal = null;        
+        read.lock();
+        try {
+            oldVal = getDataBaseFromKey(key).get(key);
+        } finally {
+            read.unlock();
+        }
+        
+        Storeable newVal = changesMap.get().get(key);
+        Storeable res = null;
+        if (changesMap.get().containsKey(key)) {
+            res = newVal;
+        } else if (oldVal != null) {
+            res = oldVal;
+        }
+        
+        changesMap.get().put(key, value);
         return res;
     }
-
+    
+//read
     public Storeable remove(String key) throws IllegalArgumentException {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("remove: key is empty");
         }
-        Storeable res = updatedMap.put(key, null);
+        
+        Storeable oldVal = null;
+        read.lock();
+        try {
+            oldVal = getDataBaseFromKey(key).get(key);
+        } finally {
+            read.unlock();
+        }
+        
+        Storeable res;            
+        if (changesMap.get().containsKey(key)) {
+            res = changesMap.get().get(key);
+        } else {
+            res = oldVal;
+        }
+        if (oldVal == null) {
+            changesMap.get().remove(key);
+        } else {
+            changesMap.get().put(key, null);
+        }
         return res;
     }
 
+//read
     public int size() {
         int n = 0;
-        Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                read.lock();
+                try {
+                    n += data[i][j].getSize();
+                } finally {
+                    read.unlock();
+                }
+            }
+        }
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
         for (Map.Entry<String, Storeable> myEntry : mySet) {
-            if (myEntry.getValue() != null) {
-                n++;
+            if (getDataBaseFromKey(myEntry.getKey()).get(myEntry.getKey()) == null) {
+                if (myEntry.getValue() != null) {
+                    n++;
+                }
+            } else if (myEntry.getValue() == null) {
+                n--;
             }
         }
         return n;
     }
 
-    public int getUncommitedChangesAndTrack(boolean trackChanges)
-            throws RuntimeException {
-        Set<Map.Entry<String, Storeable>> mySet = updatedMap.entrySet();
-        int k;
-        int ndir;
-        int nfile;
-        int nchanges = 0;
+// write
+    public void trackChanges() {
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
         String key;
-        String val;
+        Storeable value;
+        DataBase mdb;
         for (Map.Entry<String, Storeable> myEntry : mySet) {
             key = myEntry.getKey();
-
-            k = getDataBaseNumberFromKey(key);
-            ndir = k / 16;
-            nfile = k % 16;
-            if (myEntry.getValue() != null) {
-                if (!data[ndir][nfile].hasFile()) {
-                    data[ndir][nfile].createFile();
+            value = myEntry.getValue();
+            mdb = getDataBaseFromKey(myEntry.getKey());
+            write.lock();
+            try {
+                if (value == null) {
+                    mdb.remove(key);
+                } else {
+                    mdb.put(key, value);
                 }
-            }
-
-            val = data[ndir][nfile].get(key);
-
-            if (myEntry.getValue() == null) {
-                if (data[ndir][nfile].get(key) != null) {
-                    nchanges++;
-                }
-                if (trackChanges) {
-                    data[ndir][nfile].remove(key);
-                    data[ndir][nfile].hasChanged = true;
-                }
-            } else {
-                String currVal = getProvider().serialize(this,
-                        myEntry.getValue());
-                if (val == null || !val.equals(currVal)) {
-                    nchanges++;
-                    if (trackChanges) {
-                        try {
-                            data[ndir][nfile].put(key, currVal);
-                            data[ndir][nfile].hasChanged = true;
-                        } catch (ColumnFormatException e) {
-                            throw new RuntimeException("some problems", e);
-                        }
-                    }
-                }
+                mdb.createFile();
+                mdb.hasChanged = true;
+            } finally {
+                write.unlock();
             }
         }
-        return nchanges;
     }
-
+    
     public int commit() throws RuntimeException {
-        int nchanges = getUncommitedChangesAndTrack(true);
+        int nchanges = getUncommitedChanges();
+        trackChanges();
         if (nchanges != 0) {
             saveChanges();
+            changesMap.get().clear();
         }
         return nchanges;
     }
 
     public int rollback() throws RuntimeException {
-        int nchanges = getUncommitedChangesAndTrack(false);
-        if (nchanges != 0) {
-            try {
-                loadFromDataMap();
-            } catch (ParseException | IllegalArgumentException e) {
-                throw new RuntimeException(
-                        "can't read data from saved changes", e);
-            }
-        }
+        int nchanges = getUncommitedChanges();
+        changesMap.get().clear();
         return nchanges;
     }
 
@@ -198,19 +254,25 @@ public class Filemap implements Table {
         currTableName = null;
     }
 
+// write to disk
     public void saveChanges() throws RuntimeException {
         if (currTableName == null) {
             return;
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                if (data[i][j].hasFile() && data[i][j].hasChanged) {
-                    try {
-                        data[i][j].commitChanges();
-                        data[i][j].hasChanged = false;
-                    } catch (IOException e) {
-                        throw new RuntimeException("can't write to file", e);
+                write.lock();
+                try {
+                    if (data[i][j].hasFile() && data[i][j].hasChanged) {
+                        try {
+                            data[i][j].commitChanges();
+                            data[i][j].hasChanged = false;
+                        } catch (IOException e) {
+                            throw new RuntimeException("can't write to file", e);
+                        }
                     }
+                } finally {
+                    write.unlock();
                 }
             }
         }
@@ -226,51 +288,62 @@ public class Filemap implements Table {
         }
     }
 
+//read from disk
     public void loadFromDisk() throws RuntimeException {
-        if (updatedMap != null) {
-            updatedMap.clear();
+        if (changesMap != null) {
+            changesMap.get().clear();
         } else {
-            updatedMap = new HashMap<String, Storeable>();
+            changesMap.set(new HashMap<String, Storeable>());
         }
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
+                read.lock();
                 try {
-                    data[i][j] = new DataBase(this, i, j);
-                } catch (ParseException e) {
-                    throw new RuntimeException("wrong type (load "
-                            + e.getMessage() + ")", e);
+                    try {
+                        data[i][j] = new DataBase(this, i, j);
+                    } catch (ParseException e) {
+                        throw new RuntimeException("wrong type (load "
+                                + e.getMessage() + ")", e);
+                    }
+                } finally {
+                    read.unlock();
                 }
             }
         }
     }
 
+//read
     public void loadFromDataMap() throws IllegalArgumentException,
             ParseException {
-        if (updatedMap != null) {
-            updatedMap.clear();
+        if (changesMap != null) {
+            changesMap.get().clear();
         } else {
-            updatedMap = new HashMap<String, Storeable>();
+            changesMap.set(new HashMap<String, Storeable>());
         }
 
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
-                if (data[i][j].hasFile()) {
-                    data[i][j].loadDataToMap(updatedMap);
+                read.lock();
+                try {
+                    if (data[i][j].hasFile()) {
+                        data[i][j].loadDataToMap(changesMap.get());
+                    }
+                } finally {
+                    read.unlock();
                 }
             }
         }
     }
 
-    public Filemap() {
+    public MyTable() {
     }
 
-    public Filemap(String path, String name, MyTableProvider mtp,
+    public MyTable(String path, String name, MyTableProvider mtp,
             List<Class<?>> columnTypes) throws RuntimeException, IOException {
         provider = mtp;
         currTablePath = path;
         currTableName = name;
         types = new ArrayList<Class<?>>(columnTypes);
-
         if (currTableName != null) {
             loadFromDisk();
         }
@@ -281,6 +354,23 @@ public class Filemap implements Table {
         return types.size();
     }
 
+    public int getUncommitedChanges() {
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
+        String key;
+        Storeable value;
+        DataBase mdb;
+        int nchanges = 0;
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
+            key = myEntry.getKey();
+            value = myEntry.getValue();
+            mdb = getDataBaseFromKey(key);
+            if (differs(value, mdb.get(key))) {
+                nchanges++;
+            }
+        }
+        return nchanges;
+    }
+    
     @Override
     public Class<?> getColumnType(int columnIndex)
             throws IndexOutOfBoundsException {
@@ -292,11 +382,11 @@ public class Filemap implements Table {
     }
 
     public static void main(String[] args) {
-        FileMapMain myFactory = new FileMapMain();
+        MyTableProviderFactory myFactory = new MyTableProviderFactory();
         MyTableProvider provider;
         try {
             provider = (MyTableProvider) myFactory.create(System.getProperty("fizteh.db.dir"));
-            Filemap mp = new Filemap();
+            MyTable mp = new MyTable();
             ExecuteCmd exec = new ExecuteCmd(mp, provider);
             exec.workWithUser(args);
         } catch (IllegalArgumentException e) {

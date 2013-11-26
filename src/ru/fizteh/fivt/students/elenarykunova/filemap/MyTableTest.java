@@ -16,9 +16,9 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
-public class FilemapTest {
+public class MyTableTest {
 
-    private static Filemap table;
+    private static MyTable table;
     private MyTableProvider prov;
     
     @Rule 
@@ -29,14 +29,14 @@ public class FilemapTest {
         File rootDir;
         try {
             rootDir = folder.newFolder("myroot");
-            FileMapMain factory = new FileMapMain();
+            MyTableProviderFactory factory = new MyTableProviderFactory();
             prov = (MyTableProvider) factory.create(rootDir.getAbsolutePath());
             List<Class<?>> types = new ArrayList<Class<?>>(4);
             types.add(Integer.class);
             types.add(Double.class);
             types.add(String.class);
             types.add(Boolean.class);
-            table = (Filemap) prov.createTable("newTable", types);
+            table = (MyTable) prov.createTable("newTable", types);
         } catch (IOException e) {
             System.err.println("can't make tests");
         }
@@ -265,7 +265,7 @@ public class FilemapTest {
         columnTypes.add(String.class);
         columnTypes.add(Integer.class);
         columnTypes.add(Integer.class);
-        Filemap big = (Filemap) prov.createTable("big", columnTypes);
+        MyTable big = (MyTable) prov.createTable("big", columnTypes);
         Storeable bigger = prov.createFor(big);
         table.put("key1", bigger);
     }
@@ -275,7 +275,7 @@ public class FilemapTest {
         List<Class<?>> columnTypes = new ArrayList<Class<?>>(2);
         columnTypes.add(Integer.class);
         columnTypes.add(Double.class);
-        Filemap small = (Filemap) prov.createTable("small", columnTypes);
+        MyTable small = (MyTable) prov.createTable("small", columnTypes);
         Storeable smaller = prov.createFor(small);
         table.put("key2", smaller);
     }
@@ -290,7 +290,7 @@ public class FilemapTest {
         values.add(0, true);
         values.add(1, 1200000000);
         values.add(1.323333333);
-        Filemap bad = (Filemap) prov.createTable("bad", columnTypes);
+        MyTable bad = (MyTable) prov.createTable("bad", columnTypes);
         Storeable badStoreable = prov.createFor(bad, values);
         table.put("key3", badStoreable);
     }
