@@ -48,14 +48,14 @@ public class LoggingInvocationHandler implements InvocationHandler {
                                                                            throws XMLStreamException {  
         for (Object listElement : list) {
             writer.writeStartElement("value");
-            if (map.containsKey(list)) {
+            if (map.containsKey(listElement)) {
                 writer.writeCharacters("cyclic");
             } else if (listElement == null) {
                 writeNull(writer);
             } else {
                 if (listElement instanceof Iterable) {
                     writer.writeStartElement("list");
-                    map.put(list, true);
+                    map.put(listElement, true);
                     writeList(writer, list, map);
                     writer.writeEndElement();
                 } else {
