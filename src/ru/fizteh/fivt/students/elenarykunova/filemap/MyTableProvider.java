@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -24,10 +24,7 @@ public class MyTableProvider implements TableProvider {
 
     private String rootDir = null;
     private HashMap<String, MyTable> tables = new HashMap<String, MyTable>();
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(
-            true);
-    private Lock read = readWriteLock.readLock();
-    private Lock write = readWriteLock.writeLock();
+    private Lock write = new ReentrantLock(true);
 
     public MyTableProvider() {
     }
@@ -64,7 +61,7 @@ public class MyTableProvider implements TableProvider {
         return false;
     }
 
-//read
+//read and write sometimes
     @Override
     public Table getTable(String name) throws IllegalArgumentException,
             RuntimeException {
@@ -78,7 +75,7 @@ public class MyTableProvider implements TableProvider {
         if (tablePath == null) {
             throw new RuntimeException("no root directory");
         }
-        read.lock();
+        write.lock();
         try {
             File tmpFile = new File(tablePath);
             if (!tmpFile.exists() || !tmpFile.isDirectory()) {
@@ -105,15 +102,15 @@ public class MyTableProvider implements TableProvider {
                 } else {
                     MyTable result = new MyTable(tablePath, name, this,
                             oldTypes);
-                    tables.put(name, result);
-                    return (Table) result;
+                        tables.put(name, result);
+                        return (Table) result;
                 }
             } catch (IOException e1) {
                 throw new RuntimeException(
                         "can't read info from signature.tsv", e1);
             }
         } finally {
-            read.unlock();
+            write.unlock();
         }
     }
 
