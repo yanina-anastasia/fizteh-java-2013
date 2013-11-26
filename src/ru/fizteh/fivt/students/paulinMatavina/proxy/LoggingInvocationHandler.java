@@ -39,9 +39,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
     }
 
     private void writeNull(XMLStreamWriter writer) throws XMLStreamException {
-        //writer.writeStartElement("null");
-        //writer.writeEndElement();
-        writer.writeCharacters("<null\\>");
+        writer.writeStartElement("null");
+        writer.writeEndElement();
+        //writer.writeCharacters("<null\\>");
     }
 
     private void writeList(XMLStreamWriter writer, Iterable<?> list, IdentityHashMap<Object, Boolean> map) 
