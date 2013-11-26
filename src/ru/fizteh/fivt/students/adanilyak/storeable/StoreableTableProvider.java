@@ -58,7 +58,25 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         }
         try {
             lock.lock();
-            return allTablesMap.get(tableName);
+
+            if (((StoreableTable) allTablesMap.get(tableName)).isOkForOperations()) {
+                return allTablesMap.get(tableName);
+            } else {
+                File tableFile = new File(allTablesDirectory, tableName);
+                List<Class<?>> temp = ((StoreableTable) allTablesMap.get(tableName)).getColumnTypes();
+                Table newTable = null;
+                try {
+                    DeleteDirectory.rm(tableFile);
+                    tableFile.mkdir();
+                    newTable = new StoreableTable(tableFile, temp, this);
+                } catch (IOException exc) {
+                    System.err.println(exc.getMessage());
+                }
+                allTablesMap.put(tableName, newTable);
+                return newTable;
+            }
+
+            //return allTablesMap.get(tableName);
         } finally {
             lock.unlock();
         }
@@ -77,8 +95,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
                 if (((StoreableTable) getTable(tableName)).isOkForOperations()) {
                     return null;
                 } else {
-                    //DeleteDirectory.rm(tableFile);
-                    tableFile = new File(tableFile, "new");
+                    DeleteDirectory.rm(tableFile);
                     tableFile.mkdir();
                     Table newTable = new StoreableTable(tableFile, columnTypes, this);
                     allTablesMap.put(tableName, newTable);
