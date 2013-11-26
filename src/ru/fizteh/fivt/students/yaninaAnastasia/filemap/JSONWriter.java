@@ -35,7 +35,11 @@ public class JSONWriter {
     }
 
     public void logReturnValue(Object result) {
-        jsonLog = jsonLog.put("returnValue", result);
+        if (result == null) {
+            jsonLog.put("returnValue", JSONObject.NULL);
+        } else {
+            jsonLog = jsonLog.put("returnValue", result);
+        }
     }
 
     public void logThrown(Throwable cause) {
@@ -64,7 +68,7 @@ public class JSONWriter {
 
             if (value instanceof Iterable) {
                 isContainer = true;
-                isEmpty = ((Iterable) value).iterator().hasNext() == false;
+                isEmpty = !((Iterable) value).iterator().hasNext();
             }
 
             if (identityLogHashMap.containsKey(value) && isContainer && !isEmpty) {

@@ -75,7 +75,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public String getName() {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (tableName == null) {
             throw new IllegalArgumentException("Table name cannot be null");
@@ -85,7 +85,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public Storeable get(String key) throws IllegalArgumentException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
@@ -106,7 +106,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
@@ -152,7 +152,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public Storeable remove(String key) throws IllegalArgumentException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
@@ -189,7 +189,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public int size() {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         transactionLock.readLock().lock();
         try {
@@ -201,7 +201,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public int commit() {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         int recordsCommitted = 0;
         transactionLock.writeLock().lock();
@@ -229,7 +229,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public int rollback() {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         int recordsDeleted = Math.abs(changesCount());
 
@@ -249,7 +249,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
             throw new IndexOutOfBoundsException("wrong index");
@@ -438,7 +438,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public int getColumnsCount() {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         return columnTypes.size();
     }

@@ -35,7 +35,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public DatabaseTable getTable(String name) throws IllegalArgumentException, IllegalStateException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
@@ -68,7 +68,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, IllegalStateException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
@@ -145,7 +145,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
@@ -181,7 +181,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public Storeable deserialize(Table table, String value) throws ParseException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (value == null || value.isEmpty()) {
             throw new IllegalArgumentException("value cannot be null or empty");
@@ -228,7 +228,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (value == null) {
             throw new IllegalArgumentException("value cannot be null");
@@ -250,7 +250,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public Storeable createFor(Table table) {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (table == null) {
             return null;
@@ -265,7 +265,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         if (isClosed) {
-            throw new IllegalArgumentException("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
@@ -463,7 +463,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     @Override
     public void close() throws Exception {
         if (isClosed) {
-            throw new IllegalArgumentException("It is already closed");
+            throw new IllegalStateException("It is already closed");
         }
         for (final String tableName : tables.keySet()) {
             tables.get(tableName).close();

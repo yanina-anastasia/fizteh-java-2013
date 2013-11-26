@@ -77,8 +77,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "size");
         JSONArray args = parser.getJSONArray("arguments");
@@ -97,8 +97,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "get");
         JSONArray args = parser.getJSONArray("arguments");
@@ -118,8 +118,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "put");
         JSONArray args = parser.getJSONArray("arguments");
@@ -139,8 +139,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "remove");
         JSONArray args = parser.getJSONArray("arguments");
@@ -166,8 +166,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "commit");
         JSONArray args = parser.getJSONArray("arguments");
@@ -192,8 +192,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "rollback");
         JSONArray args = parser.getJSONArray("arguments");
@@ -215,8 +215,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "getName");
         JSONArray args = parser.getJSONArray("arguments");
@@ -234,8 +234,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "getColumnsCount");
         JSONArray args = parser.getJSONArray("arguments");
@@ -253,8 +253,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "getColumnType");
         JSONArray args = parser.getJSONArray("arguments");
@@ -273,8 +273,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "getColumnType");
         JSONArray args = parser.getJSONArray("arguments");
@@ -287,7 +287,8 @@ public class TestsLoggingProxyFactory {
 
     @Test
     public void createTableLogTest() {
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(Integer.class);
         long timestampBefore = System.currentTimeMillis();
@@ -299,8 +300,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("createTable", parser.getString("method"));
@@ -328,14 +329,15 @@ public class TestsLoggingProxyFactory {
         } catch (IOException e) {
             //
         }
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         wrappedProvider.getTable("new");
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("getTable", parser.getString("method"));
@@ -362,7 +364,8 @@ public class TestsLoggingProxyFactory {
         } catch (IOException e) {
             //
         }
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         try {
             wrappedProvider.removeTable("new");
@@ -372,8 +375,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("removeTable", parser.getString("method"));
@@ -386,14 +389,15 @@ public class TestsLoggingProxyFactory {
 
     @Test
     public void serializeTableLogTest() {
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         wrappedProvider.serialize(table, makeStoreable(5));
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("serialize", parser.getString("method"));
@@ -409,7 +413,8 @@ public class TestsLoggingProxyFactory {
 
     @Test
     public void deserializeTableLogTest() {
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         try {
             wrappedProvider.deserialize(table, "<row><col>5</col></row>");
@@ -419,8 +424,8 @@ public class TestsLoggingProxyFactory {
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("deserialize", parser.getString("method"));
@@ -436,14 +441,15 @@ public class TestsLoggingProxyFactory {
 
     @Test
     public void createForLogTest() {
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         wrappedProvider.createFor(table);
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("createFor", parser.getString("method"));
@@ -461,14 +467,15 @@ public class TestsLoggingProxyFactory {
     public void createForMultiLogTest() {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(Integer.class);
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         wrappedProvider.createFor(table, list);
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("createFor", parser.getString("method"));
@@ -484,7 +491,8 @@ public class TestsLoggingProxyFactory {
 
     @Test
     public void getExceptionLogTest() {
-        TableProvider wrappedProveder = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProveder = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         try {
             wrappedProveder.getTable(null);
@@ -495,8 +503,8 @@ public class TestsLoggingProxyFactory {
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
         Assert.assertEquals(parser.get("thrown"), "java.lang.IllegalArgumentException: table's name cannot be null");
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"),
                 "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider");
         Assert.assertEquals(parser.getString("method"), "getTable");
@@ -520,8 +528,8 @@ public class TestsLoggingProxyFactory {
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
         Assert.assertEquals(parser.get("thrown"), "java.lang.IndexOutOfBoundsException: wrong index");
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
         Assert.assertEquals(parser.getString("method"), "getColumnType");
         JSONArray args = parser.getJSONArray("arguments");
@@ -540,7 +548,8 @@ public class TestsLoggingProxyFactory {
         } catch (IOException e) {
             //
         }
-        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter, provider, TableProvider.class);
+        TableProvider wrappedProvider = (TableProvider) testLoggingFactory.wrap(stringWriter,
+                provider, TableProvider.class);
         long timestampBefore = System.currentTimeMillis();
         try {
             wrappedProvider.removeTable("newTable");
@@ -553,8 +562,8 @@ public class TestsLoggingProxyFactory {
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
         Assert.assertEquals(parser.get("thrown"), "java.lang.IllegalStateException: newTable not exists");
-        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore &&
-                parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
         Assert.assertEquals("removeTable", parser.getString("method"));
