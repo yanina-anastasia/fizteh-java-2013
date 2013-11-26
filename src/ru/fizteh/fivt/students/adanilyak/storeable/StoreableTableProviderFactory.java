@@ -44,6 +44,10 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
         try {
             if (!allProvidersMap.containsKey(directory)) {
                 allProvidersMap.put(directory, new StoreableTableProvider(file));
+            } else {
+                if (!allProvidersMap.get(directory).isOkForOperations()) {
+                    allProvidersMap.put(directory, new StoreableTableProvider(file));
+                }
             }
             return allProvidersMap.get(directory);
         } finally {

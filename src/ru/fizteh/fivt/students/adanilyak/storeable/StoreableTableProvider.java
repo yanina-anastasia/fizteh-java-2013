@@ -28,7 +28,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
     private Map<String, Table> allTablesMap = new HashMap<>();
     private File allTablesDirectory;
     private final Lock lock = new ReentrantLock(true);
-    private WorkStatus state;
+    private WorkStatus status;
 
     public StoreableTableProvider(File atDirectory) throws IOException {
         if (atDirectory == null) {
@@ -42,17 +42,17 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
         }
         allTablesDirectory = atDirectory;
-        state = WorkStatus.NOT_INITIALIZED;
+        status = WorkStatus.NOT_INITIALIZED;
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new StoreableTable(tableFile, this);
             allTablesMap.put(tableFile.getName(), table);
         }
-        state = WorkStatus.WORKING;
+        status = WorkStatus.WORKING;
     }
 
     @Override
     public Table getTable(String tableName) {
-        state.isOkForOperations();
+        status.isOkForOperations();
         if (!CheckOnCorrect.goodName(tableName)) {
             throw new IllegalArgumentException("get table: name is bad");
         }
@@ -87,7 +87,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table createTable(String tableName, List<Class<?>> columnTypes) throws IOException {
-        state.isOkForOperations();
+        status.isOkForOperations();
         if (!CheckOnCorrect.goodName(tableName) || !CheckOnCorrect.goodColumnTypes(columnTypes)) {
             throw new IllegalArgumentException("create table: name or column types is bad");
         }
@@ -111,7 +111,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void removeTable(String tableName) {
-        state.isOkForOperations();
+        status.isOkForOperations();
         if (!CheckOnCorrect.goodName(tableName)) {
             throw new IllegalArgumentException("remove table: name is bad");
         }
@@ -134,7 +134,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        state.isOkForOperations();
+        status.isOkForOperations();
         if (value == null) {
             throw new ParseException("storeable table provider: deserialize: value can not be null", 0);
         }
@@ -143,7 +143,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        state.isOkForOperations();
+        status.isOkForOperations();
         List<Class<?>> columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); i++) {
             columnTypes.add(table.getColumnType(i));
@@ -156,28 +156,37 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable createFor(Table table) {
-        state.isOkForOperations();
+        status.isOkForOperations();
         return new StoreableRow(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        state.isOkForOperations();
+        status.isOkForOperations();
         return new StoreableRow(table, values);
     }
 
     @Override
     public String toString() {
-        state.isOkForOperations();
+        status.isOkForOperations();
         return getClass().getSimpleName() + "[" + allTablesDirectory + "]";
     }
 
     @Override
     public void close() {
-        state.isOkForClose();
+        status.isOkForClose();
         for (String tableName : allTablesMap.keySet()) {
             ((StoreableTable) allTablesMap.get(tableName)).close();
         }
-        state = WorkStatus.CLOSED;
+        status = WorkStatus.CLOSED;
+    }
+
+    public boolean isOkForOperations() {
+        try {
+            status.isOkForOperations();
+        } catch (IllegalStateException exc) {
+            return false;
+        }
+        return true;
     }
 }
