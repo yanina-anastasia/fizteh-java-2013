@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -16,7 +17,7 @@ public class DatabaseTable implements Table {
     public HashMap<String, Storeable> oldData;
     public ThreadLocal<HashMap<String, Storeable>> modifiedData;
     public ThreadLocal<HashSet<String>> deletedKeys;
-    public int size;
+    public AtomicInteger size;
     public ThreadLocal<Integer> uncommittedChanges;
     private String tableName;
     public List<Class<?>> columnTypes;
@@ -25,6 +26,7 @@ public class DatabaseTable implements Table {
 
 
     public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
+        size = new AtomicInteger();
         this.tableName = name;
         oldData = new HashMap<String, Storeable>();
         modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
@@ -47,7 +49,7 @@ public class DatabaseTable implements Table {
         };
         transactionLock.readLock().lock();
         try {
-            size = oldData.size();
+            size.set(oldData.size());
         } finally {
             transactionLock.readLock().unlock();
         }
@@ -133,7 +135,7 @@ public class DatabaseTable implements Table {
             deletedKeys.get().remove(key);
         }
         if (oldValue == null) {
-            size += 1;
+            size.decrementAndGet();
         }
         uncommittedChanges.set(changesCount());
         return oldValue;
@@ -167,7 +169,7 @@ public class DatabaseTable implements Table {
             deletedKeys.get().add(key);
         }
         if (oldValue != null) {
-            size -= 1;
+            size.incrementAndGet();
         }
         uncommittedChanges.set(changesCount());
         return oldValue;
@@ -197,7 +199,7 @@ public class DatabaseTable implements Table {
             }
             deletedKeys.get().clear();
             modifiedData.get().clear();
-            size = oldData.size();
+            size.set(oldData.size());
             TableBuilder tableBuilder = new TableBuilder(provider, this);
             save(tableBuilder);
             uncommittedChanges.set(0);
@@ -214,7 +216,7 @@ public class DatabaseTable implements Table {
         modifiedData.get().clear();
         transactionLock.readLock().lock();
         try {
-            size = oldData.size();
+            size.set(oldData.size());
         } finally {
             transactionLock.readLock().unlock();
         }
