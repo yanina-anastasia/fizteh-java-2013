@@ -371,4 +371,10 @@ public class MultiDbState extends State implements Table {
     public boolean fileExist(String name) {
         return new File(shell.makeNewSource(name)).exists();
     }
+    
+    @Override
+    public String toString() {
+        String result = getClass().getSimpleName() + "[" + rootPath + "]";
+        return result;
+    }
 }

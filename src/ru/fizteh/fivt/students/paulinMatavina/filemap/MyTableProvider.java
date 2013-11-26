@@ -211,7 +211,7 @@ public class MyTableProvider extends State implements TableProvider {
                         + ": expected " + array.length(), 0);
             }
             
-            Storeable newList = new MyStoreable(table, columnTypes);
+            Storeable newList = new MyStoreable(columnTypes);
             for (int i = 0; i < columnCount; i++) {
                 Object object = array.get(i);
                 newList.setColumnAt(i, object);
@@ -257,7 +257,7 @@ public class MyTableProvider extends State implements TableProvider {
         for (int i = 0; i < columnCount; i++) {
             columnTypes.add(table.getColumnType(i));
         }
-        return new MyStoreable(table, columnTypes);
+        return new MyStoreable(columnTypes);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class MyTableProvider extends State implements TableProvider {
             types.add(table.getColumnType(i));
         }
         
-        MyStoreable newList = new MyStoreable(table, types);
+        MyStoreable newList = new MyStoreable(types);
         if (values.size() != columnCount) {
             throw new IndexOutOfBoundsException("wrong array size: " + values.size()
                     + " instead of " + columnCount);
@@ -314,5 +314,11 @@ public class MyTableProvider extends State implements TableProvider {
             }
         }
         return columnTypes;
+    }
+    
+    @Override
+    public String toString() {
+        String result = getClass().getSimpleName() + "[" + rootDir + "]";
+        return result;
     }
 }

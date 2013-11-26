@@ -10,12 +10,10 @@ import ru.fizteh.fivt.storage.structured.*;
 public class MyStoreable implements Storeable {
     private ArrayList<Class<?>> columnTypes;
     private Object[] objectList;
-    private Table table;
     
-    public MyStoreable(Table hostTable, List<Class<?>> types) {
+    public MyStoreable(List<Class<?>> types) {
         columnTypes = new ArrayList<Class<?>>(types);
         objectList = new Object[types.size()];
-        table = hostTable;
     }
     
     @Override
@@ -162,7 +160,17 @@ public class MyStoreable implements Storeable {
     
     @Override
     public String toString() {
-        return ((MultiDbState) table).provider.serialize(table, this);
+        StringBuilder result = new StringBuilder(getClass().getSimpleName() + "[");
+        for (int i = 0; i < size(); i++) {
+            if (objectList[i] != null) {
+                result.append(objectList[i].toString());
+            }
+            if (i != size() - 1) {
+                result.append(",");
+            }
+        }
+        result.append("]");
+        return result.toString();
     }
     
     @Override 
