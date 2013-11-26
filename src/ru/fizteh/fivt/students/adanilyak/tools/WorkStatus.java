@@ -5,14 +5,22 @@ package ru.fizteh.fivt.students.adanilyak.tools;
  * Date: 22.11.13
  * Time: 2:23
  */
-public enum ContainerWorkStatus {
+public enum WorkStatus {
     WORKING(1),
     NOT_INITIALIZED(-1),
     CLOSED(0);
 
     private int state;
 
-    private ContainerWorkStatus(int givenState) throws IllegalStateException {
+    private WorkStatus(int givenState) throws IllegalStateException {
+        if (givenState != 0 && givenState != 1 && givenState != -1) {
+            throw new IllegalStateException("container work status: bad state");
+        } else {
+            state = givenState;
+        }
+    }
+
+    public void setState(int givenState) throws IllegalStateException {
         if (givenState != 0 && givenState != 1 && givenState != -1) {
             throw new IllegalStateException("container work status: bad state");
         } else {

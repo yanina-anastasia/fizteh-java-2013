@@ -6,7 +6,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.serializer.JSONserializer;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
-import ru.fizteh.fivt.students.adanilyak.tools.ContainerWorkStatus;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkStatus;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
     private Map<String, Table> allTablesMap = new HashMap<>();
     private File allTablesDirectory;
     private final Lock lock = new ReentrantLock(true);
-    private ContainerWorkStatus state;
+    private WorkStatus state;
 
     public StoreableTableProvider(File atDirectory) throws IOException {
         if (atDirectory == null) {
@@ -42,12 +42,12 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
         }
         allTablesDirectory = atDirectory;
-        state = ContainerWorkStatus.NOT_INITIALIZED;
+        state = WorkStatus.NOT_INITIALIZED;
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new StoreableTable(tableFile, this);
             allTablesMap.put(tableFile.getName(), table);
         }
-        state = ContainerWorkStatus.WORKING;
+        state = WorkStatus.WORKING;
     }
 
     @Override
@@ -153,6 +153,6 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         for (String tableName : allTablesMap.keySet()) {
             ((StoreableTable) allTablesMap.get(tableName)).close();
         }
-        state = ContainerWorkStatus.CLOSED;
+        state.setState(0);
     }
 }

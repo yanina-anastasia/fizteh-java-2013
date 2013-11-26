@@ -5,7 +5,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
-import ru.fizteh.fivt.students.adanilyak.tools.ContainerWorkStatus;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkStatus;
 import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 
@@ -32,7 +32,7 @@ public class StoreableTable implements Table, AutoCloseable {
     private File tableStorageDirectory;
     private List<Class<?>> columnTypes;
     private Map<String, Storeable> data;
-    private ContainerWorkStatus status;
+    private WorkStatus status;
 
     /**
      * THREAD LOCAL DATA
@@ -45,7 +45,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     public StoreableTable(File dataDirectory, TableProvider givenProvider) throws IOException {
         data = new HashMap<>();
-        status = ContainerWorkStatus.NOT_INITIALIZED;
+        status = WorkStatus.NOT_INITIALIZED;
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -74,7 +74,7 @@ public class StoreableTable implements Table, AutoCloseable {
         tableStorageDirectory = dataDirectory;
         try {
             WorkWithStoreableDataBase.readIntoDataBase(tableStorageDirectory, data, this, provider);
-            status = ContainerWorkStatus.WORKING;
+            status = WorkStatus.WORKING;
         } catch (IOException | ParseException exc) {
             throw new IllegalArgumentException("Read from file failed", exc);
         }
@@ -91,7 +91,7 @@ public class StoreableTable implements Table, AutoCloseable {
         }
 
         data = new HashMap<>();
-        status = ContainerWorkStatus.NOT_INITIALIZED;
+        status = WorkStatus.NOT_INITIALIZED;
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -116,17 +116,19 @@ public class StoreableTable implements Table, AutoCloseable {
         provider = givenProvider;
         tableStorageDirectory = dataDirectory;
         columnTypes = givenTypes;
+        status = WorkStatus.WORKING;
         WorkWithStoreableDataBase.createSignatureFile(tableStorageDirectory, this);
-        status = ContainerWorkStatus.WORKING;
     }
 
     @Override
     public String getName() {
+        status.isOkForOperations();
         return tableStorageDirectory.getName();
     }
 
     @Override
     public Storeable get(String key) {
+        status.isOkForOperations();
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("get: key is bad");
         }
@@ -147,6 +149,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        status.isOkForOperations();
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("put: key is bad");
         }
@@ -176,10 +179,10 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public Storeable remove(String key) {
+        status.isOkForOperations();
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("remove: key is bad");
         }
-
         Storeable resultOfRemove = changes.get().get(key);
         if (resultOfRemove == null && !removedKeys.get().contains(key)) {
             try {
@@ -216,6 +219,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int size() {
+        status.isOkForOperations();
         try {
             transactionLock.lock();
             return CountingTools.correctCountingOfSize(data, changes.get(), removedKeys.get());
@@ -226,6 +230,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int commit() {
+        status.isOkForOperations();
         int result = -1;
         try {
             transactionLock.lock();
@@ -248,6 +253,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int rollback() {
+        status.isOkForOperations();
         int result = -1;
         try {
             transactionLock.lock();
@@ -261,11 +267,13 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int getColumnsCount() {
+        status.isOkForOperations();
         return columnTypes.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        status.isOkForOperations();
         int columnsCount = getColumnsCount();
         if (columnIndex < 0 || columnIndex > columnsCount - 1) {
             throw new IndexOutOfBoundsException("get column type: bad index");
@@ -275,6 +283,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public String toString() {
+        status.isOkForOperations();
         return getClass().getSimpleName() + "[" + tableStorageDirectory + "]";
     }
 
@@ -282,7 +291,7 @@ public class StoreableTable implements Table, AutoCloseable {
     public void close() {
         status.isOkForOperations();
         rollback();
-        status = ContainerWorkStatus.CLOSED;
+        status.setState(0);
     }
 
     private void setDefault() {
@@ -292,6 +301,7 @@ public class StoreableTable implements Table, AutoCloseable {
     }
 
     public int getAmountOfChanges() {
+        status.isOkForOperations();
         return amountOfChanges.get();
     }
 }
