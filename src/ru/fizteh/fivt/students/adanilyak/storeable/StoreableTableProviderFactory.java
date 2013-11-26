@@ -29,6 +29,6 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
     @Override
     public void close() {
         status.isOkForOperations();
-        status.setState(0);
+        status = WorkStatus.CLOSED;
     }
 }

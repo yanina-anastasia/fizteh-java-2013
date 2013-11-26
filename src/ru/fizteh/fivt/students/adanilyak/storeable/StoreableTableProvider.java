@@ -74,10 +74,10 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         try {
             lock.lock();
             if (!tableFile.mkdir()) {
-                if (((StoreableTable) (getTable(tableName))).isOkForOperations()) {
+                if (((StoreableTable) getTable(tableName)).isOkForOperations()) {
                     return null;
                 } else {
-                    removeTable(tableName);
+                    DeleteDirectory.rm(tableFile);
                     tableFile.mkdir();
                     Table newTable = new StoreableTable(tableFile, columnTypes, this);
                     allTablesMap.put(tableName, newTable);
@@ -161,6 +161,6 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         for (String tableName : allTablesMap.keySet()) {
             ((StoreableTable) allTablesMap.get(tableName)).close();
         }
-        state.setState(0);
+        state = WorkStatus.CLOSED;
     }
 }

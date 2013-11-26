@@ -291,7 +291,7 @@ public class StoreableTable implements Table, AutoCloseable {
     public void close() {
         status.isOkForOperations();
         rollback();
-        status.setState(0);
+        status = WorkStatus.CLOSED;
     }
 
     private void setDefault() {

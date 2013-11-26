@@ -8,6 +8,7 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
@@ -27,15 +28,16 @@ public class StoreableTableUnitTest {
     TableProvider tableProvider;
     Table testTableEng;
     Table testTableRus;
+    List<Class<?>> typesTestListOne;
+    List<Class<?>> typesTestListTwo;
     File sandBoxDirectory = new File("/Users/Alexander/Documents/JavaDataBase/Tests");
 
     @Before
     public void setUpTestObject() throws IOException {
         tableProvider = new StoreableTableProvider(sandBoxDirectory);
 
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
-        List<Class<?>> typesTestListTwo =
-                WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
 
         testTableEng = tableProvider.createTable("testTable20", typesTestListOne);
         testTableRus = tableProvider.createTable("тестоваяТаблица21", typesTestListTwo);
@@ -43,8 +45,8 @@ public class StoreableTableUnitTest {
 
     @After
     public void tearDownTestObject() throws IOException {
-        tableProvider.removeTable("testTable20");
-        tableProvider.removeTable("тестоваяТаблица21");
+        //tableProvider.removeTable("testTable20");
+        //tableProvider.removeTable("тестоваяТаблица21");
         DeleteDirectory.rm(sandBoxDirectory);
     }
 
@@ -307,5 +309,12 @@ public class StoreableTableUnitTest {
     @Test
     public void getColumnsType2Test() {
         Assert.assertEquals(Boolean.class, testTableRus.getColumnType(2));
+    }
+
+    @Test
+    public void closeTest1() throws IOException {
+        ((StoreableTable) testTableEng).close();
+        testTableEng = tableProvider.createTable("testTable20", typesTestListOne);
+        Assert.assertNotNull(testTableEng);
     }
 }
