@@ -69,8 +69,8 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
                 List<Class<?>> temp = ((StoreableTable) getRes).getColumnTypes();
                 Table newTable = null;
                 try {
-                    DeleteDirectory.rm(tableFile);
-                    tableFile.mkdir();
+                    //DeleteDirectory.rm(tableFile);
+                    //tableFile.mkdir();
                     newTable = new StoreableTable(tableFile, temp, this);
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
