@@ -37,12 +37,7 @@ public class MultiFileHashTableProvider implements TableProvider {
         }
 
         tables = new ArrayList<>();
-        writeLock.lock();
-        try {
-            loadTables();
-        } finally {
-            writeLock.unlock();
-        }
+        loadTables();
     }
 
     @Override

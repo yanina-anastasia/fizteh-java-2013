@@ -32,7 +32,7 @@ public class MultiFileHashTable implements Table {
 
     private final TableProvider myTableProvider;
 
-    private boolean isRemoved = false;
+    private volatile boolean isRemoved = false;
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
@@ -297,13 +297,8 @@ public class MultiFileHashTable implements Table {
     }
 
     private void checkState() {
-        readLock.lock();
-        try {
-            if (isRemoved) {
-                throw new IllegalStateException("Table + '" + tableName + "' is removed");
-            }
-        } finally {
-            readLock.unlock();
+        if (isRemoved) {
+            throw new IllegalStateException("Table + '" + tableName + "' is removed");
         }
     }
 

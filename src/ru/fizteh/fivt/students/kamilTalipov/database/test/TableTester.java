@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static ru.fizteh.fivt.students.kamilTalipov.database.utils.StoreableUtils.isEqualStoreable;
 
@@ -171,10 +172,10 @@ public class TableTester {
 
         ExecutorService executor = Executors.newCachedThreadPool();
         try {
-        Future<Storeable> result1 = executor.submit(task);
-        Future<Storeable> result2 = executor.submit(task);
-        Assert.assertEquals(isEqualStoreable(result1.get(), storeable), true);
-        Assert.assertEquals(isEqualStoreable(result2.get(), storeable), true);
+            Future<Storeable> result1 = executor.submit(task);
+            Future<Storeable> result2 = executor.submit(task);
+            Assert.assertEquals(isEqualStoreable(result1.get(), storeable), true);
+            Assert.assertEquals(isEqualStoreable(result2.get(), storeable), true);
         } finally {
             executor.shutdown();
             if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
@@ -212,9 +213,9 @@ public class TableTester {
                         }
                     }
                 }
-        });
+            });
         } finally {
-        executor.shutdown();
+            executor.shutdown();
             if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                 throw new IllegalStateException("Timeout");
             }
@@ -227,11 +228,19 @@ public class TableTester {
         table.put("123", storeable);
         table.commit();
 
+        final ReentrantLock lock = new ReentrantLock();
+
         Callable<Storeable> task = new Callable<Storeable>() {
             @Override
             public Storeable call() throws Exception {
-                Storeable oldValue = table.remove("123");
-                table.commit();
+                lock.lock();
+                Storeable oldValue;
+                try {
+                    oldValue = table.remove("123");
+                    table.commit();
+                } finally {
+                    lock.unlock();
+                }
                 return oldValue;
             }
         };
