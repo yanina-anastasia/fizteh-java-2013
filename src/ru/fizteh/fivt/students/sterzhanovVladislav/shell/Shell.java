@@ -17,6 +17,9 @@ public class Shell {
     private HashMap<String, Command> cmdMap;
     
     public void execCommandStream(InputStream cmdStream, boolean isInteractiveMode) throws Exception {
+        if (isInteractiveMode) {
+            err = System.out;
+        }
         Scanner cmdReader = new Scanner(cmdStream);
         try {
             maybePrintPrompt(isInteractiveMode);
@@ -26,7 +29,7 @@ public class Shell {
                     for (String cmdString : cmdList) {
                         Command cmd = parseNextCommand(cmdString);
                         if (cmd != null) {
-                            cmd.execute();
+                            cmd.execute(cmd.getParser().parseArgs(cmdString));
                         }
                     }
                 } catch (Exception e) {
@@ -83,8 +86,7 @@ public class Shell {
         if (cmdName == null || !cmdMap.containsKey(cmdName)) {
             throw new IllegalArgumentException("Illegal command");
         }
-        Command cmd = cmdMap.get(cmdName).newCommand().setShell(this);
-        cmd.args = cmd.getParser().parseArgs(cmdLine);
+        Command cmd = cmdMap.get(cmdName);
         return cmd;
     }
     
@@ -96,6 +98,9 @@ public class Shell {
     
     public Shell(HashMap<String, Command> commandMap) {
         cmdMap = commandMap;
+        for (Command cmd : cmdMap.values()) {
+            cmd.setShell(this);
+        }
         workingDir = Paths.get(System.getProperty("user.dir"));
     }
 }

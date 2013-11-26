@@ -8,6 +8,23 @@ import java.io.IOException;
 
 public class FileUtils {
 
+	public static File createTempDir(String prefix, String suffix) {
+		File tmp = null;
+		try {
+			tmp = File.createTempFile(prefix, suffix);
+		} catch (IOException ex) {
+			return null;
+		}	
+		
+		if (!tmp.delete()) {
+			return null;
+		}
+		if (!tmp.mkdir()) {
+			return null;
+		}
+		return tmp;
+	}
+
 	public static void copyToDir(File sourceFile, File destinationDir) throws FileOperationFailException {
 		File copiedFile = new File(destinationDir, sourceFile.getName());
 
@@ -49,11 +66,11 @@ public class FileUtils {
 		}
 	}
 
-	public static File getAbsFile(String file, Shell.ShellState state) {
+	public static File getAbsFile(String file, String dir) {
 		File absFile = new File(file);
 
 		if (!absFile.isAbsolute()) {
-			absFile = new File(new File(state.getCurDir()), file);
+			absFile = new File(new File(dir), file);
 		}
 
 		return absFile;

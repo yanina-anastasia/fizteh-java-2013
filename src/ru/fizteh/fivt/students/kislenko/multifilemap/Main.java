@@ -10,6 +10,10 @@ import java.nio.file.Path;
 public class Main {
     public static void main(String[] args) {
         String dbAddress = System.getProperty("fizteh.db.dir");
+        if (dbAddress == null) {
+            System.err.println("Set database directory before start.");
+            System.exit(-1);
+        }
         try {
             File dbDir = new File(dbAddress).getCanonicalFile();
             if (!dbDir.isDirectory()) {

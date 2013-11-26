@@ -6,13 +6,10 @@ import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 
 public class DispatcherMultiFileHashMap extends Dispatcher implements DataBaseAccessible<String, String>, StorageAccessible {
     protected Storage storage;
-    public DispatcherMultiFileHashMap(boolean forwarding, String stPath) {
+    public DispatcherMultiFileHashMap(boolean forwarding, StorageBuilder builder) {
         super(forwarding);
-        try {
-            storage = new Storage(getInitProperty(stPath), this);
-        } catch (DispatcherException e) {
-            storage = null;
-        }
+        builder.setDispatcher(this);
+        storage = builder.construct();
     }
 
     public DataBaseHandler<String, String> getDataBase() {

@@ -1,41 +1,37 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.ichalovaDiana.shell.Command;
 import ru.fizteh.fivt.students.ichalovaDiana.shell.Interpreter;
 
 public class FileMap {
 
-    private static Hashtable<String, Command> commands = new Hashtable<String, Command>();
+    private static Map<String, Command> commands = new HashMap<String, Command>();
     private static Interpreter interpreter;
-
-    private static Path dbDir;
-    private static String currentTableName;
+    
+    private static TableProvider database;
+    private static TableImplementation table;
+    private static String currentTableName; // delete?
 
     static {
         try {
-            
-            dbDir = Paths.get(System.getProperty("fizteh.db.dir"));
-    
-            if (!Files.isDirectory(dbDir)) {
-                throw new Exception(dbDir + " doesn't exist or is not a directory");
-            }
+            String dbDir = System.getProperty("fizteh.db.dir");
+
+            TableProviderFactory factory = new TableProviderFactoryImplementation();
+            database = factory.create(dbDir);
             
         } catch (Exception e) {
-            System.out.println("Error while opening database: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
+            System.out.println(((e.getMessage() != null) ? e.getMessage() : "unknown error"));
             System.exit(1);
-            
         }
 
         commands.put("create", new Create());
@@ -44,6 +40,9 @@ public class FileMap {
         commands.put("put", new Put());
         commands.put("get", new Get());
         commands.put("remove", new Remove());
+        commands.put("commit", new Commit());
+        commands.put("rollback", new Rollback());
+        commands.put("size", new Size());
         commands.put("exit", new Exit());
 
         interpreter = new Interpreter(commands);
@@ -54,28 +53,13 @@ public class FileMap {
             interpreter.run(args);
         } catch (Exception e) {
             System.out.println("Error while running: " + e.getMessage());
-            
-        }
-    }
-    
-    static class DirectoryAndFileNumberCalculator {
-        
-        static int getnDirectory(String key) {
-            int firstByte = Math.abs(key.getBytes()[0]);
-            int nDirectory = firstByte % 16;
-            return nDirectory;
-        }
-        
-        static int getnFile(String key) {
-            int firstByte = Math.abs(key.getBytes()[0]);
-            int nFile = firstByte / 16 % 16;
-            return nFile;
         }
     }
 
     static class Create extends Command {
         static final int ARG_NUM = 2;
-
+        public boolean rawArgumentsNeeded = true;
+        
         @Override
         protected void execute(String... arguments) throws Exception {
             try {
@@ -84,26 +68,56 @@ public class FileMap {
                     throw new IllegalArgumentException("Illegal number of arguments");
                 }
 
-                String tableName = arguments[1];
-                Path tablePath = FileMap.dbDir.resolve(tableName);
-
-                if (!Files.exists(tablePath)) {
-                    Files.createDirectory(tablePath);
-                    System.out.println("created");
-                } else if (Files.isDirectory(tablePath)) {
+                String[] parsedArguments = arguments[1].split("\\s+", 2);
+                if (parsedArguments.length != 2) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+                
+                String tableName = parsedArguments[0];
+                
+                if (!parsedArguments[1].matches("\\(([A-Za-z]+\\s*)*\\)")) {
+                    throw new ColumnFormatException("Invalid column types");
+                }
+                String[] types = parsedArguments[1].substring(1, parsedArguments[1].length() - 1).split("\\s+");
+                
+                List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+                for (int i = 0; i < types.length; ++i) {
+                    columnTypes.add(forName(types[i]));
+                }
+                
+                
+                Table newTable = database.createTable(tableName, columnTypes);
+                
+                if (newTable == null) {
                     System.out.println(tableName + " exists");
                 } else {
-                    throw new Exception(tableName + " exists and has illegal format");
+                    System.out.println("created");
                 }
-
+            
+            } catch (ColumnFormatException e) {
+                throw new ColumnFormatException("wrong type (" + e.getMessage() + ")", e);
             } catch (Exception e) {
-                throw new Exception(arguments[0] + ": " + e.getMessage());
+                throw new Exception(e.getMessage());
             }
+        }
+        
+        private static Class<?> forName(String className) {
+            Map<String, Class<?>> types = new HashMap<String, Class<?>>();
+            types.put("int", Integer.class);
+            types.put("long", Long.class);
+            types.put("byte", Byte.class);
+            types.put("float", Float.class);
+            types.put("double", Double.class);
+            types.put("boolean", Boolean.class);
+            types.put("String", String.class);
+            
+            return types.get(className);
         }
     }
 
     static class Drop extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -114,50 +128,28 @@ public class FileMap {
                 }
 
                 String tableName = arguments[1];
-                Path tablePath = FileMap.dbDir.resolve(arguments[1]);
-
-                if (Files.isDirectory(tablePath)) {
-                    delete(tablePath);
-                    System.out.println("dropped");
-                    if (FileMap.currentTableName.equals(tableName)) {
-                        FileMap.currentTableName = null;
-                    }
-                } else if (!Files.exists(tablePath)) {
+                
+                try {
+                    database.removeTable(tableName);
+                } catch (IllegalStateException e) {
                     System.out.println(tableName + " not exists");
-                } else {
-                    throw new Exception(tableName + " exists and has illegal format");
+                    return;
+                }
+                System.out.println("dropped");
+                
+                if (currentTableName != null && FileMap.currentTableName.equals(tableName)) {
+                    FileMap.currentTableName = null;
                 }
 
             } catch (Exception e) {
                 throw new Exception(arguments[0] + ": " + e.getMessage());
             }
         }
-
-        private void delete(Path path) throws IOException {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                        throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException e)
-                        throws IOException {
-                    if (e == null) {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    } else {
-                        throw e;
-                    }
-                }
-            });
-        }
     }
 
     static class Use extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -166,17 +158,25 @@ public class FileMap {
                 if (arguments.length != ARG_NUM) {
                     throw new IllegalArgumentException("Illegal number of arguments");
                 }
-
+                
                 String tableName = arguments[1];
-                Path tablePath = FileMap.dbDir.resolve(arguments[1]);
-
-                if (Files.isDirectory(tablePath)) {
-                    FileMap.currentTableName = tableName;
-                    System.out.println("using " + tableName);
-                } else if (!Files.exists(tablePath)) {
+                
+                if (FileMap.table != null) {
+                    int changesNumber = FileMap.table.countChanges();
+                    if (changesNumber > 0) {
+                        System.out.println(changesNumber + " unsaved changes");
+                        return;
+                    }
+                }
+                        
+                TableImplementation tempTable = (TableImplementation) database.getTable(tableName); // what can i do?
+                
+                if (tempTable == null) {
                     System.out.println(tableName + " not exists");
                 } else {
-                    throw new Exception(tableName + " exists and has illegal format");
+                    FileMap.currentTableName = tableName;
+                    FileMap.table = tempTable;
+                    System.out.println("using " + tableName);
                 }
 
             } catch (Exception e) {
@@ -187,51 +187,54 @@ public class FileMap {
     
 
     static class Put extends Command {
-        static final int ARG_NUM = 3;
+        static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = true;
 
         @Override
         protected void execute(String... arguments) throws Exception {
             try {
 
-                if (arguments.length < ARG_NUM) {
+                if (arguments.length != ARG_NUM) {
                     throw new IllegalArgumentException("Illegal number of arguments");
                 }
-
-                String key = arguments[1];
-
-                StringBuilder concatArgs = new StringBuilder();
-                for (int i = 2; i < arguments.length; ++i) {
-                    concatArgs.append(arguments[i]).append(" ");
+                
+                String[] parsedArguments = arguments[1].trim().split("\\s+", 2);
+                if (parsedArguments.length != 2) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
                 }
-                String value = concatArgs.toString();
-
-                if (key.contains("\0") || value.contains("\0")) {
-                    throw new IllegalArgumentException("null byte in key or value");
-                }
+                
+                String key = parsedArguments[0];
+                String value = parsedArguments[1];
                 
                 if (FileMap.currentTableName == null) {
                     System.out.println("no table");
                     return;
                 }
                 
-                int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-                int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+                Storeable oldValueStoreable;
+                try {
+                    oldValueStoreable = table.put(key, FileMap.database.deserialize(table, value));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                }
                 
-                FileDatabase currentDatabase = new FileDatabase(dbDir.resolve(FileMap.currentTableName)
-                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
-
-                currentDatabase.put(key, value);
-                
-                currentDatabase.close();
+                String oldValue = FileMap.database.serialize(table, oldValueStoreable);
+                if (oldValue != null) {
+                    System.out.println("overwrite");
+                    System.out.println(oldValue);
+                } else {
+                    System.out.println("new");
+                }
                 
             } catch (Exception e) {
-                throw new Exception(arguments[0] + ": " + e.getMessage());
+                throw new Exception(e.getMessage());
             }
         }
     }
 
     static class Get extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -248,15 +251,14 @@ public class FileMap {
                     return;
                 }
 
-                int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-                int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
-                
-                FileDatabase currentDatabase = new FileDatabase(dbDir.resolve(FileMap.currentTableName)
-                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
+                String value = FileMap.database.serialize(table, table.get(key));
 
-                currentDatabase.get(key);
-                
-                currentDatabase.close();
+                if (value != null) {
+                    System.out.println("found");
+                    System.out.println(value);
+                } else {
+                    System.out.println("not found");
+                }
 
             } catch (Exception e) {
                 throw new Exception(arguments[0] + ": " + e.getMessage());
@@ -266,6 +268,7 @@ public class FileMap {
 
     static class Remove extends Command {
         static final int ARG_NUM = 2;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -282,15 +285,94 @@ public class FileMap {
                     return;
                 }
 
-                int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-                int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+                String value = FileMap.database.serialize(table, table.remove(key));
+
+                if (value != null) {
+                    System.out.println("removed");
+                } else {
+                    System.out.println("not found");
+                }
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+    
+    static class Commit extends Command {
+        static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
                 
-                FileDatabase currentDatabase = new FileDatabase(dbDir.resolve(FileMap.currentTableName)
-                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
 
-                currentDatabase.remove(key);
+                int changesNumber = table.commit();
+                
+                System.out.println(changesNumber);
 
-                currentDatabase.close();
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+    
+    static class Rollback extends Command {
+        static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+
+                int changesNumber = table.rollback();
+                
+                System.out.println(changesNumber);
+
+            } catch (Exception e) {
+                throw new Exception(arguments[0] + ": " + e.getMessage());
+            }
+        }
+    }
+    
+    static class Size extends Command {
+        static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
+
+        @Override
+        protected void execute(String... arguments) throws Exception {
+            try {
+
+                if (arguments.length != ARG_NUM) {
+                    throw new IllegalArgumentException("Illegal number of arguments");
+                }
+                
+                if (FileMap.currentTableName == null) {
+                    System.out.println("no table");
+                    return;
+                }
+
+                int size = table.size();
+                
+                System.out.println(size);
 
             } catch (Exception e) {
                 throw new Exception(arguments[0] + ": " + e.getMessage());
@@ -300,6 +382,7 @@ public class FileMap {
 
     static class Exit extends Command {
         static final int ARG_NUM = 1;
+        public boolean rawArgumentsNeeded = false;
 
         @Override
         protected void execute(String... arguments) throws Exception {
@@ -319,157 +402,3 @@ public class FileMap {
     }
     
 }
-
-
-class FileDatabase {
-    private static final int OFFSET_BYTES = 4;
-
-    Path dbFilePath;
-    RandomAccessFile dbFile;
-    Hashtable<String, String> database = new Hashtable<String, String>();
-
-    FileDatabase(Path dbFilePath) {
-        try {
-            this.dbFilePath = dbFilePath;
-            Files.createDirectories(dbFilePath.getParent());
-            
-            dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw");
-            getDataFromFile();
-            
-        } catch (Exception e) {
-            
-            System.out.println("Error while opening database file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unkonown error"));
-            try {
-                if (dbFile != null) {
-                    dbFile.close();
-                }
-            } catch (IOException e1) {
-                System.out
-                        .println("Error while closing database: "
-                                + ((e1.getMessage() != null) ? e1.getMessage()
-                                        : "unkonown error"));
-            }
-            System.exit(1);
-            
-        }
-    }
-
-    void put(String key, String value) throws Exception {
-    
-        String oldValue = database.put(key, value);
-
-        saveChanges();
-        
-        if (oldValue != null) {
-            System.out.println("overwrite");
-            System.out.println(oldValue);
-        } else {
-            System.out.println("new");
-        }
-    }
-    
-    void get(String key) throws Exception {
-
-        String value = database.get(key);
-
-        if (value != null) {
-            System.out.println("found");
-            System.out.println(value);
-        } else {
-            System.out.println("not found");
-        }
-        
-    }
-    
-    void remove(String key) throws Exception {
-        
-        String value = database.remove(key);
-
-        if (value != null) {
-            saveChanges();
-            System.out.println("removed");
-        } else {
-            System.out.println("not found");
-        }
-        
-    }
-
-    void getDataFromFile() throws IOException {
-        String key;
-        String value;
-        Vector<Byte> tempKey = new Vector<Byte>();
-        int tempOffset1;
-        int tempOffset2;
-        long currentPosition;
-        byte tempByte;
-        byte[] tempArray;
-
-        dbFile.seek(0);
-        while (dbFile.getFilePointer() != dbFile.length()) {
-            tempByte = dbFile.readByte();
-            if (tempByte != '\0') {
-                tempKey.add(tempByte);
-            } else {
-                tempOffset1 = dbFile.readInt();
-                currentPosition = dbFile.getFilePointer();
-                while (dbFile.readByte() != '\0'
-                        && dbFile.getFilePointer() != dbFile.length());
-                if (dbFile.getFilePointer() == dbFile.length()) {
-                    tempOffset2 = (int) dbFile.length();
-                } else {
-                    tempOffset2 = dbFile.readInt();
-                }
-                dbFile.seek(tempOffset1);
-                tempArray = new byte[tempOffset2 - tempOffset1];
-                dbFile.readFully(tempArray);
-                value = new String(tempArray, "UTF-8");
-                tempArray = new byte[tempKey.size()];
-                for (int i = 0; i < tempKey.size(); ++i) {
-                    tempArray[i] = tempKey.elementAt(i).byteValue();
-                }
-                key = new String(tempArray, "UTF-8");
-                database.put(key, value);
-                tempKey.clear();
-                dbFile.seek(currentPosition);
-            }
-        }
-    }
-
-    void saveChanges() throws IOException {
-        int currentOffset = 0;
-        long returnPosition;
-        String value;
-
-        dbFile.setLength(0);
-
-        for (String key : database.keySet()) {
-            currentOffset += key.getBytes("UTF-8").length + OFFSET_BYTES + 1;
-        }
-
-        for (String key : database.keySet()) {
-            dbFile.write(key.getBytes("UTF-8"));
-            dbFile.writeByte(0);
-            dbFile.writeInt(currentOffset);
-            value = database.get(key);
-            returnPosition = dbFile.getFilePointer();
-            dbFile.seek(currentOffset);
-            dbFile.write(value.getBytes("UTF-8"));
-
-            currentOffset += value.getBytes("UTF-8").length;
-            dbFile.seek(returnPosition);
-        }
-    }
-    
-    void close() throws Exception {
-        if (dbFile.length() == 0) {
-            dbFile.close();
-            Files.delete(dbFilePath);
-            if (dbFilePath.getParent().toFile().list().length == 0) {
-                Files.delete(dbFilePath.getParent());
-            }
-        }
-        dbFile.close();
-    }
-}
-

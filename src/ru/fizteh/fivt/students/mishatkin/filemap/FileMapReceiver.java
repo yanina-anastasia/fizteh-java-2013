@@ -4,23 +4,33 @@ import ru.fizteh.fivt.students.mishatkin.shell.*;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by Vladimir Mishatkin on 10/14/13
  */
-public class FileMapReceiver extends ShellReceiver {
+public class FileMapReceiver extends ShellReceiver implements FileMapReceiverProtocol {
 
 	private File dbFile;
-	private HashMap<String, String> dictionary = new HashMap<>();
+	private File dbFileOwningDirectory;
+	private Map<String, String> dictionary = new HashMap<>();
+
+	private Map<String, String> removedDictionaryPart = new HashMap<>();
+	private Map<String, String> unstagedDictionaryPart = new HashMap<>();
 
 	private static final int TERRIBLE_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
 	private boolean isValidStringLength(int size) {
 		return size > 0 && size < TERRIBLE_FILE_SIZE;
 	}
-	
+
 	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, PrintStream out) throws FileMapDatabaseException {
+		this(dbDirectory, dbFileName, interactiveMode, new ShellPrintStream(out));
+
+	}
+
+	public FileMapReceiver(String dbDirectory, String dbFileName, boolean interactiveMode, ShellPrintStream out) throws FileMapDatabaseException {
 		super(out, interactiveMode);
 		FileInputStream in = null;
 		try {
@@ -30,79 +40,102 @@ public class FileMapReceiver extends ShellReceiver {
 				dbFile.createNewFile();
 			}
 			in = new FileInputStream(dbFile.getCanonicalFile());
+			dbFileOwningDirectory = new File(dbDirectory);
 		} catch (IOException e) {
-			throw new FileMapDatabaseException("DB file not found.");
-		} finally {
-			DataInputStream dis = null;
-			try {
-				dis = new DataInputStream(in);
-				boolean hasNext = true;
-				while (hasNext) {
-					try {
-						dis.mark(1024 * 1024); // 1 MB
-						int keyLength = dis.readInt();
-						int valueLength = dis.readInt();
-						if (!isValidStringLength(keyLength) || !isValidStringLength(valueLength)) {
-							throw new FileMapDatabaseException("Invalid input key or value length in DB file.");
-						}
-						byte[] keyBinary = new byte[keyLength];
-						byte[] valueBinary = new byte[valueLength];
-						dis.read(keyBinary, 0, keyLength);
-						dis.read(valueBinary, 0, valueLength);
-						String key = new String(keyBinary, "UTF-8");
-						String value = new String(valueBinary, "UTF-8");
-						dictionary.put(key, value);
-					} catch (EOFException e) {
-						hasNext = false;
-					} catch (IOException e) {
-						throw new FileMapDatabaseException("DB file missing or corrupted.");
-					}
-				}
-			} finally {
+			throw new FileMapDatabaseException("Some internal error.");
+		}
+		DataInputStream dis = null;
+		try {
+			dis = new DataInputStream(in);
+			boolean hasNext = true;
+			while (hasNext) {
 				try {
-					if (dis != null) {
-						dis.close();
+					dis.mark(1024 * 1024); // 1 MB
+					int keyLength = dis.readInt();
+					int valueLength = dis.readInt();
+					if (!isValidStringLength(keyLength) || !isValidStringLength(valueLength)) {
+						throw new FileMapDatabaseException("Invalid input key or value length in DB file.");
 					}
-				} catch (NullPointerException | IOException ignored) {
+					byte[] keyBinary = new byte[keyLength];
+					byte[] valueBinary = new byte[valueLength];
+					dis.read(keyBinary, 0, keyLength);
+					dis.read(valueBinary, 0, valueLength);
+					String key = new String(keyBinary, "UTF-8");
+					String value = new String(valueBinary, "UTF-8");
+					dictionary.put(key, value);
+				} catch (EOFException e) {
+					hasNext = false;
+				} catch (IOException e) {
+					throw new FileMapDatabaseException("DB file missing or corrupted.");
 				}
 			}
+		} finally {
+			try {
+				if (dis != null) {
+					dis.close();
+				}
+			} catch (NullPointerException | IOException ignored) {
+			}
 		}
-
 	}
-
 	public void showPrompt() {
 		if (isInteractiveMode()) {
-			out.print("$ ");
+			print("$ ");
 		}
 	}
 
-	public void putCommand(String key, String value) {
-		String oldValue = dictionary.get(key);
+	private String getValueForKey(String key) {
+		String value = null;
+		if (removedDictionaryPart.get(key) == null) {
+			value = unstagedDictionaryPart.get(key);
+			if (value == null) {
+				value = dictionary.get(key);
+			}
+		}
+		return value;
+	}
+
+	@Override
+	public String putCommand(String key, String value) {
+		String oldValue = getValueForKey(key);
+		removedDictionaryPart.remove(key);
+		if (!value.equals(dictionary.get(key))) {
+			unstagedDictionaryPart.put(key, value);
+		}
 		if (oldValue != null) {
-			out.println("overwrite");
-			out.println(oldValue);
+			println("overwrite");
+			println(oldValue);
 		} else {
-			out.println("new");
+			println("new");
 		}
-		dictionary.put(key, value);
+		return oldValue;
 	}
 
-	public void removeCommand(String key) {
-		if (dictionary.remove(key) != null){
-			out.println("removed");
-		} else {
-			out.println("not found");
+	@Override
+	public String removeCommand(String key) {
+		String retValue = getValueForKey(key);
+		unstagedDictionaryPart.remove(key);
+		if (retValue != null && !retValue.equals("") && dictionary.containsKey(key)) {
+			removedDictionaryPart.put(key, retValue);
 		}
+		if (retValue != null) {
+			println("removed");
+		} else {
+			println("not found");
+		}
+		return retValue;
 	}
 
-	public void getCommand(String key) {
-		String value = dictionary.get(key);
+	@Override
+	public String getCommand(String key) {
+		String value = getValueForKey(key);
 		if (value != null) {
-			out.println("found");
-			out.println(dictionary.get(key));
+			println("found");
+			println(value);
 		} else {
-			out.println("not found");
+			println("not found");
 		}
+		return value;
 	}
 
 	public void exitCommand() throws TimeToExitException {
@@ -115,6 +148,14 @@ public class FileMapReceiver extends ShellReceiver {
 	}
 
 	private void writeChangesToFile() throws ShellException {
+		if (dictionary.isEmpty()) {
+			try {
+				changeDirectoryCommand(dbFileOwningDirectory.getAbsolutePath());
+				rmCommand(dbFile.getAbsolutePath());
+			} catch (ShellException probablyNoFileThere) {
+			}
+			return;
+		}
 		DataOutputStream dos = null;
 		try {
 			dos = new DataOutputStream(new FileOutputStream(dbFile));
@@ -131,6 +172,7 @@ public class FileMapReceiver extends ShellReceiver {
 				}
 			}
 		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
 			throw new ShellException("OK, now someone just took the file out of me, so I cannot even rewrite it.");
 		} finally {
 			try {
@@ -140,5 +182,55 @@ public class FileMapReceiver extends ShellReceiver {
 			} catch (IOException ignored) {
 			}
 		}
+	}
+
+	public boolean doHashCodesConformHash(int hashCodeRemainder, int secondRadixHashCodeRemainder, int mod) {
+		boolean doConform = true;
+		for (String key : dictionary.keySet()) {
+			int code = key.hashCode();
+			if (Math.abs(code % mod) != hashCodeRemainder ||
+				Math.abs((code / mod) % mod)!= secondRadixHashCodeRemainder) {
+				return false;
+			}
+		}
+		return doConform;
+	}
+
+	public int getUnstagedChangesCount() {
+		return removedDictionaryPart.size() + unstagedDictionaryPart.size();
+	}
+
+	public int size() {
+		int matchesCount = 0;
+		for (String key : unstagedDictionaryPart.keySet()) {
+			if (dictionary.get(key) != null) {
+				++matchesCount;
+			}
+		}
+		if (dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() - matchesCount < 0) {
+			System.err.println("OMFG!!1!111111 Das ist impossible !!11");
+		}
+		return dictionary.size() - removedDictionaryPart.size() + unstagedDictionaryPart.size() - matchesCount;
+	}
+
+	public int commit() throws ShellException {
+		int retValue = getUnstagedChangesCount();
+		for (String key : removedDictionaryPart.keySet()) {
+			dictionary.remove(key);
+		}
+		for (String key : unstagedDictionaryPart.keySet()) {
+			dictionary.put(key, unstagedDictionaryPart.get(key));
+		}
+		writeChangesToFile();
+		unstagedDictionaryPart.clear();
+		removedDictionaryPart.clear();
+		return retValue;
+	}
+
+	public int rollback() {
+		int retValue = getUnstagedChangesCount();
+		unstagedDictionaryPart.clear();
+		removedDictionaryPart.clear();
+		return retValue;
 	}
 }

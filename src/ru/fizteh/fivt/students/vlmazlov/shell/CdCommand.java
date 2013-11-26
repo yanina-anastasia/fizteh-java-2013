@@ -4,15 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class CdCommand extends AbstractCommand {
+public class CdCommand extends AbstractShellCommand {
 	public CdCommand() {
 		super("cd", 1);
 	};	
 
-	public void execute(String[] args, Shell.ShellState state, OutputStream out) throws CommandFailException {	
+	public void execute(String[] args, ShellState state, OutputStream out) throws CommandFailException {	
 		String newPath = args[0];
 
-		File newDir = FileUtils.getAbsFile(newPath, state);
+		File newDir = FileUtils.getAbsFile(newPath, state.getCurDir());
 		
 		if (!newDir.isDirectory()) {
 			throw new CommandFailException("cd: " + newPath + " is not a directory");

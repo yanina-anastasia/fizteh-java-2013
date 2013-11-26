@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.piakovenko.shell;
 
+import java.io.IOException;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Pavel
@@ -20,10 +22,10 @@ public class Exit implements Commands {
     }
 
 
-    public void perform(String[] s) throws MyException {
+    public void perform(String[] s) throws IOException {
         if (s.length != 1) {
-            throw new MyException(new Exception("Wrong arguments! Usage ~ exit"));
+            throw new IOException("Wrong arguments! Usage ~ exit");
         }
-       System.exit(0);
+        System.exit(0);
     }
 }

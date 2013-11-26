@@ -14,17 +14,17 @@ public class Remove implements Commands {
     private final String name = "rm";
     private CurrentStatus currentStatus;
 
-    private void removeRecursively (File f) throws MyException, IOException{
+    public static void removeRecursively(File f) throws IOException {
         if (!f.isDirectory()) {
             if (!f.delete()) {
-                throw new MyException(new Exception("Error! Unable to delete file - " + f.getCanonicalPath()));
+                throw new IOException("Error! Unable to delete file - " + f.getCanonicalPath());
             }
         } else {
-            for (File file: f.listFiles()) {
+            for (File file : f.listFiles()) {
                 removeRecursively(file);
             }
             if (!f.delete()) {
-                throw new MyException(new Exception("Error! Unable to delete file - " + f.getCanonicalPath()));
+                throw new IOException("Error! Unable to delete file - " + f.getCanonicalPath());
             }
         }
     }
@@ -38,9 +38,9 @@ public class Remove implements Commands {
     }
 
 
-    public void perform(String[] array) throws MyException, IOException {
+    public void perform(String[] array) throws IOException {
         if (array.length != 2) {
-            throw new MyException(new Exception("Wrong arguments! Usage ~ rm <removeDirectory>"));
+            throw new IOException("Wrong arguments! Usage ~ rm <removeDirectory>");
         }
         File f;
         f = new File(array[1]);
@@ -48,10 +48,10 @@ public class Remove implements Commands {
             f = new File(currentStatus.getCurrentDirectory(), array[1]);
         }
         if (f.getCanonicalPath().equals(currentStatus.getCurrentDirectory())) {
-            throw new MyException(new Exception("Trying to delete current directory!"));
+            throw new IOException("Trying to delete current directory!");
         }
         if (!f.exists()) {
-            throw new MyException(new Exception(f.getCanonicalPath() + " doesn't exist!"));
+            throw new IOException(f.getCanonicalPath() + " doesn't exist!");
         }
         removeRecursively(f);
     }

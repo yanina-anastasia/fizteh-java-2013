@@ -1,39 +1,30 @@
 package ru.fizteh.fivt.students.vyatkina.shell.commands;
 
-import ru.fizteh.fivt.students.vyatkina.shell.Command;
-import ru.fizteh.fivt.students.vyatkina.shell.FileManager;
+import ru.fizteh.fivt.students.vyatkina.AbstractCommand;
+import ru.fizteh.fivt.students.vyatkina.CommandExecutionException;
+import ru.fizteh.fivt.students.vyatkina.shell.ShellState;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.ExecutionException;
 
-public class MkdirCommand implements Command {
+public class MkdirCommand extends AbstractCommand<ShellState> {
 
-    private final FileManager fileManager;
-
-    public MkdirCommand (FileManager fileManager) {
-        this.fileManager = fileManager;
+    public MkdirCommand(ShellState state) {
+        super(state);
+        this.name = "mkdir";
+        this.argsCount = 1;
     }
 
     @Override
-    public void execute (String[] args) throws ExecutionException{
-        Path newDir = Paths.get (args[0]);
+    public void execute(String[] args) {
+        Path newDir = Paths.get(args[0]);
         try {
-        fileManager.makeDirectory (newDir);
-        } catch (IOException | RuntimeException e) {
-            throw new ExecutionException (e.fillInStackTrace ());
+            state.getFileManager().makeDirectory(newDir);
+        }
+        catch (IOException e) {
+            throw new CommandExecutionException(e.getMessage());
         }
 
-    }
-
-    @Override
-    public String getName () {
-        return "mkdir";
-    }
-
-    @Override
-    public int getArgumentCount () {
-        return 1;
     }
 }

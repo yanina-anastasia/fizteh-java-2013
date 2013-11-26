@@ -1,217 +1,205 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandAbstract;
-import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
 
-public class FileMap implements CommandAbstract {
-    private final Path pathTables;
+import java.nio.charset.StandardCharsets;
+import java.util.Vector;
+import java.util.StringTokenizer;
+import java.io.PrintWriter;
+import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
+
+public class FileMap implements Table {
+
+    private final Path pathDb;
     private final CommandShell mySystem;
-    String useNameTable;
-    Map<String, Map<String, String>> dbData;
-    HashSet<String> setMap;
-    boolean err;
-    boolean out;
+    String nameTable;
+    Map<String, Storeable> tableData = new HashMap<>();
+    Map<String, Storeable> changeTable = new HashMap<>();
+    boolean existDir = false;
+    boolean tableDrop = false;
+    FileMapProvider parent;
+    List<Class<?>> columnType = new ArrayList<Class<?>>();
 
-    public Map<String, String> mapComamnd() {
-        Map<String, String> commandList = new HashMap<String, String>(){ {
-            put("put", "multiPut");
-            put("get", "multiGet");
-            put("remove", "multiRemove");
-            put("create", "create");
-            put("drop", "drop");
-            put("use", "use");
-        }};
-        return commandList;
-    }
+    public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
+        this.nameTable = nameTable;
+        this.pathDb = pathDb;
+        this.parent = parent;
+        this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
-    public Map<String, Boolean> mapSelfParsing() {
-        Map<String, Boolean> commandList = new HashMap<String, Boolean>(){ {
-            put("put", true);
-            put("get", true);
-            put("remove", true);
-            put("create", false);
-            put("drop", false);
-            put("use", false);
-        }};
-        return commandList;
-    }
+        File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
+        if (!theDir.exists()) {
+            try {
+                mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+                existDir = true;
+            } catch (Exception e) {
+                e.addSuppressed(new ErrorFileMap("I can't create a folder table " + nameTable));
+                throw e;
+            }
+        }
 
-    public FileMap() {
-        this.pathTables = null;
-        this.mySystem = null;
-    }
+        loadTypeFile(pathDb);
 
-    public FileMap(String pathT) throws ErrorFileMap {
-        this.out = true;
-        this.err = true;
-        File file = null;
         try {
-            file = new File(pathT);
+            loadTable(nameTable);
         } catch (Exception e) {
-            errPrint(pathT + " папка не открывается");
-            throw new ErrorFileMap(pathT + " папка не открывается");
+            e.addSuppressed(new ErrorFileMap("Format error storage table " + nameTable));
+            throw e;
         }
-        if (!file.exists()) {
-            errPrint(pathT + " не существует");
-            throw new ErrorFileMap(pathT + " не существует");
-        }
-        if (!file.isDirectory()) {
-            errPrint(pathT + " не папка");
-            throw new ErrorFileMap(pathT + " не папка");
-        }
-        this.useNameTable = "";
-        this.pathTables = Paths.get(pathT);
-        this.mySystem = new CommandShell(pathT, false, false);
-        this.dbData = new HashMap(){};
-        this.setMap = new HashSet<String>();
+    }
 
-        if (checkBdDir(pathTables) == Code.ERROR) {
-            throw new ErrorFileMap("Ошибка загрузки базы");
-        }
-
-        /*for (String key : dbData.keySet()) {
-            outPrint("Таблица " + key);
-            for (String k : dbData.get(key).keySet()) {
-                outPrint(dbData.get(key).get(k));
+    private String readFileTsv(String fileName) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()))) {
+            String s;
+            while ((s = in.readLine()) != null) {
+                sb.append(s);
             }
-        }*/
-
+        } catch (Exception e) {
+            throw new IOException("not found signature.tsv", e);
+        }
+        if (sb.length() == 0) {
+            throw new IOException("tsv file is empty");
+        }
+        return sb.toString();
     }
 
-    public void exit() throws IOException {
-        closeAllDb();
-    }
-
-    private Code checkBdDir(Path pathTables) {
-        File currentFile = pathTables.toFile();
-        for (File nameMap : currentFile.listFiles()) {
-            if (!nameMap.isDirectory()) {
-                errPrint(nameMap.getAbsolutePath() + " не папка");
-                return Code.ERROR;
-            } else {
-                setMap.add(nameMap.getName());
+    private void writeFileTsv() throws FileNotFoundException {
+        Path pathTsv = pathDb.resolve(nameTable).resolve("signature.tsv");
+        try (PrintWriter out = new PrintWriter(pathTsv.toFile().getAbsoluteFile())) {
+            for (int i = 0; i < columnType.size(); ++i) {
+                out.print(convertClassToString(columnType.get(i)));
+                if (i != columnType.size() - 1) {
+                    out.print(" ");
+                }
             }
         }
-        return Code.OK;
     }
 
-    private Code loadDb(String nameMap) {
+    private void loadTypeFile(Path pathDb) throws IOException {
+        String fileStr = readFileTsv(pathDb.resolve(nameTable).resolve("signature.tsv").toString());
+        StringTokenizer token = new StringTokenizer(fileStr);
+        while (token.hasMoreTokens()) {
+            String tok = token.nextToken();
+            Class<?> type = convertStringToClass(tok);
+            if (type == null) {
+                throw new IllegalArgumentException(String.format("wrong type %s", tok));
+            }
+            columnType.add(type);
+        }
+    }
+
+    public FileMap(Path pathDb, String nameTable, FileMapProvider parent, List<Class<?>> columnType) throws Exception {
+        this.nameTable = nameTable;
+        this.pathDb = pathDb;
+        this.parent = parent;
+        this.columnType = columnType;
+        this.mySystem = new CommandShell(pathDb.toString(), false, false);
+
+        File theDir = new File(String.valueOf(pathDb.resolve(nameTable)));
+        if (!theDir.exists()) {
+            try {
+                mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+                existDir = true;
+            } catch (Exception e) {
+                e.addSuppressed(new ErrorFileMap("I can't create a folder table " + nameTable));
+                throw e;
+            }
+        }
+
+        writeFileTsv();
+
         try {
-            File currentFileMap = pathTables.resolve(nameMap).toFile();
-            if (!currentFileMap.isDirectory()) {
-                errPrint(currentFileMap.getAbsolutePath() + " не директория");
-                return Code.ERROR;
-            }
-            dbData.put(nameMap, new HashMap<String, String>());
-
-            File[] listFileMap = currentFileMap.listFiles();
-
-            if (listFileMap == null || listFileMap.length == 0) {
-                //errPrint(currentFileMap.getAbsolutePath() + " папка пуста");
-                return Code.OK;
-            }
-
-            for (File nameDir : listFileMap) {
-                if (!nameDir.isDirectory()) {
-                    errPrint(nameDir.getAbsolutePath() + " не директория");
-                    return Code.ERROR;
-                }
-                String nameStringDir = nameDir.getName();
-                Pattern p = Pattern.compile("(^[0-9].dir$)|(^1[0-5].dir$)");
-                Matcher m = p.matcher(nameStringDir);
-
-                if (!(m.matches() && m.start() == 0 && m.end() == nameStringDir.length())) {
-                    errPrint(nameDir.getAbsolutePath() + " неверное название папки");
-                    return Code.ERROR;
-                }
-
-                File[] listNameDir = nameDir.listFiles();
-                if (listNameDir == null || listNameDir.length == 0) {
-                    errPrint(nameDir.getAbsolutePath() + " папка пуста");
-                    return Code.ERROR;
-                }
-                for (File randomFile : listNameDir) {
-
-                    p = Pattern.compile("(^[0-9].dat$)|(^1[0-5].dat$)");
-                    m = p.matcher(randomFile.getName());
-                    int lenRandomFile = randomFile.getName().length();
-                    if (!(m.matches() && m.start() == 0 && m.end() == lenRandomFile)) {
-                        errPrint(randomFile.getAbsolutePath() + " неверное название файла");
-                        return Code.ERROR;
-                    }
-
-                    Code res = loadDbMapFile(randomFile, dbData.get(nameMap), nameDir.getName());
-                    if (res != Code.OK) {
-                        return res;
-                    }
-                }
-            }
-            return Code.OK;
+            loadTable(nameTable);
         } catch (Exception e) {
-            return Code.ERROR;
+            e.addSuppressed(new ErrorFileMap("Format error storage table " + nameTable));
+            throw e;
         }
     }
 
-    private int getCode(String s) {
-        if (s.charAt(1) == '.') {
-            return Integer.parseInt(s.substring(0, 1));
-        } else {
-            return Integer.parseInt(s.substring(0, 2));
+    private void loadTable(String nameMap) throws Exception {
+        File currentFileMap = pathDb.resolve(nameMap).toFile();
+        if (!currentFileMap.isDirectory()) {
+            throw new ErrorFileMap(currentFileMap.getAbsolutePath() + " isn't directory");
+        }
+
+        File[] listFileMap = currentFileMap.listFiles();
+
+        if (listFileMap == null || listFileMap.length == 0) {
+            throw new ErrorFileMap(pathDb + " empty table");
+        }
+
+        for (File nameDir : listFileMap) {
+            if (nameDir.getName().equals("signature.tsv")) {
+                continue;
+            }
+            if (!nameDir.isDirectory()) {
+                throw new ErrorFileMap(nameDir.getAbsolutePath() + " isn't directory");
+            }
+            String nameStringDir = nameDir.getName();
+            Pattern p = Pattern.compile("(^[0-9].dir$)|(^1[0-5].dir$)");
+            Matcher m = p.matcher(nameStringDir);
+
+            if (!(m.matches() && m.start() == 0 && m.end() == nameStringDir.length())) {
+                throw new ErrorFileMap(nameDir.getAbsolutePath() + " wrong folder name");
+            }
+
+            File[] listNameDir = nameDir.listFiles();
+            if (listNameDir == null || listNameDir.length == 0) {
+                throw new ErrorFileMap(nameDir.getAbsolutePath() + " empty dir");
+            }
+            for (File randomFile : listNameDir) {
+
+                p = Pattern.compile("(^[0-9].dat$)|(^1[0-5].dat$)");
+                m = p.matcher(randomFile.getName());
+                int lenRandomFile = randomFile.getName().length();
+                if (!(m.matches() && m.start() == 0 && m.end() == lenRandomFile)) {
+                    throw new ErrorFileMap(randomFile.getAbsolutePath() + " invalid file name");
+                }
+
+                try {
+                    loadTableFile(randomFile, tableData, nameDir.getName());
+                } catch (Exception e) {
+                    e.addSuppressed(new ErrorFileMap("Error in file " + randomFile.getAbsolutePath()));
+                    throw e;
+                }
+            }
         }
     }
 
-    private int getHashDir(String key) {
-        int hashcode = key.hashCode();
-        int ndirectory = hashcode % 16;
-        if (ndirectory < 0) {
-            ndirectory *= -1;
-        }
-        return ndirectory;
-    }
-
-    private int getHashFile(String key) {
-        int hashcode = key.hashCode();
-        int nfile = hashcode / 16 % 16;
-        if (nfile < 0) {
-            nfile *= -1;
-        }
-        return nfile;
-    }
-
-    public Code loadDbMapFile(File randomFile, Map dbMap, String nameDir) {
+    public void loadTableFile(File randomFile, Map<String, Storeable> dbMap, String nameDir) throws Exception {
         if (randomFile.isDirectory()) {
-            errPrint(randomFile.getAbsolutePath() + " не файл");
-            return Code.ERROR;
+            throw new ErrorFileMap("data file can't be a directory");
         }
-        int intDir = getCode(nameDir);
-        int intFile = getCode(randomFile.getName());
+        int intDir = FileMapUtils.getCode(nameDir);
+        int intFile = FileMapUtils.getCode(randomFile.getName());
 
         RandomAccessFile dbFile = null;
+        Exception error = null;
         try {
-            dbFile = new RandomAccessFile(randomFile, "rw");
-        } catch (Exception e) {
-            errPrint(randomFile.getAbsolutePath() + " файл не открылся");
-            return Code.ERROR;
-        }
-
-        Code res = Code.OK;
-        try {
+            try {
+                dbFile = new RandomAccessFile(randomFile, "rw");
+            } catch (Exception e) {
+                throw new ErrorFileMap("file doesn't open");
+            }
             if (dbFile.length() == 0) {
-                errPrint(randomFile.getAbsolutePath() + " пустой файл");
-                res = Code.ERROR;
-                return res;
+                throw new ErrorFileMap("file is clear");
             }
             dbFile.seek(0);
 
@@ -245,21 +233,18 @@ public class FileMap implements CommandAbstract {
 
                     arrayByte = new byte[point2 - point1];
                     dbFile.readFully(arrayByte);
-                    String value = new String(arrayByte, "UTF8");
+                    String value = new String(arrayByte, StandardCharsets.UTF_8);
 
                     arrayByte = new byte[vectorByte.size()];
                     for (int i = 0; i < vectorByte.size(); ++i) {
                         arrayByte[i] = vectorByte.elementAt(i).byteValue();
                     }
-                    String key = new String(arrayByte, "UTF8");
+                    String key = new String(arrayByte, StandardCharsets.UTF_8);
 
-                    if (getHashDir(key) != intDir || getHashFile(key) != intFile) {
-                        errPrint(randomFile.getAbsolutePath() + " в файле несоответствующий ключ");
-                        res = Code.ERROR;
-                        return Code.ERROR;
+                    if (FileMapUtils.getHashDir(key) != intDir || FileMapUtils.getHashFile(key) != intFile) {
+                        throw new ErrorFileMap("wrong key in the file");
                     }
-                    dbMap.put(key, value);
-
+                    dbMap.put(key, parent.deserialize(this, value));
                     vectorByte.clear();
                     dbFile.seek(currentPoint);
                 } else {
@@ -267,306 +252,352 @@ public class FileMap implements CommandAbstract {
                 }
             }
         } catch (Exception e) {
-            res = Code.ERROR;
+            error = e;
+            throw error;
         } finally {
             try {
                 dbFile.close();
             } catch (Exception e) {
-                errPrint(randomFile.getAbsolutePath() + " не закрылся");
-                res = Code.ERROR;
+                if (error != null) {
+                    error.addSuppressed(e);
+                }
             }
-            return res;
         }
     }
 
-    public void closeAllDb() throws IOException {
-        for (String nameMap : dbData.keySet()) {
-            mySystem.rm(new String[]{pathTables.resolve(nameMap).toString()});
-            mySystem.mkdir(new String[]{pathTables.resolve(nameMap).toString()});
-            if (dbData.get(nameMap).isEmpty()) {
+    public void unloadTable() throws Exception {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
+        mySystem.rm(new String[]{pathDb.resolve(nameTable).toString()});
+        existDir = false;
+        try {
+            mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
+        } catch (Exception e) {
+            e.addSuppressed(new ErrorFileMap("I can't create a folder table " + pathDb.resolve(nameTable).toString()));
+            throw e;
+        }
+        existDir = true;
+        closeTable();
+    }
+
+    private void closeTable() throws Exception {
+        writeFileTsv();
+        if (tableData.isEmpty()) {
+            return;
+        }
+
+        Map<String, Storeable>[][] arrayMap = new HashMap[16][16];
+        boolean[] useDir = new boolean[16];
+        for (String key : tableData.keySet()) {
+
+            int ndirectory = FileMapUtils.getHashDir(key);
+            int nfile = FileMapUtils.getHashFile(key);
+
+            if (arrayMap[ndirectory][nfile] == null) {
+                arrayMap[ndirectory][nfile] = new HashMap<String, Storeable>();
+            }
+            arrayMap[ndirectory][nfile].put(key, tableData.get(key));
+            useDir[ndirectory] = true;
+        }
+        for (int i = 0; i < 16; ++i) {
+            if (useDir[i]) {
+                Integer numDir = i;
+                Path tmp = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
+                try {
+                    mySystem.mkdir(new String[]{tmp.toString()});
+                } catch (Exception e) {
+                    e.addSuppressed(new ErrorFileMap("I can't create a folder table " + tmp.toString()));
+                    throw e;
+                }
+            }
+        }
+        for (int i = 0; i < 16; ++i) {
+            if (!useDir[i]) {
                 continue;
             }
-            Map<String, String>[][] arrayMap = new HashMap[16][16];
-            boolean[] useDir = new boolean[16];
-            for (String key : dbData.get(nameMap).keySet()) {
-
-                int ndirectory = getHashDir(key);
-                int nfile = getHashFile(key);
-
-                if (arrayMap[ndirectory][nfile] == null) {
-                    arrayMap[ndirectory][nfile] = new HashMap<String, String>();
-                }
-                arrayMap[ndirectory][nfile].put(key, dbData.get(nameMap).get(key));
-                useDir[ndirectory] = true;
-            }
-            for (int i = 0; i < 16; ++i) {
-                if (useDir[i]) {
-                    Integer numDir = i;
-                    Path tmp = pathTables.resolve(nameMap).resolve(numDir.toString() + ".dir");
-                    mySystem.mkdir(new String[]{tmp.toString()});
-                }
-            }
-            for (int i = 0; i < 16; ++i) {
-                if (!useDir[i]) {
-                    continue;
-                }
-                for (int j = 0; j < 16; ++j) {
-                    Integer numDir = i;
-                    Integer numFile = j;
-                    Path tmp = pathTables.resolve(nameMap).resolve(numDir.toString() + ".dir");
-                    closeDbFile(tmp.resolve(numFile.toString() + ".dat").toFile(), arrayMap[i][j]);
-                }
+            for (int j = 0; j < 16; ++j) {
+                Integer numDir = i;
+                Integer numFile = j;
+                Path tmp = pathDb.resolve(nameTable).resolve(numDir.toString() + ".dir");
+                closeTableFile(tmp.resolve(numFile.toString() + ".dat").toFile(), arrayMap[i][j]);
             }
         }
     }
 
-    public void closeDbFile(File randomFile, Map<String, String> curMap) throws IOException {
+    public void closeTableFile(File randomFile, Map<String, Storeable> curMap) throws Exception {
         if (curMap == null || curMap.isEmpty()) {
             return;
         }
         RandomAccessFile dbFile = null;
+        Exception error = null;
         try {
             dbFile = new RandomAccessFile(randomFile, "rw");
-        } catch (Exception e) {
-            errPrint(randomFile.getAbsolutePath() + " не открылся");
-            throw new IOException();
-        }
-        try {
             dbFile.setLength(0);
             dbFile.seek(0);
             int len = 0;
 
             for (String key : curMap.keySet()) {
-                len += key.getBytes("UTF8").length + 1 + 4;
+                len += key.getBytes(StandardCharsets.UTF_8).length + 1 + 4;
             }
 
             for (String key : curMap.keySet()) {
-                dbFile.write(key.getBytes("UTF8"));
+                dbFile.write(key.getBytes(StandardCharsets.UTF_8));
                 dbFile.writeByte(0);
                 dbFile.writeInt(len);
 
                 long point = dbFile.getFilePointer();
 
                 dbFile.seek(len);
-                String value = curMap.get(key);
-                dbFile.write(value.getBytes("UTF8"));
-                len += value.getBytes("UTF8").length;
+                Storeable valueStoreable = curMap.get(key);
+                String value = parent.serialize(this, valueStoreable);
+                dbFile.write(value.getBytes(StandardCharsets.UTF_8));
+                len += value.getBytes(StandardCharsets.UTF_8).length;
 
                 dbFile.seek(point);
             }
         } catch (Exception e) {
-            errPrint("Ошибка записи базы");
-        }  finally {
+            error = e;
+            throw error;
+        } finally {
             try {
                 dbFile.close();
             } catch (Exception e) {
-                errPrint(randomFile.getAbsolutePath() + " не закрылся");
-                throw new IOException();
-            }
-        }
-
-    }
-
-    public String startShellString() {
-        return "$ ";
-    }
-
-    public String[] myParsing(String[] args) {
-        String arg = args[0].trim();
-        StringBuilder key = new StringBuilder();
-        StringBuilder value = new StringBuilder();
-        int i = 0;
-        while (i < arg.length() && arg.charAt(i) != ' ') {
-            ++i;
-        }
-        while (i < arg.length() && arg.charAt(i) == ' ') {
-            ++i;
-        }
-        while (i < arg.length() && arg.charAt(i) != ' ') {
-            key.append(arg.charAt(i));
-            ++i;
-        }
-        while (i < arg.length() && arg.charAt(i) == ' ') {
-            ++i;
-        }
-        while (i < arg.length()) {
-            value.append(arg.charAt(i));
-            ++i;
-        }
-        return new String[]{key.toString(), value.toString()};
-    }
-
-    public Code put(String[] args) {
-        args = myParsing(args);
-        if (args[0].length() <= 0 || args[1].length() <= 0) {
-            errPrint("У команды put 2 аргумента");
-            return Code.ERROR;
-        }
-        String key = args[0];
-        String value = args[1];
-        if (dbData.get(useNameTable).containsKey(key)) {
-            outPrint("overwrite");
-            outPrint(dbData.get(useNameTable).get(key));
-        } else {
-            outPrint("new");
-        }
-        dbData.get(useNameTable).put(key, value);
-        return Code.OK;
-    }
-
-    public Code multiPut(String[] args) {
-        if (useNameTable.equals("")) {
-            outPrint("no table");
-            return Code.ERROR;
-        } else {
-            if (put(args) != Code.ERROR) {
-                return Code.OK;
-            } else {
-                return Code.ERROR;
+                if (error != null) {
+                    error.addSuppressed(e);
+                }
             }
         }
     }
 
-    public Code get(String[] args) {
-        args = myParsing(args);
-        if (args[0].length() <= 0 || args[1].length() != 0) {
-            errPrint("У команды get 1 аргумент");
-            return Code.ERROR;
+    public String getName() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
         }
-        String key = args[0];
-        if (dbData.get(useNameTable).containsKey(key)) {
-            outPrint("found");
-            outPrint(dbData.get(useNameTable).get(key));
-        } else {
-            outPrint("not found");
-        }
-        return Code.OK;
+        return nameTable;
     }
 
-    public Code multiGet(String[] args) {
-        if (useNameTable.equals("")) {
-            outPrint("no table");
-            return Code.ERROR;
-        } else {
-            return get(args);
+    public int changeKey() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
         }
+        return changeTable.size();
     }
 
-    public Code remove(String[] args) {
-        args = myParsing(args);
-        if (args[0].length() <= 0 || args[1].length() != 0) {
-            errPrint("У команды remove 1 аргумент");
-            return Code.ERROR;
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        checkArg(key);
+        if (value == null) {
+            throw new IllegalArgumentException("value can't be null");
         }
-        String key = args[0];
-        if (dbData.get(useNameTable).containsKey(key)) {
-            dbData.get(useNameTable).remove(key);
-            outPrint("removed");
-        } else {
-            outPrint("not found");
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
         }
-        return Code.OK;
-    }
+        FileMapStoreable st = null;
+        try {
+            st = (FileMapStoreable) value;
+        } catch (ClassCastException e) {
 
-    public Code multiRemove(String[] args) {
-        if (useNameTable.equals("")) {
-            outPrint("no table");
-            return Code.ERROR;
-        } else {
-            if (remove(args) != Code.ERROR) {
-                return Code.OK;
-            } else {
-                return Code.ERROR;
+            boolean valueMoreSize = false;
+            try {
+                value.getColumnAt(columnType.size());
+                valueMoreSize = true;
+            } catch (Exception err) {
+                valueMoreSize = false;
             }
-        }
-    }
 
-    public Code use(String[] args) throws ErrorFileMap {
-        if (args.length != 1) {
-            errPrint("У команды use 1 аргумент");
-            return Code.ERROR;
-        } else {
-            String nameTable = args[0];
-            if (setMap.contains(nameTable)) {
-                if (!dbData.containsKey(nameTable)) {
-                    if (loadDb(nameTable) != Code.OK) {
-                        errPrint("Ошибка формата хранения таблицы " + nameTable);
-                        return Code.ERROR;
+            if (valueMoreSize) {
+                throw new ColumnFormatException("this Storeable can't be use in this table");
+            }
+
+            int index = 0;
+
+            while (true) {
+                try {
+                    if (columnType.get(index) == Integer.class) {
+                        value.getIntAt(index);
+                    } else if (columnType.get(index) == Long.class) {
+                        value.getLongAt(index);
+                    } else if (columnType.get(index) == Byte.class) {
+                        value.getByteAt(index);
+                    } else if (columnType.get(index) == Float.class) {
+                        value.getFloatAt(index);
+                    } else if (columnType.get(index) == Double.class) {
+                        value.getDoubleAt(index);
+                    } else if (columnType.get(index) == Boolean.class) {
+                        value.getBooleanAt(index);
+                    } else if (columnType.get(index) == String.class) {
+                        value.getStringAt(index);
+                    } else {
+                        throw new ColumnFormatException("in ColumnType isn't provide type");
                     }
-                }
-                if (!nameTable.equals(useNameTable)) {
-                    useNameTable = nameTable;
-                }
-                outPrint("using " + nameTable);
-                return Code.OK;
-            } else {
-                outPrint(nameTable + " not exists");
-                //useNameTable = "";
-                return Code.ERROR;
-            }
-        }
-    }
 
-    public Code drop(String[] args) {
-        if (args.length != 1) {
-            errPrint("У команды drop 1 аргумент");
-            return Code.ERROR;
+                    ++index;
+                } catch (IndexOutOfBoundsException err) {
+                    if (index != columnType.size()) {
+                        throw new ColumnFormatException("this Storeable can't be use in this table");
+                    }
+                    break;
+                }
+            }
+
+            st = null;
+        }
+
+        if (st != null && !st.messageEqualsType(columnType).isEmpty()) {
+            throw new ColumnFormatException(st.messageEqualsType(columnType));
+        }
+
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
+            if (newValue == null) {
+                Storeable oldValue = tableData.get(key);
+                if (parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
+                    changeTable.remove(key);
+                    return null;
+                } else {
+                    changeTable.put(key, value);
+                    return null;
+                }
+            } else {
+                Storeable oldValue = changeTable.get(key);
+                changeTable.put(key, value);
+                return oldValue;
+            }
         } else {
-            String nameTable = args[0];
-            if (nameTable.equals(useNameTable)) {
-                useNameTable = "";
-            }
-            if (setMap.contains(nameTable)) {
-                if (dbData.containsKey(nameTable)) {
-                    dbData.remove(nameTable);
+            if (tableData.containsKey(key)) {
+                Storeable oldValue = tableData.get(key);
+                if (!parent.serialize(this, oldValue).equals(parent.serialize(this, value))) {
+                    changeTable.put(key, value);
                 }
-                mySystem.rm(new String[]{pathTables.resolve(nameTable).toString()});
-                setMap.remove(nameTable);
-                outPrint("dropped");
-                return Code.OK;
+                return oldValue;
             } else {
-                outPrint(nameTable + " not exists");
-                return Code.ERROR;
+                changeTable.put(key, value);
+                return null;
             }
         }
     }
 
-    public Code create(String[] args) {
-        if (args.length != 1) {
-            errPrint("У команды create 1 аргумент");
-            return Code.ERROR;
+    public void setDrop() {
+        tableDrop = true;
+    }
+
+    public Storeable get(String key) {
+        checkArg(key);
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
+            if (newValue == null) {
+                return null;
+            } else {
+                Storeable value = changeTable.get(key);
+                return value;
+            }
         } else {
-            String nameTable = args[0];
-            if (setMap.contains(nameTable)) {
-                outPrint(nameTable + " exists");
-                return Code.ERROR;
+            if (tableData.containsKey(key)) {
+                Storeable value = tableData.get(key);
+                return value;
             } else {
-                mySystem.mkdir(new String[]{pathTables.resolve(nameTable).toString()});
-                setMap.add(nameTable);
-                //dbData.put(nameTable, new HashMap<String, String>());
-                outPrint("created");
-                return Code.OK;
+                return null;
             }
         }
     }
 
-    private void errPrint(String message) {
-        if (err) {
-            System.err.println(message);
+    public Storeable remove(String key) {
+        checkArg(key);
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
+        if (changeTable.containsKey(key)) {
+            Storeable newValue = changeTable.get(key);
+            if (tableData.containsKey(key)) {
+                if (newValue == null) {
+                    return null;
+                } else {
+                    Storeable value = changeTable.get(key);
+                    changeTable.put(key, null);
+                    return value;
+                }
+            } else {
+                changeTable.remove(key);
+                return newValue;
+            }
+        } else {
+            if (tableData.containsKey(key)) {
+                Storeable value = tableData.get(key);
+                changeTable.put(key, null);
+                return value;
+            } else {
+                return null;
+            }
         }
     }
 
-    private void outPrint(String message) {
-        if (out) {
-            System.out.println(message);
+    public int size() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
         }
+        int size = tableData.size();
+        for (String key : changeTable.keySet()) {
+            if (tableData.containsKey(key)) {
+                if (changeTable.get(key) == null) {
+                    --size;
+                }
+            } else {
+                if (changeTable.get(key) != null) {
+                    ++size;
+                }
+            }
+        }
+        return size;
+    }
+
+    public int commit() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
+        for (String key : changeTable.keySet()) {
+            Storeable value = changeTable.get(key);
+            if (value == null) {
+                tableData.remove(key);
+            } else {
+                tableData.put(key, changeTable.get(key));
+            }
+        }
+        int count = changeTable.size();
+        changeTable.clear();
+        try {
+            unloadTable();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+        return count;
+    }
+
+    public int rollback() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
+        int res = changeTable.size();
+        changeTable.clear();
+        return res;
+    }
+
+    @Override
+    public int getColumnsCount() {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
+        return columnType.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (tableDrop) {
+            throw new IllegalStateException("table was deleted");
+        }
+        return columnType.get(columnIndex);
     }
 
 }
-
-class ErrorFileMap extends Exception {
-    public ErrorFileMap(String text) {
-        super(text);
-    }
-}
-

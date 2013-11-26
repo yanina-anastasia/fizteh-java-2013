@@ -10,7 +10,7 @@ public class Dispatcher {
     private boolean forwarding;
     protected boolean shutdown;
 
-    public class DispatcherException extends Exception {
+    public static class DispatcherException extends Exception {
         public DispatcherException(String msg) {
             super(msg);
         }
@@ -22,9 +22,9 @@ public class Dispatcher {
         ERROR
     }
 
-    protected String getInitProperty(String key) throws DispatcherException {
+    public String getInitProperty(String key) throws DispatcherException {
         String value = System.getProperty(key);
-        if(key == null) {
+        if(value == null) {
             shutdown = true;
             throw new DispatcherException(callbackWriter(MessageType.ERROR, String.format("'%s' property is null", key)));
         } else {
@@ -46,10 +46,10 @@ public class Dispatcher {
 
     public String callbackWriter(MessageType type, String msg) {
         PrintStream stream = null;
-        if(type == MessageType.ERROR) {
-            stream = System.err;
-        } else if(type == MessageType.SUCCESS || type == MessageType.WARNING) {
+        if(type == MessageType.SUCCESS || type == MessageType.WARNING) {
             stream = System.out;
+        } else {
+            stream = System.err;
         }
         stream.println(msg);
         return msg;
@@ -68,6 +68,9 @@ public class Dispatcher {
             ArrayList<Command> commands = parser.getCommands(this, commandSequence);
             for(Command command: commands) {
                 try {
+                    if(shutdown) {
+                        break;
+                    }
                     boolean performed = false;
                     for(Performer performer: performers) {
                         if(performer.pertains(command)) {
@@ -84,9 +87,6 @@ public class Dispatcher {
                     if(forwarding) {
                         throw new DispatcherException(e.getMessage());
                     }
-                }
-                if(shutdown) {
-                    break;
                 }
             }
         } catch(Parser.IncorrectSyntaxException e) {
