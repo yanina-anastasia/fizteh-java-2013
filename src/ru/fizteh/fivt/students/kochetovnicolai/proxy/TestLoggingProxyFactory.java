@@ -16,6 +16,35 @@ public class TestLoggingProxyFactory {
         void foo();
     }
 
+    interface VoidFunc {
+        void func();
+    }
+
+    @Test
+    public void voidShouldNotReturnValue() {
+        VoidFunc voidFunc = new VoidFunc() {
+            @Override
+            public void func() {
+            }
+        };
+        Writer writer = new StringWriter();
+        VoidFunc proxy = (VoidFunc) (new LoggingProxyFactoryImpl()).wrap(writer, voidFunc, VoidFunc.class);
+        proxy.func();
+        //System.out.println(writer);
+        JSONObject object = new JSONObject(writer.toString());
+        String expected = "{"
+                + "\"arguments\":[],"
+                + "\"class\":\"" + voidFunc.getClass().getName() + "\","
+                + "\"method\":\"func\""
+                + "}";
+        JSONObject expectedJSON = new JSONObject(expected);
+        //System.out.println(expectedJSON);
+        //System.out.println(object);
+        expectedJSON.put("timestamp", object.get("timestamp"));
+        //System.out.println(expectedJSON);
+        Assert.assertEquals("invalid json object", expectedJSON.toString(), object.toString());
+    }
+
     @Test
     public void testFormatShouldBeCorrect() {
         Executable executable = new Executable() {
@@ -142,7 +171,6 @@ public class TestLoggingProxyFactory {
         String expected = "{"
                 + "\"arguments\":[],"
                 + "\"class\":\"" + executable.getClass().getName() + "\","
-                + "\"returnValue\":null,"
                 + "\"method\":\"foo\""
                 + "}";
         JSONObject expectedJSON = new JSONObject(expected);

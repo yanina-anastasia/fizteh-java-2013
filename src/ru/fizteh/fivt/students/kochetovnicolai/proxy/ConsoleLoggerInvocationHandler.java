@@ -74,7 +74,7 @@ class ConsoleLoggerInvocationHandler implements InvocationHandler {
             stringWriter.write(object.toString());
             toWrite = stringWriter.toString().replaceFirst("\\{", "{\"returnValue\":null,");
         } else {
-            if (!returned.getClass().equals(Void.class) && !returned.equals(Void.class)) {
+            if (!returned.equals(Void.class)) {
                 object.put("returnValue", returned);
             }
             toWrite = object.toString();
@@ -125,6 +125,11 @@ class ConsoleLoggerInvocationHandler implements InvocationHandler {
                 writingValue = resolveIterable((Iterable) returnValue, new IdentityHashMap<>());
             } else {
                 writingValue = returnValue;
+            }
+        } else {
+            Class type = method.getReturnType();
+            if (type.getName().equals("void")) {
+                writingValue = Void.class;
             }
         }
         writeJSONObject(log, writingValue);
