@@ -1,9 +1,11 @@
 package ru.fizteh.fivt.students.adanilyak.tests;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProviderFactory;
+import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +21,14 @@ public class StoreableTableProviderFactoryUnitTest {
 
     @Before
     public void setUpTestObject() {
+        File sandBoxFile = new File(sandBoxDirectory);
+        sandBoxFile.mkdir();
         testProviderFactory = new StoreableTableProviderFactory();
+    }
+
+    @After
+    public void tearDownTestObject() throws IOException {
+        DeleteDirectory.rm(new File(sandBoxDirectory));
     }
 
     /**
