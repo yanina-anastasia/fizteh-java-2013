@@ -22,7 +22,7 @@ public class MultiDbState extends State implements Table {
     DbState[][] data;
     public ShellState shell;
     private String rootPath;
-    public boolean isDropped;
+    public volatile boolean isDropped;
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
@@ -162,9 +162,10 @@ public class MultiDbState extends State implements Table {
         if (isDropped) {
             throw new IllegalStateException("table was removed");
         }   
-        int chNum = changesNum();
+        int chNum = 0;
         diskOperationLock.writeLock().lock();
         try {
+            chNum = changesNum();
             for (int i = 0; i < FOLDER_NUM; i++) {
                 String fold = Integer.toString(i) + ".dir";
                 if (!fileExist(fold)) {
@@ -272,11 +273,17 @@ public class MultiDbState extends State implements Table {
     
     @Override
     public int rollback() {
-        int chNum = changesNum();
-        for (int i = 0; i < FOLDER_NUM; i++) {
-            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
-                data[i][j].assignData();
+        diskOperationLock.readLock().lock();
+        int chNum = 0;
+        try {
+            chNum = changesNum();
+            for (int i = 0; i < FOLDER_NUM; i++) {
+                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
+                    data[i][j].assignData();
+                }
             }
+        } finally {
+            diskOperationLock.readLock().unlock();
         }
         return chNum;
     }
