@@ -134,8 +134,13 @@ public class DatabaseTable implements Table {
         if (deletedKeys.get().contains(key)) {
             deletedKeys.get().remove(key);
         }
-        if (oldValue == null) {
-            size.decrementAndGet();
+        transactionLock.writeLock().lock();
+        try {
+            if (oldValue == null) {
+                size.decrementAndGet();
+            }
+        } finally {
+            transactionLock.writeLock().unlock();
         }
         uncommittedChanges.set(changesCount());
         return oldValue;
