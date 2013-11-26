@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import ru.fizteh.fivt.storage.structured.Table;
 
-public interface ExtendTable extends Table {
+public interface ExtendTable extends Table, AutoCloseable {
     
     int getChangedValuesNumber();
 

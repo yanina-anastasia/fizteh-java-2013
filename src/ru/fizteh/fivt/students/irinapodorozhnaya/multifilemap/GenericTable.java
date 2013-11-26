@@ -3,16 +3,18 @@ package ru.fizteh.fivt.students.irinapodorozhnaya.multifilemap;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.FileStorage;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
 
 public abstract class GenericTable<ValueType> {
-    private final String name;
+    protected final String name;
     protected ReadWriteLock lock = new ReentrantReadWriteLock(true);
-    protected ReadWriteLock hardDiskLock = new ReentrantReadWriteLock(true);
+    protected ReadWriteLock hardDriveLock = new ReentrantReadWriteLock(true);
     protected final File tableDirectory;
     private final Map<String, ValueType> oldDatabase = new HashMap<>();
     private final ThreadLocal<Map<String, ValueType>> changedValues = new ThreadLocal<Map<String, ValueType>>() {
@@ -81,45 +83,56 @@ public abstract class GenericTable<ValueType> {
     }
 
     public int commit() throws IOException {
+        ThreadLocal<Map<Integer, Map<String, ValueType>>> database =
+                new ThreadLocal<Map<Integer, Map<String, ValueType>>>() {
+            @Override
+            protected Map<Integer, Map<String, ValueType>> initialValue() {
+                return new HashMap<>();
+            }
+        };
+        ThreadLocal<Set<Integer>> filesToUpdate = new ThreadLocal<Set<Integer>>() {
+            @Override
+            protected Set<Integer> initialValue() {
+                return new HashSet<>();
+            }
+        };
+
         int res = countChanges();
         try {
             lock.writeLock().lock();
-            for (String s: changedValues.get().keySet()) {
-                if (changedValues.get().get(s) == null) {
-                    oldDatabase.remove(s);
+            for (Map.Entry<String, ValueType> s: changedValues.get().entrySet()) {
+                int nfile = Utils.getNumberOfFile(s.getKey());
+                filesToUpdate.get().add(nfile);
+                if (s.getValue() == null) {
+                    oldDatabase.remove(s.getKey());
                 } else {
-                    oldDatabase.put(s, changedValues.get().get(s));
+                    oldDatabase.put(s.getKey(), s.getValue());
+                }
+            }
+            for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
+                int nfile = Utils.getNumberOfFile(s.getKey());
+                if (filesToUpdate.get().contains(nfile)) {
+                    if (database.get().get(nfile) == null) {
+                        database.get().put(nfile, new HashMap<String, ValueType>());
+                    }
+                    database.get().get(nfile).put(s.getKey(), s.getValue());
                 }
             }
         } finally {
             lock.writeLock().unlock();
         }
+
         try {
-            hardDiskLock.writeLock().lock();
-            Map<Integer, Map<String, ValueType>> database = new HashMap<>();
-            try {
-                lock.readLock().lock();
-                for (Map.Entry<String, ValueType> s: oldDatabase.entrySet()) {
-                    int nfile = Utils.getNumberOfFile(s.getKey());
-                    if (database.get(nfile) == null) {
-                        database.put(nfile, new HashMap<String, ValueType>());
-                    }
-                    database.get(nfile).put(s.getKey(), s.getValue());
-                }
-            } finally {
-                lock.readLock().unlock();
+            hardDriveLock.writeLock().lock();
+            for (Integer nfile: filesToUpdate.get()) {
+                FileStorage.commitDiff(getFile(nfile), serialize(database.get().get(nfile)));
             }
-
-            for (int i = 0; i < 256; ++i) {
-                FileStorage.commitDiff(getFile(i), serialize(database.get(i)));
-            }
-
             for (int i = 0; i < 16; ++i) {
                 File dir = new File(tableDirectory, i + ".dir");
                 dir.delete();
             }
         } finally {
-            hardDiskLock.writeLock().unlock();
+            hardDriveLock.writeLock().unlock();
         }
         changedValues.get().clear();
         return res;
@@ -180,8 +193,8 @@ public abstract class GenericTable<ValueType> {
 
     protected void loadOldDatabase() throws IOException {
         try {
-            hardDiskLock.readLock().lock();
             lock.writeLock().lock();
+            hardDriveLock.readLock().lock();
             oldDatabase.clear();
             for (int i = 0; i < 16; ++i) {
                 File dir = new File(tableDirectory, i + ".dir");
@@ -202,8 +215,8 @@ public abstract class GenericTable<ValueType> {
                 }
             }
         } finally {
+            hardDriveLock.readLock().unlock();
             lock.writeLock().unlock();
-            hardDiskLock.readLock().unlock();
         }
     }
 

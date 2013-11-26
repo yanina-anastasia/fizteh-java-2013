@@ -21,12 +21,24 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Types;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.XMLSerializer;
 
-public class MyTableProvider implements ExtendProvider {
+public class MyTableProvider implements ExtendProvider, AutoCloseable {
 
     private final File dataBaseDir;
     private final Map<String, ExtendTable> tables = new HashMap<>();
     private static final String STRING_NAME_FORMAT = "[a-zA-Zа-яА-Я0-9_]+";
     private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private boolean isClosed = false;
+
+    private void checkClosed() {
+        if (isClosed) {
+            throw new IllegalStateException("call for closed object");
+        }
+    }
+
+    public void closeTable(String name) {
+        checkClosed();
+        tables.remove(name);
+    }
 
     public MyTableProvider(File dataBaseDir) throws IOException {
         this.dataBaseDir = dataBaseDir;
@@ -41,8 +53,15 @@ public class MyTableProvider implements ExtendProvider {
         }
     }
 
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + dataBaseDir.getAbsolutePath() + "]";
+    }
+
     @Override
     public ExtendTable getTable(String name) {
+        checkClosed();
         checkCorrectName(name);
         try {
             lock.readLock().lock();
@@ -55,7 +74,8 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public ExtendTable createTable(String name, List<Class<?>> columnTypes)
             throws IOException {
-        
+
+        checkClosed();
         checkCorrectName(name);
         if (columnTypes == null || columnTypes.isEmpty()) {
             throw new IllegalArgumentException("bad column list");
@@ -86,7 +106,8 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public void removeTable(String name) throws IOException {
-        
+
+        checkClosed();
         checkCorrectName(name);
         try {
             lock.writeLock().lock();
@@ -103,6 +124,7 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
 
+        checkClosed();
         Storeable res;
         try {
             res = XMLSerializer.deserialize(table, value);
@@ -114,7 +136,8 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        
+
+        checkClosed();
         String res;
         try {            
             res = XMLSerializer.serialize(table, value);
@@ -126,6 +149,7 @@ public class MyTableProvider implements ExtendProvider {
 
     @Override
     public Storeable createFor(Table table) {
+        checkClosed();
         if (table == null) {
             throw new IllegalArgumentException("table can't be null");
         }
@@ -135,7 +159,7 @@ public class MyTableProvider implements ExtendProvider {
     @Override
     public Storeable createFor(Table table, List<?> values) 
                      throws ColumnFormatException, IndexOutOfBoundsException {
-
+        checkClosed();
         if (table == null || values == null) {
             throw new IllegalArgumentException("table and values can't be null");
         }
@@ -154,6 +178,16 @@ public class MyTableProvider implements ExtendProvider {
     public static void checkCorrectName(String name) {
         if (name == null || !name.matches(STRING_NAME_FORMAT)) {
             throw new IllegalArgumentException("table name is null or has illegal name");
+        }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (!isClosed) {
+            for (ExtendTable table: tables.values()) {
+                table.close();
+            }
+            isClosed = true;
         }
     }
 }
