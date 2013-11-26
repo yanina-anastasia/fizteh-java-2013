@@ -5,7 +5,8 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 
 import java.io.File;
 
-public class StringWrappedMindfulDataBaseMultiFileHashMap extends WrappedMindfulDataBaseMultiFileHashMap<String> implements Table {
+public class StringWrappedMindfulDataBaseMultiFileHashMap extends WrappedMindfulDataBaseMultiFileHashMap<String>
+        implements Table {
     public StringWrappedMindfulDataBaseMultiFileHashMap(File path, Dispatcher dispatcher) {
         super(path, dispatcher, new StringTransformer());
     }

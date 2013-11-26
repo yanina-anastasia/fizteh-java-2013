@@ -19,7 +19,7 @@ public class TableTest {
                 cleanRecursively(sub);
             }
         }
-        assert (pointer.delete() == true);
+        assert (pointer.delete());
     }
 
     @Before
@@ -27,10 +27,10 @@ public class TableTest {
         String homeDir = System.getProperty("user.home");
         path = new File(homeDir, "sandbox/strings");
         cleanRecursively(path);
-        assert (path.mkdirs() == true);
+        assert (path.mkdirs());
         dispatcher = new Dispatcher(false);
         File tablePath = new File(path, "tableName");
-        assert (tablePath.mkdir() == true);
+        assert (tablePath.mkdir());
         db = new StringWrappedMindfulDataBaseMultiFileHashMap(tablePath, dispatcher);
     }
 

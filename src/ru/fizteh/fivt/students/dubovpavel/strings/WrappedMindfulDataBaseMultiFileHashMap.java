@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 
 public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMultiFileHashMap<V> {
     private Dispatcher dispatcher;
-    private static final Pattern whitespacePattern;
+    private static final Pattern WHITESPACE_PATTERN;
 
     static {
-        whitespacePattern = Pattern.compile("\\s");
+        WHITESPACE_PATTERN = Pattern.compile("\\s");
     }
 
     public WrappedMindfulDataBaseMultiFileHashMap(File path, Dispatcher dispatcher, ObjectTransformer<V> transformer) {
@@ -30,7 +30,7 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
 
     @Override
     protected V put(HashMap<String, V> dict, String key, V value) {
-        if (key == null || key.isEmpty() || whitespacePattern.matcher(key).find()) {
+        if (key == null || key.isEmpty() || WHITESPACE_PATTERN.matcher(key).find()) {
             throw new IllegalArgumentException();
         }
         return super.put(dict, key, value);

@@ -9,7 +9,7 @@ public interface Serial<T> {
         }
     }
 
-    public String serialize(T obj) throws SerialException;
+    String serialize(T obj) throws SerialException;
 
-    public T deserialize(String obj) throws SerialException, ParseException;
+    T deserialize(String obj) throws SerialException, ParseException;
 }

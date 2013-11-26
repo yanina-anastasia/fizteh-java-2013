@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class DataBase<V> implements DataBaseHandler<String, V> {
     protected File savingEndPoint;
-    protected static final Charset charset = StandardCharsets.UTF_8;
+    protected static final Charset CHARSET = StandardCharsets.UTF_8;
     protected static final int MAXLENGTH = 1 << 20;
     private Serial<V> builder;
     protected HashMap<String, V> localDict = new HashMap<>();
@@ -22,7 +22,8 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
 
     protected void generateLoadingError(String error, String message, boolean acc) throws DataBaseException {
         localDict.clear();
-        throw new DataBaseException(String.format("Conformity loading: %s: %s. Empty database applied", error, message), acc);
+        throw new DataBaseException(
+                String.format("Conformity loading: %s: %s. Empty database applied", error, message), acc);
     }
 
     public void open() throws DataBaseException {
@@ -44,10 +45,10 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
                 }
                 byte[] keyBuffer = new byte[keyLength];
                 db.readFully(keyBuffer, 0, keyLength);
-                String key = new String(keyBuffer, charset);
+                String key = new String(keyBuffer, CHARSET);
                 byte[] valueBuffer = new byte[valueLength];
                 db.readFully(valueBuffer, 0, valueLength);
-                String value = new String(valueBuffer, charset);
+                String value = new String(valueBuffer, CHARSET);
                 localDict.put(key, builder.deserialize(value));
             }
         } catch (IOException e) {
@@ -75,8 +76,8 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
         checkValid();
         try (DataOutputStream db = new DataOutputStream(new FileOutputStream(savingEndPoint))) {
             for (Map.Entry<String, V> entry : localDict.entrySet()) {
-                byte[] key = entry.getKey().getBytes(charset);
-                byte[] value = builder.serialize(entry.getValue()).getBytes(charset);
+                byte[] key = entry.getKey().getBytes(CHARSET);
+                byte[] value = builder.serialize(entry.getValue()).getBytes(CHARSET);
                 db.writeInt(key.length);
                 db.writeInt(value.length);
                 db.write(key);
@@ -85,7 +86,8 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
         } catch (IOException e) {
             throw new DataBaseException(String.format("Conformity saving: IOException: %s", e.getMessage()));
         } catch (Serial.SerialException e) {
-            throw new DataBaseException(String.format("Conformity saving: SerialException (serialization): %s", e.getMessage()));
+            throw new DataBaseException(
+                    String.format("Conformity saving: SerialException (serialization): %s", e.getMessage()));
         }
     }
 

@@ -7,7 +7,8 @@ import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.StorageAccessible;
 import ru.fizteh.fivt.students.dubovpavel.strings.MindfulDataBaseMultiFileHashMap;
 
-public class PerformerUse<D extends Dispatcher & StorageAccessible<Storage<MindfulDataBaseMultiFileHashMap>>> extends Performer<D> {
+public class PerformerUse<D extends Dispatcher & StorageAccessible<Storage<MindfulDataBaseMultiFileHashMap>>>
+        extends Performer<D> {
     public boolean pertains(Command command) {
         return command.getHeader().equals("use") && command.argumentsCount() == 1;
     }

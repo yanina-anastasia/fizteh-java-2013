@@ -40,7 +40,8 @@ public class PerformerCopy extends PerformerShell {
     }
 
     private void copyFolder(String source, String destination) throws PerformerCopyException {
-        File sourceFolder = new File(source), destinationFolder = new File(destination);
+        File sourceFolder = new File(source);
+        File destinationFolder = new File(destination);
         if (!destinationFolder.mkdir()) {
             throw new PerformerCopyException(String.format("Can not create '%s'", destinationFolder));
         }
@@ -55,7 +56,8 @@ public class PerformerCopy extends PerformerShell {
 
     public void execute(Dispatcher dispatcher, Command command) throws PerformerException {
         File object = getCanonicalFile(command.getArgument(0));
-        String canonicalSource = object.getPath(), canonicalDestination = getCanonicalFile(command.getArgument(1)).getPath();
+        String canonicalSource = object.getPath();
+        String canonicalDestination = getCanonicalFile(command.getArgument(1)).getPath();
         if (!object.exists()) {
             throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                     String.format("%s. cp: '%s' does not exist", command.getDescription(), canonicalSource)));

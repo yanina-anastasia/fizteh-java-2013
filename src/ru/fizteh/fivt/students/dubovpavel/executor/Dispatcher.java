@@ -5,7 +5,8 @@ import java.util.ArrayList;
 
 public class Dispatcher {
     private Parser parser;
-    private int invalidSequences, invalidOperations;
+    private int invalidSequences;
+    private int invalidOperations;
     private ArrayList<Performer> performers;
     private boolean forwarding;
     protected boolean shutdown;
@@ -26,7 +27,8 @@ public class Dispatcher {
         String value = System.getProperty(key);
         if (value == null) {
             shutdown = true;
-            throw new DispatcherException(callbackWriter(MessageType.ERROR, String.format("'%s' property is null", key)));
+            throw new DispatcherException(
+                    callbackWriter(MessageType.ERROR, String.format("'%s' property is null", key)));
         } else {
             return value;
         }

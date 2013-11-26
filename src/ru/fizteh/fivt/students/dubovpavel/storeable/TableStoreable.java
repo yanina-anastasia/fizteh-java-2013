@@ -38,16 +38,18 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
             }
             fields.clear();
             for (String type : types) {
-                Class<?> T = TypeNamesMatcher.classByName.get(type);
-                if (T == null) {
-                    generateLoadingError("DataBaseException", String.format("Signature file contains unsupported type %s", type), false);
+                Class<?> t = TypeNamesMatcher.CLASS_BY_NAME.get(type);
+                if (t == null) {
+                    generateLoadingError("DataBaseException",
+                            String.format("Signature file contains unsupported type %s", type), false);
                 } else {
-                    fields.add(T);
+                    fields.add(t);
                 }
             }
             super.open();
         } catch (IOException e) {
-            generateLoadingError("IOException", String.format("Can not read signature file: %s", e.getMessage()), false);
+            generateLoadingError("IOException",
+                    String.format("Can not read signature file: %s", e.getMessage()), false);
         }
     }
 
@@ -56,7 +58,7 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(root, "signature.tsv")))) {
             StringBuilder joiner = new StringBuilder();
             for (Class<?> type : fields) {
-                joiner.append(TypeNamesMatcher.nameByClass.get(type));
+                joiner.append(TypeNamesMatcher.NAME_BY_CLASS.get(type));
                 joiner.append(' ');
             }
             writer.write(joiner.toString());
@@ -103,7 +105,9 @@ public class TableStoreable extends WrappedMindfulDataBaseMultiFileHashMap<Store
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (columnIndex >= fields.size()) throw new IndexOutOfBoundsException("Index is out of bound");
+        if (columnIndex >= fields.size()) {
+            throw new IndexOutOfBoundsException("Index is out of bound");
+        }
         return fields.get(columnIndex);
     }
 

@@ -6,7 +6,8 @@ import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
 
 import java.io.IOException;
 
-public class StringTableProviderStorageExtended extends TableProviderStorageExtended<StringWrappedMindfulDataBaseMultiFileHashMap> implements TableProvider {
+public class StringTableProviderStorageExtended
+        extends TableProviderStorageExtended<StringWrappedMindfulDataBaseMultiFileHashMap> implements TableProvider {
     public StringTableProviderStorageExtended(Storage storage) {
         super(storage);
     }

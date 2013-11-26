@@ -18,7 +18,7 @@ public class PerformerCreateStoreable<D extends Dispatcher & StorageAccessible> 
     }
 
     private void testType(ArrayList<Class<?>> fields, String type, D dispatcher) throws PerformerException {
-        Class<?> caster = TypeNamesMatcher.classByName.get(type);
+        Class<?> caster = TypeNamesMatcher.CLASS_BY_NAME.get(type);
         if (caster == null) {
             throw new PerformerException(dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
                     String.format("wrong type (Type %s is not supported)", type)));
@@ -29,7 +29,8 @@ public class PerformerCreateStoreable<D extends Dispatcher & StorageAccessible> 
 
     @Override
     public boolean pertains(Command command) {
-        return command.getHeader().equals("create") && command.argumentsCount() == 2 && command.getArgument(1).charAt(0) == '(';
+        return command.getHeader().equals("create") && command.argumentsCount() == 2
+                && command.getArgument(1).charAt(0) == '(';
     }
 
     @Override

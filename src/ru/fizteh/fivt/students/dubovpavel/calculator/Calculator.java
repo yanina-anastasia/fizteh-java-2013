@@ -56,7 +56,8 @@ class Calculator {
         lexems.add(new Token<Lexem, Integer>(Lexem.OBRACKET, -1));
         while (pointer < expression.length()) {
             char currentSymbol = expression.charAt(pointer);
-            if (currentSymbol == '+') { //Can not use switch here because I need range of values to determine if it is a number.
+            if (currentSymbol == '+') { //Can not use switch here because I need
+                                        // a range of values to determine if it is a number.
                 lexems.add(new Token<Lexem, Integer>(Lexem.ADDITION, pointer));
             } else if (currentSymbol == '-') {
                 lexems.add(new Token<Lexem, Integer>(Lexem.SUBTRACTION, pointer));
@@ -68,7 +69,8 @@ class Calculator {
                 lexems.add(new Token<Lexem, Integer>(Lexem.OBRACKET, pointer));
             } else if (currentSymbol == ')') {
                 lexems.add(new Token<Lexem, Integer>(Lexem.CBRACKET, pointer));
-            } else if ('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= LASTLETTER) {
+            } else if ('0' <= currentSymbol && currentSymbol <= '9'
+                    || 'A' <= currentSymbol && currentSymbol <= LASTLETTER) {
                 do {
                     pointer++;
                     if (pointer < expression.length()) {
@@ -77,11 +79,13 @@ class Calculator {
                         break;
                     }
                 }
-                while ('0' <= currentSymbol && currentSymbol <= '9' || 'A' <= currentSymbol && currentSymbol <= LASTLETTER);
+                while ('0' <= currentSymbol && currentSymbol <= '9'
+                        || 'A' <= currentSymbol && currentSymbol <= LASTLETTER);
                 pointer--;
                 lexems.add(new Token<Lexem, Integer>(Lexem.NUMBER, pointer));
             } else if (!Character.isWhitespace(currentSymbol)) {
-                throw new InappropriateSymbolException(String.format("Inappropriate symbol '%c' found.", currentSymbol));
+                throw new InappropriateSymbolException(
+                        String.format("Inappropriate symbol '%c' found.", currentSymbol));
             }
             pointer++;
         }
@@ -91,7 +95,8 @@ class Calculator {
     private Integer getNumber(int lexemNumber) throws NumberFormatException {
         Integer result;
         try {
-            result = Integer.parseInt(this.expression.substring(lexems.get(lexemNumber - 1).getPointer() + 1, lexems.get(lexemNumber).getPointer() + 1), RADIX);
+            result = Integer.parseInt(this.expression.substring(lexems.get(lexemNumber - 1).getPointer() + 1,
+                    lexems.get(lexemNumber).getPointer() + 1), RADIX);
         } catch (NumberFormatException e) {
             throw new NumberFormatException(String.format("Lexem #%d can not be parsed as a number.", lexemNumber - 1));
         }
@@ -103,7 +108,10 @@ class Calculator {
     }
 
     private void performOperation(Stack<Integer> numbers, Lexem lexem) throws ArithmeticException {
-        Integer a = numbers.pop(), b = numbers.pop(), result; // Stack is not empty because we use automata, which garantees us correct syntax.
+        Integer a = numbers.pop();
+        Integer b = numbers.pop();  // Stack is not empty because we use automata,
+                                    // which garantees us correct syntax.
+        Integer result;
         switch (lexem) {
             case ADDITION:
                 result = SafeInteger.add(b, a);
@@ -115,9 +123,11 @@ class Calculator {
                 result = SafeInteger.multiply(b, a);
                 break;
             case DIVISION:
-                if (a == 0) throw new ArithmeticException("Division by zero occured.");
-                else
+                if (a == 0) {
+                    throw new ArithmeticException("Division by zero occured.");
+                } else {
                     result = SafeInteger.divide(b, a);
+                }
                 break;
             default:
                 throw new RuntimeException(BUG);
@@ -125,7 +135,8 @@ class Calculator {
         numbers.push(result);
     }
 
-    private void popBracketBlock(Stack<Integer> numbers, Stack<Lexem> operations) throws InvalidLexemMetException, ArithmeticException {
+    private void popBracketBlock(Stack<Integer> numbers, Stack<Lexem> operations)
+            throws InvalidLexemMetException, ArithmeticException {
         try {
             Lexem currentLexem;
             while ((currentLexem = operations.pop()) != Lexem.OBRACKET) {
@@ -151,9 +162,11 @@ class Calculator {
         }
     }
 
-    private void pushOperation(Stack<Integer> numbers, Stack<Lexem> operations, Lexem operation) throws ArithmeticException {
-        while (!operations.empty() && getOperationPriority(operations.peek()) >= getOperationPriority(operation))
+    private void pushOperation(Stack<Integer> numbers, Stack<Lexem> operations, Lexem operation)
+            throws ArithmeticException {
+        while (!operations.empty() && getOperationPriority(operations.peek()) >= getOperationPriority(operation)) {
             performOperation(numbers, operations.pop());
+        }
         operations.push(operation);
     }
 
@@ -178,7 +191,8 @@ class Calculator {
         Stack<Integer> numbers = new Stack<Integer>();
         for (int i = 0; i < lexems.size(); i++) {
             Lexem lexemType = lexems.get(i).getLexem();
-            switch (state) { //If we identify Lexem with State this code might be shorter; I don't like to use dirty tricks on Java tho.
+            switch (state) { //If we identify Lexem with State this code might be shorter;
+                             // I don't like to use dirty tricks on Java tho.
                 case START:
                     switch (lexemType) {
                         case OBRACKET:
@@ -260,12 +274,16 @@ class Calculator {
                         default:
                             throw new InvalidLexemMetException(getInvalidLexemMetExceptionText(i));
                     }
+                    break;
+                default:
+                    throw new RuntimeException(BUG);
+                    break;
             }
         }
         if (!operations.empty()) {
             throw new InvalidLexemMetException("Expression is incorrect.");
         }
-        if (numbers.size() != 1) {//It should never happen as far as I understand.
+        if (numbers.size() != 1) { //It should never happen as far as I understand.
             throw new RuntimeException(BUG);
         }
         return numbers.pop();

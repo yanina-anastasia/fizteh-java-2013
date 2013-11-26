@@ -51,7 +51,9 @@ public class Parser {
             } else if (correspondingBound(line.charAt(pointer)) != '\0') {
                 int start = pointer;
                 char corresponding = correspondingBound(line.charAt(pointer));
-                for (pointer++; pointer < line.length() && line.charAt(pointer) != corresponding; pointer++) ;
+                for (pointer++; pointer < line.length() && line.charAt(pointer) != corresponding; pointer++) {
+                    // Moving towards corresponding char
+                }
                 if (pointer >= line.length()) {
                     throw new IncorrectSyntaxException(
                             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, "Bounders are not closed"));
@@ -60,7 +62,8 @@ public class Parser {
                     pointer++;
                     command = new Command(line.substring(start, pointer), result.size() + 1);
                 } else {
-                    int left, right;
+                    int left;
+                    int right;
                     pointer++;
                     if (exclusiveBound(corresponding)) {
                         left = start + 1;

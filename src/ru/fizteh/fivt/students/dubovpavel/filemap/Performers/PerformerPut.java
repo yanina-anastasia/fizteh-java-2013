@@ -21,7 +21,8 @@ public class PerformerPut<D extends Dispatcher & DataBaseAccessible<String, Stri
                 dispatcher.callbackWriter(Dispatcher.MessageType.WARNING, String.format("overwrite%n%s", old));
             }
         } catch (DataBaseHandler.DataBaseException e) {
-            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, String.format("DataBaseException: %s", e.getMessage()));
+            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR,
+                    String.format("DataBaseException: %s", e.getMessage()));
             throw new PerformerException(e.getMessage());
         }
     }

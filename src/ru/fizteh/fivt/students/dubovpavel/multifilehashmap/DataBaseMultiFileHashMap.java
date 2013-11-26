@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
-    private static final int dirsCount = 16;
-    private static final int chunksCount = 16;
+    private static final int DIRS_COUNT = 16;
+    private static final int CHUNKS_COUNT = 16;
     protected File root;
 
     public DataBaseMultiFileHashMap(File path, Serial<V> builder) {
@@ -33,11 +33,12 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
     }
 
     private Distribution<Integer, Integer> getDistribution(String key) {
-        int key_hash = key.hashCode(), hashcode;
-        if (key_hash == Integer.MIN_VALUE) {
+        int keyHash = key.hashCode();
+        int hashcode;
+        if (keyHash == Integer.MIN_VALUE) {
             hashcode = 0;
         } else {
-            hashcode = Math.abs(key_hash);
+            hashcode = Math.abs(keyHash);
         }
         int ndirectory = hashcode % 16;
         int nfile = hashcode / 16 % 16;
@@ -49,11 +50,11 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
         boolean allReadSuccessfully = true;
         HashMap<String, V> chunksCollector = new HashMap<>();
         StringBuilder exceptionMessage = new StringBuilder();
-        for (int i = 0; i < dirsCount; i++) {
+        for (int i = 0; i < DIRS_COUNT; i++) {
             File sub = generateChunksDir(i);
             if (sub.isDirectory()) {
                 boolean dirIsEmpty = true;
-                for (int j = 0; j < chunksCount; j++) {
+                for (int j = 0; j < CHUNKS_COUNT; j++) {
                     File data = generateChunk(i, j);
                     if (data.isFile()) {
                         dirIsEmpty = false;
@@ -68,7 +69,8 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
                                 Distribution<Integer, Integer> distr = getDistribution(key);
                                 if (i != distr.getDir() || j != distr.getChunk()) {
                                     throw new DataBaseException(
-                                            String.format("Key '%s' must not belong to this chunk. The whole chunk denied", key), false);
+                                            String.format("Key '%s' must not belong to this chunk. "
+                                                    + "The whole chunk denied", key), false);
                                 }
                             }
                             chunksCollector.putAll(localDict);
@@ -97,10 +99,10 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
     @Override
     public void save() throws DataBaseException {
         HashMap<String, V> backUp = localDict;
-        HashMap<String, V>[][] distribution = new HashMap[dirsCount][chunksCount];
-        for (int i = 0; i < dirsCount; i++) {
+        HashMap<String, V>[][] distribution = new HashMap[DIRS_COUNT][CHUNKS_COUNT];
+        for (int i = 0; i < DIRS_COUNT; i++) {
             File sub = generateChunksDir(i);
-            for (int j = 0; j < chunksCount; j++) {
+            for (int j = 0; j < CHUNKS_COUNT; j++) {
                 File data = generateChunk(i, j);
                 distribution[i][j] = new HashMap<>();
                 if (data.isFile()) {
@@ -119,9 +121,9 @@ public class DataBaseMultiFileHashMap<V> extends FileRepresentativeDataBase<V> {
             Distribution<Integer, Integer> distr = getDistribution(entry.getKey());
             distribution[distr.getDir()][distr.getChunk()].put(entry.getKey(), entry.getValue());
         }
-        for (int i = 0; i < dirsCount; i++) {
+        for (int i = 0; i < DIRS_COUNT; i++) {
             File sub = generateChunksDir(i);
-            for (int j = 0; j < chunksCount; j++) {
+            for (int j = 0; j < CHUNKS_COUNT; j++) {
                 if (!distribution[i][j].isEmpty()) {
                     if (!sub.isDirectory() && !sub.mkdir()) {
                         localDict = backUp;

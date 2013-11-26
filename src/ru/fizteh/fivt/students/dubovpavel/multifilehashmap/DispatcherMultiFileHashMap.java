@@ -4,7 +4,8 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseAccessible;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 
-public class DispatcherMultiFileHashMap extends Dispatcher implements DataBaseAccessible<String, String>, StorageAccessible {
+public class DispatcherMultiFileHashMap extends Dispatcher
+        implements DataBaseAccessible<String, String>, StorageAccessible {
     protected Storage storage;
 
     public DispatcherMultiFileHashMap(boolean forwarding, StorageBuilder builder) {

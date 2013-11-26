@@ -31,9 +31,10 @@ public class StoreableImpl implements Storeable {
 
     private void checkType(int columnIndex, Class<?> type) throws ColumnFormatException {
         Class<?> signatureType = fields.get(columnIndex);
-        if (!TypeNamesMatcher.castableClasses.get(signatureType).contains(type)) {
+        if (!TypeNamesMatcher.CASTABLE_CLASSES.get(signatureType).contains(type)) {
             throw new ColumnFormatException(
-                    String.format("Types mismatch. Expected: %s, found: %s", fields.get(columnIndex).getName(), type.getName())
+                    String.format("Types mismatch. Expected: %s, found: %s",
+                            fields.get(columnIndex).getName(), type.getName())
             );
         }
     }
@@ -51,7 +52,8 @@ public class StoreableImpl implements Storeable {
         return data.get(columnIndex);
     }
 
-    private <T> T getCastedAt(int columnIndex, Class<T> tClass) throws ColumnFormatException, IndexOutOfBoundsException {
+    private <T> T getCastedAt(int columnIndex, Class<T> tClass)
+            throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         checkType(columnIndex, tClass);
         return (T) data.get(columnIndex);

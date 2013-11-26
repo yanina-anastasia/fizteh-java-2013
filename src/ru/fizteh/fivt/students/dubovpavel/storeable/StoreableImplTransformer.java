@@ -18,7 +18,8 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
 
     public boolean equal(Storeable left, Storeable right) {
         for (int index = 0; ; index++) {
-            Object leftValue, rightValue;
+            Object leftValue;
+            Object rightValue;
             try {
                 leftValue = left.getColumnAt(index);
                 try {
@@ -55,7 +56,8 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
                     if (fields.get(i).equals(String.class)) {
                         json.put(value.toString());
                     } else {
-                        json.put(fields.get(i).getMethod("valueOf", new Class[]{String.class}).invoke(null, value.toString()));
+                        json.put(fields.get(i).getMethod("valueOf", new Class[]{String.class}).invoke(
+                                null, value.toString()));
                     }
                 }
             } catch (Exception e) {

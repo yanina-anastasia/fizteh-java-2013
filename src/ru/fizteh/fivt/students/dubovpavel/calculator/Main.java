@@ -7,8 +7,8 @@ public class Main {
             for (String arg : args) {
                 concatenator.append(arg);
             }
-            Calculator ObjCalculator = new Calculator(concatenator.toString().toUpperCase());
-            System.out.println(Integer.toString(ObjCalculator.calculate(), Calculator.RADIX).toUpperCase());
+            Calculator objCalculator = new Calculator(concatenator.toString().toUpperCase());
+            System.out.println(Integer.toString(objCalculator.calculate(), Calculator.RADIX).toUpperCase());
         } catch (Calculator.InappropriateSymbolException e) {
             System.err.println(e.getMessage());
             System.exit(-1);
