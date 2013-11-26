@@ -35,6 +35,9 @@ public class JSONLogFormatter {
     }
 
     public void writeReturnValue(Object result) {
+        if (result == null) {
+            result = JSONObject.NULL;
+        }
         jsonObject = jsonObject.put(JSONAttributeNames.RETURN_VALUE.name, result);
     }
 
