@@ -290,7 +290,9 @@ public class StoreableTable implements Table, AutoCloseable {
     @Override
     public void close() {
         status.isOkForClose();
-        rollback();
+        if (status == WorkStatus.WORKING) {
+            rollback();
+        }
         status = WorkStatus.CLOSED;
     }
 

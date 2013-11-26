@@ -314,6 +314,7 @@ public class StoreableTableUnitTest {
     @Test
     public void closeTest1() throws IOException {
         ((StoreableTable) testTableEng).close();
+        ((StoreableTable) testTableEng).close();
         testTableEng = tableProvider.createTable("testTable20", typesTestListOne);
         Assert.assertNotNull(testTableEng);
     }
