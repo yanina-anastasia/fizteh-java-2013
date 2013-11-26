@@ -157,7 +157,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() {
-        state.isOkForOperations();
+        state.isOkForClose();
         for (String tableName : allTablesMap.keySet()) {
             ((StoreableTable) allTablesMap.get(tableName)).close();
         }

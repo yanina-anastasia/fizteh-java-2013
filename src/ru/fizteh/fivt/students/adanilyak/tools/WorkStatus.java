@@ -37,4 +37,12 @@ public enum WorkStatus {
         }
         /** state == 1, container ready for work */
     }
+
+    public void isOkForClose() throws IllegalStateException {
+        if (state == -1) {
+            throw new IllegalStateException("container work status: not initialized");
+        }
+        /** state == 0, container ready for work */
+        /** state == 1, container ready for work */
+    }
 }
