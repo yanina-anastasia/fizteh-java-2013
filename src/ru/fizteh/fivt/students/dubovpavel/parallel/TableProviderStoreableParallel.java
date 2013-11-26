@@ -25,8 +25,6 @@ public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBas
         lock.writeLock().lock();
         try {
             return super.createTable(name, columnTypes);
-        } catch (IOException e) {
-            throw e;
         } finally {
             lock.writeLock().unlock();
         }
@@ -34,12 +32,12 @@ public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBas
 
     @Override
     public DB getTable(final String name) {
-        return new ReadLockRunnable<DB>(lock) {
-            @Override
-            public DB runner() {
-                return TableProviderStoreableParallel.super.getTable(name);
-            }
-        }.invoke();
+        lock.readLock().lock();
+        try {
+            return super.getTable(name);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -47,8 +45,6 @@ public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBas
         lock.writeLock().lock();
         try {
             super.removeTable(name);
-        } catch (IOException e) {
-            throw e;
         } finally {
             lock.writeLock().unlock();
         }

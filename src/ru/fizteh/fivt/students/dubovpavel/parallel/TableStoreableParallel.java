@@ -64,75 +64,78 @@ public class TableStoreableParallel extends TableStoreable implements Table {
 
     @Override
     public int size() {
-        return new ReadLockRunnable<Integer>(lock) {
-                @Override
-                public Integer runner() {
-                    return TableStoreableParallel.super.size(getDict());
-                }
-        }.invoke();
+        lock.readLock().lock();
+        try {
+            return super.size(getDict());
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public Storeable put(final String key, final Storeable value) {
-        Storeable ret = new ReadLockRunnable<Storeable>(lock) {
-            @Override
-            public Storeable runner() {
-                return TableStoreableParallel.super.put(getDict(), key, value);
-            }
-        }.invoke();
-        affected.get().add(key);
-        return ret;
+        lock.readLock().lock();
+        try {
+            Storeable ret = super.put(getDict(), key, value);
+            affected.get().add(key);
+            return ret;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public Storeable get(final String key) {
-        return new ReadLockRunnable<Storeable>(lock) {
-            @Override
-            public Storeable runner() {
-                return TableStoreableParallel.super.get(getDict(), key);
-            }
-        }.invoke();
+        lock.readLock().lock();
+        try {
+            return super.get(getDict(), key);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public Storeable remove(final String key) {
-        Storeable ret = new ReadLockRunnable<Storeable>(lock) {
-            @Override
-            public Storeable runner() {
-                return TableStoreableParallel.super.remove(getDict(), key);
-            }
-        }.invoke();
-        affected.get().add(key);
-        return ret;
+        lock.readLock().lock();
+        try {
+            Storeable ret = super.remove(getDict(), key);
+            affected.get().add(key);
+            return ret;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public int rollback() {
-        int ret = new ReadLockRunnable<Integer>(lock) {
-            @Override
-            public Integer runner() {
-                return TableStoreableParallel.super.rollback(getDict());
-            }
-        }.invoke();
-        affected.get().clear();
-        return ret;
+        lock.readLock().lock();
+        try {
+            int ret = super.rollback(getDict());
+            affected.get().clear();
+            return ret;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
     public int commit() {
         lock.writeLock().lock();
-        HashMap<String, Storeable> memorized = localDict;
-        localDict = new HashMap<>();
-        copyHashMap(getDict(), localDict);
-        int committed = super.commit();
-        if(committed == -1) {
-            localDict = memorized;
-        } else {
-            affected.get().clear();
-            sync.clear();
-            sync.add(Thread.currentThread().getId());
+        try {
+            HashMap<String, Storeable> memorized = localDict;
+            localDict = new HashMap<>();
+            copyHashMap(getDict(), localDict);
+            int committed = super.commit();
+            if(committed == -1) {
+                localDict = memorized;
+            } else {
+                affected.get().clear();
+                sync.clear();
+                sync.add(Thread.currentThread().getId());
+            }
+            return committed;
+        } finally {
+            lock.writeLock().unlock();
         }
-        lock.writeLock().unlock();
-        return committed;
     }
 }
