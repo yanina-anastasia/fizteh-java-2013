@@ -374,7 +374,7 @@ public class MultiDbState extends State implements Table {
     
     @Override
     public String toString() {
-        String result = getClass().getSimpleName() + "[" + rootPath + "]";
+        String result = getClass().getSimpleName() + "[" + shell.currentDir.getAbsolutePath() + "]";
         return result;
     }
 }
