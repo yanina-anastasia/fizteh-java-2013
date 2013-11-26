@@ -54,70 +54,56 @@ class FileDatabase implements AutoCloseable {
     }
     
     public void save() throws IOException {
-        readLock.lock();
-        try {
-            if (isChanged) {
-                readLock.unlock();
-                writeLock.lock();
-                try {
-                    if (isChanged) {
-                        try {
-                            Files.createDirectories(dbFilePath.getParent());
-                            
-                        } catch (IOException e) {
-                            throw new IOException("Error while saving database file: "
-                                    + "couldn't create a directory "
-                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                        }
+        if (isChanged) {
+            writeLock.lock();
+            try {
+                if (isChanged) {
+                    try {
+                        Files.createDirectories(dbFilePath.getParent());
                         
-                        try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
-                            writeDataToFile(dbFile);
-                            
-                        } catch (IOException e) {
-                            throw new IOException("Error while saving database file or while saving changes: "
-                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                        }
-                        
-                        try {
-                            deleteIfEmpty();
-                            
-                        } catch (IOException e) {
-                            throw new IOException("Error while saving database file: "
-                                    + "couldn't delete a file or a directory "
-                                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                        }
-                        
-                        isChanged = false;
+                    } catch (IOException e) {
+                        throw new IOException("Error while saving database file: "
+                                + "couldn't create a directory "
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
                     }
-                    readLock.lock();
-                } finally {
-                    writeLock.unlock();
+                    
+                    try (RandomAccessFile dbFile = new RandomAccessFile(dbFilePath.toFile(), "rw")) {
+                        writeDataToFile(dbFile);
+                        
+                    } catch (IOException e) {
+                        throw new IOException("Error while saving database file or while saving changes: "
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                    }
+                    
+                    try {
+                        deleteIfEmpty();
+                        
+                    } catch (IOException e) {
+                        throw new IOException("Error while saving database file: "
+                                + "couldn't delete a file or a directory "
+                                + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+                    }
+                    
+                    isChanged = false;
                 }
+            } finally {
+                writeLock.unlock();
             }
-        } finally {
-            readLock.unlock();
         }
         
     }
     
     private void loadDatabaseIfNotLoaded() throws IOException {
-        readLock.lock();
-        try {
-            if (!isLoaded) {
-                readLock.unlock();
-                writeLock.lock();
-                try {
-                    if (!isLoaded) {
-                        isLoaded = true;
-                        loadDatabase();
-                    }
-                readLock.lock();
-                } finally {
-                    writeLock.unlock();
+        if (!isLoaded) {
+            writeLock.lock();
+            try {
+                if (!isLoaded) {
+                    loadDatabase();
+                    isLoaded = true;
                 }
+            } finally {
+                writeLock.unlock();
             }
-        } finally {
-            readLock.unlock();
         }
     }
     

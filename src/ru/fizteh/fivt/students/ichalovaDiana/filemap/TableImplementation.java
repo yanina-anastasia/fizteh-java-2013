@@ -19,8 +19,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 public class TableImplementation implements Table {
     private static final int DIR_NUM = 16;
     private static final int FILE_NUM = 16;
-    
-    private final Path databaseDirectory;
+
     private final String tableName;
     private final TableProvider tableProvider;
     private final List<Class<?>> columnTypes;
@@ -60,7 +59,6 @@ public class TableImplementation implements Table {
             String tableName, List<Class<?>> columnTypes) throws IOException {
 
         this.tableProvider = tableProvider;
-        this.databaseDirectory = databaseDirectory;
         this.tableName = tableName;
         this.columnTypes = columnTypes;
         
