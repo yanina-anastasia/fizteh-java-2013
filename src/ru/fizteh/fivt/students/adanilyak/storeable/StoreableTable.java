@@ -282,7 +282,6 @@ public class StoreableTable implements Table, AutoCloseable {
     }
 
     public List<Class<?>> getColumnTypes() {
-        status.isOkForOperations();
         return columnTypes;
     }
 
