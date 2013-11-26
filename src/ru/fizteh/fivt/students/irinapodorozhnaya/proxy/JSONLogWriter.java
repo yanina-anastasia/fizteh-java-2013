@@ -35,7 +35,7 @@ public class JSONLogWriter implements AutoCloseable {
     }
 
     public void writeMethod(Method method) {
-        jsonObject.put("method", method.getName());
+        jsonObject.put("name", method.getName());
     }
 
     public void writeReturnValue(Object value) {
