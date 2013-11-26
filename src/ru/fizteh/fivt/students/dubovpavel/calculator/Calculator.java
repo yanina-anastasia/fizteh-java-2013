@@ -277,7 +277,6 @@ class Calculator {
                     break;
                 default:
                     throw new RuntimeException(BUG);
-                    break;
             }
         }
         if (!operations.empty()) {
