@@ -96,7 +96,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             xmlWriter.writeStartElement("invoke");
             xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
             xmlWriter.writeAttribute("name", method.getName());
-            xmlWriter.writeAttribute("class", method.getDeclaringClass().getName());
+            xmlWriter.writeAttribute("class", implementation.getClass().getName());
 
             xmlWriter.writeStartElement("arguments");
             writeArguments(xmlWriter, args);
