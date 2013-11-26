@@ -102,7 +102,7 @@ class ConsoleLoggerInvocationHandler implements InvocationHandler {
         JSONObject log = new JSONObject();
         log.put("timestamp", System.currentTimeMillis());
         log.put("class", implementation.getClass().getName());
-        log.put("name", method.getName());
+        log.put("method", method.getName());
         if (args == null || args.length == 0) {
             log.put("arguments", new Object[0]);
         } else {

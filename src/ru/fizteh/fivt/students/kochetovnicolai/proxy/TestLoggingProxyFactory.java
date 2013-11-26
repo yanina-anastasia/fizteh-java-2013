@@ -49,7 +49,7 @@ public class TestLoggingProxyFactory {
                 + "\"arguments\":[[\"cyclic\",[\"123\",\"456\", cyclic]]],"
                 + "\"returnValue\":[42,3.1415,\"abracadabra\",true,null, cyclic],"
                 + "\"class\":\"" + executable.getClass().getName() + "\","
-                + "\"name\":\"execute\""
+                + "\"method\":\"execute\""
                 + "}";
         JSONObject expectedJSON = new JSONObject(expected);
         //System.out.println(expectedJSON);
@@ -111,7 +111,7 @@ public class TestLoggingProxyFactory {
                 + "\"thrown\":\"java.lang.ArrayIndexOutOfBoundsException: 1\","
                 + "\"arguments\":[[null]],"
                 + "\"class\":\"" + executable.getClass().getName() + "\","
-                + "\"name\":\"execute\""
+                + "\"method\":\"execute\""
                 + "}";
             JSONObject expectedJSON = new JSONObject(expected);
             //System.out.println(expectedJSON);
@@ -143,7 +143,7 @@ public class TestLoggingProxyFactory {
                 + "\"arguments\":[],"
                 + "\"class\":\"" + executable.getClass().getName() + "\","
                 + "\"returnValue\":null,"
-                + "\"name\":\"foo\""
+                + "\"method\":\"foo\""
                 + "}";
         JSONObject expectedJSON = new JSONObject(expected);
         //System.out.println(expectedJSON);
