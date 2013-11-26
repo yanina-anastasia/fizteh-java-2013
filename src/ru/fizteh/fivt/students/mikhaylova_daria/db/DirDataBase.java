@@ -18,7 +18,6 @@ public class DirDataBase {
     FileMap[] fileArray = new FileMap[16];
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private final Lock myWriteLock = readWriteLock.writeLock();
 
 
     private final Lock creatingLock = new ReentrantLock();
@@ -88,7 +87,7 @@ public class DirDataBase {
     }
 
     int commit() {
-        myWriteLock.lock();
+        creatingLock.lock();
         try {
             int numberOfChanges = 0;
             for (int i = 0; i < 16; ++i) {
@@ -105,7 +104,7 @@ public class DirDataBase {
             }
             return numberOfChanges;
         } finally {
-            myWriteLock.unlock();
+            creatingLock.unlock();
         }
     }
 
