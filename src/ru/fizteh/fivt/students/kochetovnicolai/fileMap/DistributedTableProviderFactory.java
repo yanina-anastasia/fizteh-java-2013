@@ -8,9 +8,29 @@ import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class DistributedTableProviderFactory implements TableProviderFactory {
+public class DistributedTableProviderFactory implements TableProviderFactory, AutoCloseable {
     private HashMap<String, DistributedTableProvider> providers;
     private final Lock lock = new ReentrantLock();
+
+    private void checkState() throws IllegalStateException {
+        if (providers == null) {
+            throw new IllegalStateException("factory already closed");
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        checkState();
+        lock.lock();
+        try {
+            for (DistributedTableProvider provider : providers.values()) {
+                provider.close();
+            }
+            providers = null;
+        } finally {
+            lock.unlock();
+        }
+    }
 
     public DistributedTableProviderFactory() {
         providers = new HashMap<>();
@@ -18,6 +38,7 @@ public class DistributedTableProviderFactory implements TableProviderFactory {
 
     @Override
     public DistributedTableProvider create(String dir) throws IOException, IllegalArgumentException {
+        checkState();
         if (dir == null || dir.equals("")) {
             throw new IllegalArgumentException("directory couldn't be null");
         }
