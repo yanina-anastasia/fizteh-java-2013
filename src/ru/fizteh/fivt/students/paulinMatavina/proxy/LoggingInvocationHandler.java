@@ -46,21 +46,22 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
     private void writeList(XMLStreamWriter writer, Iterable<?> list, IdentityHashMap<Object, Boolean> map) 
                                                                            throws XMLStreamException {  
-        map.put(list, true);
-        for (Object listElement : list) {
+        if (map.containsKey(list)) {
+            writer.writeCharacters("cyclic");
+            return;
+        }
+        for (Object element : list) {
             writer.writeStartElement("value");
-            if (map.containsKey(listElement)) {
-                writer.writeCharacters("cyclic");
-            } else if (listElement == null) {
+
+            if (element == null) {
                 writeNull(writer);
+            } else if (element instanceof Iterable) {
+                writer.writeStartElement("list");
+                map.put(element, true);
+                writeList(writer, (Iterable<?>) element, map);
+                writer.writeEndElement();
             } else {
-                if (listElement instanceof Iterable) {
-                    writer.writeStartElement("list");
-                    writeList(writer, list, map);
-                    writer.writeEndElement();
-                } else {
-                    writer.writeCharacters(listElement.toString());
-                }
+                writer.writeCharacters(element.toString());
             }
             writer.writeEndElement();
         }
