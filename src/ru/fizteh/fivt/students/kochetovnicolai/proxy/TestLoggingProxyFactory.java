@@ -142,6 +142,7 @@ public class TestLoggingProxyFactory {
         String expected = "{"
                 + "\"arguments\":[],"
                 + "\"class\":\"" + executable.getClass().getName() + "\","
+                + "\"returnValue\":null,"
                 + "\"name\":\"foo\""
                 + "}";
         JSONObject expectedJSON = new JSONObject(expected);
