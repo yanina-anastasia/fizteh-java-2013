@@ -15,18 +15,18 @@ import ru.fizteh.fivt.students.piakovenko.shell.Remove;
 import ru.fizteh.fivt.students.piakovenko.shell.Shell;
 
 import java.io.*;
-import java.lang.Math;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class DataBase implements Table {
     private String name;
     private RandomAccessFile raDataBaseFile = null;
-    //private DataBaseMap map = null;
     private Map<String, Storeable> map = null;
     private Shell shell = null;
     private File dataBaseStorage = null;
@@ -34,29 +34,30 @@ public class DataBase implements Table {
     private final String nameOfFileWithTypes = "signature.tsv";
     private ThreadLocal<Transaction> transaction;
     protected final Lock lock = new ReentrantLock(true);
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
 
     private class Transaction {
-        private Map<String, Storeable> _newMap;
+        private Map<String, Storeable> newMap;
 
         public Transaction() {
-            this._newMap = new HashMap<String, Storeable>();
+            this.newMap = new HashMap<String, Storeable>();
         }
 
         public void put(String key, Storeable value) {
-            _newMap.put(key, value);
+            newMap.put(key, value);
         }
 
         public Storeable get(String key) {
-            if (_newMap.containsKey(key)) {
-                return _newMap.get(key);
+            if (newMap.containsKey(key)) {
+                return newMap.get(key);
             }
             return map.get(key);
         }
 
         public int commit() {
             int count = 0;
-            for (String key : _newMap.keySet()) {
-                Storeable value = _newMap.get(key);
+            for (String key : newMap.keySet()) {
+                Storeable value = newMap.get(key);
                 if (isChanged(value, map.get(key))) {
                     if (value == null) {
                         map.remove(key);
@@ -71,7 +72,7 @@ public class DataBase implements Table {
 
 
         public void clearMap() {
-            _newMap.clear();
+            newMap.clear();
         }
 
         public int transactionGetSize() {
@@ -80,9 +81,9 @@ public class DataBase implements Table {
 
         public int calcChanges() {
             int count = 0;
-            for (final String key : _newMap.keySet()) {
-                Storeable _new = _newMap.get(key);
-                if (isChanged(_new, map.get(key))) {
+            for (final String key : newMap.keySet()) {
+                Storeable newKey = newMap.get(key);
+                if (isChanged(newKey, map.get(key))) {
                     ++count;
                 }
             }
@@ -91,26 +92,26 @@ public class DataBase implements Table {
 
         private int calcSize() {
             int count = 0;
-            for (final String key : _newMap.keySet()) {
-                Storeable _new = _newMap.get(key);
-                Storeable _old = map.get(key);
-                if (_new == null && _old != null) {
+            for (final String key : newMap.keySet()) {
+                Storeable newValue = newMap.get(key);
+                Storeable oldValue = map.get(key);
+                if (newValue == null && oldValue != null) {
                     --count;
-                } else if (_new != null && _old == null) {
+                } else if (newValue != null && oldValue == null) {
                     ++count;
                 }
             }
             return count;
         }
 
-        private boolean isChanged (Storeable _old, Storeable _new) {
-            if (_new == null && _old == null) {
+        private boolean isChanged(Storeable oldValue, Storeable newValue) {
+            if (newValue == null && oldValue == null) {
                 return false;
             }
-            if (_new == null || _old == null) {
+            if (newValue == null || oldValue == null) {
                 return true;
             }
-            return !_old.equals(_new);
+            return !oldValue.equals(newValue);
         }
 
     }
@@ -137,34 +138,20 @@ public class DataBase implements Table {
         throw new ColumnFormatException("Alien storeable with more columns");
     }
 
-    private boolean isValidNameDirectory(String name){
-        if (name.length() < 5 || name.length() > 6)
-            return false;
-        int number = Integer.parseInt(name.substring(0, name.indexOf('.')), 10);
-        if (number > 15 || number < 0)
-            return false;
-        if (!name.substring(name.indexOf('.') + 1).equals("dir"))
-            return false;
-        return true;
+    private boolean isValidNameDirectory(String name) {
+        return Checker.isValidFileNumber(name);
     }
 
-    private boolean isValidNameFile(String name){
-        if (name.length() < 5 || name.length() > 6)
-            return false;
-        int number = Integer.parseInt(name.substring(0, name.indexOf('.')), 10);
-        if (number > 15 || number < 0)
-            return false;
-        if (!name.substring(name.indexOf('.') + 1).equals("dat"))
-            return false;
-        return true;
+    private boolean isValidNameFile(String name) {
+        return Checker.isValidFileNumber(name);
     }
 
-    private int ruleNumberDirectory (String key) {
+    private int ruleNumberDirectory(String key) {
         int b = Math.abs(key.getBytes()[0]);
         return b % 16;
     }
 
-    private int ruleNumberFile (String key) {
+    private int ruleNumberFile(String key) {
         int b = Math.abs(key.getBytes()[0]);
         return b / 16 % 16;
     }
@@ -199,7 +186,8 @@ public class DataBase implements Table {
                 length -= l2;
             }
             try {
-                map.put(new String(key, StandardCharsets.UTF_8), JSONSerializer.deserialize(this, new String(value, StandardCharsets.UTF_8)));
+                map.put(new String(key, StandardCharsets.UTF_8), JSONSerializer.deserialize(
+                        this, new String(value, StandardCharsets.UTF_8)));
             } catch (ParseException e) {
                 System.err.println("readFromFile: problem with desereliaze" + e.getMessage());
                 System.exit(1);
@@ -207,7 +195,7 @@ public class DataBase implements Table {
         }
     }
 
-    private void readFromFile (File storage, int numberOfDirectory) throws IOException {
+    private void readFromFile(File storage, int numberOfDirectory) throws IOException {
         RandomAccessFile ra = null;
         try {
             ra = new RandomAccessFile(storage, "rw");
@@ -263,7 +251,7 @@ public class DataBase implements Table {
         }
     }
 
-    private void saveToFile () throws IOException {
+    private void saveToFile() throws IOException {
         long length  = 0;
         raDataBaseFile.seek(0);
         for (String key: map.keySet()) {
@@ -294,23 +282,23 @@ public class DataBase implements Table {
         }
     }
 
-    private void saveToDirectory() throws IOException{
+    private void saveToDirectory() throws IOException {
         if (dataBaseStorage.exists()) {
             Remove.removeRecursively(dataBaseStorage);
         }
-        if (!dataBaseStorage.mkdirs()){
+        if (!dataBaseStorage.mkdirs()) {
             throw new IOException("Unable to create this directory - " + dataBaseStorage.getCanonicalPath());
         }
         for (String key : map.keySet()) {
             Integer numberOfDirectory = ruleNumberDirectory(key);
             Integer numberOfFile = ruleNumberFile(key);
-            File directory = new File (dataBaseStorage, numberOfDirectory.toString() + ".dir");
+            File directory = new File(dataBaseStorage, numberOfDirectory.toString() + ".dir");
             if (!directory.exists()) {
-                if (!directory.mkdirs()){
+                if (!directory.mkdirs()) {
                     throw new IOException("Unable to create this directory - " + directory.getCanonicalPath());
                 }
             }
-            File writeFile = new File(directory, numberOfFile.toString() + ".dat" );
+            File writeFile = new File(directory, numberOfFile.toString() + ".dat");
             if (!writeFile.exists()) {
                 writeFile.createNewFile();
             }
@@ -318,7 +306,7 @@ public class DataBase implements Table {
         }
     }
 
-    private void loadDataBase (File dataBaseFile) throws IOException {
+    private void loadDataBase(File dataBaseFile) throws IOException {
         raDataBaseFile = new RandomAccessFile(dataBaseFile, "rw");
         try {
             readFromFile();
@@ -337,7 +325,7 @@ public class DataBase implements Table {
         }
     }
 
-    private void loadFromDirectory (File directory) throws IOException {
+    private void loadFromDirectory(File directory) throws IOException {
         for (File f : directory.listFiles()) {
             if (!isValidNameDirectory(f.getName())) {
                 throw new IOException("Wrong name of directory!");
@@ -347,31 +335,7 @@ public class DataBase implements Table {
         }
     }
 
-    private void readClasses() throws IOException {
-        File fileWithClasses = null;
-        if (dataBaseStorage.isDirectory()) {
-            fileWithClasses = new File(nameOfFileWithTypes);
-        } else {
-            fileWithClasses = new File (dataBaseStorage.getParent(), nameOfFileWithTypes);
-        }
-        if (!fileWithClasses.exists()) {
-            throw new IOException("no file with classes!");
-        }
-        BufferedReader reader = new BufferedReader(new FileReader(fileWithClasses));
-        String types = reader.readLine();
-        Class<?> temp = null;
-        for (String type : types.trim().split("\\s")){
-            temp = ColumnTypes.fromNameToType(type);
-            if (temp == null) {
-                throw new IOException("wrong type!");
-            } else {
-                storeableClasses.add(temp);
-            }
-        }
-    }
-
-    public DataBase (Shell sl, File storage, TableProvider _parent, List<Class<?>> columnTypes) {
-        //map = new DataBaseMap();
+    public DataBase(Shell sl, File storage, TableProvider parent, List<Class<?>> columnTypes) {
         map = new HashMap<String, Storeable>();
         shell  = sl;
         dataBaseStorage = storage;
@@ -385,8 +349,7 @@ public class DataBase implements Table {
         };
     }
 
-    public DataBase (Shell sl, File storage, TableProvider _parent) {
-        //map = new DataBaseMap();
+    public DataBase(Shell sl, File storage, TableProvider parent) {
         map = new HashMap<String, Storeable>();
         shell  = sl;
         dataBaseStorage = storage;
@@ -400,7 +363,7 @@ public class DataBase implements Table {
     }
 
 
-    public void load () throws IOException {
+    public void load() throws IOException {
         if (dataBaseStorage.isFile()) {
             loadDataBase(dataBaseStorage);
         } else {
@@ -408,11 +371,11 @@ public class DataBase implements Table {
         }
     }
 
-    public String getName () {
+    public String getName() {
         return name;
     }
 
-    public void initialize (GlobalFileMapState state) {
+    public void initialize(GlobalFileMapState state) {
         shell.addCommand(new Exit(state));
         shell.addCommand(new Put(state));
         shell.addCommand(new Get(state));
@@ -425,7 +388,7 @@ public class DataBase implements Table {
         }
     }
 
-    public void saveDataBase () throws IOException {
+    public void saveDataBase() throws IOException {
         if (dataBaseStorage.isFile()) {
             try {
                 saveToFile();
@@ -437,36 +400,44 @@ public class DataBase implements Table {
         }
     }
 
-    public Storeable get (String key) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Table name cannot be null");
+    public Storeable get(String key) throws IllegalArgumentException {
+        try {
+            readWriteLock.readLock().lock();
+            Checker.stringNotEmpty(key);
+            return transaction.get().get(key);
+        } finally {
+            readWriteLock.readLock().unlock();
         }
-        return transaction.get().get(key);
     }
 
-    public Storeable put (String key, Storeable value) throws IllegalArgumentException {
-        if ((key == null) || (key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Key can not be null");
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        try {
+            readWriteLock.writeLock().lock();
+            Checker.stringNotEmpty(key);
+            Checker.keyFormat(key);
+            if (value == null) {
+                throw new IllegalArgumentException("Value cannot be null");
+            }
+            checkAlienStoreable(value);
+            Storeable oldValue = transaction.get().get(key);
+            transaction.get().put(key, value);
+            return oldValue;
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
-        if (key.matches("\\s*") || key.split("\\s+").length != 1) {
-            throw new IllegalArgumentException("Key contains whitespaces");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("Value cannot be null");
-        }
-        checkAlienStoreable(value);
-        Storeable oldValue = transaction.get().get(key);
-        transaction.get().put(key, value);
-        return oldValue;
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Key name cannot be null");
+        try {
+            readWriteLock.writeLock().lock();
+            Checker.stringNotEmpty(key);
+            Storeable oldValue = transaction.get().get(key);
+            transaction.get().put(key, null);
+            transaction.get().calcChanges();
+            return oldValue;
+        } finally {
+            readWriteLock.writeLock().unlock();
         }
-        Storeable oldValue = transaction.get().get(key);
-        transaction.get().put(key, null);
-        return oldValue;
     }
 
     public File returnFiledirectory() {
@@ -474,24 +445,28 @@ public class DataBase implements Table {
     }
 
     public int size() {
-        System.out.println(transaction.get().transactionGetSize());
-        return transaction.get().transactionGetSize();
+        try {
+            lock.lock();
+            System.out.println(transaction.get().transactionGetSize());
+            return transaction.get().transactionGetSize();
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public int commit () {
+    public int commit() {
         try {
             lock.lock();
             int changesCount = transaction.get().commit();
             transaction.get().clearMap();
             return changesCount;
-        }
-        finally {
+        } finally {
             lock.unlock();
         }
     }
 
-    public int rollback () {
-        try{
+    public int rollback() {
+        try {
             lock.lock();
             int count = transaction.get().calcChanges();
             transaction.get().clearMap();
