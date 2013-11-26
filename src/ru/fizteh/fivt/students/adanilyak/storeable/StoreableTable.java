@@ -300,6 +300,15 @@ public class StoreableTable implements Table, AutoCloseable {
         amountOfChanges.set(0);
     }
 
+    public boolean isOkForOperations() {
+        try {
+            status.isOkForOperations();
+        } catch (IllegalStateException exc) {
+            return false;
+        }
+        return true;
+    }
+
     public int getAmountOfChanges() {
         status.isOkForOperations();
         return amountOfChanges.get();

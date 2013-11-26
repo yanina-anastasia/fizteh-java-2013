@@ -74,7 +74,15 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         try {
             lock.lock();
             if (!tableFile.mkdir()) {
-                return null;
+                if (((StoreableTable) (getTable(tableName))).isOkForOperations()) {
+                    return null;
+                } else {
+                    removeTable(tableName);
+                    tableFile.mkdir();
+                    Table newTable = new StoreableTable(tableFile, columnTypes, this);
+                    allTablesMap.put(tableName, newTable);
+                    return newTable;
+                }
             }
             Table newTable = new StoreableTable(tableFile, columnTypes, this);
             allTablesMap.put(tableName, newTable);
