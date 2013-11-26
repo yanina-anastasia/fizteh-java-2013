@@ -120,9 +120,4 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
         }
         return activeTable.rollback();
     }
-
-    @Override
-    public void exit() throws DatabaseException {
-        tableProvider.exit();
-    }
 }

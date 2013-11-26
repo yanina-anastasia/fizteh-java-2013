@@ -18,10 +18,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MultiFileHashTable implements Table {
-    private HashMap<String, Storeable> table;
-    private HashMap<String, Storeable> newValues;
+    private final HashMap<String, Storeable>[][] table;
+    private final ThreadLocal<HashMap<String, Storeable>> newValues;
 
     private final ArrayList<Class<?>> types;
 
@@ -29,6 +31,12 @@ public class MultiFileHashTable implements Table {
     private final File tableDirectory;
 
     private final TableProvider myTableProvider;
+
+    private volatile boolean isRemoved = false;
+
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
 
     private static final int ALL_DIRECTORIES = 16;
     private static final int FILES_IN_DIRECTORY = 16;
@@ -68,7 +76,7 @@ public class MultiFileHashTable implements Table {
             }
             if (!isSupportedType(type)) {
                 throw new IllegalArgumentException("wrong type (unsupported table type "
-                                                    + type.getCanonicalName() + ")");
+                        + type.getCanonicalName() + ")");
             }
             this.types.add(type);
         }
@@ -81,8 +89,13 @@ public class MultiFileHashTable implements Table {
 
         writeSignatureFile();
 
-        table = new HashMap<>();
-        newValues = new HashMap<>();
+        table = new HashMap[ALL_DIRECTORIES][FILES_IN_DIRECTORY];
+        newValues = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            protected HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
         readTable();
     }
 
@@ -93,11 +106,13 @@ public class MultiFileHashTable implements Table {
 
     @Override
     public String getName() {
+        checkState();
         return tableName;
     }
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
+        checkState();
         if (key == null) {
             throw new IllegalArgumentException("Key must be not null");
         }
@@ -105,14 +120,22 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
-        if (newValues.containsKey(key)) {
-            return newValues.get(key);
+        if (newValues.get().containsKey(key)) {
+            return newValues.get().get(key);
         }
-        return table.get(key);
+
+        readLock.lock();
+        try {
+            return getFromTable(key);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        checkState();
+
         if (key == null) {
             throw new IllegalArgumentException("Key must be not null");
         }
@@ -130,17 +153,15 @@ public class MultiFileHashTable implements Table {
         }
 
         Storeable oldValue = get(key);
-        if (isEqualStoreable(value, table.get(key))) {
-            newValues.remove(key);
-        } else {
-            newValues.put(key, value);
-        }
+        newValues.get().put(key, value);
 
         return oldValue;
     }
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
+        checkState();
+
         if (key == null) {
             throw new IllegalArgumentException("Key must be not null");
         }
@@ -149,101 +170,135 @@ public class MultiFileHashTable implements Table {
         }
 
         Storeable oldValue = get(key);
-        newValues.put(key, null);
+        newValues.get().put(key, null);
 
         return oldValue;
     }
 
     public void removeTable() throws DatabaseException {
-        removeDataFiles();
-        FileUtils.remove(tableDirectory);
+        checkState();
+
+        writeLock.lock();
+        try {
+            isRemoved = true;
+            removeDataFiles();
+            FileUtils.remove(tableDirectory);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
     public int size() {
-        int tableSize = table.size();
-        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            Storeable savedValue = table.get(key);
-            if (savedValue == null) {
-                if (value != null) {
-                    ++tableSize;
-                }
-            } else {
-                if (value == null) {
-                    --tableSize;
+        checkState();
+        readLock.lock();
+        try {
+            int tableSize = getTableSize();
+            for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                Storeable savedValue = getFromTable(key);
+                if (savedValue == null) {
+                    if (value != null) {
+                        ++tableSize;
+                    }
+                } else {
+                    if (value == null) {
+                        --tableSize;
+                    }
                 }
             }
-        }
 
-        return tableSize;
+            return tableSize;
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public int commit() throws IOException {
-        int changes = 0;
-        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            if (value == null) {
-                if (table.remove(key) != null) {
-                    ++changes;
-                }
-            } else {
-                Storeable oldValue = table.put(key, value);
-                if (!isEqualStoreable(value, oldValue)) {
-                    ++changes;
+        checkState();
+
+        writeLock.lock();
+        try {
+            int changes = 0;
+            HashSet<ChangedFile> changesFile = new HashSet<>();
+
+            for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                if (value == null) {
+                    if (removeFromTable(key) != null) {
+                        ++changes;
+                        changesFile.add(new ChangedFile(key));
+                    }
+                } else {
+                    Storeable oldValue = putToTable(key, value);
+                    if (!isEqualStoreable(value, oldValue)) {
+                        ++changes;
+                        changesFile.add(new ChangedFile(key));
+                    }
                 }
             }
+
+            try {
+                writeChanges(changesFile);
+            } catch (DatabaseException e) {
+                throw new IOException("Database io error", e);
+            }
+
+            newValues.get().clear();
+
+            return changes;
+        } finally {
+            writeLock.unlock();
         }
-
-        try {
-            writeTable();
-        } catch (DatabaseException e) {
-            throw new IOException("Database io error", e);
-        }
-
-        newValues.clear();
-
-        return changes;
     }
 
     @Override
     public int rollback() {
+        checkState();
+
         int changes = uncommittedChanges();
-        newValues.clear();
+        newValues.get().clear();
         return changes;
     }
 
     @Override
     public int getColumnsCount() {
+        checkState();
         return types.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        checkState();
+
         return types.get(columnIndex);
     }
 
     public int uncommittedChanges() {
-        int changes = 0;
-        for (Map.Entry<String, Storeable> entry : newValues.entrySet()) {
-            String key = entry.getKey();
-            Storeable value = entry.getValue();
-            if (!isEqualStoreable(value, table.get(key))) {
-                ++changes;
+        checkState();
+        readLock.lock();
+        try {
+            int changes = 0;
+            for (Map.Entry<String, Storeable> entry : newValues.get().entrySet()) {
+                String key = entry.getKey();
+                Storeable value = entry.getValue();
+                if (!isEqualStoreable(value, getFromTable(key))) {
+                    ++changes;
+                }
             }
-        }
 
-        return changes;
+            return changes;
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    public void exit() throws DatabaseException {
-        try {
-            writeTable();
-        } catch (IOException e) {
-            throw new DatabaseException("Database io error", e);
+    private void checkState() {
+        if (isRemoved) {
+            throw new IllegalStateException("Table + '" + tableName + "' is removed");
         }
     }
 
@@ -263,29 +318,36 @@ public class MultiFileHashTable implements Table {
         }
     }
 
-    private void writeTable() throws DatabaseException, IOException {
-        removeDataFiles();
-
-        writeSignatureFile();
-
-        if (table.size() == 0) {
+    private void writeChanges(HashSet<ChangedFile> changes) throws DatabaseException, IOException {
+        if (changes.isEmpty()) {
             return;
         }
 
-        for (Map.Entry<String, Storeable> entry : table.entrySet()) {
-            byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
-            byte[] value = serialize(entry.getValue()).getBytes(StandardCharsets.UTF_8);
+        removeChangesFile(changes);
+
+        for (ChangedFile file : changes) {
+            if (table[file.directoryId][file.fileId] == null) {
+                throw new DatabaseException("Table [" + file.directoryId + "][" + file.fileId + "] "
+                        + "expected not null");
+            }
+            if (table[file.directoryId][file.fileId].isEmpty()) {
+                continue;
+            }
 
             File directory = FileUtils.makeDir(tableDirectory.getAbsolutePath()
-                                                + File.separator + getDirectoryName(key[0]));
-            File dbFile = FileUtils.makeFile(directory.getAbsolutePath(), getFileName(key[0]));
-
+                    + File.separator + file.directoryId + ".dir");
+            File dbFile = FileUtils.makeFile(directory.getAbsolutePath(), file.fileId + ".dat");
 
             try (FileOutputStream output = new FileOutputStream(dbFile, true)) {
-                output.write(ByteBuffer.allocate(4).putInt(key.length).array());
-                output.write(ByteBuffer.allocate(4).putInt(value.length).array());
-                output.write(key);
-                output.write(value);
+                for (Map.Entry<String, Storeable> entry : table[file.directoryId][file.fileId].entrySet()) {
+                    byte[] key = entry.getKey().getBytes(StandardCharsets.UTF_8);
+                    byte[] value = serialize(entry.getValue()).getBytes(StandardCharsets.UTF_8);
+
+                    output.write(ByteBuffer.allocate(4).putInt(key.length).array());
+                    output.write(ByteBuffer.allocate(4).putInt(value.length).array());
+                    output.write(key);
+                    output.write(value);
+                }
             }
         }
     }
@@ -293,12 +355,13 @@ public class MultiFileHashTable implements Table {
     private static List<Class<?>> getTypes(String workingDirectory,
                                            String tableName) throws IOException {
         File signatureFile = new File(workingDirectory + File.separator + tableName
-                                        + File.separator + SIGNATURE_FILE_NAME);
+                + File.separator + SIGNATURE_FILE_NAME);
         if (!signatureFile.exists()) {
             throw new IOException("Signature file is not exist (table '" + tableName + "')");
         }
         ArrayList<Class<?>> types = new ArrayList<>();
-        try (Scanner signatureScanner = new Scanner(new FileInputStream(signatureFile))) {
+        try (FileInputStream signatureStream = new FileInputStream(signatureFile);
+             Scanner signatureScanner = new Scanner(signatureStream)) {
             if (!signatureScanner.hasNextLine()) {
                 throw new IOException("Signature file is empty (table '" + tableName + "')");
             }
@@ -340,7 +403,7 @@ public class MultiFileHashTable implements Table {
 
                         default:
                             throw new IOException("Signature file contain unsupported type '"
-                                                    + type + "' (table '" + tableName + "')");
+                                    + type + "' (table '" + tableName + "')");
                     }
                 }
             }
@@ -351,7 +414,8 @@ public class MultiFileHashTable implements Table {
 
     private void writeSignatureFile() throws IOException {
         File signatureFile = FileUtils.makeFile(tableDirectory.getAbsolutePath(), SIGNATURE_FILE_NAME);
-        try (BufferedWriter signatureWriter = new BufferedWriter(new FileWriter(signatureFile))) {
+        try (FileWriter signatureFileWriter = new FileWriter(signatureFile);
+             BufferedWriter signatureWriter = new BufferedWriter(signatureFileWriter)) {
             for (int i = 0; i < getColumnsCount(); ++i) {
                 if (getColumnType(i).equals(Integer.class)) {
                     signatureWriter.write("int");
@@ -379,22 +443,74 @@ public class MultiFileHashTable implements Table {
         }
     }
 
-    private String getDirectoryName(byte keyByte) {
+    private static int getDirectoryId(byte keyByte) {
         if (keyByte < 0) {
             keyByte *= -1;
         }
-        return Integer.toString((keyByte % ALL_DIRECTORIES + ALL_DIRECTORIES) % ALL_DIRECTORIES) + ".dir";
+
+        return (keyByte % ALL_DIRECTORIES + ALL_DIRECTORIES) % ALL_DIRECTORIES;
     }
 
-    private String getFileName(byte keyByte) {
+    private static int getFileId(byte keyByte) {
         if (keyByte < 0) {
             keyByte *= -1;
         }
-        return Integer.toString(((keyByte / ALL_DIRECTORIES)
-                                    + FILES_IN_DIRECTORY) % FILES_IN_DIRECTORY) + ".dat";
+
+        return ((keyByte / ALL_DIRECTORIES)
+                + FILES_IN_DIRECTORY) % FILES_IN_DIRECTORY;
     }
 
-    private boolean isCorrectDirectoryName(String name) {
+    private HashMap<String, Storeable> getKeyTable(String key, boolean needCreate) {
+        byte keyByte = key.getBytes(StandardCharsets.UTF_8)[0];
+        int directoryId = getDirectoryId(keyByte);
+        int fileId = getFileId(keyByte);
+        if (table[directoryId][fileId] == null && needCreate) {
+            table[directoryId][fileId] = new HashMap<>();
+        }
+        return table[directoryId][fileId];
+    }
+
+    private int getTableSize() {
+        int size = 0;
+        for (int i = 0; i < ALL_DIRECTORIES; ++i) {
+            for (int j = 0; j < FILES_IN_DIRECTORY; ++j) {
+                if (table[i][j] != null) {
+                    size += table[i][j].size();
+                }
+            }
+        }
+        return size;
+    }
+
+    private Storeable getFromTable(String key) {
+        HashMap<String, Storeable> table = getKeyTable(key, false);
+        if (table == null) {
+            return null;
+        }
+        return table.get(key);
+    }
+
+    private Storeable putToTable(String key, Storeable value) {
+        return getKeyTable(key, true).put(key, value);
+    }
+
+    private Storeable removeFromTable(String key) {
+        HashMap<String, Storeable> table = getKeyTable(key, false);
+        if (table == null) {
+            return null;
+        }
+        return table.remove(key);
+    }
+
+    private static String getDirectoryName(byte keyByte) {
+        return Integer.toString(getDirectoryId(keyByte)) + ".dir";
+    }
+
+    private static String getFileName(byte keyByte) {
+        return Integer.toString(getFileId(keyByte)) + ".dat";
+    }
+
+    private static boolean isCorrectDirectoryName(String name) {
         for (int i = 0; i < ALL_DIRECTORIES; ++i) {
             if (name.equals(Integer.toString(i) + ".dir")) {
                 return true;
@@ -418,29 +534,39 @@ public class MultiFileHashTable implements Table {
                     int valueLen = readInt(input);
                     if (keyLen > MAX_KEY_LEN || valueLen > MAX_VALUE_LEN) {
                         throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
-                                                    + "' have incorrect format");
+                                + "' have incorrect format");
                     }
                     String key = readString(input, keyLen);
                     if (!getDirectoryName(key.getBytes(StandardCharsets.UTF_8)[0]).equals(dbDir.getName())
                             || !getFileName(key.getBytes(StandardCharsets.UTF_8)[0]).equals(dbFile.getName())) {
                         throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
-                                                     + "' have incorrect format");
+                                + "' have incorrect format");
                     }
                     String value = readString(input, valueLen);
                     try {
-                        table.put(key, deserialize(value));
+                        putToTable(key, deserialize(value));
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("Database file '" + dbFile.getAbsolutePath()
-                                                            + "' have incorrect format");
+                                + "' have incorrect format");
                     }
                     wasRead = true;
                 }
             } catch (IOException e) {
                 throw new DatabaseException("Database file '" + dbFile.getAbsolutePath()
-                                            + "' have incorrect format");
+                        + "' have incorrect format");
             }
             if (!wasRead) {
                 throw new DatabaseException("Empty database file '" + dbFile.getAbsolutePath() + "'");
+            }
+        }
+    }
+
+    private void removeChangesFile(HashSet<ChangedFile> changes) throws DatabaseException {
+        for (ChangedFile file : changes) {
+            File fileToDelete = new File(tableDirectory.getAbsoluteFile() + File.separator
+                                            + file.getPath());
+            if (fileToDelete.exists()) {
+                FileUtils.remove(fileToDelete);
             }
         }
     }
@@ -451,7 +577,7 @@ public class MultiFileHashTable implements Table {
             if ((!file.isDirectory() && !file.getName().equals(SIGNATURE_FILE_NAME))
                     || (file.isDirectory() && !isCorrectDirectoryName(file.getName()))) {
                 throw new DatabaseException("At table '" + tableName
-                                            + "': directory contain redundant files");
+                        + "': directory contain redundant files");
             }
             FileUtils.remove(file);
         }
@@ -471,7 +597,7 @@ public class MultiFileHashTable implements Table {
         return result;
     }
 
-    private boolean isSupportedType(Class<?> type) {
+    private static boolean isSupportedType(Class<?> type) {
         return type == Integer.class
                 || type == Long.class
                 || type == Byte.class
@@ -479,5 +605,41 @@ public class MultiFileHashTable implements Table {
                 || type == Double.class
                 || type == Boolean.class
                 || type == String.class;
+    }
+
+    private class ChangedFile {
+        public final int directoryId;
+        public final int fileId;
+
+        ChangedFile(String key) {
+            byte keyByte = key.getBytes(StandardCharsets.UTF_8)[0];
+            directoryId = getDirectoryId(keyByte);
+            fileId = getFileId(keyByte);
+        }
+
+        public String getPath() {
+            return directoryId + ".dir" + File.separator + fileId + ".dat";
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (object == null) {
+                return false;
+            }
+            if (object == this) {
+                return true;
+            }
+
+            if (!(object instanceof ChangedFile)) {
+                return false;
+            }
+            ChangedFile file = (ChangedFile) object;
+            return this.fileId == file.fileId && this.directoryId == file.directoryId;
+        }
+
+        @Override
+        public int hashCode() {
+            return directoryId * FILES_IN_DIRECTORY + fileId;
+        }
     }
 }
