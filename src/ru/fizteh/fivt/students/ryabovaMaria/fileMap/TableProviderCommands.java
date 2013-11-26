@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -24,14 +23,10 @@ public class TableProviderCommands implements TableProvider {
     private ThreadLocal<Table> myTable = new ThreadLocal<Table>();
     private HashMap<String, Table> names;
     private ThreadLocal<List<Class<?>>> types = new ThreadLocal();
-    private ReadWriteLock lock;
-    private Lock readLock;
-    private Lock writeLock;
+    private Lock lock;
     
     TableProviderCommands(File tablesDir) {
-        lock = new ReentrantReadWriteLock(true);
-        readLock = lock.readLock();
-        writeLock = lock.writeLock();
+        lock = new ReentrantLock(true);
         curDir = tablesDir;
         names = new HashMap<String, Table>();
     }
@@ -47,12 +42,7 @@ public class TableProviderCommands implements TableProvider {
             || name.matches(".*\\s.*")) {
             throw new IllegalArgumentException("argument contains illegal symbols");
         }
-        readLock.lock();
-        try {
-            tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
-        } finally {
-            readLock.unlock();
-        }
+        tableDir.set(curDir.toPath().resolve(name).normalize().toFile());
     }
     
     @Override
@@ -61,38 +51,30 @@ public class TableProviderCommands implements TableProvider {
             throw new IllegalArgumentException("bad tablename");
         }
         isCorrectArgument(name);
+        lock.lock();
         try {
-            readLock.lock();
-            try {
-                if (!tableDir.get().exists()) {
-                    return null;
-                }
-                if (!tableDir.get().isDirectory()) {
-                    throw new IllegalArgumentException(name + " is not a directory");
-                }
-            } finally {
-                readLock.unlock();
+            if (!tableDir.get().exists()) {
+                return null;
             }
-            writeLock.lock();
-            try {
-                myTable.set(names.get(name));
-                if (myTable.get() == null) {
-                    readSignature();
-                    myTable.set(new TableCommands(tableDir.get(), types.get(), this));
-                    names.put(name, myTable.get());
-                }
-            } finally {
-                writeLock.unlock();
+            if (!tableDir.get().isDirectory()) {
+                throw new IllegalArgumentException(name + " is not a directory");
+            }
+            myTable.set(names.get(name));
+            if (myTable.get() == null) {
+                readSignature();
+                myTable.set(new TableCommands(tableDir.get(), types.get(), this));
+                names.put(name, myTable.get());
             }
             return myTable.get();
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
+        } finally {
+            lock.unlock();
         }
     }
     
     private void readSignature() {
         File signature = new File(tableDir.get(), "signature.tsv");
-        readLock.lock();
         if (!signature.exists()) {
             throw new IllegalArgumentException("signature.tsv not exists");
         }
@@ -188,7 +170,7 @@ public class TableProviderCommands implements TableProvider {
         isCorrectArgument(name);
         DeleteDir deleteTable = new DeleteDir();
         File table = new File(curDir, name);
-        writeLock.lock();
+        lock.lock();
         try {
             if (!tableDir.get().isDirectory()) {
                 throw new IllegalStateException(name + " cannot be deleted");
@@ -198,7 +180,7 @@ public class TableProviderCommands implements TableProvider {
         } catch (Exception e) {
             throw new IllegalStateException(name + " cannot be deleted", e);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -243,7 +225,7 @@ public class TableProviderCommands implements TableProvider {
         types.set(columnTypes);
         isCorrectColumnTypes(new ArrayList(columnTypes));
         isCorrectArgument(name);
-        writeLock.lock();
+        lock.lock();
         try {
             if (tableDir.get().exists()) {
                 return null;
@@ -257,7 +239,7 @@ public class TableProviderCommands implements TableProvider {
                 return myTable.get();
             }
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 

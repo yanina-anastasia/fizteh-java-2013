@@ -26,27 +26,6 @@ public class TableCommands implements Table {
     private Lock readLock;
     private Lock writeLock;
     
-    /*private ThreadLocal<Integer> hashCode = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return 0;
-        }
-    };
-    
-    private ThreadLocal<Integer> numberOfDir = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return new Integer(0);
-        }
-    };
-    
-    private ThreadLocal<Integer> numberOfFile = new ThreadLocal<Integer>() {
-        @Override
-        protected Integer initialValue() {
-            return new Integer(0);
-        }
-    };*/
-    
     private class HashCalc {
         int hashCode;
         int numberOfDir;
