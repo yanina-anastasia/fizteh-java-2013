@@ -50,7 +50,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
             writer.writeStartElement("value");
             if (map.containsKey(list)) {
                 writer.writeCharacters("cyclic");
-                writer.writeEndElement();
             } else if (listElement == null) {
                 writeNull(writer);
             } else {
