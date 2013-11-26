@@ -32,7 +32,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
             //do nothing
         } 
         
-        writer.write(composeLogString(method, args, exception, returnValue) + "\n");
+        if (method.getDeclaringClass() != Object.class) {
+            writer.write(composeLogString(method, args, exception, returnValue) + "\n");
+        }
         return returnValue;
     }
 
@@ -94,7 +96,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             xmlWriter.writeStartElement("invoke");
             xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
             xmlWriter.writeAttribute("name", method.getName());
-            xmlWriter.writeAttribute("class", method.getDeclaringClass().getSimpleName());
+            xmlWriter.writeAttribute("class", method.getDeclaringClass().getName());
 
             xmlWriter.writeStartElement("arguments");
             writeArguments(xmlWriter, args);
