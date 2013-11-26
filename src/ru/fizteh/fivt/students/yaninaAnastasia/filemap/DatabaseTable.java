@@ -168,8 +168,13 @@ public class DatabaseTable implements Table {
         } else {
             deletedKeys.get().add(key);
         }
-        if (oldValue != null) {
-            size.incrementAndGet();
+        transactionLock.writeLock().lock();
+        try {
+            if (oldValue != null) {
+                size.incrementAndGet();
+            }
+        } finally {
+            transactionLock.writeLock().unlock();
         }
         uncommittedChanges.set(changesCount());
         return oldValue;
