@@ -13,7 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 /**
@@ -35,7 +36,9 @@ public class MyTable implements Table {
     ThreadLocal<HashMap<String, Storeable>> rewritings;
     ThreadLocal<HashSet<String>> removings;
 
-    private final ReentrantLock locker = new ReentrantLock(true);
+    private final ReentrantReadWriteLock readWriteLocker = new ReentrantReadWriteLock(true);
+    private final Lock tor = readWriteLocker.readLock();
+    private final Lock loki = readWriteLocker.writeLock();
 
     /**
      * Конструктор. Открывает и читают базу.
@@ -214,20 +217,21 @@ public class MyTable implements Table {
         if ((key == null) || key.trim().isEmpty() || key.matches(".*[\\s\\t\\n].*")) {
             throw new IllegalArgumentException("Table.get: key is null or consists illegal symbol/symbols");
         }
-        locker.lock();
-        try {
-            if (removings.get().contains(key)) {
-                return null;
-            } else {
-                Storeable s = rewritings.get().get(key);
-                if (s == null) {
+
+        if (removings.get().contains(key)) {
+            return null;
+        } else {
+            Storeable s = rewritings.get().get(key);
+            if (s == null) {
+                tor.lock();
+                try {
                     return map.get(key);
-                } else {
-                    return s;
+                } finally {
+                    tor.unlock();
                 }
+            } else {
+                    return s;
             }
-        } finally {
-            locker.unlock();
         }
     }
 
@@ -280,30 +284,30 @@ public class MyTable implements Table {
                         throw new ColumnFormatException("Table.put: wrong type");
                     }
                 }
-                locker.lock();
+                Storeable s;
+                tor.lock();
                 try {
-                    if (removings.get().contains(key)) {
-                        removings.get().remove(key);
-                        Storeable s = map.get(key);
-                        if (!(s == value)) {
-                            rewritings.get().put(key, value);
-                        }
-                        return null;
+                    s = map.get(key);
+                } finally {
+                    tor.unlock();
+                }
+                if (removings.get().contains(key)) {
+                    removings.get().remove(key);
+                    if (!(s == value)) {
+                        rewritings.get().put(key, value);
+                    }
+                    return null;
+                } else {
+                    if (s == null) {
+                        return rewritings.get().put(key, value);
                     } else {
-                        Storeable s = map.get(key);
-                        if (s == null) {
-                            return rewritings.get().put(key, value);
+                        Storeable ss = rewritings.get().put(key, value);
+                        if (ss == null) {
+                            return s;
                         } else {
-                            Storeable ss = rewritings.get().put(key, value);
-                            if (ss == null) {
-                                return s;
-                            } else {
-                                return ss;
-                            }
+                            return ss;
                         }
                     }
-                } finally {
-                    locker.unlock();
                 }
             } catch (IndexOutOfBoundsException e1) {
                 throw new ColumnFormatException("Table.put: value has other number of columns");
@@ -324,26 +328,27 @@ public class MyTable implements Table {
         if ((key == null) || key.trim().isEmpty() || key.matches(".*[\\s\\t\\n].*")) {
             throw new IllegalArgumentException("Table.remove: key is null or consists illegal symbol/symbols");
         }
-        locker.lock();
-        try {
-            if (removings.get().contains(key)) {
-                return null;
+        if (removings.get().contains(key)) {
+            return null;
+        } else {
+            Storeable s;
+            tor.lock();
+            try {
+                s = map.get(key);
+            } finally {
+                tor.unlock();
+            }
+            if (s == null) {
+                return rewritings.get().remove(key);
             } else {
-                Storeable s = map.get(key);
-                if (s == null) {
-                    return rewritings.get().remove(key);
+                removings.get().add(key);
+                Storeable ss = rewritings.get().remove(key);
+                if (ss == null) {
+                    return s;
                 } else {
-                    removings.get().add(key);
-                    Storeable ss = rewritings.get().remove(key);
-                    if (ss == null) {
-                        return s;
-                    } else {
-                        return ss;
-                    }
+                    return ss;
                 }
             }
-        } finally {
-            locker.unlock();
         }
     }
 
@@ -354,12 +359,20 @@ public class MyTable implements Table {
      */
     @Override
     public int size() {
-        locker.lock();
+        int mapSize;
+        int inserts = 0;
+        tor.lock();
         try {
-            return (map.size() + insertsNumber() - removings.get().size());
+            mapSize = map.size();
+            for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
+                if (!map.containsKey(entry.getKey())) {
+                    inserts++;
+                }
+            }
         } finally {
-            locker.unlock();
+            tor.unlock();
         }
+        return (mapSize + inserts - removings.get().size());
     }
 
     /**
@@ -371,20 +384,21 @@ public class MyTable implements Table {
      */
     @Override
     public int commit() throws IOException {
-        locker.lock();
+        int difference;
+        loki.lock();
         try {
-            int difference = diff();
+            difference = diff();
             for (String s : removings.get()) {
                 map.remove(s);
             }
             map.putAll(rewritings.get());
-            rewritings.get().clear();
-            removings.get().clear();
             refreshDiskData();
-            return difference;
         } finally {
-            locker.unlock();
+            loki.unlock();
         }
+        rewritings.get().clear();
+        removings.get().clear();
+        return difference;
     }
 
     /**
@@ -394,15 +408,16 @@ public class MyTable implements Table {
      */
     @Override
     public int rollback() {
-        locker.lock();
+        int difference;
+        tor.lock();
         try {
-            int difference = diff();
-            rewritings.get().clear();
-            removings.get().clear();
-            return difference;
+            difference = diff();
         } finally {
-            locker.unlock();
+            tor.unlock();
         }
+        rewritings.get().clear();
+        removings.get().clear();
+        return difference;
     }
 
     /**
@@ -432,22 +447,23 @@ public class MyTable implements Table {
     }
 
     /**
-     * Считает количество новых элементов, вставленных в map
+     * Считает минимальное количество опрераций вставки, переименования и удаления, требуемых для обновления.
+     * Подсчет ведется с помощью функции diff(). Потокобезопасна.
      */
-    public int insertsNumber() {
-        int inserts = 0;
-        for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
-            if (!map.containsKey(entry.getKey())) {
-                inserts++;
-            }
+    public int threadSafeDifference() {
+        tor.lock();
+        try {
+            return diff();
+        } finally {
+            tor.unlock();
         }
-        return inserts;
     }
 
     /**
-     * Считает минимальное количество опрераций вставки, переименования и удаления, требуемых для обновления
+     * Считает минимальное количество опрераций вставки, переименования и удаления, требуемых для обновления.
+     * Непотокобезопасна.
      */
-    public int diff() {
+    private int diff() {
         int similars = 0;
         for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
             Storeable s = map.get(entry.getKey());
