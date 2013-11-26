@@ -61,7 +61,7 @@ public class MyTableProvider implements TableProvider {
         return false;
     }
 
-//read and write sometimes
+    // read and write sometimes
     @Override
     public Table getTable(String name) throws IllegalArgumentException,
             RuntimeException {
@@ -102,8 +102,8 @@ public class MyTableProvider implements TableProvider {
                 } else {
                     MyTable result = new MyTable(tablePath, name, this,
                             oldTypes);
-                        tables.put(name, result);
-                        return (Table) result;
+                    tables.put(name, result);
+                    return (Table) result;
                 }
             } catch (IOException e1) {
                 throw new RuntimeException(
