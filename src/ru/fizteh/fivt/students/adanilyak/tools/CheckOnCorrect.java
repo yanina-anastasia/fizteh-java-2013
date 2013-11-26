@@ -15,11 +15,7 @@ public class CheckOnCorrect {
         if (givenName == null) {
             return false;
         }
-        if (givenName.matches("[a-zA-Zа-яА-Я0-9]+")) {
-            return true;
-        } else {
-            return false;
-        }
+        return givenName.matches("[a-zA-Zа-яА-Я0-9]+");
     }
 
     public static boolean goodArg(String arg) {
@@ -29,10 +25,7 @@ public class CheckOnCorrect {
         if (arg.trim().isEmpty()) {
             return false;
         }
-        if (arg.matches(".*\\s+.*")) {
-            return false;
-        }
-        return true;
+        return !arg.matches(".*\\s+.*");
     }
 
     public static boolean goodColumnTypes(List<Class<?>> givenTypes) {

@@ -23,8 +23,9 @@ public class MyTable implements Table {
         byteSize = 0;
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j)
+            for (int j = 0; j < 16; ++j) {
                 uses[i][j] = false;
+            }
         }
         oldCount = storage.size();
         count = oldCount;
@@ -60,8 +61,8 @@ public class MyTable implements Table {
         if (newKey.isEmpty() || newValue.isEmpty()) {
             throw new IllegalArgumentException("Incorrect key/value to put.");
         }
-        if ((!changes.containsKey(newKey) && !storage.containsKey(newKey)) ||
-                (changes.containsKey(newKey) && changes.get(newKey) == null)) {
+        if ((!changes.containsKey(newKey) && !storage.containsKey(newKey))
+                || (changes.containsKey(newKey) && changes.get(newKey) == null)) {
             ++count;
         }
         TwoLayeredString twoLayeredKey = new TwoLayeredString(newKey);

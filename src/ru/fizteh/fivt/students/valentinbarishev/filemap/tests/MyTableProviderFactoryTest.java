@@ -12,7 +12,7 @@ public class MyTableProviderFactoryTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateNull() throws IOException{
+    public void testCreateNull() throws IOException {
         TableProviderFactory factory = new MyTableProviderFactory();
         factory.create(null);
     }

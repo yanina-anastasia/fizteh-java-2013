@@ -3,19 +3,31 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
 public class NewTable implements Table {
-    private String name;
-    private HashMap<String, ValueState<Storeable>> dataMap = new HashMap<>();
-    private NewTableProvider provider = null;
-    private ArrayList<Class<?>> types;
+    private final String name;
+    private HashMap<String, Storeable> dataMap = new HashMap<>();
+    private final NewTableProvider provider;
+    private final ArrayList<Class<?>> types;
+    private ReadWriteLock controller = new ReentrantReadWriteLock(true);
+
+    private ThreadLocal<HashMap<String, Storeable>> localMap = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        protected HashMap<String, Storeable> initialValue() {
+            return new HashMap<String, Storeable>();
+        }
+    };
 
     public NewTable(String newName, NewTableProvider newProvider) throws IOException {
         File file = new File(newProvider.getCurrentDirectory(), newName);
@@ -40,14 +52,6 @@ public class NewTable implements Table {
         name = newName;
         provider = newProvider;
         types = readSignature();
-    }
-
-    public ArrayList<Class<?>> getSignature() {
-        return types;
-    }
-
-    public NewTableProvider getTableProvider() {
-        return provider;
     }
 
     private boolean checkNameOfDataBaseDirectory(String dir) {
@@ -98,68 +102,38 @@ public class NewTable implements Table {
                 || name.contains(System.lineSeparator()) || name.contains("[") || name.contains("]"));
     }
 
-    public void loadCommitedValues(HashMap<String, Storeable> load) {
-        for (String key : load.keySet()) {
-            ValueState<Storeable> value = new ValueState<Storeable>(load.get(key), load.get(key));
-            dataMap.put(key, value);
+    private void checkKey(String key) {
+        if (key == null || key.trim().isEmpty()) {
+            throw new IllegalArgumentException("wrong type (incorrect key)");
         }
-    }
-
-    public HashMap<String, String> returnMap() {
-        HashMap<String, String> map = new HashMap<>();
-        for (String key : dataMap.keySet()) {
-            map.put(key, JSONSerializer.serialize(this, dataMap.get(key).getCommitedValue()));
-        }
-        return map;
-    }
-
-    @Override
-    public int size() {
-        int count = 0;
-        for (ValueState<Storeable> value : dataMap.values()) {
-            if (value.getValue() != null) {
-                ++count;
-            }
-        }
-        return count;
-    }
-
-    public int unsavedChanges() {
-        int count = 0;
-        for (ValueState<Storeable> value : dataMap.values()) {
-            if (value.needToCommit()) {
-                ++count;
-            }
-        }
-        return count;
     }
 
     @Override
     public int commit() throws IOException {
         int count = 0;
-        for (ValueState<Storeable> value : dataMap.values()) {
-            if (value.commitValue()) {
-                ++count;
-            }
-        }
-        if (count != 0) {
-            if (provider.getCurrentTableFile() != null) {
+        controller.writeLock().lock();
+        try {
+            count = unsavedChanges();
+            if (count != 0) {
+                for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
+                    if (dataMap.containsKey(entry.getKey()) && !dataMap.get(entry.getKey()).equals(entry.getValue())) {
+                        if (entry.getValue() != null) {
+                            dataMap.put(entry.getKey(), entry.getValue());
+                        } else {
+                            dataMap.remove(entry.getKey());
+                        }
+                    } else {
+                        if (entry.getValue() != null) {
+                            dataMap.put(entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
                 provider.saveChanges(this);
             }
-        } else {
-            return 0;
+        } finally {
+            controller.writeLock().unlock();
         }
-        return count;
-    }
-
-    @Override
-    public int rollback() {
-        int count = 0;
-        for (ValueState<Storeable> value : dataMap.values()) {
-            if (value.rollbackValue()) {
-                ++count;
-            }
-        }
+        localMap.get().clear();
         return count;
     }
 
@@ -172,14 +146,20 @@ public class NewTable implements Table {
             throw new IllegalArgumentException("wrong type (value is null)");
         }
         checkStoreable(value);
-        Storeable result;
-        if (dataMap.containsKey(key)) {
-            result = dataMap.get(key).getValue();
-            dataMap.get(key).setValue(value);
+        Storeable result = null;
+        if (localMap.get().containsKey(key)) {
+            result = localMap.get().get(key);
         } else {
-            dataMap.put(key, new ValueState<Storeable>(null, value));
-            result = null;
+            controller.readLock().lock();
+            try {
+                if (dataMap.containsKey(key)) {
+                    result = dataMap.get(key);
+                }
+            } finally {
+                controller.readLock().unlock();
+            }
         }
+        localMap.get().put(key, value);
         return result;
     }
 
@@ -200,12 +180,57 @@ public class NewTable implements Table {
             return;
         }
         throw new ColumnFormatException("wrong type (Storeable invalid out of range)");
+    }
 
+    public int unsavedChanges() {
+        int count = 0;
+        for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
+            if (dataMap.containsKey(entry.getKey())) {
+                if (!dataMap.get(entry.getKey()).equals(entry.getValue())) {
+                    ++count;
+                }
+            } else {
+                if (entry.getValue() != null) {
+                    ++count;
+                }
+            }
+        }
+        return count;
     }
 
     @Override
-    public int getColumnsCount() {
-        return types.size();
+    public Storeable remove(String key) {
+        checkKey(key);
+        Storeable oldVal = null;
+        if (localMap.get().containsKey(key)) {
+            oldVal = localMap.get().get(key);
+        } else {
+            controller.readLock().lock();
+            try {
+                if (dataMap.containsKey(key)) {
+                    oldVal = dataMap.get(key);
+                }
+            } finally {
+                controller.readLock().unlock();
+            }
+        }
+        localMap.get().put(key, null);
+        return oldVal;
+    }
+
+    @Override
+    public Storeable get(String key) {
+        checkKey(key);
+        if (!localMap.get().containsKey(key)) {
+            controller.readLock().lock();
+            try {
+                return dataMap.get(key);
+            } finally {
+                controller.readLock().unlock();
+            }
+        } else {
+            return localMap.get().get(key);
+        }
     }
 
     @Override
@@ -221,28 +246,62 @@ public class NewTable implements Table {
     }
 
     @Override
-    public Storeable get(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("wrong type (incorrect key)");
-        }
-        if (!dataMap.containsKey(key)) {
-            return null;
-        }
-        return dataMap.get(key).getValue();
+    public int getColumnsCount() {
+        return types.size();
     }
 
     @Override
-    public Storeable remove(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            throw new IllegalArgumentException("wrong type (incorrect key)");
+    public int rollback() {
+        int count = unsavedChanges();
+        localMap.get().clear();
+        return count;
+    }
+
+    @Override
+    public int size() {
+        int count = 0;
+        controller.readLock().lock();
+        try {
+            count = dataMap.size();
+            for (Map.Entry<String, Storeable> entry : localMap.get().entrySet()) {
+                if (dataMap.containsKey(entry.getKey())) {
+                    if (entry.getValue() == null) {
+                        --count;
+                    }
+                } else if (entry.getValue() != null) {
+                    ++count;
+                }
+            }
+        } finally {
+            controller.readLock().unlock();
         }
-        if (dataMap.containsKey(key)) {
-            Storeable oldVal = dataMap.get(key).getValue();
-            dataMap.get(key).setValue(null);
-            return oldVal;
-        } else {
-            return null;
+        return count;
+    }
+
+    public void loadCommitedValues(HashMap<String, Storeable> load) throws IOException, ParseException {
+        controller.writeLock().lock();
+        try {
+            dataMap = load;
+        } finally {
+            controller.writeLock().unlock();
         }
+    }
+
+    public HashMap<String, String> returnMap() {
+        HashMap<String, String> map = new HashMap<>();
+        controller.readLock().lock();
+        try {
+            for (String key : dataMap.keySet()) {
+                map.put(key, JSONSerializer.serialize(this, dataMap.get(key)));
+            }
+        } finally {
+            controller.readLock().unlock();
+        }
+        return map;
+    }
+
+    public NewTableProvider getTableProvider() {
+        return provider;
     }
 
 }

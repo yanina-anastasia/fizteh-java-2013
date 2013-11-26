@@ -4,8 +4,6 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.valentinbarishev.shell.CommandString;
 import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
-
-import java.io.IOException;
 import java.text.ParseException;
 
 public final class ShellDbPut  extends SimpleShellCommand {

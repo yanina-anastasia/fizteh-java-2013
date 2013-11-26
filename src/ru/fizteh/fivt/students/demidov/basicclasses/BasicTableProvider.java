@@ -11,6 +11,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ru.fizteh.fivt.students.demidov.shell.Utils;
 
 abstract public class BasicTableProvider<TableType> {
+	protected Map<String, TableType> tables;
+	protected ReadWriteLock providerLock;
+	protected String root;
+	
 	public BasicTableProvider(String root) {
 		tables = new HashMap<String, TableType>();
 		providerLock = new ReentrantReadWriteLock();
@@ -26,11 +30,11 @@ abstract public class BasicTableProvider<TableType> {
 			throw new IllegalArgumentException("wrong table name: " + name);
 		}
 		
-		providerLock.writeLock().lock();		
+		providerLock.readLock().lock();		
 		try {
 			return tables.get(name);
 		} finally {		
-			providerLock.writeLock().unlock();
+			providerLock.readLock().unlock();
 		}
 	}
 	
@@ -41,19 +45,17 @@ abstract public class BasicTableProvider<TableType> {
 		
 		providerLock.writeLock().lock();
 		
-		if (!(tables.containsKey(name))) {
-			throw new IllegalStateException(name + " not exists");
+		try {
+		    if (!(tables.containsKey(name))) {
+		        throw new IllegalStateException(name + " not exists");
+		    }
+		    tables.remove(name);
+		    Utils.deleteFileOrDirectory(new File(root, name));
+		} finally {		
+		    providerLock.writeLock().unlock();
 		}
-		Utils.deleteFileOrDirectory(new File(root, name));
-		tables.remove(name);
-		
-		providerLock.writeLock().unlock();
 	}
 	
 	abstract public TableType createTable(String name);
 	abstract public TableType createTable(String name, List<Class<?>> columnTypes) throws IOException;
-	
-	protected Map<String, TableType> tables;
-	protected ReadWriteLock providerLock;
-	protected String root;
 }

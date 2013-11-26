@@ -33,6 +33,21 @@ public class MyStoreable implements Storeable{
     }
 
     @Override
+    public boolean equals(Object o) {
+
+        if (o == null || o.getClass() != this.getClass()) {
+            return false;
+        }
+        MyStoreable st = (MyStoreable) o;
+        return values.equals(st.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+    
+    @Override
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
 

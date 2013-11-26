@@ -1,6 +1,9 @@
 package ru.fizteh.fivt.students.kislenko.junit.test;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import ru.fizteh.fivt.students.kislenko.junit.MyTable;
 import ru.fizteh.fivt.students.kislenko.junit.MyTableProvider;
 import ru.fizteh.fivt.students.kislenko.junit.MyTableProviderFactory;

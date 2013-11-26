@@ -14,7 +14,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProviderFactory;
-import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Utils;
+import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Types;
 
 public class TableProviderTest {
     
@@ -57,8 +57,8 @@ public class TableProviderTest {
         Scanner sc = new Scanner(sign);
         List<Class<?>> columns = new ArrayList<>();
         
-        while (sc.hasNextLine()) {
-            columns.add(Utils.detectClass(sc.nextLine()));
+        while (sc.hasNext()) {
+            columns.add(Types.getTypeByName(sc.next()));
         }
         sc.close();
         Assert.assertEquals(columns, list);

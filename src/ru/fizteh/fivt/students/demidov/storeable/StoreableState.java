@@ -14,14 +14,14 @@ public class StoreableState extends BasicDataBaseState<Storeable, StoreableTable
 	public void use(String tableName) throws IOException {
 		if (usedTable != null) {
 			int changesNumber = usedTable.getChangesNumber();
-			if (usedTable.getChangesNumber() > 0) {
+			if (changesNumber > 0) {
 				throw new IOException(changesNumber + " unsaved changes");
 			}
 		}
 		StoreableTable gotTable = null;
 		try {
 			gotTable = provider.getTable(tableName);
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException);
 		}
 		if (gotTable == null) {
@@ -34,9 +34,9 @@ public class StoreableState extends BasicDataBaseState<Storeable, StoreableTable
 		StoreableTable createdTable = null;
 		try {
 			createdTable = provider.createTable(tableName, columnTypes);		
-		} catch(IllegalArgumentException catchedException) {
+		} catch (IllegalArgumentException catchedException) {
 			throw new IOException(catchedException);
-		} catch(IllegalStateException catchedException) {
+		} catch (IllegalStateException catchedException) {
 			throw new IOException(catchedException);
 		}
 		if (createdTable == null) {

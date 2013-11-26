@@ -11,12 +11,13 @@ import java.nio.file.Path;
 public class MultiTableProviderFactory implements TableProviderFactory {
 
     @Override
-    public TableProvider create (String dir) throws IllegalArgumentException {
+    public TableProvider create(String dir) throws IllegalArgumentException {
         try {
-        Path directory = SuperTableProviderFactory.directoryCheck (dir);
-        return new MultiTableProvider (directory);
-        } catch (IOException e) {
-            throw new WrappedIOException (e.getMessage ());
+            Path directory = SuperTableProviderFactory.directoryCheck(dir);
+            return new MultiTableProvider(directory);
+        }
+        catch (IOException e) {
+            throw new WrappedIOException(e.getMessage());
         }
     }
 }

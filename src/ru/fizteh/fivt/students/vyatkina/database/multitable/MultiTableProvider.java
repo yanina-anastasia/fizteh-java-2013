@@ -21,37 +21,37 @@ import static ru.fizteh.fivt.students.vyatkina.database.superior.TableProviderUt
 
 public class MultiTableProvider implements StringTableProvider, TableProviderConstants {
 
-    private Map<String, MultiTable> tables = new HashMap<> ();
+    private Map<String, MultiTable> tables = new HashMap<>();
     private Path location;
 
-    public MultiTableProvider (Path location) {
+    public MultiTableProvider(Path location) {
         this.location = location;
-        loadDatabase ();
+        loadDatabase();
     }
 
-    public void loadDatabase () {
-        for (File file : location.toFile ().listFiles ()) {
-            if (file.isDirectory ()) {
-                MultiTable table = new MultiTable (file.getName (), this);
-                tables.put (table.getName (), table);
+    public void loadDatabase() {
+        for (File file : location.toFile().listFiles()) {
+            if (file.isDirectory()) {
+                MultiTable table = new MultiTable(file.getName(), this);
+                tables.put(table.getName(), table);
             }
         }
     }
 
     @Override
-    public Table getTable (String tableName) {
-        TableProviderChecker.validTableNameCheck (tableName);
-        if (tables.containsKey (tableName)) {
+    public Table getTable(String tableName) {
+        TableProviderChecker.validTableNameCheck(tableName);
+        if (tables.containsKey(tableName)) {
             try {
-                MultiTable table = tables.get (tableName);
-                Map<String, String> diskTable = getTableFromDisk (tableDirectory (tableName).toFile ());
-                for (Map.Entry<String, String> entry : diskTable.entrySet ()) {
-                    table.putValueFromDisk (entry.getKey (), entry.getValue ());
+                MultiTable table = tables.get(tableName);
+                Map<String, String> diskTable = getTableFromDisk(tableDirectory(tableName).toFile());
+                for (Map.Entry<String, String> entry : diskTable.entrySet()) {
+                    table.putValueFromDisk(entry.getKey(), entry.getValue());
                 }
                 return table;
             }
             catch (IOException e) {
-                throw new WrappedIOException (e.getMessage ());
+                throw new WrappedIOException(e.getMessage());
             }
         } else {
             return null;
@@ -59,59 +59,59 @@ public class MultiTableProvider implements StringTableProvider, TableProviderCon
     }
 
     @Override
-    public Table createTable (String tableName) {
-        TableProviderChecker.validTableNameCheck (tableName);
-        if (tables.containsKey (tableName)) {
+    public Table createTable(String tableName) {
+        TableProviderChecker.validTableNameCheck(tableName);
+        if (tables.containsKey(tableName)) {
             return null;
         } else {
             try {
-                Files.createDirectory (tableDirectory (tableName));
+                Files.createDirectory(tableDirectory(tableName));
             }
             catch (IOException e) {
-                throw new WrappedIOException (e.getMessage ());
+                throw new WrappedIOException(e.getMessage());
             }
-            MultiTable newTable = new MultiTable (tableName, this);
-            tables.put (newTable.getName (), newTable);
+            MultiTable newTable = new MultiTable(tableName, this);
+            tables.put(newTable.getName(), newTable);
             return newTable;
         }
     }
 
     @Override
-    public void removeTable (String tableName) {
-        TableProviderChecker.validTableNameCheck (tableName);
-        if (tables.containsKey (tableName)) {
+    public void removeTable(String tableName) {
+        TableProviderChecker.validTableNameCheck(tableName);
+        if (tables.containsKey(tableName)) {
             try {
-                deleteTableFromDisk (tableDirectory (tableName).toFile ());
+                deleteTableFromDisk(tableDirectory(tableName).toFile());
             }
             catch (IOException e) {
-                throw new WrappedIOException (e.getMessage ());
+                throw new WrappedIOException(e.getMessage());
             }
-            tables.remove (tableName);
+            tables.remove(tableName);
         } else {
-            throw new IllegalStateException (TABLE_NOT_EXIST);
+            throw new IllegalStateException(TABLE_NOT_EXIST);
         }
     }
 
-    void commitTable (MultiTable table) {
-        Path tableDirectory = tableDirectory (table.getName ());
-        Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged ();
+    void commitTable(MultiTable table) {
+        Path tableDirectory = tableDirectory(table.getName());
+        Set<String> keysThatValuesHaveChanged = table.getKeysThatValuesHaveChanged();
         try {
-            Set<Path> filesThatChanged = deleteFilesThatChanged (tableDirectory, keysThatValuesHaveChanged);
-            rewriteFilesThatChanged (tableDirectory, table.entriesThatChanged (), filesThatChanged);
+            Set<Path> filesThatChanged = deleteFilesThatChanged(tableDirectory, keysThatValuesHaveChanged);
+            rewriteFilesThatChanged(tableDirectory, table.entriesThatChanged(), filesThatChanged);
         }
         catch (IOException e) {
-            throw new WrappedIOException (e.getMessage ());
+            throw new WrappedIOException(e.getMessage());
         }
     }
 
     @Override
-    public void saveChangesOnExit () {
-        for (MultiTable table : tables.values ()) {
-            commitTable (table);
+    public void saveChangesOnExit() {
+        for (MultiTable table : tables.values()) {
+            commitTable(table);
         }
     }
 
-    private Path tableDirectory (String name) {
-        return location.resolve (name);
+    private Path tableDirectory(String name) {
+        return location.resolve(name);
     }
 }

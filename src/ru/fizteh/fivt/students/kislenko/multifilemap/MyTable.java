@@ -18,8 +18,9 @@ public class MyTable implements Table {
         storage = new HashMap<String, String>();
         uses = new boolean[16][16];
         for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j)
+            for (int j = 0; j < 16; ++j) {
                 uses[i][j] = false;
+            }
         }
         byteSize = 0;
     }

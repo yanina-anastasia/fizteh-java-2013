@@ -5,6 +5,8 @@ import java.io.IOException;
 import ru.fizteh.fivt.students.demidov.basicclasses.BasicState;
 
 public class FileMapState implements BasicState {
+	private FileMap<String> filemap;
+	
 	public FileMapState(FileMap<String> filemap) {
 		this.filemap = filemap;
 	}
@@ -20,6 +22,4 @@ public class FileMapState implements BasicState {
 	public String remove(String key) throws IOException {
 		return filemap.getCurrentTable().remove(key);
 	}
-
-	private FileMap<String> filemap;
 }

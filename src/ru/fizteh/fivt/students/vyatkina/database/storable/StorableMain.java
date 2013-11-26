@@ -16,56 +16,56 @@ import java.util.Set;
 
 public class StorableMain {
 
-    static Set<Command> getStorableCommands (DatabaseState state) {
-        Set commands = new HashSet ();
-        commands.add (new GetCommand (state));
-        commands.add (new PutCommand (state));
-        commands.add (new RemoveCommand (state));
-        commands.add (new ExitDatabaseCommand (state));
-        commands.add (new CreateStructedCommand (state));
-        commands.add (new DropCommand (state));
-        commands.add (new UseCommand (state));
-        commands.add (new CommitCommand (state));
-        commands.add (new SizeCommand (state));
-        commands.add (new RollbackCommand (state));
+    static Set<Command> getStorableCommands(DatabaseState state) {
+        Set commands = new HashSet();
+        commands.add(new GetCommand(state));
+        commands.add(new PutCommand(state));
+        commands.add(new RemoveCommand(state));
+        commands.add(new ExitDatabaseCommand(state));
+        commands.add(new CreateStructedCommand(state));
+        commands.add(new DropCommand(state));
+        commands.add(new UseCommand(state));
+        commands.add(new CommitCommand(state));
+        commands.add(new SizeCommand(state));
+        commands.add(new RollbackCommand(state));
 
         return commands;
     }
 
-    public static void main (String[] args) {
-        StorableTableProviderFactory factory = new StorableTableProviderFactory ();
-        String location = System.getProperty (TableProviderConstants.PROPERTY_DIRECTORY);
+    public static void main(String[] args) {
+        StorableTableProviderFactory factory = new StorableTableProviderFactory();
+        String location = System.getProperty(TableProviderConstants.PROPERTY_DIRECTORY);
 
         StorableTableProviderImp tableProvider = null;
         try {
-            tableProvider = StorableTableProviderImp.class.cast (factory.create (location));
+            tableProvider = StorableTableProviderImp.class.cast(factory.create(location));
         }
         catch (IllegalArgumentException | IOException | WrappedIOException e) {
-            System.err.print (e.getMessage ());
-            System.exit (-1);
+            System.err.print(e.getMessage());
+            System.exit(-1);
         }
 
-        DatabaseAdapter databaseAdapter = new StorableDatabaseAdapter (tableProvider, null);
-        DatabaseState state = new DatabaseState (databaseAdapter);
-        Set<Command> commands = getStorableCommands (state);
+        DatabaseAdapter databaseAdapter = new StorableDatabaseAdapter(tableProvider, null);
+        DatabaseState state = new DatabaseState(databaseAdapter);
+        Set<Command> commands = getStorableCommands(state);
         Shell shell;
 
         if (args.length == 0) {
-            shell = new Shell (commands, Shell.Mode.INTERACTIVE, state);
+            shell = new Shell(commands, Shell.Mode.INTERACTIVE, state);
         } else {
-            shell = new Shell (commands, Shell.Mode.PACKET, state);
+            shell = new Shell(commands, Shell.Mode.PACKET, state);
         }
 
 
         try {
-            shell.startWork (args);
+            shell.startWork(args);
         }
         catch (TimeToFinishException e) {
-           if (e.getMessage () == (TimeToFinishException.DEATH_MESSAGE)) {
-               System.exit (-1);
-           } else {
-               System.exit (0);
-           }
+            if (e.getMessage() == (TimeToFinishException.DEATH_MESSAGE)) {
+                System.exit(-1);
+            } else {
+                System.exit(0);
+            }
         }
     }
 

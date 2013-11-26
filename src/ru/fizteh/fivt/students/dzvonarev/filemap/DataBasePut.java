@@ -18,7 +18,7 @@ public class DataBasePut implements CommandInterface {
 
     public void execute(ArrayList<String> args) throws IOException, IllegalArgumentException {
         if (tableProvider == null) {
-            throw new IOException("can't put data");
+            throw new IOException("can't put object");
         }
         String tableName = tableProvider.getCurrentTable();
         if (tableName == null) {

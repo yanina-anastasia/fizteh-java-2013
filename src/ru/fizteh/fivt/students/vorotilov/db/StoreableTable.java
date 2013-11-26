@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Представляет интерфейс для работы с таблицей, содержащей ключи-значения. Ключи должны быть уникальными.
@@ -21,73 +23,94 @@ public class StoreableTable implements Table {
     private List<Class<?>> columnTypes;
     private final File tableRootDir;
     private TableFile[][] tableFiles = new TableFile[16][16];
-    private boolean[][] tableFileModified = new boolean[16][16];
-    private HashMap<String, Storeable> tableOnDisk;
-    private HashMap<String, Storeable> tableIndexedData = new HashMap<>();
+
+    private HashMap<String, Storeable> tableOnDisk = new HashMap<>();
+
+    private final ThreadLocal<HashMap<String, Storeable>> changedKeys = new ThreadLocal<HashMap<String, Storeable>>() {
+        @Override
+        protected HashMap<String, Storeable> initialValue() {
+            return new HashMap<>();
+        }
+    };
+
+    private final ThreadLocal<HashSet<String>> removedKeys = new ThreadLocal<HashSet<String>>() {
+        @Override
+        protected HashSet<String> initialValue() {
+            return new HashSet<>();
+        }
+    };
+
+    private final ReadWriteLock tableLock = new ReentrantReadWriteLock(true);
 
     private void index() {
-        File[] subDirsList = tableRootDir.listFiles();
-        if (subDirsList != null) {
-            for (File subDir: subDirsList) {
-                int numberOfSubDir;
-                if (subDir.getName().equals(SignatureFile.signatureFileName)) {
-                    continue;
-                }
-                if (!subDir.isDirectory()) {
-                    throw new IllegalStateException("In table root dir found object is not a directory");
-                }
-                String[] tableSubDirName = subDir.getName().split("[.]");
-                try {
-                    numberOfSubDir = Integer.parseInt(tableSubDirName[0]);
-                } catch (NumberFormatException e) {
-                    throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
-                }
-                if (numberOfSubDir < 0 || numberOfSubDir > 15
-                        || !tableSubDirName[1].equals("dir") || tableSubDirName.length != 2) {
-                    throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
-                }
-                File[] subFilesList = subDir.listFiles();
-                if (subFilesList != null && subFilesList.length == 0) {
-                    throw new IllegalStateException("data base contains empty dir");
-                }
-                if (subFilesList != null) {
-                    for (File subFile: subFilesList) {
-                        int numberOfSubFile;
-                        if (!subFile.isFile()) {
-                            throw new IllegalStateException("In table sub dir found object is not a file");
-                        }
-                        String[] dbFileName = subFile.getName().split("[.]");
-                        try {
-                            numberOfSubFile = Integer.parseInt(dbFileName[0]);
-                        } catch (NumberFormatException e) {
-                            throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
-                        }
-                        if (numberOfSubFile < 0 || numberOfSubFile > 15
-                                || !dbFileName[1].equals("dat") || dbFileName.length != 2) {
-                            throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
-                        } else if (subFile.length() == 0) {
-                            throw new IllegalStateException("Empty file in sub dir");
-                        } else {
-                            tableFiles[numberOfSubDir][numberOfSubFile] = new TableFile(subFile);
-                            List<TableFile.Entry> fileData = tableFiles[numberOfSubDir][numberOfSubFile].readEntries();
-                            for (TableFile.Entry i : fileData) {
-                                HashcodeDestination dest = new HashcodeDestination(i.getKey());
-                                if (dest.getFile() != numberOfSubFile || dest.getDir() != numberOfSubDir) {
-                                    throw new IllegalStateException("Wrong key placement");
-                                }
-                                try {
-                                    tableIndexedData.put(i.getKey(),
-                                            tableProvider.deserialize(this, i.getValue()));
-                                } catch (ParseException e) {
-                                    throw new IllegalStateException("Can't deserialize", e);
+        tableLock.writeLock().lock();
+        try {
+            File[] subDirsList = tableRootDir.listFiles();
+            if (subDirsList != null) {
+                for (File subDir: subDirsList) {
+                    int numberOfSubDir;
+                    if (subDir.getName().equals(SignatureFile.signatureFileName)) {
+                        continue;
+                    }
+                    if (!subDir.isDirectory()) {
+                        throw new IllegalStateException("In table root dir found object is not a directory");
+                    }
+                    String[] tableSubDirName = subDir.getName().split("[.]");
+                    try {
+                        numberOfSubDir = Integer.parseInt(tableSubDirName[0]);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
+                    }
+                    if (numberOfSubDir < 0 || numberOfSubDir > 15
+                            || !tableSubDirName[1].equals("dir") || tableSubDirName.length != 2) {
+                        throw new IllegalStateException("Table root directory contains not 0.dir ... 15.dir");
+                    }
+                    File[] subFilesList = subDir.listFiles();
+                    if (subFilesList != null && subFilesList.length == 0) {
+                        throw new IllegalStateException("data base contains empty dir");
+                    }
+                    if (subFilesList != null) {
+                        for (File subFile: subFilesList) {
+                            int numberOfSubFile;
+                            if (!subFile.isFile()) {
+                                throw new IllegalStateException("In table sub dir found object is not a file");
+                            }
+                            String[] dbFileName = subFile.getName().split("[.]");
+                            try {
+                                numberOfSubFile = Integer.parseInt(dbFileName[0]);
+                            } catch (NumberFormatException e) {
+                                throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
+                            }
+                            if (numberOfSubFile < 0 || numberOfSubFile > 15
+                                    || !dbFileName[1].equals("dat") || dbFileName.length != 2) {
+                                throw new IllegalStateException("Table sub directory contains not 0.dat ... 15.dat");
+                            } else if (subFile.length() == 0) {
+                                throw new IllegalStateException("Empty file in sub dir");
+                            } else {
+                                tableFiles[numberOfSubDir][numberOfSubFile] = new TableFile(subFile);
+                                List<TableFile.Entry> fileData =
+                                        tableFiles[numberOfSubDir][numberOfSubFile].readEntries();
+                                for (TableFile.Entry i : fileData) {
+                                    HashcodeDestination dest = new HashcodeDestination(i.getKey());
+                                    if (dest.getFile() != numberOfSubFile || dest.getDir() != numberOfSubDir) {
+                                        throw new IllegalStateException("Wrong key placement");
+                                    }
+                                    try {
+                                        tableOnDisk.put(i.getKey(),
+                                                tableProvider.deserialize(this, i.getValue()));
+                                    } catch (ParseException e) {
+                                        throw new IllegalStateException("Can't deserialize", e);
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        } finally {
+            tableLock.writeLock().unlock();
         }
-        tableOnDisk = new HashMap<>(tableIndexedData);
+
     }
 
     StoreableTable(TableProvider tableProvider, File tableRootDir, List<Class<?>> classes) {
@@ -122,7 +145,6 @@ public class StoreableTable implements Table {
         }
         this.tableProvider = tableProvider;
         this.tableRootDir = tableRootDir;
-
         try {
             columnTypes = SignatureFile.readSignature(tableRootDir);
         } catch (IOException e) {
@@ -152,7 +174,21 @@ public class StoreableTable implements Table {
     @Override
     public Storeable get(String key) {
         checkKey(key);
-        return tableIndexedData.get(key);
+        Storeable value = changedKeys.get().get(key);
+        if (value == null) {
+            if (removedKeys.get().contains(key)) {
+                return null;
+            } else {
+                tableLock.readLock().lock();
+                try {
+                    return tableOnDisk.get(key);
+                } finally {
+                    tableLock.readLock().unlock();
+                }
+            }
+        } else {
+            return value;
+        }
     }
 
     /**
@@ -170,11 +206,19 @@ public class StoreableTable implements Table {
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         checkKey(key);
         checkValue(value);
-        Storeable oldValue = tableIndexedData.get(key);
-        if (oldValue == null || !oldValue.equals(value)) {
-            HashcodeDestination dest = new HashcodeDestination(key);
-            tableFileModified[dest.getDir()][dest.getFile()] = true;
-            tableIndexedData.put(key, value);
+        Storeable valueOnDisk = null;
+        Storeable oldValue = changedKeys.get().put(key, value);
+        if (!removedKeys.get().contains(key) && oldValue == null) {
+            tableLock.readLock().lock();
+            try {
+                valueOnDisk = tableOnDisk.get(key);
+            } finally {
+                tableLock.readLock().unlock();
+            }
+            oldValue = valueOnDisk;
+            if (valueOnDisk != null) {
+                removedKeys.get().add(key);
+            }
         }
         return oldValue;
     }
@@ -190,12 +234,34 @@ public class StoreableTable implements Table {
     @Override
     public Storeable remove(String key) {
         checkKey(key);
-        Storeable oldValue = tableIndexedData.remove(key);
-        if (oldValue != null) {
-            HashcodeDestination dest = new HashcodeDestination(key);
-            tableFileModified[dest.getDir()][dest.getFile()] = true;
+        if (key == null) {
+            throw new IllegalArgumentException("table remove: key is null");
         }
-        return oldValue;
+        Storeable value = changedKeys.get().get(key);
+        if (value == null) {
+            if (!removedKeys.get().contains(key)) {
+                tableLock.readLock().lock();
+                try {
+                    value = tableOnDisk.get(key);
+                } finally {
+                    tableLock.readLock().unlock();
+                }
+                if (value != null) {
+                    removedKeys.get().add(key);
+                }
+            }
+        } else {
+            changedKeys.get().remove(key);
+            tableLock.readLock().lock();
+            try {
+                if (tableOnDisk.containsKey(key)) {
+                    removedKeys.get().add(key);
+                }
+            } finally {
+                tableLock.readLock().unlock();
+            }
+        }
+        return value;
     }
 
     /**
@@ -205,7 +271,26 @@ public class StoreableTable implements Table {
      */
     @Override
     public int size() {
-        return tableIndexedData.size();
+        int count = 0;
+        tableLock.readLock().lock();
+        try {
+            count = tableOnDisk.size();
+            //удаляем те которые с коммитом уйдут в мир иной
+            for (String currentKey : removedKeys.get()) {
+                if (tableOnDisk.containsKey(currentKey) && !changedKeys.get().containsKey(currentKey)) {
+                    --count;
+                }
+            }
+            //добавляем те которые запишутся на диск при коммите
+            for (String currentKey : changedKeys.get().keySet()) {
+                if (!removedKeys.get().contains(currentKey) && !tableOnDisk.containsKey(currentKey)) {
+                    ++count;
+                }
+            }
+            return count;
+        } finally {
+            tableLock.readLock().unlock();
+        }
     }
 
     /**
@@ -217,21 +302,16 @@ public class StoreableTable implements Table {
      */
     @Override
     public int commit() throws IOException {
-        int numberOfCommittedChanges = uncommittedChanges();
-        Set<Map.Entry<String, Storeable>> dbSet = tableIndexedData.entrySet();
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                if (tableFileModified[nDir][nFile]) {
-                    if (tableFiles[nDir][nFile] == null) {
-                        File subDir = new File(tableRootDir, Integer.toString(nDir) + ".dir");
-                        File subFile = new File(subDir, Integer.toString(nFile) + ".dat");
-                        if (!subDir.exists()) {
-                            if (!subDir.mkdir()) {
-                                throw new IllegalStateException("Sub dir was not created");
-                            }
-                        }
-                        tableFiles[nDir][nFile] = new TableFile(subFile);
-                    }
+        tableLock.writeLock().lock();
+        try {
+            int count = uncommittedChanges();
+            for (String currentKey : removedKeys.get()) {
+                tableOnDisk.remove(currentKey);
+            }
+            tableOnDisk.putAll(changedKeys.get());
+            Set<Map.Entry<String, Storeable>> dbSet = tableOnDisk.entrySet();
+            for (int nDir = 0; nDir < 16; ++nDir) {
+                for (int nFile = 0; nFile < 16; ++nFile) {
                     List<TableFile.Entry> fileData = new ArrayList<>();
                     Iterator<Map.Entry<String, Storeable>> iter = dbSet.iterator();
                     while (iter.hasNext()) {
@@ -242,14 +322,28 @@ public class StoreableTable implements Table {
                                     tableProvider.serialize(this, tempMapEntry.getValue())));
                         }
                     }
+                    if (fileData.isEmpty()) {
+                        continue;
+                    }
+                    if (tableFiles[nDir][nFile] == null) {
+                        File subDir = new File(tableRootDir, Integer.toString(nDir) + ".dir");
+                        File subFile = new File(subDir, Integer.toString(nFile) + ".dat");
+                        if (!subDir.exists()) {
+                            if (!subDir.mkdir()) {
+                                throw new IllegalStateException("Sub dir was not created");
+                            }
+                        }
+                        tableFiles[nDir][nFile] = new TableFile(subFile);
+                    }
                     tableFiles[nDir][nFile].writeEntries(fileData);
-                    tableFileModified[nDir][nFile] = false;
                 }
             }
+            changedKeys.get().clear();
+            removedKeys.get().clear();
+            return count;
+        } finally {
+            tableLock.writeLock().unlock();
         }
-        tableOnDisk.clear();
-        tableOnDisk.putAll(tableIndexedData);
-        return numberOfCommittedChanges;
     }
 
     /**
@@ -259,15 +353,15 @@ public class StoreableTable implements Table {
      */
     @Override
     public int rollback() {
-        int numberOfRolledChanges = uncommittedChanges();
-        tableIndexedData.clear();
-        tableIndexedData.putAll(tableOnDisk);
-        for (int nDir = 0; nDir < 16; ++nDir) {
-            for (int nFile = 0; nFile < 16; ++nFile) {
-                tableFileModified[nDir][nFile] = false;
-            }
+        tableLock.readLock().lock();
+        try {
+            int numberOfRolledChanges = uncommittedChanges();
+            changedKeys.get().clear();
+            removedKeys.get().clear();
+            return numberOfRolledChanges;
+        } finally {
+            tableLock.readLock().unlock();
         }
-        return numberOfRolledChanges;
     }
 
     public void close() throws IOException {
@@ -287,27 +381,19 @@ public class StoreableTable implements Table {
     }
 
     public int uncommittedChanges() {
-        Set<Map.Entry<String, Storeable>> indexedSet = tableIndexedData.entrySet();
-        Set<Map.Entry<String, Storeable>> diskSet = tableOnDisk.entrySet();
         int count = 0;
-        Iterator<Map.Entry<String, Storeable>> iter1 = indexedSet.iterator();
-        Iterator<Map.Entry<String, Storeable>> iter2 = diskSet.iterator();
-        while (iter1.hasNext()) {
-            Map.Entry<String, Storeable> next = iter1.next();
-            Storeable entryOnDisk = tableOnDisk.get(next.getKey());
-            if (entryOnDisk == null) {
-                //записи на диске нет, то она изменение
-                ++count;
-            } else if (!entryOnDisk.equals(next.getValue())) {
-                //запись на диске есть, но она другая, тоже изменение
-                ++count;
+        //удаленные с диска
+        for (String currentKey : removedKeys.get()) {
+            if (tableOnDisk.containsKey(currentKey)) {
+                Storeable currentValue = changedKeys.get().get(currentKey);
+                if (currentValue == null || !currentValue.equals(tableOnDisk.get(currentKey))) {
+                    ++count;
+                }
             }
         }
-        while (iter2.hasNext()) {
-            Map.Entry<String, Storeable> next = iter2.next();
-            Storeable entryIndexed = tableIndexedData.get(next.getKey());
-            if (entryIndexed == null) {
-                //на диске есть, индексированной нет, изменение
+        //измененные
+        for (String currentKey : changedKeys.get().keySet()) {
+            if (!tableOnDisk.containsKey(currentKey)) {
                 ++count;
             }
         }

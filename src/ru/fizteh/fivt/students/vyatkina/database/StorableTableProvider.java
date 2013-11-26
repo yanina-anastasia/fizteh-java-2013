@@ -5,6 +5,8 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import java.util.List;
 
 public interface StorableTableProvider extends TableProvider {
-    public List<Class <?> > parseStructedSignature (String structedSignature);
-    public void saveChangesOnExit ();
+
+    public List<Class<?>> parseStructedSignature(String structedSignature);
+
+    public void saveChangesOnExit();
 }

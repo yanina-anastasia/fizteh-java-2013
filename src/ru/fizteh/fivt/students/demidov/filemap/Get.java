@@ -14,7 +14,7 @@ public class Get extends BasicFileMapCommand {
 		String value = null;
 		try {
 			value = currentState.get(arguments[0]);
-		} catch(WrongTypeException catchedException) {
+		} catch (WrongTypeException catchedException) {
 			throw new IOException("wrong type (" + catchedException.getMessage() + ")");
 		}
 		

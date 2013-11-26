@@ -7,7 +7,18 @@ import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 
 
 public class MyTableTest {
@@ -38,7 +49,7 @@ public class MyTableTest {
 
     public void storeableEquals(Storeable a, Storeable b) {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
-            Assert.assertEquals(a.getColumnAt(i),b.getColumnAt(i));
+            Assert.assertEquals(a.getColumnAt(i), b.getColumnAt(i));
         }
     }
 
@@ -98,7 +109,7 @@ public class MyTableTest {
         types.add(Long.class);
         types.add(Long.class);
 
-        Table table = provider.createTable("simple1", types);
+        Table table = provider.createTable("simple13424", types);
 
         Storeable storeable = provider.createFor(table);
 
@@ -185,5 +196,23 @@ public class MyTableTest {
         Assert.assertEquals(storeable.getStringAt(0), "");
     }
 
-
+    @Test
+    public void testCommitRollback() throws IOException {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(0, "");
+        Assert.assertNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertNotNull(table.put("abacaba", storeable));
+        Assert.assertNotNull(table.get("abacaba"));
+        Assert.assertEquals(table.commit(), 0);
+        Assert.assertEquals(table.rollback(), 0);
+        storeable.setColumnAt(0, "123");
+        Assert.assertNotNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.rollback(), 1);
+        Assert.assertNotNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.commit(), 1);
+        Assert.assertNotNull(table.remove("abacaba"));
+        Assert.assertNull(table.put("abacaba", storeable));
+        Assert.assertEquals(table.commit(), 0);
+    }
 }

@@ -7,4 +7,3 @@ public interface BasicState {
 	String put(String key, String value) throws IOException;
 	String remove(String key) throws IOException;
 }
-

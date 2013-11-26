@@ -9,9 +9,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ru.fizteh.fivt.students.demidov.multifilehashmap.FilesMap;
+import ru.fizteh.fivt.students.demidov.storeable.WrongTypeException;
 
 abstract public class BasicTable<ElementType> {
+	private volatile FilesMap<ElementType> filesMap;
+	private String tableName;	
+	private ThreadLocal<HashMap<String, ElementType>> putDiff;
+	private ThreadLocal<HashSet<String>> removeDiff;
+	private ReadWriteLock readWriteLock;
+
 	public BasicTable(String path, String tableName) throws IOException {
 		this.filesMap = new FilesMap<ElementType>(path, this);
 		this.tableName = tableName;
@@ -19,17 +25,16 @@ abstract public class BasicTable<ElementType> {
 		readWriteLock = new ReentrantReadWriteLock(true);
 		
 		putDiff = new ThreadLocal<HashMap<String, ElementType>>() {
-	        protected HashMap<String, ElementType> initialValue() {
-	            return new HashMap<String, ElementType>();
-	        }
-	    };
-	    removeDiff = new ThreadLocal<HashSet<String>>() {
-	        protected HashSet<String> initialValue() {
-	            return new HashSet<String>();
-	        }
-	    };
+		    protected HashMap<String, ElementType> initialValue() {
+		        return new HashMap<String, ElementType>();
+		    }
+		};
+		removeDiff = new ThreadLocal<HashSet<String>>() {
+		    protected HashSet<String> initialValue() {
+		        return new HashSet<String>();
+		        }
+		};
 	}
-	
 	
 	public String getName() {
 		return tableName;
@@ -38,18 +43,19 @@ abstract public class BasicTable<ElementType> {
 	public ElementType get(String key) {
 		checkKey(key);
 		
-		readWriteLock.readLock().lock();		
-		ElementType value = filesMap.getFileMapForKey(key).getCurrentTable().get(key);
-		readWriteLock.readLock().unlock();
-		
-		if (putDiff.get().containsKey(key)) {
-			value = putDiff.get().get(key);
-		}
 		if (removeDiff.get().contains(key)) {
-			value = null;
+			return null;
+		}
+		if (putDiff.get().containsKey(key)) {
+		    return putDiff.get().get(key);
 		}
 		
-		return value;
+		readWriteLock.readLock().lock();      
+        try {
+            return filesMap.getFileMapForKey(key).getCurrentTable().get(key);
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
 	}
 
 	public ElementType put(String key, ElementType value) {
@@ -57,23 +63,15 @@ abstract public class BasicTable<ElementType> {
 		if (value == null) {
 			throw new IllegalArgumentException("null or empty parameter");
 		}
-		
-		readWriteLock.readLock().lock();		
+				
 		ElementType overwrite = get(key);
-		ElementType previousValue = filesMap.getFileMapForKey(key).getCurrentTable().get(key);
-		readWriteLock.readLock().unlock();
 		
-		if (value.equals(previousValue)) {
-			putDiff.get().remove(key);
-		} else {
-			putDiff.get().put(key, value);
-		}
+		putDiff.get().put(key, value);
 		removeDiff.get().remove(key);
 		
 		return overwrite;
 	}
 	
-
 	public ElementType remove(String key) {
 		checkKey(key);
 		ElementType removed = get(key);
@@ -101,15 +99,13 @@ abstract public class BasicTable<ElementType> {
 	        }
 	    }
 	    
-	    try {
-	    	return previousSize;
-	    } finally {
-	    	readWriteLock.readLock().unlock();
-		}
+	    readWriteLock.readLock().unlock();
+	    
+	    return previousSize;
 	}
 
 	public int commit() throws IOException {	
-		readWriteLock.writeLock().lock();	
+		readWriteLock.writeLock().lock();	 
 		int changesNumber = getChangesNumber();
 		if (changesNumber != 0) {
 			autoCommit();
@@ -122,7 +118,7 @@ abstract public class BasicTable<ElementType> {
 		return changesNumber;		
 	}
 	
-	public void autoCommit() {
+	public void autoCommit() { 
 		for (String key: putDiff.get().keySet()) {
 			filesMap.getFileMapForKey(key).getCurrentTable().put(key, putDiff.get().get(key));
 		}		
@@ -133,11 +129,8 @@ abstract public class BasicTable<ElementType> {
 	    }
 	}
 	
-
 	public int rollback() {
-		readWriteLock.readLock().lock();
 		int changesNumber = getChangesNumber();
-	    readWriteLock.readLock().unlock();
 		
 		putDiff.get().clear();
 		removeDiff.get().clear();
@@ -148,26 +141,33 @@ abstract public class BasicTable<ElementType> {
 		int changesNumber = 0;
 		Iterator<String> removeDiffIterator = removeDiff.get().iterator();
 		
-	    while(removeDiffIterator.hasNext()) {
-	        String key = removeDiffIterator.next();
-	        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
-	        	++changesNumber;
-	        }
-	    }
-	    for (String key: putDiff.get().keySet()) {
-			if (!(putDiff.get().get(key).equals(filesMap.getFileMapForKey(key).getCurrentTable().get(key)))) {
-				++changesNumber;
-			}
-		}	
+		readWriteLock.readLock().lock();
+		try {
+		    while(removeDiffIterator.hasNext()) {
+		        String key = removeDiffIterator.next();
+		        if (filesMap.getFileMapForKey(key).getCurrentTable().get(key) != null) {
+		            ++changesNumber;
+		        }
+		    }
+		    for (String key: putDiff.get().keySet()) {
+		        try {
+		            if (!serialize((putDiff.get().get(key))).equals(serialize(filesMap.getFileMapForKey(key).getCurrentTable().get(key)))) {
+		                ++changesNumber;
+		            }
+		        } catch (IOException catchedException) {
+		            throw new WrongTypeException(catchedException.getMessage());
+		        }
+		    }	
+		} finally {
+		    readWriteLock.readLock().unlock();
+		}
 	    
 		return changesNumber;
 	}
 	
-	
 	public FilesMap<ElementType> getFilesMap() {
 		return filesMap;
 	}
-	
 	
 	public void checkKey(String key) {
 		if ((key == null) || (key.trim().isEmpty())) {
@@ -186,11 +186,4 @@ abstract public class BasicTable<ElementType> {
 	abstract public String serialize(ElementType value) throws IOException;
 	
 	abstract public ElementType deserialize(String value) throws IOException;
-	
-	private volatile FilesMap<ElementType> filesMap;
-	private String tableName;	
-	private ThreadLocal<HashMap<String, ElementType>> putDiff;
-    private ThreadLocal<HashSet<String>> removeDiff;
-    private ReadWriteLock readWriteLock;
 }
-

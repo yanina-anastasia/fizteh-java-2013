@@ -28,7 +28,8 @@ public class CommandDrop implements Command<StoreableState> {
                     dbDir.delete();
                 }
             }
-            if (state.getCurrentTable() != null && args[0].equals(state.getCurrentTable().getPath().getFileName().toString())) {
+            if (state.getCurrentTable() != null
+                    && args[0].equals(state.getCurrentTable().getPath().getFileName().toString())) {
                 state.getCurrentTable().clear();
                 state.setCurrentTable(null);
             }

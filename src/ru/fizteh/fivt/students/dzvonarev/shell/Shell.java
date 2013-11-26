@@ -79,7 +79,7 @@ public class Shell {
         }
         try {     // exit our programm
             Shell.run(input);
-        } catch (IOException | IllegalArgumentException | IllegalStateException  | IndexOutOfBoundsException e) {
+        } catch (IOException | IllegalArgumentException | IllegalStateException | IndexOutOfBoundsException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -104,10 +104,10 @@ public class Shell {
         System.out.print("$ ");
     }
 
-    public static String getAbsPath(final String Path) throws IOException {
-        File newFile = new File(Path);
+    public static String getAbsPath(final String path) throws IOException {
+        File newFile = new File(path);
         if (!newFile.isAbsolute()) {
-            newFile = new File(Shell.getCurrentDirectory(), Path);
+            newFile = new File(Shell.getCurrentDirectory(), path);
         }
         try {
             return newFile.getCanonicalPath();

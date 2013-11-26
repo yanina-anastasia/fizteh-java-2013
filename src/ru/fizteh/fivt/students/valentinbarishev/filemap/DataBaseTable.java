@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.json.JSONArray;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
@@ -17,6 +19,10 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 public final class DataBaseTable implements TableProvider {
     private String tableDir;
     private Map<String, DataBase> tableInUse;
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock readLock = readWriteLock.readLock();
+    private Lock writeLock = readWriteLock.writeLock();
 
     public DataBaseTable(String newTableDir) {
         tableDir = newTableDir;
@@ -45,17 +51,22 @@ public final class DataBaseTable implements TableProvider {
 
         File file = new File(fullPath);
 
+        writeLock.lock();
+        try {
         if (file.exists()) {
-            return null;
-        }
+                return null;
+            }
 
-        if (!file.mkdir()) {
-            throw new MultiDataBaseException("Cannot create table " + tableName);
-        }
+            if (!file.mkdir()) {
+                throw new MultiDataBaseException("Cannot create table " + tableName);
+            }
 
-        DataBase table = new DataBase(fullPath, this, columnTypes);
-        tableInUse.put(tableName, table);
-        return table;
+            DataBase table = new DataBase(fullPath, this, columnTypes);
+            tableInUse.put(tableName, table);
+            return table;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
@@ -67,16 +78,20 @@ public final class DataBaseTable implements TableProvider {
         if (!file.exists()) {
             throw new IllegalStateException("Table not exist already!");
         }
-
-        if (!tableInUse.containsKey(tableName)) {
-            DataBase base = new DataBase(tableName, this, null);
-            base.drop();
-        } else {
-            tableInUse.get(tableName).drop();
-            tableInUse.remove(tableName);
-        }
-        if (!file.delete()) {
-            throw new DataBaseException("Cannot delete a file " + tableName);
+        writeLock.lock();
+        try {
+            if (!tableInUse.containsKey(tableName)) {
+                DataBase base = new DataBase(tableName, this, null);
+                base.drop();
+            } else {
+                tableInUse.get(tableName).drop();
+                tableInUse.remove(tableName);
+            }
+            if (!file.delete()) {
+                throw new DataBaseException("Cannot delete a file " + tableName);
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -89,17 +104,27 @@ public final class DataBaseTable implements TableProvider {
         if ((!file.exists()) || (file.isFile())) {
             return null;
         }
-        if (tableInUse.containsKey(tableName)) {
-            return tableInUse.get(tableName);
-        } else {
-            try {
-                DataBase table = new DataBase(fullPath, this, null);
-                tableInUse.put(tableName, table);
-                return table;
-            } catch (IOException e) {
-                throw new DataBaseException(e.getMessage());
+
+        readLock.lock();
+        try {
+            if (tableInUse.containsKey(tableName)) {
+                return tableInUse.get(tableName);
             }
+        } finally {
+            readLock.unlock();
         }
+
+        writeLock.lock();
+        try {
+            DataBase table = new DataBase(fullPath, this, null);
+            tableInUse.put(tableName, table);
+            return table;
+        } catch (IOException e) {
+            throw new DataBaseException(e.getMessage());
+        } finally {
+            writeLock.unlock();
+        }
+
     }
 
     @Override

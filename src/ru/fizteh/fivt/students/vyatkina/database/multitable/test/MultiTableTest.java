@@ -24,33 +24,33 @@ public class MultiTableTest {
     private static MultiTableProvider tableProvider;
 
     @Rule
-    public TemporaryFolder folder = new TemporaryFolder ();
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeClass
-    public void setTableProvider ()  {
-        tableProvider = new MultiTableProvider (folder.getRoot ().toPath ());
+    public void setTableProvider() {
+        tableProvider = new MultiTableProvider(folder.getRoot().toPath());
     }
 
     @Before
-    public void setUseTableSampleTable1 () {
-        table = tableProvider.createTable (SAMPLE_TABLE_NAME1);
+    public void setUseTableSampleTable1() {
+        table = tableProvider.createTable(SAMPLE_TABLE_NAME1);
         if (table == null) {
-            table = tableProvider.getTable (SAMPLE_TABLE_NAME1);
+            table = tableProvider.getTable(SAMPLE_TABLE_NAME1);
         }
-        Assert.assertNotEquals ("Current table should not be null", null, table);
+        Assert.assertNotEquals("Current table should not be null", null, table);
 
     }
 
     @After
-    public void unsetUseTable () throws IOException {
+    public void unsetUseTable() throws IOException {
     }
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none ();
+    public ExpectedException thrown = ExpectedException.none();
 
     @Test
-    public void tableNameShouldBeSampleTableName1 () {
-        Assert.assertEquals ("Table name should be " + SAMPLE_TABLE_NAME1, SAMPLE_TABLE_NAME1, table.getName ());
+    public void tableNameShouldBeSampleTableName1() {
+        Assert.assertEquals("Table name should be " + SAMPLE_TABLE_NAME1, SAMPLE_TABLE_NAME1, table.getName());
     }
 
 

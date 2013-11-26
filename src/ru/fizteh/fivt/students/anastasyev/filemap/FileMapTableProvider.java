@@ -15,21 +15,24 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class FileMapTableProvider extends State implements TableProvider {
     private File multiFileHashMapDir;
-    private Vector<Command> commands = new Vector<Command>();
-    private Hashtable<String, FileMapTable> allFileMapTablesHashtable = new Hashtable<String, FileMapTable>();
+    private ArrayList<Command> commands = new ArrayList<>();
+    private HashMap<String, Class<?>> providedTypes;
+    private HashMap<Class<?>, String> providedTypesNames;
     private String currentFileMapTable = null;
-    private Hashtable<String, Class<?>> providedTypes;
-    private Hashtable<Class<?>, String> providedTypesNames;
+    private HashMap<String, FileMapTable> allFileMapTablesHashtable = new HashMap<String, FileMapTable>();
+
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock read = readWriteLock.readLock();
+    private Lock write = readWriteLock.writeLock();
 
     @Override
-    public Vector<Command> getCommands() {
+    public ArrayList<Command> getCommands() {
         return commands;
     }
 
@@ -64,19 +67,24 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     public void setCurrentTable(String name) throws IOException {
         isBadName(name);
-        if (!allFileMapTablesHashtable.containsKey(name)) {
-            System.out.println(name + " not exists");
-            return;
-        }
-        if (currentFileMapTable != null) {
-            int uncommitedSize = allFileMapTablesHashtable.get(currentFileMapTable).uncommittedSize();
-            if (uncommitedSize != 0) {
-                System.out.println(uncommitedSize + " unsaved changes");
+        write.lock();
+        try {
+            if (!allFileMapTablesHashtable.containsKey(name)) {
+                System.out.println(name + " not exists");
                 return;
             }
+            if (currentFileMapTable != null) {
+                int uncommitedSize = allFileMapTablesHashtable.get(currentFileMapTable).uncommittedChangesCount();
+                if (uncommitedSize != 0) {
+                    System.out.println(uncommitedSize + " unsaved changes");
+                    return;
+                }
+            }
+            currentFileMapTable = name;
+            System.out.println("using " + name);
+        } finally {
+            write.unlock();
         }
-        currentFileMapTable = name;
-        System.out.println("using " + name);
     }
 
     public FileMapTable getCurrentFileMapTable() {
@@ -99,8 +107,8 @@ public class FileMapTableProvider extends State implements TableProvider {
         if (!multiFileHashMapDir.isDirectory()) {
             throw new IllegalArgumentException(dbDir + " is not directory");
         }
-        providedTypes = new Hashtable<String, Class<?>>();
-        providedTypesNames = new Hashtable<Class<?>, String>();
+        providedTypes = new HashMap<String, Class<?>>();
+        providedTypesNames = new HashMap<Class<?>, String>();
 
         providedTypes.put("int", Integer.class);
         providedTypesNames.put(Integer.class, "int");
@@ -189,36 +197,54 @@ public class FileMapTableProvider extends State implements TableProvider {
             }
             types.add(typeName);
         }
-        if (allFileMapTablesHashtable.containsKey(name)) {
-            return null;
-        }
-        File newFileMapTable = new File(multiFileHashMapDir.toString() + File.separator + name);
-        FileMapTable fileMapTable = null;
+        read.lock();
         try {
-            fileMapTable = new FileMapTable(newFileMapTable.toString(), columnTypes, this);
-            allFileMapTablesHashtable.put(name, fileMapTable);
-            writeSignature(newFileMapTable, types);
-        } catch (ParseException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+            if (allFileMapTablesHashtable.containsKey(name)) {
+                return null;
+            }
+        } finally {
+            read.unlock();
         }
-        return fileMapTable;
+        write.lock();
+        try {
+            if (allFileMapTablesHashtable.containsKey(name)) {
+                return null;
+            }
+            File newFileMapTable = new File(multiFileHashMapDir.toString(), name);
+            FileMapTable fileMapTable = null;
+            try {
+                fileMapTable = new FileMapTable(newFileMapTable.toString(), columnTypes, this);
+                allFileMapTablesHashtable.put(name, fileMapTable);
+                writeSignature(newFileMapTable, types);
+            } catch (ParseException e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+            return fileMapTable;
+        } finally {
+            write.unlock();
+        }
     }
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
         isBadName(name);
-        FileMapTable deleteTable = allFileMapTablesHashtable.get(name);
-        if (deleteTable == null) {
-            throw new IllegalStateException("TableName is not exists");
-        }
+        write.lock();
         try {
-            rmTable(multiFileHashMapDir.toPath().resolve(name));
-            allFileMapTablesHashtable.remove(name);
-        } catch (IOException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
-        if (name.equals(currentFileMapTable)) {
-            currentFileMapTable = null;
+            FileMapTable deleteTable = allFileMapTablesHashtable.get(name);
+            if (deleteTable == null) {
+                throw new IllegalStateException(name + " is not exists");
+            }
+            try {
+                rmTable(multiFileHashMapDir.toPath().resolve(name));
+                allFileMapTablesHashtable.remove(name);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+            if (name.equals(currentFileMapTable)) {
+                currentFileMapTable = null;
+            }
+        } finally {
+            write.unlock();
         }
     }
 
