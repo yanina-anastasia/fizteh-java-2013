@@ -17,7 +17,7 @@ import java.text.ParseException;
  */
 public class JSONserializer {
     private static Object getRightClassObject(Table table, JSONArray input, int index) throws ColumnFormatException {
-        if (input.get(index) == JSONObject.NULL) {
+        if (input.get(index) == JSONObject.NULL || input.get(index) == null) {
             return null;
         }
         if (input.get(index).getClass() == Integer.class && table.getColumnType(index) == Integer.class) {

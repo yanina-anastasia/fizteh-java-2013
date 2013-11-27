@@ -26,6 +26,7 @@ public class StoreableRowUnitTest {
     TableProvider tableProvider;
     Table testTable;
     Storeable testStoreable;
+    Storeable newTestStoreable;
     File sandBoxDirectory = new File("/Users/Alexander/Documents/JavaDataBase/Tests");
 
     @Before
@@ -35,7 +36,7 @@ public class StoreableRowUnitTest {
                 createListOfTypesFromString("int long byte float double boolean String");
         testTable = tableProvider.createTable("testTable22", typesTestListOne);
         testStoreable = tableProvider.deserialize(testTable,
-                "[0, 3000000000, 0, 0.123, 1.7976931348623157E308, true, \"Hello World\"]");
+                "[0, 3000000000, 0, 0.123, 1.7976931348623157E308, true, null]");
     }
 
     @After
@@ -217,6 +218,6 @@ public class StoreableRowUnitTest {
 
     @Test
     public void getStringAtTest() {
-        Assert.assertEquals("Hello World", testStoreable.getStringAt(6));
+        Assert.assertEquals(null, testStoreable.getStringAt(6));
     }
 }
