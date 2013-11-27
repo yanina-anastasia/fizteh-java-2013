@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.kislenko.proxy;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -14,6 +13,8 @@ import java.util.Set;
 public class MyInvocationHandler implements InvocationHandler {
     Writer w;
     Object impl;
+    static XMLStreamWriter writer = null;
+    static int invokeCounter = 0;
 
     public MyInvocationHandler(Writer writer, Object implementation) {
         w = writer;
@@ -23,9 +24,11 @@ public class MyInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
-        StringWriter stringWriter = new StringWriter();
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        XMLStreamWriter writer = factory.createXMLStreamWriter(stringWriter);
+        if (invokeCounter == 0) {
+            MyInvocationHandler.writer = factory.createXMLStreamWriter(w);
+        }
+        ++invokeCounter;
         writer.writeStartElement("invoke");
         writer.writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
         writer.writeAttribute("class", String.valueOf(proxy.getClass().getCanonicalName()));
@@ -34,11 +37,7 @@ public class MyInvocationHandler implements InvocationHandler {
             writer.writeStartElement("arguments");
             for (Object arg : args) {
                 writer.writeStartElement("argument");
-                if (arg != null) {
-                    logArgument(writer, arg);
-                } else {
-                    writer.writeEmptyElement("null");
-                }
+                logArgument(writer, arg);
                 writer.writeEndElement();
             }
             writer.writeEndElement();
@@ -59,11 +58,15 @@ public class MyInvocationHandler implements InvocationHandler {
         }
         writer.writeEndDocument();
         writer.flush();
-        System.out.println(stringWriter.getBuffer());
+        //System.out.println(w.getBuffer());
         return result;
     }
 
     private static void logArgument(XMLStreamWriter w, Object arg) throws XMLStreamException {
+        if (arg == null) {
+            w.writeEmptyElement("null");
+            return;
+        }
         if (arg.getClass().isAssignableFrom(Class.class)) {
             w.writeCharacters(arg.getClass().getCanonicalName());
             return;
@@ -102,6 +105,11 @@ public class MyInvocationHandler implements InvocationHandler {
                 w.writeEndElement();
             }
             w.writeEndElement();
+            return;
+        }
+        if (Method.class.isAssignableFrom(arg.getClass())) {
+            Method method = (Method) arg;
+            w.writeCharacters(method.getDeclaringClass().getCanonicalName() + "." + method.getName());
             return;
         }
         w.writeCharacters(arg.toString());
