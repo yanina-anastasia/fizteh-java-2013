@@ -38,8 +38,7 @@ public class FileMap implements Table {
             return new MyHashMap();
         }
     };
-    boolean existDir = false;
-    boolean tableDrop = false;
+    volatile boolean tableDrop = false;
     FileMapProvider parent;
     List<Class<?>> columnType = new ArrayList<Class<?>>();
 
@@ -53,7 +52,6 @@ public class FileMap implements Table {
         if (!theDir.exists()) {
             try {
                 mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
-                existDir = true;
             } catch (Exception e) {
                 e.addSuppressed(new ErrorFileMap("I can't create a folder table " + nameTable));
                 throw e;
@@ -122,7 +120,6 @@ public class FileMap implements Table {
         if (!theDir.exists()) {
             try {
                 mySystem.mkdir(new String[]{pathDb.resolve(nameTable).toString()});
-                existDir = true;
             } catch (Exception e) {
                 e.addSuppressed(new ErrorFileMap("I can't create a folder table " + nameTable));
                 throw e;
@@ -576,56 +573,33 @@ public class FileMap implements Table {
         if (tableDrop) {
             throw new IllegalStateException("table was deleted");
         }
-
         int count = 0;
         Set<String> changedKey = new HashSet<>();
-
-        for (String key : changeTable.get().keySet()) {
-            Storeable value = changeTable.get().get(key);
-
-            Storeable oldValue = null;
-            read.lock();
-            try {
+        write.lock();
+        try {
+            for (String key : changeTable.get().keySet()) {
+                Storeable value = changeTable.get().get(key);
+                Storeable oldValue = null;
                 oldValue = tableData.get(key);
-            } finally {
-                read.unlock();
-            }
-
-            if (value == null) {
-                if (oldValue != null) {
-                    ++count;
-                    changedKey.add(key);
-                }
-
-                write.lock();
-                try {
-                    tableData.remove(key);
-                } finally {
-                    write.unlock();
-                }
-
-            } else {
-                if (oldValue == null) {
-                    ++count;
-                    changedKey.add(key);
-                } else {
-                    if (!parent.serialize(this, value).equals(parent.serialize(this, oldValue))) {
+                if (value == null) {
+                    if (oldValue != null) {
                         ++count;
                         changedKey.add(key);
                     }
-                }
-
-                write.lock();
-                try {
+                    tableData.remove(key);
+                } else {
+                    if (oldValue == null) {
+                        ++count;
+                        changedKey.add(key);
+                    } else {
+                        if (!parent.serialize(this, value).equals(parent.serialize(this, oldValue))) {
+                            ++count;
+                            changedKey.add(key);
+                        }
+                    }
                     tableData.put(key, changeTable.get().get(key));
-                } finally {
-                    write.unlock();
                 }
             }
-        }
-
-        write.lock();
-        try {
             refreshTableFiles(changedKey);
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -633,7 +607,6 @@ public class FileMap implements Table {
             write.unlock();
             changeTable.get().clear();
         }
-
         return count;
     }
 
