@@ -462,9 +462,6 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        if (isClosed) {
-            throw new IllegalStateException("It is already closed");
-        }
         for (final String tableName : tables.keySet()) {
             tables.get(tableName).close();
         }
