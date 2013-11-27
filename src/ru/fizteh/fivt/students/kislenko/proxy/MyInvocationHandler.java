@@ -27,7 +27,9 @@ public class MyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.equals(Object.class.getMethod("equals", Object.class))) {
+        if (method.equals(Object.class.getMethod("equals", Object.class))
+                || method.equals(Object.class.getMethod("toString"))
+                || method.equals(Object.class.getMethod("hashCode"))) {
             return null;
         }
         Object result = null;
