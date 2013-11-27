@@ -6,59 +6,70 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class MyInvocationHandler implements InvocationHandler {
-    Writer w;
-    Object impl;
-    static XMLStreamWriter writer = null;
-    static int invokeCounter = 0;
+    ThreadLocal<Writer> w;
+    ThreadLocal<Object> impl;
+    static ThreadLocal<XMLStreamWriter> writer = null;
+    static ThreadLocal<Integer> invokeCounter = new ThreadLocal<Integer>() {
+        public Integer initialValue() {
+            return 0;
+        }
+    };
+    static Set<String> badMethodNameSet = new HashSet<String>();
 
     public MyInvocationHandler(Writer writer, Object implementation) {
-        w = writer;
-        impl = implementation;
+        w.set(writer);
+        impl.set(implementation);
+        badMethodNameSet.add("equals");
+        badMethodNameSet.add("hashCode");
+        badMethodNameSet.add("toString");
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (badMethodNameSet.contains(method.getName())) {
+            throw new IllegalArgumentException("Cannot proxy \"equals\", \"toString\" and \"hashCode\" methods.");
+        }
         Object result = null;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        if (invokeCounter == 0) {
-            MyInvocationHandler.writer = factory.createXMLStreamWriter(w);
+        if (invokeCounter.get() == 0) {
+            MyInvocationHandler.writer.set(factory.createXMLStreamWriter(w.get()));
         }
-        ++invokeCounter;
-        writer.writeStartElement("invoke");
-        writer.writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
-        writer.writeAttribute("class", String.valueOf(proxy.getClass().getCanonicalName()));
-        writer.writeAttribute("name", String.valueOf(method.getName()));
+        invokeCounter.set(invokeCounter.get() + 1);
+        writer.get().writeStartElement("invoke");
+        writer.get().writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
+        writer.get().writeAttribute("class", String.valueOf(proxy.getClass().getCanonicalName()));
+        writer.get().writeAttribute("name", String.valueOf(method.getName()));
         if (args == null || args.length > 0) {
-            writer.writeStartElement("arguments");
+            writer.get().writeStartElement("arguments");
             for (Object arg : args) {
-                writer.writeStartElement("argument");
-                logArgument(writer, arg);
-                writer.writeEndElement();
+                writer.get().writeStartElement("argument");
+                logArgument(writer.get(), arg);
+                writer.get().writeEndElement();
             }
-            writer.writeEndElement();
+            writer.get().writeEndElement();
         } else {
-            writer.writeEmptyElement("argument");
+            writer.get().writeEmptyElement("argument");
         }
         try {
             result = method.invoke(proxy, args);
             if (!method.getReturnType().isAssignableFrom(Void.class)) {
-                writer.writeStartElement("return");
-                logArgument(writer, result);
-                writer.writeEndElement();
+                writer.get().writeStartElement("return");
+                logArgument(writer.get(), result);
+                writer.get().writeEndElement();
             }
         } catch (Exception e) {
-            writer.writeStartElement("thrown");
-            logArgument(writer, e);
-            writer.writeEndElement();
+            writer.get().writeStartElement("thrown");
+            logArgument(writer.get(), e);
+            writer.get().writeEndElement();
         }
-        writer.writeEndDocument();
-        writer.flush();
-        //System.out.println(w.getBuffer());
+        writer.get().writeEndDocument();
+        writer.get().flush();
         return result;
     }
 
