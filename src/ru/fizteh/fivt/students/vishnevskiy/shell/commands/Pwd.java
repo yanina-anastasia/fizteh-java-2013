@@ -1,18 +1,27 @@
 package ru.fizteh.fivt.students.vishnevskiy.shell.commands;
 
 import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
-import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
-import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.CommandException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.State;
 
-public class Pwd implements Command{
+public class Pwd extends Command {
     private static final String NAME = "pwd";
-    public Pwd() {}
+    private static final int ARGS_NUM = 0;
+
+    public Pwd() {
+    }
+
     public String getName() {
         return NAME;
     }
-    public void execute(FileSystemOperator fileSystem, String[] args) throws ShellException {
+
+    public int getArgsNum() {
+        return ARGS_NUM;
+    }
+
+    public void execute(State fileSystem, String[] args) throws CommandException {
         if (args.length > 0) {
-            throw new ShellException("pwd: no arguments needed");
+            throw new CommandException("pwd: no arguments needed");
         }
         System.out.println(fileSystem.getCurrentDirectory());
     }

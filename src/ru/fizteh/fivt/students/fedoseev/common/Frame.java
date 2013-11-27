@@ -1,22 +1,25 @@
 package ru.fizteh.fivt.students.fedoseev.common;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Map;
 
 public interface Frame {
-    interface Command {
+    interface Command<State> {
         String getCmdName();
 
         int getArgsCount();
 
-        void execute(String[] input, AbstractFrame.FrameState state) throws IOException, InterruptedException;
+        void execute(String[] input, State state)
+                throws IOException, InterruptedException, ClassNotFoundException, ParseException;
     }
 
     Map<String, AbstractCommand> getCommands();
 
-    void runCommands(String cmd, int end) throws IOException, InterruptedException;
+    void runCommands(String cmd, int end)
+            throws IOException, InterruptedException, ClassNotFoundException, ParseException;
 
-    void BatchMode(String[] args);
+    void batchMode(String[] args);
 
-    void InteractiveMode() throws InterruptedException;
+    void interactiveMode() throws InterruptedException;
 }

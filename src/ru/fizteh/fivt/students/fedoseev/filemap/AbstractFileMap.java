@@ -2,38 +2,45 @@ package ru.fizteh.fivt.students.fedoseev.filemap;
 
 import ru.fizteh.fivt.students.fedoseev.common.AbstractFrame;
 import ru.fizteh.fivt.students.fedoseev.common.AbstractCommand;
-import ru.fizteh.fivt.students.fedoseev.common.Utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class AbstractFileMap extends AbstractFrame {
-    private static final Map<String, String> content = new HashMap<String, String>();
+public class AbstractFileMap extends AbstractFrame<FileMapState> {
+    private static Map<String, String> content = new HashMap<String, String>();
     private static final int MAX_FILE_SIZE = 150100500;
     private static RandomAccessFile file;
+
+    public AbstractFileMap(File file) throws IOException {
+        state = new FileMapState();
+        state.setCurState(file);
+        checkOpenFile();
+    }
 
     public static RandomAccessFile getFile() {
         return file;
     }
 
-    public static Map<String, String> getMap() {
+    public static Map<String, String> getContent() {
         return content;
     }
 
     @Override
     public Map<String, AbstractCommand> getCommands() {
-        final PutCommand PUT = new PutCommand();
-        final GetCommand GET = new GetCommand();
-        final RemoveCommand REMOVE = new RemoveCommand();
-        final ExitCommand EXIT = new ExitCommand();
+        final FileMapPutCommand put = new FileMapPutCommand();
+        final FileMapGetCommand get = new FileMapGetCommand();
+        final FileMapRemoveCommand remove = new FileMapRemoveCommand();
+        final FileMapExitCommand exit = new FileMapExitCommand();
 
-        return new HashMap<String, AbstractCommand>() {{
-            put(PUT.getCmdName(), PUT);
-            put(GET.getCmdName(), GET);
-            put(REMOVE.getCmdName(), REMOVE);
-            put(EXIT.getCmdName(), EXIT);
-        }};
+        return new HashMap<String, AbstractCommand>() {
+            {
+                put(put.getCmdName(), put);
+                put(get.getCmdName(), get);
+                put(remove.getCmdName(), remove);
+                put(exit.getCmdName(), exit);
+            }
+        };
     }
 
     public void checkOpenFile() throws IOException {
@@ -46,7 +53,8 @@ public class AbstractFileMap extends AbstractFrame {
                     throw new IOException("ERROR: too big file");
                 }
 
-                readFile();
+                Map<String, String> map = readFile(file);
+                putMap(map);
             } catch (IOException e) {
                 file.close();
                 System.err.println("ERROR: incorrect file format");
@@ -60,9 +68,11 @@ public class AbstractFileMap extends AbstractFrame {
         }
     }
 
-    private void readFile() throws IOException {
+    public static Map<String, String> readFile(RandomAccessFile file) throws IOException {
+        Map<String, String> map = new HashMap<String, String>();
+
         if (file.length() == 0) {
-            return;
+            return null;
         }
 
         List<Integer> offsets = new ArrayList<Integer>();
@@ -117,20 +127,27 @@ public class AbstractFileMap extends AbstractFrame {
 
             String value = new String(valueArray, StandardCharsets.UTF_8);
 
-            content.put(key, value);
+            map.put(key, value);
             file.seek(currentOffset);
+        }
+
+        return map;
+    }
+
+    private void putMap(Map<String, String> map) {
+        if (map != null) {
+            for (String key : map.keySet()) {
+                content.put(key, map.get(key));
+            }
         }
     }
 
-    public static void commitFile() throws IOException {
-        RandomAccessFile file = getFile();
-
+    public static void commitFile(RandomAccessFile file, Set<String> keySet, Map<String, String> content)
+            throws IOException {
         file.setLength(0);
 
         int curOffset = 0;
         int position = 0;
-
-        Set<String> keySet = getMap().keySet();
 
         for (String key : keySet) {
             curOffset += key.getBytes(StandardCharsets.UTF_8).length + 5;
@@ -143,7 +160,7 @@ public class AbstractFileMap extends AbstractFrame {
             file.writeInt(curOffset);
             position = (int) file.getFilePointer();
             file.seek(curOffset);
-            file.write(getMap().get(key).getBytes(StandardCharsets.UTF_8));
+            file.write(content.get(key).getBytes(StandardCharsets.UTF_8));
             curOffset = (int) file.getFilePointer();
         }
     }

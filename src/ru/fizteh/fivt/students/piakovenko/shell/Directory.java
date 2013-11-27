@@ -17,19 +17,23 @@ public class Directory implements Commands {
         currentStatus = cs;
     }
 
+    public void changeCurrentStatus(Object obj) {
+        currentStatus = (CurrentStatus) obj;
+    }
+
     public String getName() {
         return name;
     }
 
 
-    public void perform(String[] args) throws MyException, IOException {
+    public void perform(String[] args) throws IOException {
         if (args.length != 1) {
-            throw new MyException(new Exception("Wrong arguments! Usage ~ dir"));
+            throw new IOException("Wrong arguments! Usage ~ dir");
         }
         if (!currentStatus.getCurrentFile().isDirectory()) {
-            throw new MyException(new Exception("Error! " + currentStatus.getCurrentDirectory() + " is not a directory!"));
+            throw new IOException("Error! " + currentStatus.getCurrentDirectory() + " is not a directory!");
         }
-        for (String s: currentStatus.getCurrentFile().list()) {
+        for (String s : currentStatus.getCurrentFile().list()) {
             System.out.println(s);
         }
     }

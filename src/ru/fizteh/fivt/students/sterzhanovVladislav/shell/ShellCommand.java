@@ -8,8 +8,4 @@ public abstract class ShellCommand extends Command {
     ShellCommand(int argc) {
         super(argc);
     }
-
-    ShellCommand(String[] args, int argc) {
-        super(args, argc);
-    }
 }

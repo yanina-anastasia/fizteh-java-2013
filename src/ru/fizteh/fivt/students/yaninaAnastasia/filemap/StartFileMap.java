@@ -8,25 +8,34 @@ import java.util.ArrayList;
 
 public class StartFileMap {
     public static void main(String[] args) {
-        Shell shell = new Shell(new DBState());
+        MultiDBState curState = new MultiDBState();
+        Shell shell = new Shell(curState);
+        String path = System.getProperty("fizteh.db.dir");
+        if (path == null) {
+            System.err.println("Error with getting property");
+            System.exit(1);
+        }
+        DatabaseTableProviderFactory factory = new DatabaseTableProviderFactory();
         try {
-            if (!OpenFile.open(shell.curState)) {
-                System.err.println("Error with opening file");
-                System.exit(1);
-            }
-        } catch (IOException e) {
-            System.err.println("Error in IO");
+            curState.database = factory.create(path);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (IOException exp) {
+            System.err.println(exp.getMessage());
             System.exit(1);
         }
         ArrayList<Command> cmdList = new ArrayList<Command>();
-        Command cmd = new CommandPut();
-        cmdList.add(cmd);
-        cmd = new CommandGet();
-        cmdList.add(cmd);
-        cmd = new CommandRemove();
-        cmdList.add(cmd);
-        cmd = new CommandExit();
-        cmdList.add(cmd);
+        cmdList.add(new CommandPut());
+        cmdList.add(new CommandGet());
+        cmdList.add(new CommandRemove());
+        cmdList.add(new CommandCreate());
+        cmdList.add(new CommandDrop());
+        cmdList.add(new CommandUse());
+        cmdList.add(new CommandCommit());
+        cmdList.add(new CommandRollback());
+        cmdList.add(new CommandSize());
+        cmdList.add(new CommandExit());
         shell.fillHashMap(cmdList);
         if (args.length == 0) {
             shell.interActive();
@@ -35,3 +44,4 @@ public class StartFileMap {
         }
     }
 }
+

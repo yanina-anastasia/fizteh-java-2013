@@ -1,36 +1,42 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
+import ru.fizteh.fivt.students.vyatkina.CommandExecutionException;
+import ru.fizteh.fivt.students.vyatkina.WrappedIOException;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.students.vyatkina.shell.Command;
+public class PutCommand extends DatabaseCommand {
 
-
-public class PutCommand implements Command {
-    Table table;
-    public PutCommand (Table table) {
-        this.table = table;
+    public PutCommand(DatabaseState state) {
+        super(state);
+        this.name = "put";
+        this.argsCount = 2;
     }
 
     @Override
-    public void execute (String[] args) {
-        String key = args [0];
-        String value = args [1];
-        String result = table.put (key, value);
-        if (result == null) {
-            System.out.println ("new");
-        } else {
-            System.out.println ("overwrite");
-            System.out.println (result);
+    public void execute(String[] args) {
+        if (!tableIsSelected()) {
+            return;
         }
-    }
+        String key = args[0];
+        String value = args[1];
+        String oldValue;
+        try {
+            oldValue = state.databaseAdapter.put(key, value);
+        }
+        catch (IllegalArgumentException e) {
+            state.printErrorMessage("Bad argument: " + e.getMessage());
+            return;
+        }
+        catch (WrappedIOException e) {
+            throw new CommandExecutionException(e.getMessage());
+        }
 
-    @Override
-    public String getName () {
-        return "put";
-    }
-
-    @Override
-    public int getArgumentCount () {
-        return 2;
+        if (oldValue == null) {
+            state.printUserMessage("new");
+        } else {
+            state.printUserMessage("overwrite");
+            state.printUserMessage(oldValue);
+        }
     }
 }

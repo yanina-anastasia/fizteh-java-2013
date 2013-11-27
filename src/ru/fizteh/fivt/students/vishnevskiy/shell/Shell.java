@@ -1,10 +1,16 @@
 package ru.fizteh.fivt.students.vishnevskiy.shell;
 
 import java.util.Scanner;
+import java.util.List;
 
 public class Shell {
+    private CommandsOperator commandsOperator;
 
-    private static int executeLine(String line, CommandsOperator commandsOperator) {
+    public Shell(List<Command> newCommands, State state) {
+        commandsOperator = new CommandsOperator(newCommands, state);
+    }
+
+    private int executeLine(String line) {
         String[] commands = line.split(";");
         for (String command : commands) {
             int status = commandsOperator.runCommand(command);
@@ -16,33 +22,32 @@ public class Shell {
         return 0;
     }
 
-    private static void interactiveMode(CommandsOperator commandsOperator) {
+    private void interactiveMode() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            executeLine(line, commandsOperator);
+            executeLine(line);
             System.out.print("$ ");
         }
     }
 
-    private static void batchMode(String[] args, CommandsOperator commandsOperator) {
+    private void batchMode(String[] args) {
         StringBuilder lineBuilder = new StringBuilder();
         for (int i = 0; i < args.length; ++i) {
             lineBuilder.append(args[i]);
             lineBuilder.append(' ');
         }
         String line = lineBuilder.toString();
-        int status = executeLine(line, commandsOperator);
+        int status = executeLine(line);
         System.exit(status);
     }
 
-    public static void main(String[] args) {
-        CommandsOperator commandsOperator = new CommandsOperator();
+    public void run(String[] args) {
         if (args.length == 0) {
-            interactiveMode(commandsOperator);
+            interactiveMode();
         } else {
-            batchMode(args, commandsOperator);
+            batchMode(args);
         }
     }
 

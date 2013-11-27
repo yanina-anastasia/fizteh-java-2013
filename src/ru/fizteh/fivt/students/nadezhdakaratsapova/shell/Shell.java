@@ -1,8 +1,7 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.shell;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Scanner;
 
 public class Shell {
 
@@ -24,6 +23,10 @@ public class Shell {
                     controller.runCommand(splittedCommand);
                 }
             } catch (IOException e) {
+                System.err.println(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.err.println(e.getMessage());
+            } catch (IllegalStateException e) {
                 System.err.println(e.getMessage());
             }
         }

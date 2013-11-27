@@ -1,8 +1,9 @@
 package ru.fizteh.fivt.students.fedoseev.common;
 
 import java.io.IOException;
+import java.text.ParseException;
 
-public abstract class AbstractCommand implements Frame.Command {
+public abstract class AbstractCommand<State> implements Frame.Command<State> {
     private String cmdName;
     private int argsCount;
 
@@ -19,5 +20,6 @@ public abstract class AbstractCommand implements Frame.Command {
         return argsCount;
     }
 
-    public abstract void execute(String[] input, AbstractFrame.FrameState state) throws IOException, InterruptedException;
+    public abstract void execute(String[] input, State state)
+            throws IOException, InterruptedException, ClassNotFoundException, ParseException;
 }

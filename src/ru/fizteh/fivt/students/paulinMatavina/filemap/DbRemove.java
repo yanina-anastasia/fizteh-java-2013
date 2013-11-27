@@ -1,4 +1,4 @@
- package ru.fizteh.fivt.students.paulinMatavina.filemap;
+package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
@@ -6,12 +6,20 @@ public class DbRemove implements Command {
     @Override
     public int execute(String[] args, State state) {
         String key = args[0];
-        if (((DbState) state).data.containsKey(key)) {
-            ((DbState) state).data.remove(key);
+        MyTableProvider multiState = (MyTableProvider) state;
+        if (multiState.getCurrTable() == null) {
+            System.out.println("no table");
+            return 0;
+        }
+        
+        if (multiState.getCurrTable().remove(key) != null) {
+            if (multiState.currTableName.equals(key)) {
+                multiState.currTableName = null;
+            }
             System.out.println("removed");
         } else {
             System.out.println("not found");
-        }
+        }        
         return 0;
     }
     

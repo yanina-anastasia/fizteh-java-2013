@@ -1,9 +1,10 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
-import java.io.PrintStream;
+import java.text.ParseException;
 
-import ru.fizteh.fivt.students.elenav.filemap.FileMapState;
-import ru.fizteh.fivt.students.elenav.shell.FilesystemState;
+import javax.xml.stream.XMLStreamException;
+
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class PutCommand extends AbstractCommand {
 
@@ -11,14 +12,23 @@ public class PutCommand extends AbstractCommand {
 		super(s, "put", 2);
 	}
 
-	public void execute(String[] args, PrintStream s) {
-		String result = ((FileMapState) getState()).map.put(args[1], args[2]);
-		if (result != null) {
-			getState().getStream().println("overwrite");
-			getState().getStream().println(result);
-		}
-		else {
-			getState().getStream().println("new");
+	public void execute(String[] args) {
+		FilesystemState table = getState();
+		if (table.getWorkingDirectory() == null) {
+			getState().getStream().println("no table");
+		} else {
+			try {
+				if (table.getValue(args[1]) != null) {
+					getState().getStream().println("overwrite");
+					getState().getStream().println(table.put(args[1], args[2]));
+				}
+				else {
+					table.put(args[1], args[2]);
+					getState().getStream().println("new");
+				}
+			} catch (ParseException | XMLStreamException e) {
+				System.err.println("invalid input: " + e.getMessage());
+			}
 		}
 	}	
 }

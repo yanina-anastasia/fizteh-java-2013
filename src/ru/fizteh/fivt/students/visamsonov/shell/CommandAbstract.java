@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.visamsonov.shell;
 
 import java.io.PrintStream;
 
-public abstract class CommandAbstract implements Command {
+public abstract class CommandAbstract<T> implements Command<T> {
 
 	protected String name;
 	private PrintStream errStream;

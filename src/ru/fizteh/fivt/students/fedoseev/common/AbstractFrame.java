@@ -1,33 +1,18 @@
 package ru.fizteh.fivt.students.fedoseev.common;
 
-import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Map;
 import java.util.Scanner;
 
-public abstract class AbstractFrame implements Frame {
-    public class FrameState {
-        private File curState;
-
-        public void setCurState(File file) {
-            curState = file;
-        }
-
-        public File getCurState() {
-            return curState;
-        }
-    }
-
+public abstract class AbstractFrame<State> implements Frame {
     public abstract Map<String, AbstractCommand> getCommands();
 
-    protected FrameState state = new FrameState();
-
-    public void setObjectCurState(File file) {
-        state.setCurState(file);
-    }
+    protected State state;
 
     @Override
-    public void runCommands(String cmd, int end) throws IOException, InterruptedException {
+    public void runCommands(String cmd, int end)
+            throws IOException, InterruptedException, ClassNotFoundException, ParseException {
         Map<String, AbstractCommand> commands = getCommands();
 
         if (!commands.containsKey(cmd.substring(0, end))) {
@@ -36,16 +21,16 @@ public abstract class AbstractFrame implements Frame {
 
         AbstractCommand command = commands.get(cmd.substring(0, end));
 
-        if (Utils.getCommandArguments(cmd).length != command.getArgsCount()) {
-            throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName() +
-                    "\" command receives " + command.getArgsCount() + " arguments");
+        if (Utils.getCommandArguments(cmd).length != command.getArgsCount() && command.getArgsCount() != -1) {
+            throw new IOException(command.getCmdName() + " ERROR: \"" + command.getCmdName()
+                    + "\" command receives " + command.getArgsCount() + " arguments");
         }
 
         command.execute(Utils.getCommandArguments(cmd), state);
     }
 
     @Override
-    public void BatchMode(String[] args) {
+    public void batchMode(String[] args) {
         String[] input = Utils.join(args, " ").split("\\s*;\\s*");
 
         for (String cmd : input) {
@@ -69,12 +54,12 @@ public abstract class AbstractFrame implements Frame {
     }
 
     @Override
-    public void InteractiveMode() throws InterruptedException {
+    public void interactiveMode() throws InterruptedException {
         Scanner scanner = new Scanner(System.in);
 
         while (!Thread.currentThread().isInterrupted()) {
             Thread.currentThread().sleep(10);
-            System.out.print(state.getCurState().toString() + "$ ");
+            System.out.print("$ ");
 
             String[] input = scanner.nextLine().trim().split("\\s*;\\s*");
 
@@ -92,6 +77,9 @@ public abstract class AbstractFrame implements Frame {
                     }
 
                     runCommands(cmd, end);
+                } catch (ParseException e) {
+                    System.out.println("wrong type (" + e.getMessage() + ")");
+                    System.err.println(e.getMessage());
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }

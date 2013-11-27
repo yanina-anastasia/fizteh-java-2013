@@ -9,4 +9,16 @@ public class ShellException extends IOException {
 	public ShellException(String s) {
 		super(s);
 	}
+
+	public ShellException() {
+		super();
+	}
+
+	public ShellException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public ShellException(Throwable cause) {
+		super(cause);
+	}
 }

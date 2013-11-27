@@ -1,36 +1,21 @@
 package ru.fizteh.fivt.students.vyatkina.shell.commands;
 
 
-import ru.fizteh.fivt.students.vyatkina.shell.Command;
-import ru.fizteh.fivt.students.vyatkina.shell.FileManager;
+import ru.fizteh.fivt.students.vyatkina.AbstractCommand;
+import ru.fizteh.fivt.students.vyatkina.shell.ShellState;
 
-import java.io.PrintStream;
-import java.util.concurrent.ExecutionException;
+public class PwdCommand extends AbstractCommand<ShellState> {
 
-public class PwdCommand implements Command {
-
-    private final FileManager fileManager;
-
-    public PwdCommand (FileManager fileManager) {
-       this.fileManager = fileManager;
+    public PwdCommand(ShellState state) {
+        super(state);
+        this.name = "pwd";
+        this.argsCount = 0;
     }
 
     @Override
-    public void execute (String[] args) throws ExecutionException {
-       try {
-       System.out.println (fileManager.getCurrentDirectoryString ());
-       } catch (RuntimeException e) {
-           throw new ExecutionException (e.fillInStackTrace ());
-       }
+    public void execute(String[] args) {
+        String currentDirectory = state.getFileManager().getCurrentDirectoryString();
+        state.printUserMessage(currentDirectory);
     }
 
-    @Override
-    public String getName () {
-        return "pwd";
-    }
-
-    @Override
-    public int getArgumentCount () {
-        return 0;
-    }
 }

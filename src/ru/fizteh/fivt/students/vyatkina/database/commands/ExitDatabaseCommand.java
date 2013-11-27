@@ -1,25 +1,28 @@
 package ru.fizteh.fivt.students.vyatkina.database.commands;
 
-import ru.fizteh.fivt.students.vyatkina.database.SingleTable;
-import ru.fizteh.fivt.students.vyatkina.shell.commands.ExitCommand;
+import ru.fizteh.fivt.students.vyatkina.TimeToFinishException;
+import ru.fizteh.fivt.students.vyatkina.WrappedIOException;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseCommand;
+import ru.fizteh.fivt.students.vyatkina.database.DatabaseState;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+public class ExitDatabaseCommand extends DatabaseCommand {
 
-public class ExitDatabaseCommand extends ExitCommand {
-        SingleTable table;
+    public ExitDatabaseCommand(DatabaseState state) {
+        super(state);
+        this.name = "exit";
+        this.argsCount = 0;
+    }
 
-        public ExitDatabaseCommand (SingleTable table) {
-            this.table = table;
+    @Override
+    public void execute(String[] args) {
+        try {
+            state.databaseAdapter.saveChangesOnExit();
         }
-
-        @Override
-        public void execute (String [] args) throws ExecutionException {
-            try {
-            table.writeDatabaseOnDisk ();
-            } catch (IOException | RuntimeException e ) {
-                throw new ExecutionException (e.fillInStackTrace ());
-            }
-                System.exit (0);
+        catch (WrappedIOException e) {
+            state.printErrorMessage(e.getMessage());
         }
+        finally {
+            throw new TimeToFinishException();
+        }
+    }
 }

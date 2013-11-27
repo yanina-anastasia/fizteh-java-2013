@@ -1,11 +1,23 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-public interface Executable {
+public abstract class Executable {
 
-    boolean execute(String[] args);
+    protected String name;
+    protected int argumentsNumber;
 
-    String name();
+    public Executable(String name, int argumentsNumber) {
+        this.name = name;
+        this.argumentsNumber = argumentsNumber;
+    }
 
-    int argumentsNumber();
+    public abstract boolean execute(String[] args);
+
+    public String getName() {
+        return name;
+    }
+
+    public int getArgumentsNumber() {
+        return argumentsNumber;
+    }
 
 }

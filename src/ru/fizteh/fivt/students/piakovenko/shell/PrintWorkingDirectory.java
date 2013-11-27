@@ -22,9 +22,9 @@ public class PrintWorkingDirectory implements Commands {
     }
 
 
-    public void perform(String[] s) throws MyException, IOException {
-        if (s.length  != 1) {
-            throw new MyException(new Exception("Wrong arguments! Usage ~ pwd"));
+    public void perform(String[] s) throws IOException {
+        if (s.length != 1) {
+            throw new IOException("Wrong arguments! Usage ~ pwd");
         }
         System.out.println(currentStatus.getCurrentDirectory());
     }

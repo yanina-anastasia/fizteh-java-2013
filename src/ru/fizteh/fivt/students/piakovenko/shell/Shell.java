@@ -17,12 +17,10 @@ public class Shell {
                 if (currentStatus == null) {
                     System.out.print(startInvitation);
                 } else {
-                    System.out.print(currentStatus.getCurrentDirectory() + startInvitation);
+                    System.out.print(currentStatus.getCurrentDirectory() + " " + startInvitation);
                 }
                 String s = sc.nextLine();
                 cm.execute(s);
-            } catch (MyException e) {
-                System.err.println("Error! " + e.what());
             } catch (IOException e) {
                 System.err.println("Error! " + e.getMessage());
             }
@@ -37,9 +35,7 @@ public class Shell {
             }
             sb.append(args[args.length - 1]);
             cm.execute(sb.toString());
-        } catch (MyException e) {
-            System.err.println("Error! " + e.what());
-            System.exit(1);
+            cm.execute("exit");
         } catch (IOException e) {
             System.err.println("Error! " + e.getMessage());
             System.exit(1);
@@ -47,7 +43,7 @@ public class Shell {
     }
 
 
-    public Shell () {
+    public Shell() {
         cm = new CommandsMap();
     }
 
@@ -55,11 +51,11 @@ public class Shell {
         cm.addCommand(command);
     }
 
-    public void changeInvitation (String invitation) {
+    public void changeInvitation(String invitation) {
         startInvitation = invitation;
     }
 
-    public void initializeBasicCommands () {
+    public void initializeBasicCommands() {
         currentStatus = new CurrentStatus(new File("."));
         cm.addCommand(new PrintWorkingDirectory(currentStatus));
         cm.addCommand(new ChangeDirectory(currentStatus));
@@ -71,12 +67,32 @@ public class Shell {
         cm.addCommand(new Exit(currentStatus));
     }
 
-    public void start (String[] args) {
+    public void initializeBasicCommands(CurrentStatus cs) {
+        currentStatus = cs;
+        cm.addCommand(new PrintWorkingDirectory(currentStatus));
+        cm.addCommand(new ChangeDirectory(currentStatus));
+        cm.addCommand(new MakeDirectory(currentStatus));
+        cm.addCommand(new Directory(currentStatus));
+        cm.addCommand(new Remove(currentStatus));
+        cm.addCommand(new Copy(currentStatus));
+        cm.addCommand(new Move(currentStatus));
+        cm.addCommand(new Exit(currentStatus));
+    }
+
+    public void start(String[] args) {
         if (args.length == 0) {
             interactiveMode();
         } else {
             packageMode(args);
         }
+    }
+
+    public void executeCommand(String args) throws IOException {
+        cm.execute(args);
+    }
+
+    public void removeCommand(String commandName) throws IOException {
+        cm.removeCommand(commandName);
     }
 
 }

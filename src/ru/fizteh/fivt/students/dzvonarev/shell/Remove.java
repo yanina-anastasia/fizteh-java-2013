@@ -2,8 +2,9 @@ package ru.fizteh.fivt.students.dzvonarev.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-public class Remove {
+public class Remove implements CommandInterface {
 
     private static void delete(File aim) throws IOException {
         if (aim.getName().equals(".") || aim.getName().equals("..")) {
@@ -33,13 +34,18 @@ public class Remove {
         }
     }
 
-    public static void deleteObject(String expr, int spaceIndex) throws IOException {
-        int newSpaceIndex = expr.indexOf(' ', spaceIndex + 1);
-        if (newSpaceIndex != -1) {
+    public void execute(ArrayList<String> args) throws IOException {
+        String expr = args.get(0);
+        int spaceIndex = expr.indexOf(' ', 0);
+        while (expr.indexOf(' ', spaceIndex + 1) == spaceIndex + 1) {
+            ++spaceIndex;
+        }
+        if (expr.indexOf(' ', spaceIndex + 1) != -1) {
             throw new IOException("Wrong parametres of remove");
         }
-        String path = DoCommand.getAbsPath(expr.substring(spaceIndex + 1, expr.length()));
-        if (path.equals(Main.getCurrentDirectory()) || Main.getCurrentDirectory().contains(path)) {                                  // can't delete father of son
+        String path = Shell.getAbsPath(expr.substring(spaceIndex + 1, expr.length()));
+        if (args.size() != 2                                                           // can't delete father of son
+                && (path.equals(Shell.getCurrentDirectory()) || Shell.getCurrentDirectory().contains(path))) {
             throw new IOException("rm: can't remove " + path);
         }
         if ((new File(path)).isFile() || (new File(path)).isDirectory()) {

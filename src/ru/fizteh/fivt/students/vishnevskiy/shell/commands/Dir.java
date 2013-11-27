@@ -1,19 +1,29 @@
 package ru.fizteh.fivt.students.vishnevskiy.shell.commands;
 
 import java.io.File;
-import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
-import ru.fizteh.fivt.students.vishnevskiy.shell.FileSystemOperator;
-import ru.fizteh.fivt.students.vishnevskiy.shell.ShellException;
 
-public class Dir implements Command {
+import ru.fizteh.fivt.students.vishnevskiy.shell.Command;
+import ru.fizteh.fivt.students.vishnevskiy.shell.CommandException;
+import ru.fizteh.fivt.students.vishnevskiy.shell.State;
+
+public class Dir extends Command {
     private static final String NAME = "dir";
-    public Dir() {}
+    private static final int ARGS_NUM = 0;
+
+    public Dir() {
+    }
+
     public String getName() {
         return NAME;
     }
-    public void execute(FileSystemOperator fileSystem, String[] args) throws ShellException {
+
+    public int getArgsNum() {
+        return ARGS_NUM;
+    }
+
+    public void execute(State fileSystem, String[] args) throws CommandException {
         if (args.length > 0) {
-            throw new ShellException("dir: no arguments needed");
+            throw new CommandException("dir: no arguments needed");
         }
         File currentDir = new File(fileSystem.getCurrentDirectory());
         String[] files = currentDir.list();
