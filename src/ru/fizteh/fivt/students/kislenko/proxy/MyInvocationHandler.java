@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class MyInvocationHandler implements InvocationHandler {
-    ThreadLocal<Writer> w;
-    ThreadLocal<Object> impl;
-    static ThreadLocal<XMLStreamWriter> writer = null;
+    ThreadLocal<Writer> w = new ThreadLocal<Writer>();
+    ThreadLocal<Object> impl = new ThreadLocal<Object>();
+    static ThreadLocal<XMLStreamWriter> writer = new ThreadLocal<XMLStreamWriter>();
     static ThreadLocal<Integer> invokeCounter = new ThreadLocal<Integer>() {
         public Integer initialValue() {
             return 0;
