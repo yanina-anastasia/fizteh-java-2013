@@ -36,7 +36,8 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     private List<Class<?>> columnTypes = new ArrayList<>();
     private volatile HashMap<String, Storeable> startMap = new HashMap<>();
-    private ReadWriteLock lock = new ReentrantReadWriteLock(true);private final ThreadLocal<HashMap<String, Storeable>> changedKeys 
+    private ReadWriteLock lock = new ReentrantReadWriteLock(true);
+    private final ThreadLocal<HashMap<String, Storeable>> changedKeys 
                          = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
         protected HashMap<String, Storeable> initialValue() {
@@ -176,9 +177,10 @@ public class StoreableTableState extends FilesystemState implements Table {
 
     @Override
     public int commit() {
-        int result = getNumberOfChanges();
+        int result = 0;
         try {
             lock.writeLock().lock();
+            result = getNumberOfChanges();
             write();
         } catch (IOException e) {
             throw new RuntimeException(e);

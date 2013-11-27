@@ -7,8 +7,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -25,7 +23,6 @@ public class StoreableTableProvider implements TableProvider, Provider {
     private static final String CORRECT_FORMAT = "[a-zA-Zа-яА-Я0-9]+";
     private File workingDirectory = null;
     private PrintStream stream;
-    private ReadWriteLock lock = new ReentrantReadWriteLock();
     public HashMap<String, StoreableTableState> tables = new HashMap<>();
     
     public StoreableTableProvider(File dir, PrintStream out) throws IOException {
@@ -35,17 +32,16 @@ public class StoreableTableProvider implements TableProvider, Provider {
         if (!dir.isDirectory()) {
             throw new IllegalArgumentException("wrong type (null table)");
         }
-        try {
-            lock.writeLock().lock();
-            for (File f : dir.listFiles()) {
-                if (f.isDirectory()) {
-                    tables.put(f.getName(), new StoreableTableState(f.getName(), f, out, this));
-                }
+        setStream(out); 
+        loadTablesFromHardDisk(dir);
+        setWorkingDirectory(dir);
+    }
+
+    private synchronized void loadTablesFromHardDisk(File dir) {
+        for (File f : dir.listFiles()) {
+            if (f.isDirectory()) {
+                tables.put(f.getName(), new StoreableTableState(f.getName(), f, getStream(), this));
             }
-            setWorkingDirectory(dir);
-            setStream(out);
-        } finally {
-            lock.writeLock().unlock();
         }
     }
 
@@ -65,23 +61,18 @@ public class StoreableTableProvider implements TableProvider, Provider {
     }
     
     @Override
-    public Table getTable(String name) {
+    public synchronized Table getTable(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong type (null name)");
         }
         if (!name.matches(CORRECT_FORMAT)) {
             throw new IllegalArgumentException("wrong type (" + name + ")");
         }
-        try {
-            lock.readLock().lock();
-            return tables.get(name);
-        } finally {
-            lock.readLock().unlock();
-        }
+        return tables.get(name);
     }
 
     @Override
-    public StoreableTableState createTable(String name, List<Class<?>> columnTypes) throws IOException {
+    public synchronized StoreableTableState createTable(String name, List<Class<?>> columnTypes) throws IOException {
         if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
             throw new IllegalArgumentException("wrong type (null or invalid name)");
         }
@@ -92,27 +83,21 @@ public class StoreableTableProvider implements TableProvider, Provider {
             throw new IllegalArgumentException("wrong type (invalid columnTypes)");
         }
         File f = new File(getWorkingDirectory(), name);
-        try {
-            lock.writeLock().lock();
-            if (f.exists()) {
-                return null;
-            }
-            if (!f.mkdir()) {
-                throw new IOException("can't create table: unknown error");
-            }
-            setSignature(f, columnTypes);
-            StoreableTableState table = new StoreableTableState(name, f, getStream(), this);
-            tables.put(name, table);
-            return table;
-        } finally {
-            lock.writeLock().unlock();
+        if (f.exists()) {
+            return null;
         }
+        if (!f.mkdir()) {
+            throw new IOException("can't create table: unknown error");
+        }
+        setSignature(f, columnTypes);
+        StoreableTableState table = new StoreableTableState(name, f, getStream(), this);
+        tables.put(name, table);
+        return table;
     }
 
-    private void setSignature(File f, List<Class<?>> types) {
+    private synchronized void setSignature(File f, List<Class<?>> types) {
         File signature = new File(f, "signature.tsv");
         try {
-            lock.writeLock().lock();
             f.createNewFile();
             PrintStream s = new PrintStream(signature);
             for (int i = 0; i < types.size(); ++i) {
@@ -122,14 +107,11 @@ public class StoreableTableProvider implements TableProvider, Provider {
             s.close();
         } catch (IOException e) {
             throw new RuntimeException("can't set signature for file " + f.getName());
-        } finally {
-            lock.writeLock().unlock();
-        }
-            
+        }   
     }
 
     @Override
-    public void removeTable(String name) throws IOException {
+    public synchronized void removeTable(String name) throws IOException {
         if (name == null || name.trim().isEmpty() || !name.matches(CORRECT_FORMAT)) {
             throw new IllegalArgumentException("wrong type (invalid name)");
         }
@@ -137,14 +119,11 @@ public class StoreableTableProvider implements TableProvider, Provider {
             throw new IllegalStateException("can't remove table: table not exist");
         }
         try {
-            lock.writeLock().lock();
             Functions.deleteRecursively(tables.get(name).getWorkingDirectory());
             tables.remove(name);
         } catch (IOException e) {
             throw new IOException(e);
-        } finally {
-            lock.writeLock().unlock();
-        }
+        } 
     }
 
     @Override
