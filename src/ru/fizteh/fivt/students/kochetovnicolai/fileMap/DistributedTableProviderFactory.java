@@ -4,6 +4,7 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -40,6 +41,15 @@ public class DistributedTableProviderFactory implements TableProviderFactory, Au
         providers = new HashMap<>();
     }
 
+    public void forgetTableProvider(Path provider) {
+        lock.lock();
+        try {
+            providers.remove(provider.toAbsolutePath().toString());
+        } finally {
+            lock.unlock();
+        }
+    }
+
     @Override
     public DistributedTableProvider create(String dir) throws IOException, IllegalArgumentException {
         checkState();
@@ -56,7 +66,7 @@ public class DistributedTableProviderFactory implements TableProviderFactory, Au
         lock.lock();
         try {
             if (!providers.containsKey(directory)) {
-                providers.put(directory, new DistributedTableProvider(path.toPath()));
+                providers.put(directory, new DistributedTableProvider(path.toPath(), this));
             }
             return providers.get(directory);
         } finally {

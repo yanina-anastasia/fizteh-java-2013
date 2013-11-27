@@ -20,6 +20,7 @@ public class DistributedTableProvider implements TableProvider, AutoCloseable {
     private HashMap<String, DistributedTable> tables;
     private Path currentPath;
     private ReadWriteLock tablesLock;
+    private DistributedTableProviderFactory factory;
 
     private void checkState() throws IllegalArgumentException {
         if (tables == null) {
@@ -35,11 +36,13 @@ public class DistributedTableProvider implements TableProvider, AutoCloseable {
         }
         tablesLock.writeLock().lock();
         try {
+            factory.forgetTableProvider(currentPath);
             for (DistributedTable table : tables.values()) {
                 table.close();
             }
             tables = null;
             currentPath = null;
+            factory = null;
         } finally {
             tablesLock.writeLock().unlock();
         }
@@ -81,7 +84,8 @@ public class DistributedTableProvider implements TableProvider, AutoCloseable {
         }
     }
 
-    public DistributedTableProvider(Path workingDirectory) throws IOException, IllegalArgumentException {
+    public DistributedTableProvider(Path workingDirectory, DistributedTableProviderFactory factory) throws IOException {
+        this.factory = factory;
         currentPath = workingDirectory;
         if (currentPath == null) {
             throw new IllegalArgumentException("working directory shouldn't be null");
