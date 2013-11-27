@@ -190,6 +190,7 @@ public class StoreableTableProviderTest {
 		StoreableTable table = provider.createTable("testGetTable", valueTypes1);
 		table.close();
 		Assert.assertNull("closed table accessible from provider", provider.getTable("testGetTable"));
+		table.close();
 	}
 
 	@Test

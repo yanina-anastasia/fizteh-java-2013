@@ -52,6 +52,10 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
     }
 
     public void close() {
+        if (isClosed) {
+            return;
+        }
+        
         for (StoreableTableProvider provider : providerSet) {
             provider.close();
         }

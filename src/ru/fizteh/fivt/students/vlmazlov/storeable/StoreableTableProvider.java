@@ -146,6 +146,10 @@ implements TableProvider, AutoCloseable {
     public Storeable createFor(Table table) {
         checkClosed();
 
+        if (table == null) {
+            throw new IllegalArgumentException("table not specified");
+        }
+
     	List<Class<?>> valueTypes = new ArrayList<Class<?>>(table.getColumnsCount());
     	
     	for (int i = 0;i < table.getColumnsCount();++i) {
@@ -158,6 +162,14 @@ implements TableProvider, AutoCloseable {
     @Override 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         checkClosed();
+
+        if (table == null) {
+            throw new IllegalArgumentException("table not specified");
+        }
+
+        if (values == null) {
+            throw new IllegalArgumentException("values not specified");
+        }
 
     	if (values.size() > table.getColumnsCount()) {
     		throw new IndexOutOfBoundsException("Too many columns passed");
@@ -231,15 +243,18 @@ implements TableProvider, AutoCloseable {
 
     public void close() {
         //necessary for factory.close() to work
-        if (!isClosed) {
-            for (Map.Entry<String, StoreableTable> entry : tables.entrySet()) {
-                entry.getValue().close();
-            }
-
-            isClosed = false;
+        if (isClosed) {
+            return;
         }
-    }
+            
+        for (Map.Entry<String, StoreableTable> entry : tables.entrySet()) {
+            entry.getValue().close();
+        }
 
+        isClosed = true;
+        
+    }
+    
     public void checkClosed() {
         if (isClosed) {
             throw new IllegalStateException("trying to operate on a closed table provider");

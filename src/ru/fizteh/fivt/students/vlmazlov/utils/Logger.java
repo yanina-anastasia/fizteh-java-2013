@@ -19,7 +19,7 @@ public class Logger {
 	}
 
 	private void logTargetClass(Object target) {
-	    callLog.put("class", target.getClass());
+	    callLog.put("class", target.getClass().getName());
 	}
 
 	private void logMethod(Method method) {
@@ -59,8 +59,10 @@ public class Logger {
             for (Object value : iterable) {
                 if (value instanceof Iterable) {
                     iterableValues.put(logIterable((Iterable)value, identityHashMap));
+                } else if ((value != null) && (value.getClass().isArray())) {
+                	iterableValues.put(value.toString());
                 } else {
-                	iterableValues.put(value);
+                    iterableValues.put(value);
                 }
             }
         }
@@ -69,7 +71,16 @@ public class Logger {
     }
 
     public void logReturnValue(Object returnValue) {
-    	callLog.put("returnValue", returnValue);
+
+        IdentityHashMap<Iterable, Boolean> identityHashMap = new IdentityHashMap<Iterable, Boolean>();
+        
+        if (returnValue == null) {
+            callLog.put("returnValue", JSONObject.NULL);
+        } else if (!(returnValue instanceof Iterable)) {
+            callLog.put("returnValue", returnValue);
+        } else {
+            callLog.put("returnValue", logIterable((Iterable)returnValue, identityHashMap));
+        }
     }
 
     public void logThrown(Throwable thrown) {

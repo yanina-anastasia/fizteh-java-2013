@@ -26,7 +26,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
         try {
             returnValue = simpleInvoke(method, args);
-            logger.logReturnValue(returnValue);
+            if (method.getReturnType() != void.class) {
+                logger.logReturnValue(returnValue);
+            }
         } catch (Throwable ex) {
             thrown = ex;
             logger.logThrown(thrown);
@@ -51,7 +53,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (Object.class != method.getDeclaringClass()) {
+        if (!Object.class.equals(method.getDeclaringClass())) {
             return log(method, args);
         }
 

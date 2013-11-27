@@ -125,7 +125,10 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
     }
 
     public void close() {
-    	checkClosed();
+    	if (isClosed) {
+    		return;
+    	}
+    	
     	specificProvider.closeTable(getName());
     	isClosed = true;
     }
