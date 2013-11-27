@@ -160,9 +160,6 @@ public class DataBaseProvider implements TableProvider {
 
         File fileTable = new File(rootDir + name);
 
-        
- 
-        
         lock.lock();
         if (!fileTable.exists()) {
             try {
@@ -174,18 +171,13 @@ public class DataBaseProvider implements TableProvider {
                     throw new IOException("Cannot create file " + types.getAbsolutePath());
                 }
                 fillTypesFile(types, columnTypes);
-            } finally {
-                lock.unlock();
-            }
-            DataBase table = new DataBase(name, rootDir, this);
-            table.setTypes(columnTypes);
-            lock.lock();
-            try {
+                DataBase table = new DataBase(name, rootDir, this);
+                table.setTypes(columnTypes);
                 tableBase.put(name, table);
+                return table;
             } finally {
                 lock.unlock();
             }
-            return table;
         } else {
             lock.unlock();
         }
@@ -203,17 +195,8 @@ public class DataBaseProvider implements TableProvider {
             if (!fileTable.exists() && tableBase.get(name) == null) {
                 throw new IllegalStateException("table not exists");
             }
-        } finally {
-            lock.unlock();
-        }
-        lock.lock();
-        try {
+
             doDelete(fileTable);
-        } finally {
-            lock.unlock();
-        }
-        lock.lock();
-        try {
             tableBase.get(name).setRemoved();
             tableBase.remove(name);
         } finally {
