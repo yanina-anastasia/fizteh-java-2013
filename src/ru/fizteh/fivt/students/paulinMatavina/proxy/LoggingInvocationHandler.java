@@ -52,6 +52,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             writer.writeEndElement();
             return;
         }
+        map.put(list, true);
         for (Object element : list) {
             writer.writeStartElement("value");
 
@@ -59,7 +60,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 writeNull(writer);
             } else if (element instanceof Iterable) {
                 writer.writeStartElement("list");
-                map.put(element, true);
                 writeList(writer, (Iterable<?>) element, map);
                 writer.writeEndElement();
             } else {
