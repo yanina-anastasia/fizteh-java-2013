@@ -9,7 +9,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 
 public class LoggingInvocationHandler implements InvocationHandler {
     private Object implementation;
@@ -44,31 +43,41 @@ public class LoggingInvocationHandler implements InvocationHandler {
         writer.writeEndElement();
 
     }
-
+    
     private void writeList(XMLStreamWriter writer, Iterable<?> list, IdentityHashMap<Object, Boolean> map) 
-                                                                           throws XMLStreamException {  
-        if (map.containsKey(list)) {
+            throws XMLStreamException {
+        for (Object value : list) {
             writer.writeStartElement("value");
-            writer.writeCharacters("cyclic");
-            writer.writeEndElement();
-            return;
-        }
-        map.put(list, true);
-        for (Iterator<?> iter = list.iterator(); iter.hasNext(); ) {
-            Object element = iter.next();
-            writer.writeStartElement("value");
-            if (element == null) {
+            if (value == null) {
                 writeNull(writer);
-            } else if (element instanceof Iterable) {
-                writer.writeStartElement("list");
-                writeList(writer, (Iterable<?>) element, map);
                 writer.writeEndElement();
-            } else {
-                writer.writeCharacters(element.toString());
+                continue;
             }
+
+            if (value.getClass().isArray()) {
+                writer.writeCharacters(value.toString());
+                writer.writeEndElement();
+                continue;
+            }
+
+            if (map.containsKey(value) && value instanceof Iterable && ((Iterable<?>) value).iterator().hasNext()) {
+                writer.writeCharacters("cyclic");
+                writer.writeEndElement();
+                continue;
+            }
+
+            map.put(value, true);
+
+            if (value instanceof Iterable) {
+                writer.writeStartElement("list");
+                writeList(writer, list, map);
+                writer.writeEndElement();
+                continue;
+            }
+
+            writer.writeCharacters(value.toString());
             writer.writeEndElement();
         }
-        map.remove(list);
     }
 
     private void writeArguments(XMLStreamWriter writer, Object[] args) throws XMLStreamException {
