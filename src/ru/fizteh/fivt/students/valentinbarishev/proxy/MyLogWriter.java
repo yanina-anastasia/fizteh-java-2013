@@ -75,13 +75,14 @@ public class MyLogWriter {
         }
         for (int i = 0; i < args.length; ++i) {
             writer.writeStartElement("argument");
-
             if (args[i] == null) {
                 writeNull();
             } else {
                 if (args[i] instanceof Iterable) {
                     writer.writeStartElement("list");
-                    writeList((Iterable) args[i], new IdentityHashMap<Object, Boolean>());
+                    IdentityHashMap<Object, Boolean> objects = new IdentityHashMap<>();
+                    objects.put(args[i], true);
+                    writeList((Iterable) args[i], objects);
                     writer.writeEndElement();
                 } else {
                     writeObject(args[i]);
