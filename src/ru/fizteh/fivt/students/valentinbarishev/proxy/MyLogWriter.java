@@ -54,10 +54,14 @@ public class MyLogWriter {
                 writeNull();
             } else {
                 if (i instanceof Iterable) {
-                    writer.writeStartElement("list");
-                    map.put(object, true);
-                    writeList(object, map);
-                    writer.writeEndElement();
+                    if (!map.containsKey(i)) {
+                        writer.writeStartElement("list");
+                        map.put(object, true);
+                        writeList(object, map);
+                        writer.writeEndElement();
+                    } else {
+                        writer.writeCharacters("cyclic");
+                    }
                 } else {
                     writeObject(i);
                 }
@@ -101,7 +105,7 @@ public class MyLogWriter {
 
         if (exception != null) {
             writer.writeStartElement("thrown");
-            writer.writeCharacters(exception.getClass().toString() + ": " + exception.getMessage());
+            writer.writeCharacters(exception.toString());
             writer.writeEndElement();
         } else {
             if (!method.getReturnType().toString().equals("void")) {

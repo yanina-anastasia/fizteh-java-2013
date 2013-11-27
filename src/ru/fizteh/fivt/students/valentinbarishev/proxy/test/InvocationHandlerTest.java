@@ -114,8 +114,21 @@ public class InvocationHandlerTest {
         list.add(list);
         list.add(new Integer(123));
         TestInterface test = (TestInterface) logFactory.wrap(writer, new TestClass(), TestInterface.class);
+
         test.arrayParameter(list);
         test.voidNoArgs();
+        try {
+            test.exceptionThrow();
+        } catch (IOException e) {
+            //silent
+        }
+        List<Object> list2 = new ArrayList<>();
+        list2.add(list);
+        list2.add(null);
+        list2.add(list2);
+
+        test.arrayParameter(list2);
+
         writer.flush();
         writer.close();
 
