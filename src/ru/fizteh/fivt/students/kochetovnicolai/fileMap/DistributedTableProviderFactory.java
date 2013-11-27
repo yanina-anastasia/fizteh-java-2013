@@ -20,7 +20,11 @@ public class DistributedTableProviderFactory implements TableProviderFactory, Au
 
     @Override
     public void close() throws IOException {
-        checkState();
+        try {
+            checkState();
+        } catch (IllegalStateException e) {
+            return;
+        }
         lock.lock();
         try {
             for (DistributedTableProvider provider : providers.values()) {

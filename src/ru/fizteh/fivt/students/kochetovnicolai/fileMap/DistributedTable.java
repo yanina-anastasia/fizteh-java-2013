@@ -48,7 +48,11 @@ public class DistributedTable extends FileManager implements Table, AutoCloseabl
 
     @Override
     public void close() throws IOException {
-        checkState();
+        try {
+            checkState();
+        } catch (IllegalStateException e) {
+            return;
+        }
         cacheLock.writeLock().lock();
         try {
             provider.forgetTable(tableName);

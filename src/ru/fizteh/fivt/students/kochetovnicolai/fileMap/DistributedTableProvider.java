@@ -23,12 +23,16 @@ public class DistributedTableProvider implements TableProvider, AutoCloseable {
 
     private void checkState() throws IllegalArgumentException {
         if (tables == null) {
-            throw new IllegalArgumentException("table provider already closed");
+            throw new IllegalStateException("table provider already closed");
         }
     }
 
     public void close() throws IOException {
-        checkState();
+        try {
+            checkState();
+        } catch (IllegalStateException e) {
+            return;
+        }
         tablesLock.writeLock().lock();
         try {
             for (DistributedTable table : tables.values()) {
