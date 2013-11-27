@@ -9,6 +9,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 
 public class LoggingInvocationHandler implements InvocationHandler {
     private Object implementation;
@@ -53,9 +54,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
             return;
         }
         map.put(list, true);
-        for (Object element : list) {
+        for (Iterator<?> iter = list.iterator(); iter.hasNext(); ) {
+            Object element = iter.next();
             writer.writeStartElement("value");
-
             if (element == null) {
                 writeNull(writer);
             } else if (element instanceof Iterable) {
