@@ -48,9 +48,12 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     public void close() {
         if (!isClosed) {
             rollback();
-            provider.closeTable(name);
             isClosed = true;
         }
+    }
+
+    public boolean isClosed() {
+        return isClosed;
     }
 
     @Override

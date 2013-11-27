@@ -13,7 +13,5 @@ public interface ExtendProvider extends  TableProvider, AutoCloseable {
     ExtendTable createTable(String name, List<Class<?>> columnType)
         throws IOException;
 
-    void closeTable(String name);
-
     void close();
 }

@@ -12,4 +12,6 @@ public interface ExtendTable extends Table, AutoCloseable {
     void loadAll() throws IOException;
 
     void close();
+
+    boolean isClosed();
 }

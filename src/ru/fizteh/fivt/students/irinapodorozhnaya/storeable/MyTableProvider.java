@@ -35,11 +35,6 @@ public class MyTableProvider implements ExtendProvider, AutoCloseable {
         }
     }
 
-    public void closeTable(String name) {
-        checkClosed();
-        tables.remove(name);
-    }
-
     public MyTableProvider(File dataBaseDir) throws IOException {
         this.dataBaseDir = dataBaseDir;
         try {
@@ -65,10 +60,19 @@ public class MyTableProvider implements ExtendProvider, AutoCloseable {
         checkCorrectName(name);
         try {
             lock.readLock().lock();
+            ExtendTable table = tables.get(name);
+            if (table != null && table.isClosed()) {
+                ExtendTable newTable = new MyTable(name, dataBaseDir, this);
+                newTable.loadAll();
+                tables.put(name, newTable);
+            }
             return tables.get(name);
+        } catch (IOException e)  {
+            throw new IllegalArgumentException(e);
         } finally {
             lock.readLock().unlock();
         }
+
     }
 
     @Override

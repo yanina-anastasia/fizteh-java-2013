@@ -14,6 +14,7 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.irinapodorozhnaya.shell.CommandRemove;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProviderFactory;
 import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendProvider;
+import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.extend.ExtendTable;
 import ru.fizteh.fivt.students.irinapodorozhnaya.utils.Types;
 
 public class TableProviderTest {
@@ -155,5 +156,12 @@ public class TableProviderTest {
     public void createForAfterClose() throws Exception {
         provider.close();
         provider.createFor(null);
+    }
+
+    @Test
+    public void getClosedTableShouldReturnNewTable() throws Exception {
+        ExtendTable table = provider.createTable("table", list);
+        table.close();
+        Assert.assertNotSame(table, provider.getTable("table"));
     }
 }
