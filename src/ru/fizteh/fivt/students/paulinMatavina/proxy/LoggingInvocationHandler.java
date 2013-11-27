@@ -67,10 +67,10 @@ public class LoggingInvocationHandler implements InvocationHandler {
             }
 
             map.put(value, true);
-
             if (value instanceof Iterable) {
                 writer.writeStartElement("list");
                 writeList(writer, list, map);
+                writer.writeEndElement();
                 writer.writeEndElement();
                 continue;
             }
