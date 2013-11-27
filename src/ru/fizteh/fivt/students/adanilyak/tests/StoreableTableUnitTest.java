@@ -103,6 +103,11 @@ public class StoreableTableUnitTest {
     @Test
     public void putTest() throws IOException, ParseException {
         Assert.assertNull(testTableEng.put("key", tableProvider.deserialize(testTableEng, "[1, 2, 3]")));
+        testTableEng.commit();
+
+        ((StoreableTable) testTableEng).close();
+        testTableEng = tableProvider.createTable("testTable20", typesTestListOne);
+
         Assert.assertEquals("[1,2,3]", tableProvider.serialize(testTableEng, testTableEng.put("key",
                 tableProvider.deserialize(testTableEng, "[1, 2, 3]"))));
         Assert.assertEquals("[1,2,3]", tableProvider.serialize(testTableEng, testTableEng.put("key",

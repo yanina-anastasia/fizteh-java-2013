@@ -32,11 +32,11 @@ public class StoreableTable implements Table, AutoCloseable {
     private File tableStorageDirectory;
     private List<Class<?>> columnTypes;
     private Map<String, Storeable> data;
-    private WorkStatus status;
 
     /**
      * THREAD LOCAL DATA
      */
+    private ThreadLocal<WorkStatus> status = new ThreadLocal<>();
     private ThreadLocal<HashMap<String, Storeable>> changes;
     private ThreadLocal<HashSet<String>> removedKeys;
     private ThreadLocal<Integer> amountOfChanges;
@@ -45,7 +45,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     public StoreableTable(File dataDirectory, TableProvider givenProvider) throws IOException {
         data = new HashMap<>();
-        status = WorkStatus.NOT_INITIALIZED;
+        status.set(WorkStatus.NOT_INITIALIZED);
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -73,8 +73,8 @@ public class StoreableTable implements Table, AutoCloseable {
         provider = givenProvider;
         tableStorageDirectory = dataDirectory;
         try {
+            status.set(WorkStatus.WORKING);
             WorkWithStoreableDataBase.readIntoDataBase(tableStorageDirectory, data, this, provider);
-            status = WorkStatus.WORKING;
         } catch (IOException | ParseException exc) {
             throw new IllegalArgumentException("Read from file failed", exc);
         }
@@ -91,7 +91,7 @@ public class StoreableTable implements Table, AutoCloseable {
         }
 
         data = new HashMap<>();
-        status = WorkStatus.NOT_INITIALIZED;
+        status.set(WorkStatus.NOT_INITIALIZED);
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -116,19 +116,19 @@ public class StoreableTable implements Table, AutoCloseable {
         provider = givenProvider;
         tableStorageDirectory = dataDirectory;
         columnTypes = givenTypes;
-        status = WorkStatus.WORKING;
+        status.set(WorkStatus.WORKING);
         WorkWithStoreableDataBase.createSignatureFile(tableStorageDirectory, this);
     }
 
     @Override
     public String getName() {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         return tableStorageDirectory.getName();
     }
 
     @Override
     public Storeable get(String key) {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("get: key is bad");
         }
@@ -149,7 +149,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("put: key is bad");
         }
@@ -179,7 +179,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public Storeable remove(String key) {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         if (!CheckOnCorrect.goodArg(key)) {
             throw new IllegalArgumentException("remove: key is bad");
         }
@@ -219,7 +219,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int size() {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         try {
             transactionLock.lock();
             return CountingTools.correctCountingOfSize(data, changes.get(), removedKeys.get());
@@ -230,7 +230,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int commit() {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         int result = -1;
         try {
             transactionLock.lock();
@@ -253,7 +253,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int rollback() {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         int result = -1;
         try {
             transactionLock.lock();
@@ -267,13 +267,13 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public int getColumnsCount() {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         return columnTypes.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         int columnsCount = getColumnsCount();
         if (columnIndex < 0 || columnIndex > columnsCount - 1) {
             throw new IndexOutOfBoundsException("get column type: bad index");
@@ -282,22 +282,23 @@ public class StoreableTable implements Table, AutoCloseable {
     }
 
     public List<Class<?>> getColumnTypes() {
+        status.get().isOkForOperations();
         return columnTypes;
     }
 
     @Override
     public String toString() {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         return getClass().getSimpleName() + "[" + tableStorageDirectory + "]";
     }
 
     @Override
     public void close() {
-        status.isOkForClose();
-        if (status == WorkStatus.WORKING) {
+        status.get().isOkForClose();
+        if (status.get() == WorkStatus.WORKING) {
             rollback();
         }
-        status = WorkStatus.CLOSED;
+        status.set(WorkStatus.CLOSED);
     }
 
     private void setDefault() {
@@ -308,7 +309,7 @@ public class StoreableTable implements Table, AutoCloseable {
 
     public boolean isOkForOperations() {
         try {
-            status.isOkForOperations();
+            status.get().isOkForOperations();
         } catch (IllegalStateException exc) {
             return false;
         }
@@ -316,7 +317,7 @@ public class StoreableTable implements Table, AutoCloseable {
     }
 
     public int getAmountOfChanges() {
-        status.isOkForOperations();
+        status.get().isOkForOperations();
         return amountOfChanges.get();
     }
 }
