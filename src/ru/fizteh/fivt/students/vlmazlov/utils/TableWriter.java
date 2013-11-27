@@ -40,7 +40,8 @@ public class TableWriter {
 
         try {
 
-            long curOffset = countFirstOffSet(table), writePosition;
+            long curOffset = countFirstOffSet(table);
+            long writePosition;
 
             for (Map.Entry<String, V> entry : table) {
                 if (entry.getValue() == null) {

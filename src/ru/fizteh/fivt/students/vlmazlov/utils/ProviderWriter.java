@@ -38,8 +38,8 @@ public class ProviderWriter {
 
     }
 
-    public static <V, T extends GenericTable<V>> void writeMultiTable
-            (T table, File root, GenericTableProvider<V, T> provider)
+    public static <V, T extends GenericTable<V>> void writeMultiTable(
+        T table, File root, GenericTableProvider<V, T> provider)
             throws IOException, ValidityCheckFailedException {
 
         ArrayList<ArrayList<T>> tableParts =
