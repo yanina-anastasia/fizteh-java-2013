@@ -5,8 +5,13 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import java.io.File;
 import java.io.IOException;
 
-public class DatabaseTableProviderFactory implements TableProviderFactory {
+public class DatabaseTableProviderFactory implements TableProviderFactory, AutoCloseable {
+    boolean isClosed = false;
+
     public DatabaseTableProvider create(String directory) throws IOException {
+        if (isClosed) {
+            throw new IllegalStateException ("It is closed");
+        }
         if (directory == null || directory.isEmpty()) {
             throw new IllegalArgumentException("Error while getting property");
         }
@@ -21,5 +26,10 @@ public class DatabaseTableProviderFactory implements TableProviderFactory {
         }
         DatabaseTableProvider provider = new DatabaseTableProvider(databaseDirectory.getAbsolutePath());
         return provider;
+    }
+
+    @Override
+    public void close() throws Exception {
+        isClosed = true;
     }
 }
