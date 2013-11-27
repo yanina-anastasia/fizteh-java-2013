@@ -6,7 +6,6 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,23 +19,20 @@ public class MyInvocationHandler implements InvocationHandler {
             return 0;
         }
     };
-    static Set<String> badMethodNameSet = new HashSet<String>();
 
     public MyInvocationHandler(Writer writer, Object implementation) {
         w.set(writer);
         impl.set(implementation);
-        badMethodNameSet.add("equals");
-        badMethodNameSet.add("hashCode");
-        badMethodNameSet.add("toString");
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (badMethodNameSet.contains(method.getName())) {
+        if (method.equals(Object.class.getMethod("equals", Object.class))) {
             return null;
         }
         Object result = null;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
+//        try {
         if (invokeCounter.get() == 0) {
             MyInvocationHandler.writer.set(factory.createXMLStreamWriter(w.get()));
         }
@@ -70,6 +66,7 @@ public class MyInvocationHandler implements InvocationHandler {
         }
         writer.get().writeEndDocument();
         writer.get().flush();
+//        } catch (Throwable ignored)
         return result;
     }
 
