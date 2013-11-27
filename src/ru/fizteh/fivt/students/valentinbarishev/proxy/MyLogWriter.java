@@ -10,14 +10,16 @@ import java.util.IdentityHashMap;
 public class MyLogWriter {
     private Method method;
     private Object[] args;
+    private Object implementation;
     private XMLStreamWriter writer;
     private Object returnValue = null;
     private Throwable exception = null;
     private StringWriter stringWriter;
 
-    public MyLogWriter(Method newMethod, Object[] newArgs) throws XMLStreamException {
+    public MyLogWriter(Object newImplementation, Method newMethod, Object[] newArgs) throws XMLStreamException {
         method = newMethod;
         args = newArgs;
+        implementation = newImplementation;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         stringWriter = new StringWriter();
         writer = factory.createXMLStreamWriter(stringWriter);
@@ -91,7 +93,7 @@ public class MyLogWriter {
 
         writer.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
         writer.writeAttribute("name", method.getName());
-        writer.writeAttribute("class", method.getDeclaringClass().getName());
+        writer.writeAttribute("class", implementation.getClass().getName());
 
         writer.writeStartElement("arguments");
         writeArguments();

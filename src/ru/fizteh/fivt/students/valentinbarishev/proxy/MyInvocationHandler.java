@@ -17,8 +17,12 @@ public class MyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (method.getName().equals("hashCode")) {
+            return method.invoke(implementation, args);
+        }
+
         Object result = null;
-        MyLogWriter log = new MyLogWriter(method, args);
+        MyLogWriter log = new MyLogWriter(implementation, method, args);
         try {
             result = method.invoke(implementation, args);
             log.setReturnValue(result);
