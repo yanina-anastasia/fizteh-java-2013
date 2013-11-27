@@ -452,7 +452,6 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        rollback();
         isClosed = true;
     }
 }
