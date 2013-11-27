@@ -68,6 +68,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             }
             writer.writeEndElement();
         }
+        map.remove(list);
     }
 
     private void writeArguments(XMLStreamWriter writer, Object[] args) throws XMLStreamException {
