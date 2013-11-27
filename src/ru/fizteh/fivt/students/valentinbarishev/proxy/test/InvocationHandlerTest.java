@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.valentinbarishev.proxy.test;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
@@ -95,7 +94,7 @@ public class InvocationHandlerTest {
         try {
             table = proxyProvider.createTable("", types);
         } catch (IllegalArgumentException e) {
-
+            //silent
         }
         writer.flush();
         writer.close();

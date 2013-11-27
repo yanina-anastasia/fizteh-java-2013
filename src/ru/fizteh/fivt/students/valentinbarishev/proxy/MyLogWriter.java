@@ -43,10 +43,6 @@ public class MyLogWriter {
     }
 
     private void writeList(Iterable object, IdentityHashMap<Object, Boolean> map) throws XMLStreamException {
-        if (map.containsKey(object)) {
-            writer.writeCharacters("cyclic");
-            return;
-        }
         for (Object i : object) {
             writer.writeStartElement("value");
 
@@ -55,10 +51,13 @@ public class MyLogWriter {
             } else {
                 if (i instanceof Iterable) {
                     if (!map.containsKey(i)) {
+                        map.put(i, true);
+
                         writer.writeStartElement("list");
-                        map.put(object, true);
                         writeList(object, map);
                         writer.writeEndElement();
+
+                        map.remove(i);
                     } else {
                         writer.writeCharacters("cyclic");
                     }

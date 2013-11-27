@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.valentinbarishev.proxy;
 
 import ru.fizteh.fivt.proxy.LoggingProxyFactory;
-
-import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Proxy;
 
