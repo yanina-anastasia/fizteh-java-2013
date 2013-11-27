@@ -180,10 +180,9 @@ public class TableImplementation implements Table {
         checkTableState();
         StoreableUtils.checkStoreableBelongsToTable(this, value);
 
-
+        Storeable toReturn = get(key);
         readLock.lock();
         try {
-            Storeable toReturn = get(key);
             if (isTableStoreableEqual(value, savedMap.get(key))) {  // savedValue not changes
                 currentChangesMap.get().remove(key);
             } else {

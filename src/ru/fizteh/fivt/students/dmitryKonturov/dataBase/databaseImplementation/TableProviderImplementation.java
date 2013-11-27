@@ -118,30 +118,25 @@ public class TableProviderImplementation implements TableProvider {
         }
 
         Table oldTable;
-        readLock.lock();
+        writeLock.lock();
         try {
             oldTable = existingTables.get(name);
             if (oldTable != null) {
                 return null;
             }
-        } finally {
-            readLock.unlock();
-        }
 
-        Table newTable;
-        writeLock.lock();
-        try {
+            Table newTable;
             try {
                 newTable = new TableImplementation(name, this, columnTypes);
             } catch (Exception e) {
                 throw new IOException("Fail to create database", e);
             }
-
             existingTables.put(name, newTable);
+
+            return newTable;
         } finally {
             writeLock.unlock();
         }
-        return newTable;
     }
 
     @Override
