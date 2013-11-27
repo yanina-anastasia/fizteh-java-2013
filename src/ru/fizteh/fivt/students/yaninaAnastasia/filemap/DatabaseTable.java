@@ -16,7 +16,6 @@ public class DatabaseTable implements Table, AutoCloseable {
     public HashMap<String, Storeable> oldData;
     public ThreadLocal<HashMap<String, Storeable>> modifiedData;
     public ThreadLocal<HashSet<String>> deletedKeys;
-    public int size;
     public ThreadLocal<Integer> uncommittedChanges;
     private String tableName;
     public List<Class<?>> columnTypes;
@@ -47,12 +46,6 @@ public class DatabaseTable implements Table, AutoCloseable {
                 return new Integer(0);
             }
         };
-        transactionLock.readLock().lock();
-        try {
-            size = oldData.size();
-        } finally {
-            transactionLock.readLock().unlock();
-        }
         columnTypes = colTypes;
         provider = providerRef;
         uncommittedChanges.set(0);
@@ -143,9 +136,6 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (deletedKeys.get().contains(key)) {
             deletedKeys.get().remove(key);
         }
-        if (oldValue == null) {
-            size += 1;
-        }
         uncommittedChanges.set(changesCount());
         return oldValue;
     }
@@ -179,9 +169,6 @@ public class DatabaseTable implements Table, AutoCloseable {
             }
         } else {
             deletedKeys.get().add(key);
-        }
-        if (oldValue != null) {
-            size -= 1;
         }
         uncommittedChanges.set(changesCount());
         return oldValue;
@@ -217,7 +204,6 @@ public class DatabaseTable implements Table, AutoCloseable {
             }
             deletedKeys.get().clear();
             modifiedData.get().clear();
-            size = oldData.size();
             TableBuilder tableBuilder = new TableBuilder(provider, this);
             save(tableBuilder);
             uncommittedChanges.set(0);
@@ -235,12 +221,6 @@ public class DatabaseTable implements Table, AutoCloseable {
 
         deletedKeys.get().clear();
         modifiedData.get().clear();
-        transactionLock.readLock().lock();
-        try {
-            size = oldData.size();
-        } finally {
-            transactionLock.readLock().unlock();
-        }
 
         uncommittedChanges.set(0);
 

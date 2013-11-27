@@ -5,11 +5,13 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Set;
 
 public class JSONWriter {
     private JSONObject jsonLog = new JSONObject();
-    private final IdentityHashMap<Object, Boolean> identityLogHashMap = new IdentityHashMap<Object, Boolean>();
+    private final Set<Object> argsStorage = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
 
     public void logTimestamp() {
         jsonLog = jsonLog.put("timestamp", System.currentTimeMillis());
@@ -20,26 +22,33 @@ public class JSONWriter {
     }
 
     public void logMethod(Method method) {
-        jsonLog = jsonLog.put("method", method.getName());
+        jsonLog = jsonLog.put("name", method.getName());
     }
 
     public void logArguments(Object[] args) {
-        JSONArray array;
-        try {
-            array = makeJSONArray(Arrays.asList(args));
-        } catch (NullPointerException | ClassCastException e) {
-            array = new JSONArray();
+        JSONArray jsonArray = new JSONArray();
+        if (args != null) {
+            jsonArray = makeJSONArray(Arrays.asList(args));
         }
-        jsonLog = jsonLog.put("arguments", array);
-        identityLogHashMap.clear();
+        jsonLog.put("arguments", jsonArray);
     }
 
     public void logReturnValue(Object result) {
-        if (result == null) {
-            jsonLog.put("returnValue", JSONObject.NULL);
+        JSONArray jsonArray = new JSONArray();
+        if (result != null) {
+            if (result instanceof Iterable) {
+                jsonArray = makeJSONArray((Iterable) result);
+            } else if (result.getClass().isArray()) {
+                jsonArray = makeJSONArray(Arrays.asList((Object[]) result));
+            } else {
+                jsonLog.put("returnValue", result);
+                return;
+            }
         } else {
-            jsonLog = jsonLog.put("returnValue", result);
+            jsonLog.put("returnValue", JSONObject.NULL);
+            return;
         }
+        jsonLog.put("returnValue", jsonArray);
     }
 
     public void logThrown(Throwable cause) {
@@ -52,39 +61,21 @@ public class JSONWriter {
 
     private JSONArray makeJSONArray(Iterable collection) {
         JSONArray result = new JSONArray();
-        for (Object value : collection) {
-            if (value == null) {
-                result.put(value);
-                continue;
+        argsStorage.add(collection);
+        for (Object argument: collection) {
+            if (argument == null) {
+                result.put(argument);
+            } else if (argument instanceof Iterable) {
+                if (argsStorage.contains(argument)) {
+                    result.put("cyclic");
+                } else {
+                    result.put(makeJSONArray((Iterable) argument));
+                }
+            } else if (argument.getClass().isArray()) {
+                result.put(argument.toString());
+            } else {
+                result.put(argument);
             }
-
-            if (value.getClass().isArray()) {
-                result.put(value.toString());
-                continue;
-            }
-
-            boolean isContainer = false;
-            boolean isEmpty = false;
-
-            if (value instanceof Iterable) {
-                isContainer = true;
-                isEmpty = !((Iterable) value).iterator().hasNext();
-            }
-
-            if (identityLogHashMap.containsKey(value) && isContainer && !isEmpty) {
-
-                result.put("cyclic");
-                continue;
-            }
-
-            identityLogHashMap.put(value, true);
-
-            if (isContainer) {
-                result.put(makeJSONArray((Iterable) value));
-                continue;
-            }
-
-            result.put(value);
         }
         return result;
     }

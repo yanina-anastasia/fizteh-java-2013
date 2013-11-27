@@ -80,7 +80,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "size");
+        Assert.assertEquals(parser.getString("name"), "size");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertTrue(args.isNull(0));
@@ -100,7 +100,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "get");
+        Assert.assertEquals(parser.getString("name"), "get");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals(args.getString(0), "key");
@@ -121,7 +121,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "put");
+        Assert.assertEquals(parser.getString("name"), "put");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals(args.getString(0), "key");
@@ -142,7 +142,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "remove");
+        Assert.assertEquals(parser.getString("name"), "remove");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals(args.getString(0), "key");
@@ -169,7 +169,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "commit");
+        Assert.assertEquals(parser.getString("name"), "commit");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertTrue(args.isNull(0));
@@ -195,7 +195,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "rollback");
+        Assert.assertEquals(parser.getString("name"), "rollback");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertTrue(args.isNull(0));
@@ -218,7 +218,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "getName");
+        Assert.assertEquals(parser.getString("name"), "getName");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertTrue(args.isNull(0));
@@ -237,7 +237,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "getColumnsCount");
+        Assert.assertEquals(parser.getString("name"), "getColumnsCount");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertTrue(args.isNull(0));
@@ -256,7 +256,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "getColumnType");
+        Assert.assertEquals(parser.getString("name"), "getColumnType");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals(args.getInt(0), 0);
@@ -276,7 +276,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "getColumnType");
+        Assert.assertEquals(parser.getString("name"), "getColumnType");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals(args.getInt(0), 0);
@@ -304,7 +304,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("createTable", parser.getString("method"));
+        Assert.assertEquals("createTable", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals("new", args.getString(0));
@@ -340,7 +340,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("getTable", parser.getString("method"));
+        Assert.assertEquals("getTable", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals("new", args.getString(0));
@@ -379,7 +379,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("removeTable", parser.getString("method"));
+        Assert.assertEquals("removeTable", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals("new", args.getString(0));
@@ -400,7 +400,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("serialize", parser.getString("method"));
+        Assert.assertEquals("serialize", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
@@ -428,7 +428,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("deserialize", parser.getString("method"));
+        Assert.assertEquals("deserialize", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
@@ -452,7 +452,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("createFor", parser.getString("method"));
+        Assert.assertEquals("createFor", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
@@ -478,7 +478,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("createFor", parser.getString("method"));
+        Assert.assertEquals("createFor", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
@@ -507,7 +507,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"),
                 "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider");
-        Assert.assertEquals(parser.getString("method"), "getTable");
+        Assert.assertEquals(parser.getString("name"), "getTable");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertTrue(args.isNull(0));
@@ -531,7 +531,7 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals(parser.getString("class"), "ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTable");
-        Assert.assertEquals(parser.getString("method"), "getColumnType");
+        Assert.assertEquals(parser.getString("name"), "getColumnType");
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals(args.getInt(0), 1);
@@ -566,7 +566,7 @@ public class TestsLoggingProxyFactory {
                 && parser.getLong("timestamp") <= timestampAfter);
         Assert.assertEquals("ru.fizteh.fivt.students.yaninaAnastasia.filemap.DatabaseTableProvider",
                 parser.getString("class"));
-        Assert.assertEquals("removeTable", parser.getString("method"));
+        Assert.assertEquals("removeTable", parser.getString("name"));
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertEquals("newTable", args.getString(0));
