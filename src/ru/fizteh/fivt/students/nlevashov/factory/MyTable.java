@@ -37,8 +37,8 @@ public class MyTable implements Table {
     ThreadLocal<HashSet<String>> removings;
 
     private final ReentrantReadWriteLock readWriteLocker = new ReentrantReadWriteLock(true);
-    private final Lock tor = readWriteLocker.readLock();
-    private final Lock loki = readWriteLocker.writeLock();
+    private final Lock readLocker = readWriteLocker.readLock();
+    private final Lock writeLocker = readWriteLocker.writeLock();
 
     /**
      * Конструктор. Открывает и читают базу.
@@ -223,11 +223,11 @@ public class MyTable implements Table {
         } else {
             Storeable s = rewritings.get().get(key);
             if (s == null) {
-                tor.lock();
+                readLocker.lock();
                 try {
                     return map.get(key);
                 } finally {
-                    tor.unlock();
+                    readLocker.unlock();
                 }
             } else {
                     return s;
@@ -285,11 +285,11 @@ public class MyTable implements Table {
                     }
                 }
                 Storeable s;
-                tor.lock();
+                readLocker.lock();
                 try {
                     s = map.get(key);
                 } finally {
-                    tor.unlock();
+                    readLocker.unlock();
                 }
                 if (removings.get().contains(key)) {
                     removings.get().remove(key);
@@ -332,11 +332,11 @@ public class MyTable implements Table {
             return null;
         } else {
             Storeable s;
-            tor.lock();
+            readLocker.lock();
             try {
                 s = map.get(key);
             } finally {
-                tor.unlock();
+                readLocker.unlock();
             }
             if (s == null) {
                 return rewritings.get().remove(key);
@@ -361,7 +361,7 @@ public class MyTable implements Table {
     public int size() {
         int mapSize;
         int inserts = 0;
-        tor.lock();
+        readLocker.lock();
         try {
             mapSize = map.size();
             for (Map.Entry<String, Storeable> entry : rewritings.get().entrySet()) {
@@ -370,7 +370,7 @@ public class MyTable implements Table {
                 }
             }
         } finally {
-            tor.unlock();
+            readLocker.unlock();
         }
         return (mapSize + inserts - removings.get().size());
     }
@@ -385,7 +385,7 @@ public class MyTable implements Table {
     @Override
     public int commit() throws IOException {
         int difference;
-        loki.lock();
+        writeLocker.lock();
         try {
             difference = diff();
             for (String s : removings.get()) {
@@ -394,7 +394,7 @@ public class MyTable implements Table {
             map.putAll(rewritings.get());
             refreshDiskData();
         } finally {
-            loki.unlock();
+            writeLocker.unlock();
         }
         rewritings.get().clear();
         removings.get().clear();
@@ -409,11 +409,11 @@ public class MyTable implements Table {
     @Override
     public int rollback() {
         int difference;
-        tor.lock();
+        readLocker.lock();
         try {
             difference = diff();
         } finally {
-            tor.unlock();
+            readLocker.unlock();
         }
         rewritings.get().clear();
         removings.get().clear();
@@ -451,11 +451,11 @@ public class MyTable implements Table {
      * Подсчет ведется с помощью функции diff(). Потокобезопасна.
      */
     public int threadSafeDifference() {
-        tor.lock();
+        readLocker.lock();
         try {
             return diff();
         } finally {
-            tor.unlock();
+            readLocker.unlock();
         }
     }
 
