@@ -33,7 +33,7 @@ public class MyInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (badMethodNameSet.contains(method.getName())) {
-            throw new IllegalArgumentException("Cannot proxy \"equals\", \"toString\" and \"hashCode\" methods.");
+            return null;
         }
         Object result = null;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
