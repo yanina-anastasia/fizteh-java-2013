@@ -10,30 +10,57 @@ import java.io.File;
 import java.io.IOException;
 import javax.activation.UnsupportedDataTypeException;
 import javax.xml.stream.XMLStreamException;
-import ru.fizteh.fivt.students.vlmazlov.shell.QuietCloser;
+
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
-import ru.fizteh.fivt.students.vlmazlov.filemap.GenericTable;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ProviderReader;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ProviderWriter;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.GenericTableProvider;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
+import ru.fizteh.fivt.students.vlmazlov.generics.GenericTable;
+import ru.fizteh.fivt.students.vlmazlov.generics.GenericTableProvider;
+import ru.fizteh.fivt.students.vlmazlov.utils.ValidityCheckFailedException;
+import ru.fizteh.fivt.students.vlmazlov.utils.ValidityChecker;
+import ru.fizteh.fivt.students.vlmazlov.utils.XMLStoreableReader;
+import ru.fizteh.fivt.students.vlmazlov.utils.XMLStoreableWriter;
+import ru.fizteh.fivt.students.vlmazlov.utils.TypeName;
+import ru.fizteh.fivt.students.vlmazlov.utils.ProviderReader;
+import ru.fizteh.fivt.students.vlmazlov.utils.ProviderWriter;
+import ru.fizteh.fivt.students.vlmazlov.utils.QuietCloser;
 
-public class StoreableTableProvider extends GenericTableProvider<Storeable, StoreableTable> implements TableProvider {
+public class StoreableTableProvider extends GenericTableProvider<Storeable, StoreableTable> 
+implements TableProvider, AutoCloseable {
+
+    private boolean isClosed;
 
 	public StoreableTableProvider(String name, boolean autoCommit) throws ValidityCheckFailedException {
 		super(name, autoCommit);
+        isClosed = false;
 	}
 
     @Override
     protected StoreableTable instantiateTable(String name, Object args[]) {
+        checkClosed();
         return new StoreableTable(this, name, autoCommit, (List)args[0]);
     }
 
-    public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
+     public StoreableTable getTable(String name) {
+        checkClosed();
+
+        return super.getTable(name);
+    }
+
+    public synchronized void removeTable(String name) {
+       checkClosed();
+       super.removeTable(name);
+    }
+
+    public String getRoot() {
+        checkClosed();
+        return super.getRoot();
+    }
+
+    public synchronized StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        checkClosed();
+
         if ((columnTypes == null) || (columnTypes.isEmpty())) {
             throw new IllegalArgumentException("wrong type (column types not specified)");
         }
@@ -68,16 +95,20 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
     
     @Override
 	public Storeable deserialize(StoreableTable table, String value) throws ParseException {
+        checkClosed();
 		return this.deserialize((Table)table, value);
 	}
 
     @Override
     public String serialize(StoreableTable table, Storeable value) throws ColumnFormatException {
+        checkClosed();
     	return this.serialize((Table)table, value);
     }
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        checkClosed();
+
         List<Object> values = new ArrayList<Object>();
 
         try {
@@ -96,6 +127,8 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        checkClosed();
+
         try {
             ValidityChecker.checkValueFormat(table, value);
         } catch (ValidityCheckFailedException ex) {
@@ -111,6 +144,8 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     public Storeable createFor(Table table) {
+        checkClosed();
+
     	List<Class<?>> valueTypes = new ArrayList<Class<?>>(table.getColumnsCount());
     	
     	for (int i = 0;i < table.getColumnsCount();++i) {
@@ -122,6 +157,8 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        checkClosed();
+
     	if (values.size() > table.getColumnsCount()) {
     		throw new IndexOutOfBoundsException("Too many columns passed");
     	}
@@ -141,6 +178,8 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     private List<Class<?>> getTableSignature(File tableDir) 
     throws ValidityCheckFailedException, IOException {
+        checkClosed();
+
         ValidityChecker.checkMultiStoreableTableRoot(tableDir);
 
         File signatureFile = new File(tableDir, "signature.tsv");
@@ -161,12 +200,6 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
             ValidityChecker.checkStoreableTableSignature(signature);
 
-            //В итоге заменил на другой, см. ProviderReadre.readMultiTable
-            ///Костыль!!!!!!!!!!!!!!
-            /*if (signatureFile.delete()) {
-                System.out.println("Waste");
-            } */   
-            ///Костыль!!!!!!!!!!!!!!
             return signature;
         } finally {
             scanner.close();
@@ -175,6 +208,8 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     public void read() throws IOException, ValidityCheckFailedException {
+        checkClosed();
+
         for (File file : ProviderReader.getTableDirList(this)) {
             StoreableTable table = createTable(file.getName(), getTableSignature(file));
             ProviderReader.readMultiTable(file, table, this);
@@ -185,6 +220,41 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     public void write() throws IOException, ValidityCheckFailedException {
+        checkClosed();
         ProviderWriter.writeProvider(this);
+    }
+
+    public void closeTable(String name) {
+        checkClosed();
+        tables.remove(name);
+    }
+
+    public void close() {
+        //necessary for factory.close() to work
+        if (!isClosed) {
+            for (Map.Entry<String, StoreableTable> entry : tables.entrySet()) {
+                entry.getValue().close();
+            }
+
+            isClosed = false;
+        }
+    }
+
+    public void checkClosed() {
+        if (isClosed) {
+            throw new IllegalStateException("trying to operate on a closed table provider");
+        }
+    }
+
+    public String toString() {
+        checkClosed();
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(getClass().getSimpleName());
+        builder.append("[");
+        builder.append(getRoot());
+        builder.append("]");    
+
+        return builder.toString();
     }
 }

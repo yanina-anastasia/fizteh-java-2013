@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.vlmazlov.shell;
 import java.io.File;
 import java.io.OutputStream;
 
+import ru.fizteh.fivt.students.vlmazlov.utils.FileUtils;
+
 public class MkdirCommand extends AbstractShellCommand {
 	public MkdirCommand() {
 		super("mkdir", 1);

@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.IOException;
 
+import ru.fizteh.fivt.students.vlmazlov.utils.FileUtils;
+import ru.fizteh.fivt.students.vlmazlov.utils.FileOperationFailException;
+
 public class MvCommand extends AbstractShellCommand {
 	public MvCommand() {
 		super("mv", 2);

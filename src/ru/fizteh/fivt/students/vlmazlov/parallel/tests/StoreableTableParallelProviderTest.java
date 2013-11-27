@@ -1,18 +1,21 @@
 package ru.fizteh.fivt.students.vlmazlov.parallel.tests;
 
 import org.junit.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+import java.text.ParseException;
+
+import ru.fizteh.fivt.students.vlmazlov.utils.FileUtils;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.vlmazlov.storeable.StoreableTable;
 import ru.fizteh.fivt.students.vlmazlov.storeable.StoreableTableProvider;
-import java.io.File;
-import java.io.IOException;
-import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
-import java.util.List;
-import java.util.ArrayList;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
-import java.text.ParseException;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
+import ru.fizteh.fivt.students.vlmazlov.utils.ValidityCheckFailedException;
 
 public class StoreableTableParallelProviderTest {
 	private volatile StoreableTableProvider provider;

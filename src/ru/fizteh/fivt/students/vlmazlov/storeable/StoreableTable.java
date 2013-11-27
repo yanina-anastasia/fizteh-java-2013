@@ -5,18 +5,19 @@ import java.util.List;
 import java.util.Collections;
 import java.io.File;
 import java.io.IOException;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ProviderWriter;
-import ru.fizteh.fivt.students.vlmazlov.filemap.GenericTable;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityChecker;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
+
+import ru.fizteh.fivt.students.vlmazlov.utils.ProviderWriter;
+import ru.fizteh.fivt.students.vlmazlov.generics.GenericTable;
+import ru.fizteh.fivt.students.vlmazlov.utils.ValidityChecker;
+import ru.fizteh.fivt.students.vlmazlov.utils.ValidityCheckFailedException;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 
-public class StoreableTable extends GenericTable<Storeable> implements Table, Cloneable {
+public class StoreableTable extends GenericTable<Storeable> implements Table, Cloneable, AutoCloseable {
 
 	private StoreableTableProvider specificProvider;
-
+	private boolean isClosed;
 	private final List<Class<?>> valueTypes;
 
 	public StoreableTable(StoreableTableProvider provider, String name, List<Class<?>> valueTypes) {
@@ -28,16 +29,32 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
 		specificProvider = provider;
 		///questionable
 		this.valueTypes = Collections.unmodifiableList(new ArrayList<Class<?>>(valueTypes));
+		isClosed = false;
 	}
 
 	public StoreableTable(StoreableTableProvider provider, String name, boolean autoCommit, List<Class<?>> valueTypes) {
 		super(provider, name, autoCommit);
 		specificProvider = provider;
 		this.valueTypes = Collections.unmodifiableList(new ArrayList<Class<?>>(valueTypes));
+		isClosed = false;
+	}
+
+	@Override
+	public String getName() {
+		checkClosed();
+		return super.getName();
+	}
+
+	@Override
+	public Storeable get(String key) {
+		checkClosed();
+		return super.get(key);
 	}
 
 	@Override
 	public Storeable put(String key, Storeable value) throws ColumnFormatException {
+		checkClosed();
+
 		try {
 			ValidityChecker.checkValueFormat(this, value);
 		} catch (ValidityCheckFailedException ex) {
@@ -48,32 +65,86 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
 	}
 
 	@Override
+	public Storeable remove(String key) {
+		checkClosed();
+		return super.remove(key);
+	}
+
+	@Override
+	public int size() {
+		checkClosed();
+		return super.size();
+	}
+
+	@Override
+	public int commit() throws IOException {
+		checkClosed();
+		return super.commit();
+	}
+
+	@Override
+	public int rollback() {
+		checkClosed();
+		return super.rollback();
+	}
+
+	@Override
     public int getColumnsCount() {
+    	checkClosed();
     	return valueTypes.size();
     }
 
     @Override
 	public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+		checkClosed();
     	return valueTypes.get(columnIndex);
     }
 
     @Override
 	public StoreableTable clone() {
+		checkClosed();
         return new StoreableTable(specificProvider, getName(), autoCommit, valueTypes);
     }
 
     @Override
     protected boolean isValueEqual(Storeable first, Storeable second) {
+    	checkClosed();
 	   	return specificProvider.serialize(this, first).equals(specificProvider.serialize(this, second));
     }
 
     @Override
     public void checkRoot(File root) throws ValidityCheckFailedException {
+    	checkClosed();
     	ValidityChecker.checkMultiStoreableTableRoot(root);
     }
 
     @Override
     protected void storeOnCommit() throws IOException, ValidityCheckFailedException {
+    	checkClosed();
     	ProviderWriter.writeMultiTable(this, new File(specificProvider.getRoot(), getName()), specificProvider);
+    }
+
+    public void close() {
+    	checkClosed();
+    	specificProvider.closeTable(getName());
+    	isClosed = true;
+    }
+
+    public void checkClosed() {
+    	if (isClosed) {
+    		throw new IllegalStateException("trying to operate on a closed table");
+    	}
+    }
+
+    public String toString() {
+    	checkClosed();
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(getClass().getSimpleName());
+		builder.append("[");
+		builder.append(new File(provider.getRoot(), getName()).getPath());
+		builder.append("]");	
+
+		return builder.toString();
     }
 }

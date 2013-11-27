@@ -70,4 +70,24 @@ public class TableRow implements Storeable {
     		throw new ColumnFormatException();
     	}
     }
+
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(getClass().getSimpleName());
+        builder.append("[");
+        
+        for (Object value : values) {
+            if (value != null) {
+                builder.append(value);
+            }
+
+            builder.append(",");
+        }
+
+        builder.deleteCharAt(builder.length() - 1);
+        builder.append("]");    
+
+        return builder.toString();
+    } 
 }

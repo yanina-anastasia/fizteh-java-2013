@@ -1,19 +1,19 @@
 package ru.fizteh.fivt.students.vlmazlov.parallel.tests;
 
 import org.junit.*;
-import ru.fizteh.fivt.students.vlmazlov.storeable.StoreableTable;
-import ru.fizteh.fivt.students.vlmazlov.storeable.StoreableTableProvider;
-import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
-import ru.fizteh.fivt.students.vlmazlov.multifilemap.ValidityCheckFailedException;
-import ru.fizteh.fivt.students.vlmazlov.storeable.Main;
 import java.io.IOException;
 import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 
+import ru.fizteh.fivt.students.vlmazlov.storeable.StoreableTable;
+import ru.fizteh.fivt.students.vlmazlov.storeable.StoreableTableProvider;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.vlmazlov.utils.FileUtils;
+import ru.fizteh.fivt.students.vlmazlov.utils.ValidityCheckFailedException;
+
 public class StoreableTableParallelTest {
-	private volatile StoreableTable table;
+	private StoreableTable table;
 	private StoreableTableProvider provider;
 	private Storeable val1, val2, val3, val4, val5;
 	private final String root = "StoreableTableTest";
@@ -80,7 +80,11 @@ public class StoreableTableParallelTest {
             public void run() {
                 table.put("key2", val1);
  	
-                table.commit();
+                try {
+                    table.commit();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex.getMessage());
+                }
             }
         };
 
@@ -101,7 +105,11 @@ public class StoreableTableParallelTest {
             public void run() {
                 table.put("key1", val1);
  				
-                table.commit();
+                try {
+                    table.commit();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex.getMessage());
+                }
             }
         };
 
@@ -155,13 +163,21 @@ public class StoreableTableParallelTest {
 	public void concurrentPutCommit() {
 
 		table.put("key1", val1);
-        table.commit();
+        try {
+            table.commit();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
 
         final Thread testThread2 = new Thread() {
             @Override
             public void run() {
             	table.put("key1", val2);
-                table.commit();
+                try {
+                    table.commit();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex.getMessage());
+                }
             }
         };
 
@@ -174,7 +190,11 @@ public class StoreableTableParallelTest {
             	    testThread2.join();
             	} catch (InterruptedException ex) {}
 
-                Assert.assertEquals("local change overshadowed", 1, table.commit());
+                try {
+                    Assert.assertEquals("local change overshadowed", 1, table.commit());
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex.getMessage());
+                }
             }
         };
 
@@ -186,13 +206,21 @@ public class StoreableTableParallelTest {
 	public void concurrentRemoveRollback() {
 
 		table.put("key1", val2);
-        table.commit();
+        try {
+            table.commit();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
 
         final Thread testThread2 = new Thread() {
             @Override
             public void run() {
             	table.put("key1", val5);
-                table.commit();
+                try {
+                    table.commit();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex.getMessage());
+                }
             }
         };
 

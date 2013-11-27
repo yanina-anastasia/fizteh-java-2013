@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.vlmazlov.shell;
 import java.io.File;
 import java.io.OutputStream;
 
+import ru.fizteh.fivt.students.vlmazlov.utils.FileUtils;
+
 public class RmCommand extends AbstractShellCommand {
 	public RmCommand() {
 		super("rm", 1);
