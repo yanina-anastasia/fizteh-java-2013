@@ -50,7 +50,7 @@ public class MyLogWriter {
                 writeNull();
             } else {
                 if (i instanceof Iterable) {
-                    if (map.get(i) == null) {
+                    if (!map.containsKey(i)) {
                         map.put(i, true);
 
                         writer.writeStartElement("list");
@@ -81,7 +81,7 @@ public class MyLogWriter {
                 if (args[i] instanceof Iterable) {
                     writer.writeStartElement("list");
                     IdentityHashMap<Object, Boolean> objects = new IdentityHashMap<>();
-                    objects.put(args[i], true);
+                    //objects.put(args[i], true);
                     writeList((Iterable) args[i], objects);
                     writer.writeEndElement();
                 } else {
