@@ -14,8 +14,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -28,7 +28,7 @@ public class TableProviderImplementation implements TableProvider {
     private Lock writeLock = readWriteLock.writeLock();
     private Lock readLock =  readWriteLock.readLock();
 
-    private ConcurrentHashMap<String, Table> existingTables = new ConcurrentHashMap<>();
+    private HashMap<String, Table> existingTables = new HashMap<>();
     static final Class[] ALLOWED_TYPES = new Class[]{
             Integer.class,
             Long.class,
@@ -82,8 +82,8 @@ public class TableProviderImplementation implements TableProvider {
         if (!isAllowedNameForTable(name)) {
             throw new IllegalArgumentException("name is null or contains disallowed characters: " + name);
         }
+        readLock.lock();
         try {
-            readLock.lock();
             return existingTables.get(name);
         } finally {
             readLock.unlock();
@@ -118,8 +118,8 @@ public class TableProviderImplementation implements TableProvider {
         }
 
         Table oldTable;
+        readLock.lock();
         try {
-            readLock.lock();
             oldTable = existingTables.get(name);
             if (oldTable != null) {
                 return null;
@@ -129,9 +129,8 @@ public class TableProviderImplementation implements TableProvider {
         }
 
         Table newTable;
+        writeLock.lock();
         try {
-            writeLock.lock();
-
             try {
                 newTable = new TableImplementation(name, this, columnTypes);
             } catch (Exception e) {
@@ -150,8 +149,8 @@ public class TableProviderImplementation implements TableProvider {
         if (!isAllowedNameForTable(name)) {
             throw new IllegalArgumentException("Name is null or contains disallowed characters: " + name);
         }
+        writeLock.lock();
         try {
-            writeLock.lock();
             if (existingTables.get(name) != null) {
                 try {
                     MultiFileMapLoaderWriter.recursiveRemove(workspace.resolve(name));

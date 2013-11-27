@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -23,14 +22,13 @@ public class TableImplementation implements Table {
     private final List<Class<?>> columnTypes;
     private final int columnsCount;
 
-    //private HashMap<String, Storeable> currentChangesMap;
     private ThreadLocal<Map<String, Storeable>> currentChangesMap = new ThreadLocal<Map<String, Storeable>>() {
         @Override
         protected Map<String, Storeable> initialValue() {
             return new HashMap<>();
         }
     };
-    private volatile ConcurrentHashMap<String, Storeable> savedMap;
+    private HashMap<String, Storeable> savedMap;
     private final Path tablePath;
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
@@ -49,7 +47,7 @@ public class TableImplementation implements Table {
         Path signatureFile = tablePath.resolve(StoreableUtils.getSignatureFileName());
         this.columnTypes = StoreableUtils.loadSignatureFile(signatureFile);
         this.columnsCount = columnTypes.size();
-        this.savedMap = new ConcurrentHashMap<>();
+        this.savedMap = new HashMap<>();
         Map<String, String> tmpBase = new HashMap<>();
         MultiFileMapLoaderWriter.loadDatabase(tableProvider.getWorkspace(), tableName, tmpBase);
         for (Map.Entry<String, String> entry : tmpBase.entrySet()) {
@@ -83,7 +81,7 @@ public class TableImplementation implements Table {
             this.columnTypes.add(type);
         }
         this.columnsCount = columnTypes.size();
-        this.savedMap = new ConcurrentHashMap<>();
+        this.savedMap = new HashMap<>();
         this.tablePath = tableProvider.getWorkspace().resolve(tableName);
         Files.createDirectory(tablePath);
         StoreableUtils.writeSignatureFile(tablePath.resolve(StoreableUtils.getSignatureFileName()),
@@ -161,8 +159,8 @@ public class TableImplementation implements Table {
             throw new IllegalArgumentException("Empty key");
         }
         checkTableState();
+        readLock.lock();
         try {
-            readLock.lock();
             if (currentChangesMap.get().containsKey(key)) {
                 return currentChangesMap.get().get(key);
             } else {
@@ -182,8 +180,9 @@ public class TableImplementation implements Table {
         checkTableState();
         StoreableUtils.checkStoreableBelongsToTable(this, value);
 
+
+        readLock.lock();
         try {
-            readLock.lock();
             Storeable toReturn = get(key);
             if (isTableStoreableEqual(value, savedMap.get(key))) {  // savedValue not changes
                 currentChangesMap.get().remove(key);
@@ -202,9 +201,8 @@ public class TableImplementation implements Table {
             throw new IllegalArgumentException("Empty key");
         }
         checkTableState();
+        readLock.lock();
         try {
-            readLock.lock();
-
             Storeable toReturn = get(key);
             currentChangesMap.get().put(key, null);
             return toReturn;
@@ -216,8 +214,8 @@ public class TableImplementation implements Table {
     @Override
     public int size() {
         checkTableState();
+        readLock.lock();
         try {
-            readLock.lock();
             int tableSize = savedMap.size();
             for (Map.Entry<String, Storeable> entry : currentChangesMap.get().entrySet()) {
                 String key = entry.getKey();
@@ -242,20 +240,24 @@ public class TableImplementation implements Table {
     @Override
     public int commit() throws IOException {
         checkTableState();
+        writeLock.lock();
         try {
-            writeLock.lock();
             int changesNumber = 0;
+            boolean[] changedTableHash = new boolean[16];
             for (Map.Entry<String, Storeable> entry : currentChangesMap.get().entrySet()) {
                 String key = entry.getKey();
+                int keyHash = Math.abs(key.hashCode());
                 Storeable value = entry.getValue();
                 Storeable savedValue;
                 if (value == null) { // need to remove value
                     savedValue = savedMap.remove(key);
+                    changedTableHash[keyHash % 16] = true;
                     if (savedValue != null) { //if contains before
                         ++changesNumber;
                     }
                 } else {
                     savedValue = savedMap.put(key, value);
+                    changedTableHash[keyHash % 16] = true;
                     if (savedValue == null) { // new key mapping
                         ++changesNumber;
                     } else {                  // only if different values
@@ -266,16 +268,25 @@ public class TableImplementation implements Table {
                 }
             }
 
-            Map<String, String> savedStringMap = new HashMap<>();
+            Map<String, String>[] savedStringMap = new HashMap[16];
+            for (int i = 0; i < 16; ++i) {
+                if (changedTableHash[i]) {
+                    savedStringMap[i] = new HashMap<>();
+                }
+            }
             for (Map.Entry<String, Storeable> entry : savedMap.entrySet()) {
                 try {
-                    savedStringMap.put(entry.getKey(), tableProvider.serialize(this, entry.getValue()));
+                    String key = entry.getKey();
+                    int keyHash = Math.abs(key.hashCode());
+                    if (changedTableHash[keyHash % 16]) {
+                        savedStringMap[keyHash % 16].put(key, tableProvider.serialize(this, entry.getValue()));
+                    }
                 } catch (Exception e) {
                     throw new IOException("Cannot serialize storable");
                 }
             }
             try {
-                MultiFileMapLoaderWriter.writeDatabase(tableProvider.getWorkspace(), tableName, savedStringMap);
+                MultiFileMapLoaderWriter.writeMultipleDatabase(tableProvider.getWorkspace(), tableName, savedStringMap);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
@@ -291,8 +302,8 @@ public class TableImplementation implements Table {
     public int rollback() {
         checkTableState();
         int toReturn;
+        readLock.lock();
         try {
-            readLock.lock();
             toReturn = getUnsavedChangesCount();
         } finally {
             readLock.unlock();
