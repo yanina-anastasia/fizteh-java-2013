@@ -183,11 +183,12 @@ public class TableImplementation implements Table {
         Storeable toReturn = get(key);
         readLock.lock();
         try {
-            if (isTableStoreableEqual(value, savedMap.get(key))) {  // savedValue not changes
+            /*if (isTableStoreableEqual(value, savedMap.get(key))) {  // savedValue not changes
                 currentChangesMap.get().remove(key);
             } else {
                 currentChangesMap.get().put(key, value);
-            }
+            }*/
+            currentChangesMap.get().put(key, value);
             return toReturn;
         } finally {
             readLock.unlock();
@@ -266,6 +267,8 @@ public class TableImplementation implements Table {
                     }
                 }
             }
+
+            currentChangesMap.get().clear();
 
             Map<String, String>[] savedStringMap = new HashMap[16];
             for (int i = 0; i < 16; ++i) {
