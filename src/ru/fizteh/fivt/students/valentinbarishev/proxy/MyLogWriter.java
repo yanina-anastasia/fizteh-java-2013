@@ -15,7 +15,6 @@ public class MyLogWriter {
     private Object returnValue = null;
     private Throwable exception = null;
     private StringWriter stringWriter;
-    private IdentityHashMap<Object, Boolean> objects = new IdentityHashMap<>();
 
     public MyLogWriter(Object newImplementation, Method newMethod, Object[] newArgs) throws XMLStreamException {
         method = newMethod;
@@ -43,7 +42,7 @@ public class MyLogWriter {
         writer.writeCharacters(object.toString());
     }
 
-    private void writeList(Iterable object) throws XMLStreamException {
+    private void writeList(Iterable object, IdentityHashMap<Object, Boolean> map) throws XMLStreamException {
         for (Object i : object) {
             writer.writeStartElement("value");
 
@@ -51,11 +50,14 @@ public class MyLogWriter {
                 writeNull();
             } else {
                 if (i instanceof Iterable) {
-                    if (!objects.containsKey(i)) {
-                        objects.put(i, true);
+                    if (map.get(i) == null) {
+                        map.put(i, true);
+
                         writer.writeStartElement("list");
-                        writeList(object);
+                        writeList(object, map);
                         writer.writeEndElement();
+
+                        map.remove(i);
                     } else {
                         writer.writeCharacters("cyclic");
                     }
@@ -77,14 +79,11 @@ public class MyLogWriter {
                 writeNull();
             } else {
                 if (args[i] instanceof Iterable) {
-                    if (!objects.containsKey(args[i])) {
-                        writer.writeStartElement("list");
-                        objects.put(args[i], true);
-                        writeList((Iterable) args[i]);
-                        writer.writeEndElement();
-                    } else {
-                        writer.writeCharacters("cyclic");
-                    }
+                    writer.writeStartElement("list");
+                    IdentityHashMap<Object, Boolean> objects = new IdentityHashMap<>();
+                    objects.put(args[i], true);
+                    writeList((Iterable) args[i], objects);
+                    writer.writeEndElement();
                 } else {
                     writeObject(args[i]);
                 }
