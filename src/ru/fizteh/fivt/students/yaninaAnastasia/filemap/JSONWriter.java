@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class JSONWriter {
     private JSONObject jsonLog = new JSONObject();
-    private final Set<Object> argsStorage = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
+    private final IdentityHashMap<Object, Boolean> objects = new IdentityHashMap<Object, Boolean>();
 
     public void logTimestamp() {
         jsonLog = jsonLog.put("timestamp", System.currentTimeMillis());
@@ -22,33 +22,30 @@ public class JSONWriter {
     }
 
     public void logMethod(Method method) {
-        jsonLog = jsonLog.put("name", method.getName());
+        jsonLog = jsonLog.put("method", method.getName());
     }
 
     public void logArguments(Object[] args) {
-        JSONArray jsonArray = new JSONArray();
-        if (args != null) {
-            jsonArray = makeJSONArray(Arrays.asList(args));
+        if (args == null) {
+            jsonLog = jsonLog.put("arguments", new JSONArray());
+            return;
         }
-        jsonLog.put("arguments", jsonArray);
+        jsonLog = jsonLog.put("arguments", makeJSONArray(Arrays.asList(args)));
+        objects.clear();
     }
 
     public void logReturnValue(Object result) {
-        JSONArray jsonArray = new JSONArray();
+        Object toWrite = null;
         if (result != null) {
             if (result instanceof Iterable) {
-                jsonArray = makeJSONArray((Iterable) result);
-            } else if (result.getClass().isArray()) {
-                jsonArray = makeJSONArray(Arrays.asList((Object[]) result));
+                toWrite = makeJSONArray((Iterable) result);
             } else {
-                jsonLog.put("returnValue", result);
-                return;
+                toWrite = result;
             }
         } else {
-            jsonLog.put("returnValue", JSONObject.NULL);
-            return;
+            toWrite = JSONObject.NULL;
         }
-        jsonLog.put("returnValue", jsonArray);
+        jsonLog = jsonLog.put("returnValue", toWrite);
     }
 
     public void logThrown(Throwable cause) {
@@ -61,21 +58,39 @@ public class JSONWriter {
 
     private JSONArray makeJSONArray(Iterable collection) {
         JSONArray result = new JSONArray();
-        argsStorage.add(collection);
-        for (Object argument: collection) {
-            if (argument == null) {
-                result.put(argument);
-            } else if (argument instanceof Iterable) {
-                if (argsStorage.contains(argument)) {
-                    result.put("cyclic");
-                } else {
-                    result.put(makeJSONArray((Iterable) argument));
-                }
-            } else if (argument.getClass().isArray()) {
-                result.put(argument.toString());
-            } else {
-                result.put(argument);
+        for (Object value : collection) {
+            if (value == null) {
+                result.put(value);
+                continue;
             }
+
+            if (value.getClass().isArray()) {
+                result.put(value.toString());
+                continue;
+            }
+
+            boolean isContainer = false;
+            boolean isEmpty = false;
+
+            if (value instanceof Iterable) {
+                isContainer = true;
+                isEmpty = ((Iterable) value).iterator().hasNext() == false;
+            }
+
+            if (objects.containsKey(value) && isContainer && !isEmpty) {
+
+                result.put("cyclic");
+                continue;
+            }
+
+            objects.put(value, true);
+
+            if (isContainer) {
+                result.put(makeJSONArray((Iterable) value));
+                continue;
+            }
+
+            result.put(value);
         }
         return result;
     }
