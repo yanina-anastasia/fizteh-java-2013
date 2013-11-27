@@ -20,7 +20,9 @@ public class DatabaseLoggingProxyFactory implements LoggingProxyFactory {
         if (!inputClass.isInterface()) {
             throw new IllegalArgumentException("Required class is not an interface");
         }
-        return Proxy.newProxyInstance(object.getClass().getClassLoader(), new Class[]{inputClass},
+        return Proxy.newProxyInstance(
+                object.getClass().getClassLoader(),
+                new Class[]{inputClass},
                 new DatabaseInvocationHandler(writer, object));
     }
 }

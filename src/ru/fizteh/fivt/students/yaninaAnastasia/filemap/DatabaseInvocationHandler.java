@@ -17,28 +17,32 @@ public class DatabaseInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object resultLog = null;
-        JSONWriter jsonWriter = new JSONWriter();
-        jsonWriter.logTimestamp();
-        jsonWriter.logClass(innerObject.getClass());
-        jsonWriter.logMethod(method);
-        jsonWriter.logArguments(args);
+        Object result = null;
+
+        JSONWriter logWriter = new JSONWriter();
+        logWriter.logTimestamp();
+        logWriter.logClass(innerObject.getClass());
+        logWriter.logMethod(method);
+        logWriter.logArguments(args);
+
         try {
-            resultLog = method.invoke(innerObject, args);
-            jsonWriter.logReturnValue(resultLog);
+            result = method.invoke(innerObject, args);
+            if (!method.getReturnType().getName().equals("void")) {
+                logWriter.logReturnValue(result);
+            }
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
-            jsonWriter.logThrown(targetException);
+            logWriter.logThrown(targetException);
             throw targetException;
         } finally {
             try {
                 if (!method.getDeclaringClass().equals(Object.class)) {
-                    writer.write(jsonWriter.getStringRepresentation() + "\n");
+                    writer.write(logWriter.getStringRepresentation() + "\n");
                 }
             } catch (IOException e) {
                 //
             }
         }
-        return resultLog;
+        return result;
     }
 }

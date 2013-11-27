@@ -5,9 +5,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Set;
 
 public class JSONWriter {
     private JSONObject jsonLog = new JSONObject();
@@ -74,7 +72,7 @@ public class JSONWriter {
 
             if (value instanceof Iterable) {
                 isContainer = true;
-                isEmpty = ((Iterable) value).iterator().hasNext() == false;
+                isEmpty = !((Iterable) value).iterator().hasNext();
             }
 
             if (objects.containsKey(value) && isContainer && !isEmpty) {
