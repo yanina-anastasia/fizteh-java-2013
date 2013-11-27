@@ -10,4 +10,6 @@ public interface ExtendTable extends Table, AutoCloseable {
     int getChangedValuesNumber();
 
     void loadAll() throws IOException;
+
+    void close();
 }

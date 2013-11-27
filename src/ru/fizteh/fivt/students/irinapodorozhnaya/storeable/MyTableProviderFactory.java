@@ -37,7 +37,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (!isClosed) {
             for (ExtendProvider provider: providers) {
                 provider.close();

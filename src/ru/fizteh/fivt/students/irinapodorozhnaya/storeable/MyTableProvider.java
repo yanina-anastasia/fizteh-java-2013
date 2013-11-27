@@ -182,7 +182,7 @@ public class MyTableProvider implements ExtendProvider, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (!isClosed) {
             for (ExtendTable table: tables.values()) {
                 table.close();

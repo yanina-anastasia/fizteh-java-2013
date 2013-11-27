@@ -9,7 +9,7 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
     @Override
     public Object wrap(Writer writer, Object implementation, Class<?> interfaceClass) {
 
-        if (writer == null || interfaceClass == null) {
+        if (writer == null || interfaceClass == null || implementation == null) {
             throw new IllegalArgumentException("undefined arguments");
         }
 

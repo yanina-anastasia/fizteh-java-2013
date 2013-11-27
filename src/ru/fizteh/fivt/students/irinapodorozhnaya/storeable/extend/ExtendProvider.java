@@ -14,4 +14,6 @@ public interface ExtendProvider extends  TableProvider, AutoCloseable {
         throws IOException;
 
     void closeTable(String name);
+
+    void close();
 }
