@@ -23,7 +23,7 @@ public class Logger {
 	}
 
 	private void logMethod(Method method) {
-        callLog.put("name", method.getName());
+        callLog.put("method", method.getName());
 	}
 
 	public void logMethodCall(Method method, Object[] args, Object target) throws Throwable {
