@@ -1,16 +1,16 @@
 package ru.fizteh.fivt.students.vlmazlov.utils;
 
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Map;
-
 import ru.fizteh.fivt.students.vlmazlov.generics.GenericTable;
 import ru.fizteh.fivt.students.vlmazlov.generics.GenericTableProvider;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.Map;
+
 public class TableWriter {
-	private static <V> int countFirstOffSet(GenericTable<V> table) throws IOException {
+    private static <V> int countFirstOffSet(GenericTable<V> table) throws IOException {
         int curOffset = 0;
 
         for (Map.Entry<String, V> entry : table) {
@@ -27,9 +27,9 @@ public class TableWriter {
         dataBaseStorage.writeInt(offSet);
     }
 
-    public static <V, T extends GenericTable<V>> void writeTable
-    (File root, File storage, T table, GenericTableProvider<V, T> provider) throws IOException { 
-        
+    public static <V, T extends GenericTable<V>> void writeTable(
+        File root, File storage, T table, GenericTableProvider<V, T> provider) throws IOException {
+
         if (root == null) {
             throw new FileNotFoundException("Directory not specified");
         }
@@ -41,19 +41,19 @@ public class TableWriter {
         try {
 
             long curOffset = countFirstOffSet(table), writePosition;
-           
+
             for (Map.Entry<String, V> entry : table) {
                 if (entry.getValue() == null) {
                     continue;
                 }
 
-                storeKey(dataBaseStorage, entry.getKey(), (int)curOffset);
+                storeKey(dataBaseStorage, entry.getKey(), (int) curOffset);
                 writePosition = dataBaseStorage.getFilePointer();
 
                 dataBaseStorage.seek(curOffset);
                 dataBaseStorage.write(provider.serialize(table, entry.getValue()).getBytes("UTF-8"));
                 curOffset = dataBaseStorage.getFilePointer();
-                
+
                 dataBaseStorage.seek(writePosition);
             }
 
@@ -64,5 +64,5 @@ public class TableWriter {
         if (storage.length() == 0) {
             storage.delete();
         }
-    }	
+    }
 }

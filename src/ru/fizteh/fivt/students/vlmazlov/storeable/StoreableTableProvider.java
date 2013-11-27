@@ -1,56 +1,48 @@
 package ru.fizteh.fivt.students.vlmazlov.storeable;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.text.ParseException;
-import java.io.PrintWriter;
-import java.util.Scanner;
-import java.io.File;
-import java.io.IOException;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.vlmazlov.generics.GenericTableProvider;
+import ru.fizteh.fivt.students.vlmazlov.utils.*;
+
 import javax.activation.UnsupportedDataTypeException;
 import javax.xml.stream.XMLStreamException;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
-import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.ColumnFormatException;
-import ru.fizteh.fivt.students.vlmazlov.generics.GenericTable;
-import ru.fizteh.fivt.students.vlmazlov.generics.GenericTableProvider;
-import ru.fizteh.fivt.students.vlmazlov.utils.ValidityCheckFailedException;
-import ru.fizteh.fivt.students.vlmazlov.utils.ValidityChecker;
-import ru.fizteh.fivt.students.vlmazlov.utils.XMLStoreableReader;
-import ru.fizteh.fivt.students.vlmazlov.utils.XMLStoreableWriter;
-import ru.fizteh.fivt.students.vlmazlov.utils.TypeName;
-import ru.fizteh.fivt.students.vlmazlov.utils.ProviderReader;
-import ru.fizteh.fivt.students.vlmazlov.utils.ProviderWriter;
-import ru.fizteh.fivt.students.vlmazlov.utils.QuietCloser;
-
-public class StoreableTableProvider extends GenericTableProvider<Storeable, StoreableTable> 
-implements TableProvider, AutoCloseable {
+public class StoreableTableProvider extends GenericTableProvider<Storeable, StoreableTable>
+        implements TableProvider, AutoCloseable {
 
     private boolean isClosed;
 
-	public StoreableTableProvider(String name, boolean autoCommit) throws ValidityCheckFailedException {
-		super(name, autoCommit);
+    public StoreableTableProvider(String name, boolean autoCommit) throws ValidityCheckFailedException {
+        super(name, autoCommit);
         isClosed = false;
-	}
-
-    @Override
-    protected StoreableTable instantiateTable(String name, Object args[]) {
-        checkClosed();
-        return new StoreableTable(this, name, autoCommit, (List)args[0]);
     }
 
-     public StoreableTable getTable(String name) {
+    @Override
+    protected StoreableTable instantiateTable(String name, Object[] args) {
+        checkClosed();
+        return new StoreableTable(this, name, autoCommit, (List) args[0]);
+    }
+
+    public StoreableTable getTable(String name) {
         checkClosed();
 
         return super.getTable(name);
     }
 
     public synchronized void removeTable(String name) {
-       checkClosed();
-       super.removeTable(name);
+        checkClosed();
+        super.removeTable(name);
     }
 
     public String getRoot() {
@@ -87,22 +79,22 @@ implements TableProvider, AutoCloseable {
                 writer.print(TypeName.getNameByClass(clazz) + " ");
             }
         } finally {
-            QuietCloser.closeQuietly(writer);  
+            QuietCloser.closeQuietly(writer);
         }
 
         return table;
     }
-    
+
     @Override
-	public Storeable deserialize(StoreableTable table, String value) throws ParseException {
+    public Storeable deserialize(StoreableTable table, String value) throws ParseException {
         checkClosed();
-		return this.deserialize((Table)table, value);
-	}
+        return this.deserialize((Table) table, value);
+    }
 
     @Override
     public String serialize(StoreableTable table, Storeable value) throws ColumnFormatException {
         checkClosed();
-    	return this.serialize((Table)table, value);
+        return this.serialize((Table) table, value);
     }
 
     @Override
@@ -113,7 +105,7 @@ implements TableProvider, AutoCloseable {
 
         try {
             XMLStoreableReader reader = new XMLStoreableReader(value);
-            for (int i = 0; i < table.getColumnsCount();++i) {
+            for (int i = 0; i < table.getColumnsCount(); ++i) {
                 values.add(reader.readColumn(table.getColumnType(i)));
             }
 
@@ -150,16 +142,16 @@ implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("table not specified");
         }
 
-    	List<Class<?>> valueTypes = new ArrayList<Class<?>>(table.getColumnsCount());
-    	
-    	for (int i = 0;i < table.getColumnsCount();++i) {
-    		valueTypes.add(table.getColumnType(i));
-    	}
+        List<Class<?>> valueTypes = new ArrayList<Class<?>>(table.getColumnsCount());
 
-    	return new TableRow(valueTypes);
+        for (int i = 0; i < table.getColumnsCount(); ++i) {
+            valueTypes.add(table.getColumnType(i));
+        }
+
+        return new TableRow(valueTypes);
     }
 
-    @Override 
+    @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         checkClosed();
 
@@ -171,25 +163,25 @@ implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("values not specified");
         }
 
-    	if (values.size() > table.getColumnsCount()) {
-    		throw new IndexOutOfBoundsException("Too many columns passed");
-    	}
+        if (values.size() > table.getColumnsCount()) {
+            throw new IndexOutOfBoundsException("Too many columns passed");
+        }
 
-    	if (values.size() < table.getColumnsCount()) {
-    		throw new IndexOutOfBoundsException("Too few columns passed");
-    	} 
+        if (values.size() < table.getColumnsCount()) {
+            throw new IndexOutOfBoundsException("Too few columns passed");
+        }
 
-    	Storeable result = createFor(table);
+        Storeable result = createFor(table);
 
-    	for (int i = 0;i < values.size();++i) {
-    		result.setColumnAt(i, values.get(i));
-    	}
+        for (int i = 0; i < values.size(); ++i) {
+            result.setColumnAt(i, values.get(i));
+        }
 
         return result;
     }
 
-    private List<Class<?>> getTableSignature(File tableDir) 
-    throws ValidityCheckFailedException, IOException {
+    private List<Class<?>> getTableSignature(File tableDir)
+            throws ValidityCheckFailedException, IOException {
         checkClosed();
 
         ValidityChecker.checkMultiStoreableTableRoot(tableDir);
@@ -215,7 +207,7 @@ implements TableProvider, AutoCloseable {
             return signature;
         } finally {
             scanner.close();
-        }  
+        }
     }
 
     @Override
@@ -246,15 +238,15 @@ implements TableProvider, AutoCloseable {
         if (isClosed) {
             return;
         }
-            
+
         for (Map.Entry<String, StoreableTable> entry : tables.entrySet()) {
             entry.getValue().close();
         }
 
         isClosed = true;
-        
+
     }
-    
+
     public void checkClosed() {
         if (isClosed) {
             throw new IllegalStateException("trying to operate on a closed table provider");
@@ -268,7 +260,7 @@ implements TableProvider, AutoCloseable {
         builder.append(getClass().getSimpleName());
         builder.append("[");
         builder.append(getRoot());
-        builder.append("]");    
+        builder.append("]");
 
         return builder.toString();
     }

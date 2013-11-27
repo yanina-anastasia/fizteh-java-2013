@@ -1,49 +1,50 @@
 package ru.fizteh.fivt.students.vlmazlov.utils;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.text.ParseException;
-
 import ru.fizteh.fivt.students.vlmazlov.generics.GenericTable;
 import ru.fizteh.fivt.students.vlmazlov.generics.GenericTableProvider;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class ProviderReader {
-	private static final int FILES_QUANTITY = 16;
-	private static final int DIRECTORIES_QUANTITY = 16;
+    private static final int FILES_QUANTITY = 16;
+    private static final int DIRECTORIES_QUANTITY = 16;
 
 
     private static int getNum(File file) {
-        String tokens[] = file.getName().split("\\.");
+        String[] tokens = file.getName().split("\\.");
         return Integer.parseInt(tokens[0]);
     }
 
     private static <V> void addTablePart(GenericTable<V> tablePart, GenericTable<V> table) {
 
         for (Map.Entry<String, V> entry : tablePart) {
-           table.put(entry.getKey(), entry.getValue());
+            table.put(entry.getKey(), entry.getValue());
         }
     }
 
-    private static <V> void checkKeys(GenericTable<V> tablePart, File file, File directory) throws ValidityCheckFailedException {
-        for (Map.Entry<String, V> entry : tablePart) { 
-            ValidityChecker.checkKeyStorageAffiliation(entry.getKey(), getNum(file), getNum(directory), 
-                FILES_QUANTITY, DIRECTORIES_QUANTITY);
+    private static <V> void checkKeys(GenericTable<V> tablePart, File file, File directory)
+     throws ValidityCheckFailedException {
+        for (Map.Entry<String, V> entry : tablePart) {
+            ValidityChecker.checkKeyStorageAffiliation(entry.getKey(), getNum(file), getNum(directory),
+                    FILES_QUANTITY, DIRECTORIES_QUANTITY);
         }
     }
 
     //validity is to be checked in read() method of the corresponding provider
-    public static <V, T extends GenericTable<V>> void readMultiTable(File root, T table, GenericTableProvider<V, T> provider)
-      throws IOException, ValidityCheckFailedException {
-        ArrayList<ArrayList<T>> tableParts = 
-        new ArrayList<ArrayList<T>>(DIRECTORIES_QUANTITY);
+    public static <V, T extends GenericTable<V>> void readMultiTable(File root, 
+        T table, GenericTableProvider<V, T> provider)
+            throws IOException, ValidityCheckFailedException {
+        ArrayList<ArrayList<T>> tableParts =
+                new ArrayList<ArrayList<T>>(DIRECTORIES_QUANTITY);
 
-        for (int i = 0;i <  DIRECTORIES_QUANTITY;++i) {
+        for (int i = 0; i < DIRECTORIES_QUANTITY; ++i) {
             tableParts.add(i, new ArrayList<T>(FILES_QUANTITY));
-            for (int j = 0;j < FILES_QUANTITY;++j) {
-                tableParts.get(i).add(j, (T)table.clone());
+            for (int j = 0; j < FILES_QUANTITY; ++j) {
+                tableParts.get(i).add(j, (T) table.clone());
             }
         }
 
@@ -72,8 +73,8 @@ public class ProviderReader {
             }
         }
 
-        for (int i = 0;i < tableParts.size();++i) {
-            for (int j = 0;j < tableParts.get(i).size();++j) {
+        for (int i = 0; i < tableParts.size(); ++i) {
+            for (int j = 0; j < tableParts.get(i).size(); ++j) {
                 addTablePart(tableParts.get(i).get(j), table);
             }
         }
@@ -81,18 +82,18 @@ public class ProviderReader {
 
 
     public static <V, T extends GenericTable<V>> List<File> getTableDirList(GenericTableProvider<V, T> provider)
-    throws IOException, ValidityCheckFailedException {
+            throws IOException, ValidityCheckFailedException {
         ValidityChecker.checkMultiTableDataBaseRoot(provider.getRoot());
 
         File rootFile = new File(provider.getRoot());
         List<File> tableDirs = new ArrayList<File>();
 
         for (File entry : rootFile.listFiles()) {
-            
+
             tableDirs.add(entry);
 
         }
 
         return tableDirs;
-    }	
+    }
 }

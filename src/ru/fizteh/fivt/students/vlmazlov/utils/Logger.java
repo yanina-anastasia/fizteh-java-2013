@@ -1,32 +1,33 @@
 package ru.fizteh.fivt.students.vlmazlov.utils;
 
-import java.util.Arrays;
-import java.lang.reflect.Method;
-import java.util.IdentityHashMap;
 import org.json.*;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.IdentityHashMap;
 
 public class Logger {
 
-	private final JSONObject callLog;
+    private final JSONObject callLog;
     private static final String SEPARATOR = System.getProperty("line.separator");
 
-	public Logger() {
-		callLog = new JSONObject();
-	}
+    public Logger() {
+        callLog = new JSONObject();
+    }
 
-	private void logTimestamp() {
-        callLog.put("timestamp",  System.currentTimeMillis());
-	}
+    private void logTimestamp() {
+        callLog.put("timestamp", System.currentTimeMillis());
+    }
 
-	private void logTargetClass(Object target) {
-	    callLog.put("class", target.getClass().getName());
-	}
+    private void logTargetClass(Object target) {
+        callLog.put("class", target.getClass().getName());
+    }
 
-	private void logMethod(Method method) {
+    private void logMethod(Method method) {
         callLog.put("method", method.getName());
-	}
+    }
 
-	public void logMethodCall(Method method, Object[] args, Object target) throws Throwable {
+    public void logMethodCall(Method method, Object[] args, Object target) throws Throwable {
         Throwable caught = null;
         Object returnValue = null;
 
@@ -38,29 +39,29 @@ public class Logger {
 
     private void logArguments(Object[] args) {
 
-    	IdentityHashMap<Iterable, Boolean> identityHashMap = new IdentityHashMap<Iterable, Boolean>();
+        IdentityHashMap<Iterable, Boolean> identityHashMap = new IdentityHashMap<Iterable, Boolean>();
 
-    	if (args != null) {
-    		callLog.put("arguments", logIterable(Arrays.asList(args), identityHashMap));
-    	} else {
-    		callLog.put("arguments", new JSONArray());
-    	}
+        if (args != null) {
+            callLog.put("arguments", logIterable(Arrays.asList(args), identityHashMap));
+        } else {
+            callLog.put("arguments", new JSONArray());
+        }
     }
 
     private Object logIterable(Iterable iterable, IdentityHashMap<Iterable, Boolean> identityHashMap) {
-    	if (identityHashMap.containsKey(iterable)) {
-    		return "cyclic";
-    	}
+        if (identityHashMap.containsKey(iterable)) {
+            return "cyclic";
+        }
 
-    	identityHashMap.put(iterable, true);
+        identityHashMap.put(iterable, true);
 
-    	JSONArray iterableValues = new JSONArray();
+        JSONArray iterableValues = new JSONArray();
         if (iterable != null) {
             for (Object value : iterable) {
                 if (value instanceof Iterable) {
-                    iterableValues.put(logIterable((Iterable)value, identityHashMap));
+                    iterableValues.put(logIterable((Iterable) value, identityHashMap));
                 } else if ((value != null) && (value.getClass().isArray())) {
-                	iterableValues.put(value.toString());
+                    iterableValues.put(value.toString());
                 } else {
                     iterableValues.put(value);
                 }
@@ -73,27 +74,28 @@ public class Logger {
     public void logReturnValue(Object returnValue) {
 
         IdentityHashMap<Iterable, Boolean> identityHashMap = new IdentityHashMap<Iterable, Boolean>();
-        
+
         if (returnValue == null) {
             callLog.put("returnValue", JSONObject.NULL);
         } else if (!(returnValue instanceof Iterable)) {
             callLog.put("returnValue", returnValue);
         } else {
-            callLog.put("returnValue", logIterable((Iterable)returnValue, identityHashMap));
+            callLog.put("returnValue", logIterable((Iterable) returnValue, identityHashMap));
         }
     }
 
     public void logThrown(Throwable thrown) {
-    	callLog.put("thrown", thrown.toString());
+        callLog.put("thrown", thrown.toString());
     }
 
     //for test purposes
     public JSONObject getResultObject() {
-        return callLog; 
+        return callLog;
     }
 
     @Override
     public String toString() {
-    	return (callLog.toString(2) + SEPARATOR);
+        return (callLog.toString(2) + SEPARATOR);
     }
 }
+

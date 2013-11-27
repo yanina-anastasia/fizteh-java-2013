@@ -1,36 +1,34 @@
 package ru.fizteh.fivt.students.vlmazlov.generics.commands;
 
-import java.io.OutputStream;
-import java.io.IOException;
-
-import ru.fizteh.fivt.students.vlmazlov.shell.AbstractCommand;
-import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
 import ru.fizteh.fivt.students.vlmazlov.generics.DataBaseState;
+import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
+
+import java.io.OutputStream;
 
 public class UseCommand extends AbstractDataBaseCommand {
-	public UseCommand() {
-		super("use", 1);
-	}
+    public UseCommand() {
+        super("use", 1);
+    }
 
-	public void execute(String[] args, DataBaseState state, OutputStream out) throws CommandFailException {
-		String tablename = args[0];
-		
-		if ((state.getActiveTable() != null) && (state.getActiveTable().getDiffCount() != 0)) {
-			displayMessage(state.getActiveTable().getDiffCount() + " unsaved changes" + SEPARATOR, out);
-			return;
-		}
+    public void execute(String[] args, DataBaseState state, OutputStream out) throws CommandFailException {
+        String tablename = args[0];
 
-		try {
-			if (state.getProvider().getTable(tablename) == null) {
-				displayMessage(tablename + " not exists" + SEPARATOR, out);
-			} else {
-				state.setActiveTable(state.getProvider().getTable(tablename));
-		
-				displayMessage("using " + tablename + SEPARATOR, out);
-			}
-		} catch (IllegalArgumentException ex) {
-			displayMessage("operation failed: " + ex.getMessage() + SEPARATOR, out);
-			return;
-		}
-	}
+        if ((state.getActiveTable() != null) && (state.getActiveTable().getDiffCount() != 0)) {
+            displayMessage(state.getActiveTable().getDiffCount() + " unsaved changes" + SEPARATOR, out);
+            return;
+        }
+
+        try {
+            if (state.getProvider().getTable(tablename) == null) {
+                displayMessage(tablename + " not exists" + SEPARATOR, out);
+            } else {
+                state.setActiveTable(state.getProvider().getTable(tablename));
+
+                displayMessage("using " + tablename + SEPARATOR, out);
+            }
+        } catch (IllegalArgumentException ex) {
+            displayMessage("operation failed: " + ex.getMessage() + SEPARATOR, out);
+            return;
+        }
+    }
 }

@@ -1,17 +1,15 @@
 package ru.fizteh.fivt.students.vlmazlov.storeable;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.File;
-import java.util.Set;
-import java.util.HashSet;
-
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
-import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.vlmazlov.utils.ValidityCheckFailedException;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 public class StoreableTableProviderFactory implements TableProviderFactory, AutoCloseable {
-   	
+
     protected boolean autoCommit;
     private boolean isClosed;
     private final Set<StoreableTableProvider> providerSet;
@@ -25,8 +23,8 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
 
     public StoreableTableProviderFactory(boolean autoCommit) {
         this.autoCommit = autoCommit;
-        providerSet = new HashSet<StoreableTableProvider>();   
-        isClosed = false; 
+        providerSet = new HashSet<StoreableTableProvider>();
+        isClosed = false;
     }
 
     public StoreableTableProvider create(String dir) throws IOException {
@@ -55,7 +53,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
         if (isClosed) {
             return;
         }
-        
+
         for (StoreableTableProvider provider : providerSet) {
             provider.close();
         }
@@ -69,3 +67,4 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
         }
     }
 }
+

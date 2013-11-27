@@ -1,32 +1,32 @@
 package ru.fizteh.fivt.students.vlmazlov.generics;
 
-import java.io.IOException;
-import java.io.File;
-import java.util.Map;
-import java.util.HashMap;
-import java.text.ParseException;
-
 import ru.fizteh.fivt.students.vlmazlov.utils.FileUtils;
-import ru.fizteh.fivt.students.vlmazlov.utils.ValidityChecker;
 import ru.fizteh.fivt.students.vlmazlov.utils.ValidityCheckFailedException;
+import ru.fizteh.fivt.students.vlmazlov.utils.ValidityChecker;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
     protected Map<String, T> tables;
     protected final boolean autoCommit;
     private final String root;
-    
-	public GenericTableProvider(String root, boolean autoCommit) throws ValidityCheckFailedException {
+
+    public GenericTableProvider(String root, boolean autoCommit) throws ValidityCheckFailedException {
         if (root == null) {
             throw new IllegalArgumentException("Directory not specified");
         }
-        
-		ValidityChecker.checkMultiTableDataBaseRoot(root);
-		
+
+        ValidityChecker.checkMultiTableDataBaseRoot(root);
+
         this.root = root;
         tables = new HashMap<String, T>();
         this.autoCommit = autoCommit;
-	}
-	
+    }
+
     protected abstract T instantiateTable(String name, Object[] args);
 
     public T getTable(String name) {
@@ -41,7 +41,7 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
     }
 
     public synchronized T createTable(String name, Object[] args) {
-    	try {
+        try {
             ValidityChecker.checkMultiTableName(name);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
@@ -63,7 +63,7 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
     }
 
     public synchronized void removeTable(String name) {
-    	try {
+        try {
             ValidityChecker.checkMultiTableName(name);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
@@ -73,7 +73,7 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
 
         if (oldTable == null) {
             throw new IllegalStateException("Table " + name + " doesn't exist");
-        } 
+        }
 
         FileUtils.recursiveDelete(new File(root, name));
     }
@@ -86,7 +86,7 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
 
     public abstract void write() throws IOException, ValidityCheckFailedException;
 
-    abstract public V deserialize(T table, String value) throws ParseException; 
-    
-    abstract public String serialize(T table, V value);
+    public abstract V deserialize(T table, String value) throws ParseException;
+
+    public abstract String serialize(T table, V value);
 }

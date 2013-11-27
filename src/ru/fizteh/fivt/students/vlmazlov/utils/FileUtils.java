@@ -1,130 +1,126 @@
 package ru.fizteh.fivt.students.vlmazlov.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 public class FileUtils {
 
-	public static File createTempDir(String prefix, String suffix) {
-		File tmp = null;
-		try {
-			tmp = File.createTempFile(prefix, suffix);
-		} catch (IOException ex) {
-			return null;
-		}	
-		
-		if (!tmp.delete()) {
-			return null;
-		}
-		if (!tmp.mkdir()) {
-			return null;
-		}
-		return tmp;
-	}
+    public static File createTempDir(String prefix, String suffix) {
+        File tmp = null;
+        try {
+            tmp = File.createTempFile(prefix, suffix);
+        } catch (IOException ex) {
+            return null;
+        }
 
-	public static void copyToDir(File sourceFile, File destinationDir) throws FileOperationFailException {
-		File copiedFile = new File(destinationDir, sourceFile.getName());
+        if (!tmp.delete()) {
+            return null;
+        }
+        if (!tmp.mkdir()) {
+            return null;
+        }
+        return tmp;
+    }
 
-		try {
-			copiedFile.createNewFile();
-		} catch (IOException ex) {
-			throw new FileOperationFailException(ex.getMessage());
-		}
+    public static void copyToDir(File sourceFile, File destinationDir) throws FileOperationFailException {
+        File copiedFile = new File(destinationDir, sourceFile.getName());
 
-		copyToFile(sourceFile, copiedFile);
-	}
+        try {
+            copiedFile.createNewFile();
+        } catch (IOException ex) {
+            throw new FileOperationFailException(ex.getMessage());
+        }
 
-	public static void copyToFile(File sourceFile, File copiedFile) throws FileOperationFailException {
-		FileInputStream original = null;
-		FileOutputStream copy = null;
+        copyToFile(sourceFile, copiedFile);
+    }
 
-		try {
-			if (!copiedFile.exists()) {
-				copiedFile.createNewFile();
-			}
+    public static void copyToFile(File sourceFile, File copiedFile) throws FileOperationFailException {
+        FileInputStream original = null;
+        FileOutputStream copy = null;
 
-			original = new FileInputStream(sourceFile);
-			copy = new FileOutputStream(copiedFile);
-			
-			byte[] buffer = new byte[4028];
-			int bytesRead;
+        try {
+            if (!copiedFile.exists()) {
+                copiedFile.createNewFile();
+            }
 
-			while ((bytesRead = original.read(buffer)) > 0) {
-				copy.write(buffer, 0, bytesRead);
-			}
+            original = new FileInputStream(sourceFile);
+            copy = new FileOutputStream(copiedFile);
 
-		} catch(FileNotFoundException ex) {
-			throw new FileOperationFailException(ex.getMessage());
-		} catch(IOException ex) {
-			throw new FileOperationFailException(ex.getMessage());
-		} finally {
-			QuietCloser.closeQuietly(original);
-			QuietCloser.closeQuietly(copy);
-		}
-	}
+            byte[] buffer = new byte[4028];
+            int bytesRead;
 
-	public static File getAbsFile(String file, String dir) {
-		File absFile = new File(file);
+            while ((bytesRead = original.read(buffer)) > 0) {
+                copy.write(buffer, 0, bytesRead);
+            }
 
-		if (!absFile.isAbsolute()) {
-			absFile = new File(new File(dir), file);
-		}
+        } catch (FileNotFoundException ex) {
+            throw new FileOperationFailException(ex.getMessage());
+        } catch (IOException ex) {
+            throw new FileOperationFailException(ex.getMessage());
+        } finally {
+            QuietCloser.closeQuietly(original);
+            QuietCloser.closeQuietly(copy);
+        }
+    }
 
-		return absFile;
-	}
+    public static File getAbsFile(String file, String dir) {
+        File absFile = new File(file);
 
-	public static void recursiveCopy(File source, File destination) throws FileOperationFailException {
-		if (source.isFile()) {
-			FileUtils.copyToDir(source, destination);
-			return;
-		}
+        if (!absFile.isAbsolute()) {
+            absFile = new File(new File(dir), file);
+        }
 
-		File newDestination = new File(destination, source.getName());
-		if(!newDestination.exists()) {
-			if (!newDestination.mkdir()) {
-				throw new FileOperationFailException("Unable to create directory: " + source.getName());
-			}
-		}
+        return absFile;
+    }
 
-		for (String toCopy : source.list()) {
-			recursiveCopy(new File(source, toCopy), newDestination);
-		}
-	}
+    public static void recursiveCopy(File source, File destination) throws FileOperationFailException {
+        if (source.isFile()) {
+            FileUtils.copyToDir(source, destination);
+            return;
+        }
 
-	public static void recursiveDelete(File toDelete) {
-		if ((toDelete.isFile()) || (0 == toDelete.list().length)) {
-			toDelete.delete();
-			return;
-		}
+        File newDestination = new File(destination, source.getName());
+        if (!newDestination.exists()) {
+            if (!newDestination.mkdir()) {
+                throw new FileOperationFailException("Unable to create directory: " + source.getName());
+            }
+        }
 
-		String[] listing = toDelete.list();
+        for (String toCopy : source.list()) {
+            recursiveCopy(new File(source, toCopy), newDestination);
+        }
+    }
 
-		for (String entry : listing) {
-			recursiveDelete(new File (toDelete, entry));
-		}
+    public static void recursiveDelete(File toDelete) {
+        if ((toDelete.isFile()) || (0 == toDelete.list().length)) {
+            toDelete.delete();
+            return;
+        }
 
-		toDelete.delete();
-	}
+        String[] listing = toDelete.list();
 
-	public static void moveToDir(File source, File destination) throws FileOperationFailException {
-		if (source.isFile()) {
-			FileUtils.copyToDir(source, destination);
-		} else {
-			File newDestination = new File(destination, source.getName());
-			if(!newDestination.exists()) {
-				if (!newDestination.mkdir()) {
-					throw new FileOperationFailException("Unable to create directory: " + source.getName());
-				}
-			}
+        for (String entry : listing) {
+            recursiveDelete(new File(toDelete, entry));
+        }
 
-			for (String toMove : source.list()) {
-				moveToDir(new File(source, toMove), newDestination);
-			}
-		}
+        toDelete.delete();
+    }
 
-		source.delete();
-	}
+    public static void moveToDir(File source, File destination) throws FileOperationFailException {
+        if (source.isFile()) {
+            FileUtils.copyToDir(source, destination);
+        } else {
+            File newDestination = new File(destination, source.getName());
+            if (!newDestination.exists()) {
+                if (!newDestination.mkdir()) {
+                    throw new FileOperationFailException("Unable to create directory: " + source.getName());
+                }
+            }
+
+            for (String toMove : source.list()) {
+                moveToDir(new File(source, toMove), newDestination);
+            }
+        }
+
+        source.delete();
+    }
 }

@@ -2,11 +2,8 @@ package ru.fizteh.fivt.students.vlmazlov.proxy;
 
 import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
-import java.lang.reflect.Proxy;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collection;
 import java.io.Writer;
+import java.lang.reflect.Proxy;
 
 public class LoggingProxyFactoryImplementation implements LoggingProxyFactory {
 
@@ -27,7 +24,7 @@ public class LoggingProxyFactoryImplementation implements LoggingProxyFactory {
             throw new IllegalArgumentException("class doesn't implement the specified interface");
         }
 
-    	return Proxy.newProxyInstance(implementation.getClass().getClassLoader(), new Class[]{interfaceClass},
-    		new LoggingInvocationHandler(implementation, writer));
+        return Proxy.newProxyInstance(implementation.getClass().getClassLoader(), new Class[]{interfaceClass},
+                new LoggingInvocationHandler(implementation, writer));
     }
 }

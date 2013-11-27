@@ -1,10 +1,10 @@
 package ru.fizteh.fivt.students.vlmazlov.proxy;
 
+import ru.fizteh.fivt.students.vlmazlov.utils.Logger;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import ru.fizteh.fivt.students.vlmazlov.utils.Logger;
 
 public class LoggingInvocationHandler implements InvocationHandler {
 
@@ -37,7 +37,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
         writer.append(logger.toString());
 
         if (thrown == null) {
-          return returnValue;
+            return returnValue;
         } else {
             throw thrown;
         }

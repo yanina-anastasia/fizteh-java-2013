@@ -1,17 +1,17 @@
 package ru.fizteh.fivt.students.vlmazlov.utils;
 
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.text.ParseException;
-
 import ru.fizteh.fivt.students.vlmazlov.generics.GenericTable;
 import ru.fizteh.fivt.students.vlmazlov.generics.GenericTableProvider;
 
-public class TableReader {	
-	 private static String readUTFString(RandomAccessFile dataBaseStorage, int readingPosition, int length) throws IOException {
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.ParseException;
+
+public class TableReader {
+    private static String readUTFString(RandomAccessFile dataBaseStorage, int readingPosition, int length) 
+    throws IOException {
         byte[] bytes = new byte[length];
 
         dataBaseStorage.seek(readingPosition);
@@ -20,9 +20,9 @@ public class TableReader {
     }
 
 
-    public static <V, T extends GenericTable<V>> void readTable
-    (File root, File storage, T table, GenericTableProvider<V, T> provider) 
-    throws IOException, ValidityCheckFailedException {
+    public static <V, T extends GenericTable<V>> void readTable(
+        File root, File storage, T table, GenericTableProvider<V, T> provider)
+            throws IOException, ValidityCheckFailedException {
         if (root == null) {
             throw new FileNotFoundException("Directory not specified");
         }
@@ -37,7 +37,9 @@ public class TableReader {
 
         try {
             String key = null;
-            int readPosition = 0, initialOffset = -1, prevOffset = -1;
+            int readPosition = 0;
+            int initialOffset = -1;
+            int prevOffset = -1;
 
             do {
 
@@ -49,17 +51,17 @@ public class TableReader {
                     }
                 }
 
-                int keyLen = (int)dataBaseStorage.getFilePointer() - readPosition - 1;
+                int keyLen = (int) dataBaseStorage.getFilePointer() - readPosition - 1;
 
-                int curOffset = (int)dataBaseStorage.readInt();     
-                
-                ValidityChecker.checkTableOffset(curOffset);                
+                int curOffset = (int) dataBaseStorage.readInt();
+
+                ValidityChecker.checkTableOffset(curOffset);
 
                 if (prevOffset == -1) {
                     initialOffset = curOffset;
                 } else {
                     String value = readUTFString(dataBaseStorage, prevOffset, curOffset - prevOffset);
-                    
+
                     ValidityChecker.checkTableValue(value);
 
                     try {
@@ -68,19 +70,19 @@ public class TableReader {
                         throw new IOException(ex.getMessage());
                     }
                 }
-                prevOffset = curOffset; 
+                prevOffset = curOffset;
                 //read key      
-                key = readUTFString(dataBaseStorage, readPosition, keyLen); 
+                key = readUTFString(dataBaseStorage, readPosition, keyLen);
                 ValidityChecker.checkTableKey(key);
 
-                readPosition = (int)dataBaseStorage.getFilePointer() + 5;
+                readPosition = (int) dataBaseStorage.getFilePointer() + 5;
 
             } while (readPosition < initialOffset);
-            
-            String value = readUTFString(dataBaseStorage, prevOffset, (int)dataBaseStorage.length() - prevOffset);
-            
+
+            String value = readUTFString(dataBaseStorage, prevOffset, (int) dataBaseStorage.length() - prevOffset);
+
             ValidityChecker.checkTableValue(value);
-            
+
             try {
                 table.put(key, provider.deserialize(table, value));
             } catch (ParseException ex) {
@@ -91,3 +93,4 @@ public class TableReader {
         }
     }
 }
+
