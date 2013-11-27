@@ -11,4 +11,9 @@ public class TestClass implements TestInterface {
     public int arrayParameter(List<Object> list) {
         return 10000;
     }
+
+    @Override
+    public void voidNoArgs() {
+
+    }
 }

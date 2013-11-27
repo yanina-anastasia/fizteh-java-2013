@@ -1,7 +1,5 @@
 package ru.fizteh.fivt.students.valentinbarishev.proxy;
 
-import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -22,7 +20,7 @@ public class MyLogWriter {
         args = newArgs;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         stringWriter = new StringWriter();
-        writer = new IndentingXMLStreamWriter(factory.createXMLStreamWriter(stringWriter));
+        writer = factory.createXMLStreamWriter(stringWriter);
     }
 
     public void setReturnValue(Object value) {
@@ -67,6 +65,9 @@ public class MyLogWriter {
     }
 
     private void writeArguments() throws XMLStreamException {
+        if (args == null) {
+            return;
+        }
         for (int i = 0; i < args.length; ++i) {
             writer.writeStartElement("argument");
 
@@ -101,7 +102,7 @@ public class MyLogWriter {
             writer.writeCharacters(exception.getClass().toString() + ": " + exception.getMessage());
             writer.writeEndElement();
         } else {
-            if (method.getReturnType() != Void.class) {
+            if (!method.getReturnType().toString().equals("void")) {
                 writer.writeStartElement("return");
                 writer.writeCharacters(returnValue.toString());
                 writer.writeEndElement();
