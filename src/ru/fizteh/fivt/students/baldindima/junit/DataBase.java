@@ -50,8 +50,12 @@ public class DataBase implements Table {
         }
         checkNames(file.list(), "dat");
         for (String fileName : file.list()) {
-            if (new File(directoryName, fileName).isDirectory()) {
+        	File fileHelp = new File(directoryName, fileName);
+            if (fileHelp.isDirectory()) {
                 throw new IOException(directoryName + File.separator + fileName + " isn't a file!");
+            }
+            if (fileHelp.length() <= 0) {
+                throw new IOException(directoryName + File.separator + fileName + " is empty!");
             }
         }
     }
