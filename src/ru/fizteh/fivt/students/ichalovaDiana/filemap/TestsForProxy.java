@@ -52,6 +52,10 @@ public class TestsForProxy {
         List wrappedList = (List) loggingProxyFactory.wrap(writer, array, List.class); 
         
         wrappedList.addAll(array);
+        
+        wrappedList.equals(wrappedList);
+        
+        wrappedList.indexOf(new ArrayList());
         //ArrayList newList = new ArrayList(wrappedList);
         
         System.out.println(writer.toString());

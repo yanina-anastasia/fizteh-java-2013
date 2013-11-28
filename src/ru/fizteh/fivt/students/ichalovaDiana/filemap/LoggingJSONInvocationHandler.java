@@ -24,7 +24,18 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
     
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        
         Object result = null;
+        
+        if (method.getDeclaringClass().equals(Object.class)) {
+            try {
+                result = method.invoke(target, args);
+                return result;
+            } catch (InvocationTargetException e) {
+                Throwable targetException = e.getTargetException();
+                throw targetException;
+            }
+        }
         
         JSONObject log = new JSONObject();
         log.put("timestamp", System.currentTimeMillis());
@@ -34,11 +45,14 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         
         JSONArray arguments = new JSONArray();
         
-        for (int i = 0; i < args.length; ++i) {
-            logArgument(args[i], arguments, new IdentityHashMap<Object, Object>());
+        if (args != null) {
+            for (int i = 0; i < args.length; ++i) {
+                logArgument(args[i], arguments, new IdentityHashMap<Object, Object>());
+            }
+            log.put("arguments", arguments);
+        } else {
+            log.put("arguments", JSONObject.NULL);
         }
-        
-        log.put("arguments", arguments);
         
         try {
             result = method.invoke(target, args);
@@ -48,7 +62,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             throw targetException;
         } catch (Exception e) {
         } finally {
-            if (result != null) {
+            if (!method.getReturnType().equals(Void.class)) {
                 log.put("returnValue", result);
             }
             
