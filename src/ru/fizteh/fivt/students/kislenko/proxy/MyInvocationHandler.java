@@ -71,6 +71,10 @@ public class MyInvocationHandler implements InvocationHandler {
             writer.get().writeEndElement();
         }
         writer.get().writeEndElement();
+        invokeCounter.set(invokeCounter.get() - 1);
+        if (invokeCounter.get() == 0) {
+            writer.get().writeCharacters("\n");
+        }
         writer.get().flush();
         return result;
     }
