@@ -125,8 +125,7 @@ public class LogInvocationHandler implements InvocationHandler {
         } else {
             writeLock.lock();
             try {
-                writer.write(record.toString());
-                writer.write("\n");
+                writer.write("");
             } catch (IOException e) {
 
             } finally {
