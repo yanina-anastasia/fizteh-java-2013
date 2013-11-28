@@ -33,7 +33,7 @@ public class ProxyTests {
         MyProxyHandler handler = new MyProxyHandler(writer, prov);
         String[] str = new String[1];
         str[0] = "lala";
-        handler.invoke(prov.getClass(), prov.getClass().getMethod("getTable", String.class), str);
+        handler.invoke(prov.getClass(), prov.getClass().getMethod("close", null), new Object[0]);
         writer.flush();
         
     }

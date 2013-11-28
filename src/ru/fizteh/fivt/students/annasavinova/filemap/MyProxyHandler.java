@@ -29,16 +29,13 @@ public class MyProxyHandler implements InvocationHandler {
         }
         Object result = null;
         Throwable exception = null;
-
-        if (method.getReturnType().equals(Void.class)) {
-            result = Void.class;
-        } else {
-            try {
-                result = method.invoke(implementation, arguments);
-            } catch (InvocationTargetException e) {
-                exception = e.getTargetException();
-            }
+        
+        try {
+            result = method.invoke(implementation, arguments);
+        } catch (InvocationTargetException e) {
+            exception = e.getTargetException();
         }
+
         JSONObject log = logging(method, arguments, exception, result);
 
         try {
@@ -66,7 +63,7 @@ public class MyProxyHandler implements InvocationHandler {
             log.put("thrown", exception.toString());
             return log;
         }
-        if (result != null && result.equals(Void.class)) {
+        if (method.getReturnType().equals(void.class)) {
             return log;
         }
 
