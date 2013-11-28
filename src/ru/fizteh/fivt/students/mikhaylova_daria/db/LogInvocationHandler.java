@@ -44,8 +44,8 @@ public class LogInvocationHandler implements InvocationHandler {
                             }
                         }
                         identifyAttended.remove(arg);
+                        creatingArray.put(newCreatingArray);
                     }
-                    creatingArray.put(newCreatingArray);
                 } else if (arg.getClass().isArray()) {
                     if (identifyAttended.containsKey(arg)) {
                         creatingArray.put("cyclic");
@@ -60,8 +60,8 @@ public class LogInvocationHandler implements InvocationHandler {
                             }
                         }
                         identifyAttended.remove(arg);
+                        creatingArray.put(newCreatingArray);
                     }
-                    creatingArray.put(newCreatingArray);
                 } else {
                     try {
                         creatingArray.put(arg);
@@ -69,6 +69,9 @@ public class LogInvocationHandler implements InvocationHandler {
                         creatingArray.put(arg.toString());
                     }
                 }
+            } else {
+                Object obj = null;
+                creatingArray.put(obj);
             }
             return creatingArray;
         }
