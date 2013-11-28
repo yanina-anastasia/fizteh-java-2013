@@ -458,4 +458,8 @@ public class DatabaseTable implements Table, AutoCloseable {
         rollback();
         isClosed = true;
     }
+
+    public boolean isClose() {
+        return isClosed == true;
+    }
 }

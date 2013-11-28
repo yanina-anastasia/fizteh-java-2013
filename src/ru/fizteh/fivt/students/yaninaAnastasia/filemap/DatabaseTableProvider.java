@@ -37,6 +37,10 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("It is closed");
         }
+        /*if (tables.get(name).isClosed) {
+            createTable(name, tables.get(name).columnTypes);
+            open();
+        }  */
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
@@ -55,6 +59,11 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
             if (curTable != null && curTable.uncommittedChanges.get() > 0) {
                 throw new IllegalArgumentException(String.format("%d unsaved changes", curTable.uncommittedChanges));
+            }
+            if (table.isClose()) {
+                DatabaseTable info = table;
+                table = new DatabaseTable(info.getName(), info.columnTypes, this);
+                tables.put(table.getName(), table);
             }
 
             curTable = table;
