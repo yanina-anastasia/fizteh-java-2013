@@ -15,6 +15,10 @@ public class XMLProxyLogger implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (method.getDeclaringClass().equals(Object.class)) {
+            method.invoke(implementation, args);
+        }
+
         Object returnValue = null;
         Throwable thrown = null;
 
@@ -36,7 +40,7 @@ public class XMLProxyLogger implements InvocationHandler {
 
         formatter.close();
 
-        writer.append(formatter.toString());
+        writer.write(formatter.toString() + "\n");
 
         if (thrown == null) {
             return returnValue;
