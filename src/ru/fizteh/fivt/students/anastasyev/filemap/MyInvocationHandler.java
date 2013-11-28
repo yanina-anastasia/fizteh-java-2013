@@ -78,7 +78,7 @@ public class MyInvocationHandler implements InvocationHandler {
         writeLog(args);
         try {
             result = method.invoke(implementation, args);
-            if (!method.getReturnType().isAssignableFrom(Void.class)) {
+            if (!method.getReturnType().equals(void.class)) {
                 xmlStreamWriter.writeStartElement("return");
                 writeObject(result);
                 xmlStreamWriter.writeEndElement();
@@ -91,7 +91,7 @@ public class MyInvocationHandler implements InvocationHandler {
 
         xmlStreamWriter.writeEndElement();
         xmlStreamWriter.flush();
-        writer.write(stringWriter.toString());
+        writer.write(stringWriter.toString() + "\n");
         return result;
     }
 }
