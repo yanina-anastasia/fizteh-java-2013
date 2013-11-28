@@ -57,11 +57,11 @@ public class MyInvocationHandler implements InvocationHandler {
             }
             writer.get().writeEndElement();
         } else {
-            writer.get().writeEmptyElement("argument");
+            writer.get().writeEmptyElement("arguments");
         }
         try {
             result = method.invoke(implementation.get(), args);
-            if (!method.getReturnType().isAssignableFrom(Void.class)) {
+            if (!method.getReturnType().isAssignableFrom(void.class)) {
                 writer.get().writeStartElement("return");
                 logArgument(writer.get(), result);
                 writer.get().writeEndElement();
