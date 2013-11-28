@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.anastasyev.ru.fizteh.fivt.students.anastasyev.proxy;
+package ru.fizteh.fivt.students.anastasyev.proxy;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
