@@ -11,6 +11,10 @@ public class LoggingProxyFactoryImplementation implements LoggingProxyFactory {
     
     @Override
     public Object wrap(Writer writer, Object implementation, Class<?> interfaceClass) {
+        if (writer == null || implementation == null || interfaceClass == null) {
+            throw new IllegalArgumentException("null arguments");
+        }
+        
         return Proxy.newProxyInstance(
                 ClassLoader.getSystemClassLoader(),
                 new Class[]{interfaceClass},

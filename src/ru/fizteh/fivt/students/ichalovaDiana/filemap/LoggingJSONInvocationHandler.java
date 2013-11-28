@@ -42,7 +42,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
                 log.put("returnValue", result);
             }
             
-            writer.write(log.toString());
+            writer.write(log.toString() + '\n');
         }
         return result;
     }
