@@ -138,8 +138,8 @@ public class MyStoreable implements Storeable {
                 }
             }
         } else if (expectedClass == Double.class) {
-            if (object.getClass() == Float.class) {
-                return Double.valueOf(((Float) object).doubleValue());
+            if (object.getClass() == Double.class) {
+                return object;
             }
         } else if (expectedClass == Float.class) {
             if (object.getClass() == Float.class) {
