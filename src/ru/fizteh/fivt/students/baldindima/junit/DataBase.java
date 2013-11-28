@@ -45,6 +45,9 @@ public class DataBase implements Table {
         if (file.isFile()) {
             throw new IOException(directoryName + " isn't a directory!");
         }
+        if (file.list().length <= 0) {
+        	throw new IOException (directoryName + " is empty");
+        }
         checkNames(file.list(), "dat");
         for (String fileName : file.list()) {
             if (new File(directoryName, fileName).isDirectory()) {
@@ -60,6 +63,9 @@ public class DataBase implements Table {
         }
         if (file.isFile()) {
             throw new IOException(dataBaseDirectory + " isn't exist");
+        }
+        if (file.list().length <= 0) {
+        	throw new IOException (dataBaseDirectory + " is empty");
         }
         checkNames(file.list(), "dir");
         for (String fileNumber : file.list()) {
