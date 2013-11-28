@@ -82,7 +82,7 @@ public class FileMapProvider implements TableProvider {
         return true;
     }
 
-    public MultiFileMap getTable(String name) {
+    public synchronized MultiFileMap getTable(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Null name");
         }
@@ -110,15 +110,15 @@ public class FileMapProvider implements TableProvider {
             try {
                 newMap.loadFromDisk();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error loading from disk:", e);
             } catch (ParseException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error loading from disk:", e);
             }
             return newMap;
         }
     }
 
-    public MultiFileMap createTable(String name, List<Class<?>> columnTypes) throws IOException {
+    public synchronized MultiFileMap createTable(String name, List<Class<?>> columnTypes) throws IOException {
         if (name == null) {
             throw new IllegalArgumentException("Null name");
         }
@@ -168,7 +168,7 @@ public class FileMapProvider implements TableProvider {
         return result;
     }
 
-    public void removeTable(String name) throws IOException {
+    public synchronized void removeTable(String name) throws IOException {
         if (name == null) {
             throw new IllegalArgumentException("Null name");
         }
