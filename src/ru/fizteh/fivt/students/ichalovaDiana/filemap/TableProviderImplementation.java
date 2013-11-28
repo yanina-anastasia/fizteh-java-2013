@@ -42,7 +42,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 public class TableProviderImplementation implements TableProvider, AutoCloseable {
     
     Path databaseDirectory;
-    private Map<String, Table> tables = new HashMap<String, Table>();
+    private Map<String, TableImplementation> tables = new HashMap<String, TableImplementation>();
     
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock readLock = readWriteLock.readLock();
@@ -384,6 +384,10 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
 
     @Override
     public void close() throws Exception {
+        for (String tableName : tables.keySet()) {
+            tables.get(tableName).close();
+        }
+        
         isClosed = true;
     }
     

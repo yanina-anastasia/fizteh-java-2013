@@ -77,15 +77,14 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         } else if (cycles.containsKey(argument)) {
             arguments.put("cyclic");
         } else if (Iterable.class.isAssignableFrom(argument.getClass())) {
-            Object element;
             JSONArray list = new JSONArray();
-            Iterator it = ((Iterable) argument).iterator();
-            while (it.hasNext()) {
-                element = it.next();
+            
+            for (Object element : (Iterable<Object>) argument) {
                 cycles.put(argument, null);
                 logArgument(element, list, cycles);
                 cycles.remove(argument);
             }
+            
             arguments.put(list);
         } else {
             if (argument.toString().startsWith("[I")) {

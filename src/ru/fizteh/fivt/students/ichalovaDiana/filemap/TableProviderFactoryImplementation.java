@@ -4,11 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class TableProviderFactoryImplementation implements TableProviderFactory, AutoCloseable {
+    
+    private Set<TableProviderImplementation> tableProviders = new HashSet<TableProviderImplementation>();
     
     private volatile boolean isClosed = false;
     
@@ -34,7 +40,10 @@ public class TableProviderFactoryImplementation implements TableProviderFactory,
         
         isCorrectDatabaseDirectory(dbDir);
         
-        TableProvider database = new TableProviderImplementation(dbDir);
+        TableProviderImplementation database = new TableProviderImplementation(dbDir);
+        
+        tableProviders.add(database);
+        
         return database;
     }
 
@@ -111,6 +120,10 @@ public class TableProviderFactoryImplementation implements TableProviderFactory,
 
     @Override
     public void close() throws Exception {
+        for (TableProviderImplementation tableProvider : tableProviders) {
+            tableProvider.close();
+        }
+        
         isClosed = true;
     }
 
