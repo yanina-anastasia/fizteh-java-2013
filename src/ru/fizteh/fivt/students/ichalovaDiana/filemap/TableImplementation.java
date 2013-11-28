@@ -16,10 +16,11 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
-public class TableImplementation implements Table {
+public class TableImplementation implements Table, AutoCloseable {
     private static final int DIR_NUM = 16;
     private static final int FILE_NUM = 16;
-
+    
+    private final Path databaseDirectory;
     private final String tableName;
     private final TableProvider tableProvider;
     private final List<Class<?>> columnTypes;
@@ -29,6 +30,8 @@ public class TableImplementation implements Table {
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
+    
+    private volatile boolean isClosed = false;
     
     private ThreadLocal<Map<String, Storeable>[][]> putChanges = new ThreadLocal<Map<String, Storeable>[][]>() {
         @Override
@@ -61,6 +64,7 @@ public class TableImplementation implements Table {
         this.tableProvider = tableProvider;
         this.tableName = tableName;
         this.columnTypes = columnTypes;
+        this.databaseDirectory = databaseDirectory;
         
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
@@ -448,5 +452,19 @@ public class TableImplementation implements Table {
             return;
         }
         throw new ColumnFormatException("Invalid value: more columns");
+    }
+    
+    @Override
+    public String toString() {
+        String result = "";
+        result += this.getClass().getSimpleName();
+        result += "[" + databaseDirectory.resolve(tableName).normalize() + "]";
+        return result;
+    }
+
+    @Override
+    public void close() throws Exception {
+        rollback();
+        
     }
 }

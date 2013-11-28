@@ -8,7 +8,9 @@ import java.nio.file.Paths;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
-public class TableProviderFactoryImplementation implements TableProviderFactory {
+public class TableProviderFactoryImplementation implements TableProviderFactory, AutoCloseable {
+    
+    private volatile boolean isClosed = false;
     
     public TableProviderFactoryImplementation() {}
 
@@ -104,6 +106,12 @@ public class TableProviderFactoryImplementation implements TableProviderFactory 
             throw new IllegalArgumentException("Error while reading from file: "
                     + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        // TODO Auto-generated method stub
+        
     }
 
     

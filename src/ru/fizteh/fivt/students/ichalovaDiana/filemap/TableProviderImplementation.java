@@ -39,13 +39,16 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
-public class TableProviderImplementation implements TableProvider {
+public class TableProviderImplementation implements TableProvider, AutoCloseable {
     
     Path databaseDirectory;
     private Map<String, Table> tables = new HashMap<String, Table>();
+    
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
+    
+    private volatile boolean isClosed = false;
     
     public TableProviderImplementation(Path databaseDirectory) throws IOException {
         this.databaseDirectory = databaseDirectory;
@@ -354,5 +357,19 @@ public class TableProviderImplementation implements TableProvider {
         }
         
         return columnTypes;
+    }
+    
+    @Override
+    public String toString() {
+        String result = "";
+        result += this.getClass().getSimpleName();
+        result += "[" + databaseDirectory.normalize() + "]";
+        return result;
+    }
+
+    @Override
+    public void close() throws Exception {
+        // TODO Auto-generated method stub
+        
     }
 }
