@@ -45,6 +45,9 @@ public class LogProxyFactory implements LoggingProxyFactory {
         if (writer == null || implementation == null || interfaceClass == null) {
             throw new IllegalArgumentException("Argument is null");
         }
+        if (!interfaceClass.isAssignableFrom(implementation.getClass())) {
+            throw new IllegalArgumentException("This implementation does not implement this interface");
+        }
         return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(),
                 new Class[]{interfaceClass},
                 new LogInvocationHandler(implementation, writer));

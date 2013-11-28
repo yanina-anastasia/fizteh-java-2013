@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.Annotated;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -90,28 +91,40 @@ public class LogInvocationHandler implements InvocationHandler {
     }
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        JSONObject record = new JSONObject();
-        record.put("timestamp", System.currentTimeMillis());
-        record.put("class", proxied.getClass().getName());
-        record.put("method", method.getName());
-        if (args == null) {
-            record.put("arguments", new JSONArray());
-        } else if (args.length == 0) {
-            record.put("arguments", new JSONArray());
-        } else {
-            ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-            record.put("arguments", creatorJSONArray.getJSONArray().get(0));
-        }
         Object returnedValue = null;
-        try {
-            returnedValue = method.invoke(proxied, args);
-        } catch (InvocationTargetException e) {
-            record.put("thrown", e.getTargetException().toString());
-            throw e.getTargetException();
-        } finally {
-            if (returnedValue != null) {
-                record.put("returnValue", returnedValue);
+        JSONObject record = new JSONObject();
+        if (!method.getDeclaringClass().equals(Object.class)) {
+            record.put("timestamp", System.currentTimeMillis());
+            record.put("class", proxied.getClass().getName());
+            record.put("method", method.getName());
+            if (args == null) {
+                record.put("arguments", new JSONArray());
+            } else if (args.length == 0) {
+                record.put("arguments", new JSONArray());
+            } else {
+                ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
+                record.put("arguments", creatorJSONArray.getJSONArray().get(0));
             }
+            try {
+                returnedValue = method.invoke(proxied, args);
+            } catch (InvocationTargetException e) {
+                record.put("thrown", e.getTargetException().toString());
+                throw e.getTargetException();
+            } finally {
+                if (returnedValue != null) {
+                    record.put("returnValue", returnedValue);
+                }
+                writeLock.lock();
+                try {
+                    writer.write(record.toString());
+                    writer.write("\n");
+                } catch (IOException e) {
+
+                } finally {
+                    writeLock.unlock();
+                }
+            }
+        } else {
             writeLock.lock();
             try {
                 writer.write(record.toString());
