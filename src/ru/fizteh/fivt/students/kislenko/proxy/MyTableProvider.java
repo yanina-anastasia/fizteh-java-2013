@@ -98,6 +98,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         tables.put(name, table);
         nameOfCurrentCreatingTable = null;
         lock.writeLock().unlock();
+        assertClosed();
         //System.out.println(Thread.currentThread().getName() + " exit create with success");
         return table;
     }
@@ -203,6 +204,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             v.setColumnAt(i, values.get(i));
         }
+        assertClosed();
         return v;
     }
 
