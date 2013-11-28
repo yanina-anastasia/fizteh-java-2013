@@ -69,8 +69,7 @@ public class LogInvocationHandler implements InvocationHandler {
                     }
                 }
             } else {
-                Object obj = null;
-                creatingArray.put(obj);
+                creatingArray.put(JSONObject.NULL);
             }
             return creatingArray;
         }
@@ -105,7 +104,11 @@ public class LogInvocationHandler implements InvocationHandler {
             }
             try {
                 returnedValue = method.invoke(proxied, args);
-                record.put("returnValue",  method.invoke(proxied, args));
+                if (returnedValue == null) {
+                    record.put("returnValue",  JSONObject.NULL);
+                } else if (!returnedValue.getClass().equals(void.class)) {
+                    record.put("returnValue",  returnedValue);
+                }
             } catch (InvocationTargetException e) {
                 record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
