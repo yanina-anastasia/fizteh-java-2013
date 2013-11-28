@@ -30,37 +30,39 @@ public class LogInvocationHandler implements InvocationHandler {
 
         private JSONArray recursiveLog(Object arg, JSONArray creatingArray) {
             JSONArray newCreatingArray = new JSONArray();
-            if (Iterable.class.isAssignableFrom(arg.getClass())) {
-                if (identifyAttended.containsKey(arg)) {
-                    creatingArray.put("cyclic");
-                } else {
-                    identifyAttended.put(arg, arg);
-                    for (Object obj: (Iterable) arg) {
-                        try {
-                            newCreatingArray.put(recursiveLog(obj, newCreatingArray));
-                        } catch (java.lang.ClassCastException e) {
-                            newCreatingArray.put(arg.toString());
+            if (arg != null) {
+                if (Iterable.class.isAssignableFrom(arg.getClass())) {
+                    if (identifyAttended.containsKey(arg)) {
+                        newCreatingArray.put("cyclic");
+                    } else {
+                        identifyAttended.put(arg, arg);
+                        for (Object obj: (Iterable) arg) {
+                            try {
+                                newCreatingArray.put(recursiveLog(obj, newCreatingArray));
+                            } catch (java.lang.ClassCastException e) {
+                                newCreatingArray.put(arg.toString());
+                            }
                         }
+                        identifyAttended.remove(arg);
                     }
-                    identifyAttended.remove(arg);
-                }
-            } else if (arg.getClass().isArray()) {
-                if (identifyAttended.containsKey(arg)) {
-                    creatingArray.put("cyclic");
-                } else {
-                    identifyAttended.put(arg, arg);
-                    identifyAttended.put(arg, arg);
-                    for (Object obj: (Object[]) arg) {
-                        try {
-                            newCreatingArray.put(recursiveLog(obj, newCreatingArray));
-                        } catch (java.lang.ClassCastException e) {
-                            creatingArray.put(obj.toString());
+                } else if (arg.getClass().isArray()) {
+                    if (identifyAttended.containsKey(arg)) {
+                        newCreatingArray.put("cyclic");
+                    } else {
+                        identifyAttended.put(arg, arg);
+                        identifyAttended.put(arg, arg);
+                        for (Object obj: (Object[]) arg) {
+                            try {
+                                newCreatingArray.put(recursiveLog(obj, newCreatingArray));
+                            } catch (java.lang.ClassCastException e) {
+                                newCreatingArray.put(obj.toString());
+                            }
                         }
+                        identifyAttended.remove(arg);
                     }
-                    identifyAttended.remove(arg);
+                } else {
+                     creatingArray.put(arg.toString());
                 }
-            } else {
-                 creatingArray.put(arg.toString());
             }
             return creatingArray;
         }
