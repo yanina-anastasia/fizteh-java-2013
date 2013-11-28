@@ -18,9 +18,9 @@ import ru.fizteh.fivt.storage.structured.Table;
 
 public class TestsForTable {
     
-    TableProviderFactory tableProviderFactory;
-    TableProvider tableProvider;
-    Table table;
+    TableProviderFactoryImplementation tableProviderFactory;
+    TableProviderImplementation tableProvider;
+    TableImplementation table;
     
     Storeable value1;
     
@@ -31,12 +31,12 @@ public class TestsForTable {
     public void createTable() throws IOException {
         File databaseDirectory = folder.newFolder("database");
         tableProviderFactory = new TableProviderFactoryImplementation();
-        tableProvider = tableProviderFactory.create(databaseDirectory.toString());
+        tableProvider = (TableProviderImplementation) tableProviderFactory.create(databaseDirectory.toString());
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
         columnTypes.add(Boolean.class);
         columnTypes.add(String.class);
         columnTypes.add(Integer.class);
-        table = tableProvider.createTable("tableName", columnTypes);
+        table = (TableImplementation) tableProvider.createTable("tableName", columnTypes);
         
         value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, true);
@@ -44,9 +44,17 @@ public class TestsForTable {
         value1.setColumnAt(2, 5);
     }
     
-    @Test
-    public void getName() {
+    @Test(expected = IllegalStateException.class)
+    public void getName() throws Exception {
         Assert.assertEquals("tableName", table.getName());
+        table.close();
+        table.close();
+        tableProviderFactory.close();
+        
+        tableProvider = (TableProviderImplementation) tableProviderFactory.create("smth");
+        tableProvider.close();
+        table.close();
+        tableProvider.close();
     }
     
     @Test

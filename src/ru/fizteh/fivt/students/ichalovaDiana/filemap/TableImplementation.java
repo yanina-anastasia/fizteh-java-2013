@@ -221,13 +221,18 @@ public class TableImplementation implements Table, AutoCloseable {
         
         int changesNumber = countChanges();
         
+        clearAllChanges();
+        
+        return changesNumber;
+    }
+    
+    private void clearAllChanges() {
         for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
             for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
                 putChanges.get()[nDirectory][nFile].clear();
                 removeChanges.get()[nDirectory][nFile].clear();
             }
         }
-        return changesNumber;
     }
     
     @Override
@@ -485,7 +490,7 @@ public class TableImplementation implements Table, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        rollback();
+        clearAllChanges();
         
         if (!isClosed) {
             writeLock.lock();
@@ -504,7 +509,7 @@ public class TableImplementation implements Table, AutoCloseable {
     
     private void isClosed() {
         if (isClosed) {
-            throw new IllegalStateException("table object is closed");
+            throw new IllegalStateException("Table object is closed");
         }
     }
 }

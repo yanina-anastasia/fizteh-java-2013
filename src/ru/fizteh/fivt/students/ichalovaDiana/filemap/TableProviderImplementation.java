@@ -405,7 +405,7 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
     
     private void isClosed() {
         if (isClosed) {
-            throw new IllegalStateException("table object is closed");
+            throw new IllegalStateException("TableProvider object is closed");
         }
     }
 }
