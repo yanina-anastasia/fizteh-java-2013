@@ -409,8 +409,10 @@ public class MyTable extends State implements Table, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        isClosed = true;
-        rollback();        
+        if (!isClosed) {
+            isClosed = true;
+            rollback();  
+        }      
     }
     
     public boolean wasClosed() {
