@@ -4,7 +4,6 @@ import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 
 
 import static org.junit.Assert.*;
@@ -25,12 +24,12 @@ public class TesterOfTable {
     private File goodTableSign;
     private File badTableEmpty;
     private File badTableEmptySign;
-    private ru.fizteh.fivt.storage.structured.TableProviderFactory factory;
+    private TableManagerFactory factory;
     private ArrayList<Class<?>> goodTypeList;
     private ArrayList<Object> goodValueList;
     private ArrayList<Object> wrongValueList;
-    private TableProvider provider;
-    private Table table;
+    private TableManager provider;
+    private TableData table;
     private final String goodStrVal
             = "<row><col>12</col><col>12</col><null/><col>12.2</col><col>12.2</col><col>true</col><null/></row>";
 
@@ -104,6 +103,7 @@ public class TesterOfTable {
 
     @After
     public void after() {
+        factory.close();
         folder.delete();
     }
 
@@ -254,7 +254,7 @@ public class TesterOfTable {
         try {
             table.commit();
             assertEquals(table.commit(), 0);
-        } catch (IOException e) {
+        } catch (Exception e) {
             fail();
             e.printStackTrace();
         }
@@ -265,7 +265,7 @@ public class TesterOfTable {
         try {
             table.commit();
             assertEquals(table.rollback(), 0);
-        } catch (IOException e) {
+        } catch (Exception e) {
             fail();
             e.printStackTrace();
         }
