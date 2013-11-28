@@ -61,15 +61,15 @@ public class MyInvocationHandler implements InvocationHandler {
     }
 
     private void writeLog(Object[] args) throws XMLStreamException {
-        xmlStreamWriter.writeStartElement("arguments");
         if (args == null || args.length == 0) {
-            writeArg(null);
+            xmlStreamWriter.writeEmptyElement("arguments");
         } else {
+            xmlStreamWriter.writeStartElement("arguments");
             for (Object arg : args) {
                 writeArg(arg);
             }
+            xmlStreamWriter.writeEndElement();
         }
-        xmlStreamWriter.writeEndElement();
     }
 
     public MyInvocationHandler(Writer newWriter, Object newImplementation) {
@@ -82,7 +82,9 @@ public class MyInvocationHandler implements InvocationHandler {
         Object result = null;
         if (method.getName().equals("toString") || method.getName().equals("hashCode")
                 || method.getName().equals("equals")) {
-            return method.invoke(implementation, args);
+            result = method.invoke(implementation, args);
+            writer.write(System.getProperty("line.separator"));
+            return result;
         }
 
         factory = XMLOutputFactory.newInstance();
@@ -107,7 +109,7 @@ public class MyInvocationHandler implements InvocationHandler {
         } finally {
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.flush();
-            writer.write(stringWriter.toString() + "\n");
+            writer.write(stringWriter.toString() + System.getProperty("line.separator"));
         }
         return result;
     }
