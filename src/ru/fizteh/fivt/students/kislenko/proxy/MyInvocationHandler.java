@@ -68,6 +68,11 @@ public class MyInvocationHandler implements InvocationHandler {
                 writer.get().writeEndElement();
             }
         } catch (InvocationTargetException e) {
+            writer.get().writeStartElement("thrown");
+            logArgument(writer.get(), e.getTargetException());
+            writer.get().writeEndDocument();
+            writer.get().writeCharacters("\n");
+            writer.get().flush();
             throw e.getTargetException();
         } catch (Exception e) {
             writer.get().writeStartElement("thrown");
