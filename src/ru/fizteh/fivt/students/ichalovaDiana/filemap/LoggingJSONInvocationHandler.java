@@ -94,7 +94,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             }
             arguments.put(list);
         } else {
-            arguments.put(argument.toString());
+            arguments.put(argument);
         }
     }
 
