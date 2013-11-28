@@ -91,7 +91,7 @@ public class LogInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object returnedValue = null;
         JSONObject record = new JSONObject();
-        boolean flagOfExc = true;
+        boolean flagOfExc = false;
         if (!method.getDeclaringClass().equals(Object.class)) {
             record.put("timestamp", System.currentTimeMillis());
             record.put("class", proxied.getClass().getName());
@@ -106,8 +106,9 @@ public class LogInvocationHandler implements InvocationHandler {
             }
             try {
                 returnedValue = method.invoke(proxied, args);
-                flagOfExc = false;
+                //flagOfExc = false;
             } catch (InvocationTargetException e) {
+                flagOfExc = true;
                 record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
             } finally {
