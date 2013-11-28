@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamWriter;
 public class ProxyInvocationHandler implements InvocationHandler {
     private Writer writer;
     private Object implementation;
+    private XMLStreamWriter xmlWriter;
 
     public ProxyInvocationHandler(Writer newWriter, Object newImplementation) {
         writer = newWriter;
@@ -22,6 +23,9 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (method.getDeclaringClass().equals(Object.class)) {
+            return method.invoke(implementation, args);
+        }
         Object value = null;
         Throwable exception = null;
         try {
@@ -29,21 +33,23 @@ public class ProxyInvocationHandler implements InvocationHandler {
         } catch (InvocationTargetException e) {
             exception = e.getTargetException();
             throw exception;
+        } catch (Throwable e1) {
+            // It is ok
         }
-
-        if (!method.getDeclaringClass().equals(Object.class)) {
-            writer.write(buildLog(method, args, exception, value));
-            writer.write(System.lineSeparator());
-        }
+        XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        StringWriter writerString = new StringWriter();
+        xmlWriter = factory.createXMLStreamWriter(writer);
+        buildLog(method, args, exception, value);
+        xmlWriter.writeEndElement();
+        xmlWriter.flush();
+        writer.write(writerString.toString());
+        writer.write(System.lineSeparator());
         return value;
 
     }
 
-    private String buildLog(Method method, Object[] args, Throwable exception, Object value) {
-        XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        StringWriter writer = new StringWriter();
+    private void buildLog(Method method, Object[] args, Throwable exception, Object value) {
         try {
-            XMLStreamWriter xmlWriter = factory.createXMLStreamWriter(writer);
             xmlWriter.writeStartElement("invoke");
             xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
             xmlWriter.writeAttribute("class", implementation.getClass().getName());
@@ -53,7 +59,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
             } else {
                 xmlWriter.writeStartElement("arguments");
                 for (Object object : args) {
-                    writeArgument(object, xmlWriter);
+                    writeArgument(object);
                 }
                 xmlWriter.writeEndElement();
             }
@@ -75,43 +81,41 @@ public class ProxyInvocationHandler implements InvocationHandler {
         } catch (Throwable e) {
             // it is ok
         }
-        return writer.toString();
     }
 
-    private void writeArgument(Object object, XMLStreamWriter writerXML) throws XMLStreamException {
-        writerXML.writeStartElement("argument");
+    private void writeArgument(Object object) throws XMLStreamException {
+        xmlWriter.writeStartElement("argument");
         if (object == null) {
-            writerXML.writeEmptyElement("null");
+            xmlWriter.writeEmptyElement("null");
         } else if (object instanceof Iterable) {
-            writeList((Iterable) object, writerXML, new IdentityHashMap<Object, Boolean>());
+            writeList((Iterable<?>) object, new IdentityHashMap<Object, Boolean>());
         } else {
-            writerXML.writeCharacters(object.toString());
+            xmlWriter.writeCharacters(object.toString());
         }
-        writerXML.writeEndElement();
+        xmlWriter.writeEndElement();
     }
 
-    private void writeList(Iterable object, XMLStreamWriter writerXML, IdentityHashMap<Object, Boolean> map)
-            throws XMLStreamException {
-        writerXML.writeStartElement("list");
+    private void writeList(Iterable<?> object, IdentityHashMap<Object, Boolean> map) throws XMLStreamException {
+        xmlWriter.writeStartElement("list");
         for (Object value : object) {
-            writerXML.writeStartElement("value");
+            xmlWriter.writeStartElement("value");
             if (value == null) {
-                writerXML.writeEmptyElement("null");
+                xmlWriter.writeEmptyElement("null");
             } else {
                 if (value instanceof Iterable) {
-                    if (map.containsKey(value) && ((Iterable) value).iterator().hasNext()) {
-                        writerXML.writeCharacters("cyclic");
+                    if (map.containsKey(value) && ((Iterable<?>) value).iterator().hasNext()) {
+                        xmlWriter.writeCharacters("cyclic");
                     } else {
                         map.put(value, true);
-                        writeList((Iterable) value, writerXML, map);
+                        writeList((Iterable<?>) value, map);
                     }
                 } else {
-                    writerXML.writeCharacters(value.toString());
+                    xmlWriter.writeCharacters(value.toString());
                 }
             }
-            writerXML.writeEndElement();
+            xmlWriter.writeEndElement();
         }
-        writerXML.writeEndElement();
+        xmlWriter.writeEndElement();
 
     }
 }
