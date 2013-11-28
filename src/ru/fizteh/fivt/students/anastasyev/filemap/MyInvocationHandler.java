@@ -75,6 +75,7 @@ public class MyInvocationHandler implements InvocationHandler {
             return method.invoke(implementation, args);
         }
         Object result = null;
+        Throwable exception = null;
 
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         StringWriter stringWriter = new StringWriter();
@@ -99,6 +100,7 @@ public class MyInvocationHandler implements InvocationHandler {
                 xmlStreamWriter.writeEndElement();
             }
         } catch (InvocationTargetException e) {
+            exception = e.getTargetException();
             xmlStreamWriter.writeStartElement("thrown");
             xmlStreamWriter.writeCharacters(e.getClass().getName() + ": " + e.getMessage());
             xmlStreamWriter.writeEndElement();
@@ -106,6 +108,9 @@ public class MyInvocationHandler implements InvocationHandler {
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.flush();
             writer.write(stringWriter.toString() + System.getProperty("line.separator"));
+            if (exception != null) {
+                throw exception;
+            }
         }
         return result;
     }
