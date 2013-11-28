@@ -327,6 +327,7 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        assertClosed();
         rollback();
         closed = true;
     }
