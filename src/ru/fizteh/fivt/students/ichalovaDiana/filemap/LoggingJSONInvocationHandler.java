@@ -25,7 +25,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         
         JSONObject log = new JSONObject();
         log.put("timestamp", System.currentTimeMillis());
-        log.put("class", target.getClass());
+        log.put("class", target.getClass().getName());
         log.put("method", method.getName());
         log.put("arguments", new JSONArray(args));
         
