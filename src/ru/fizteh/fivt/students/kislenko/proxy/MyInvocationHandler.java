@@ -9,8 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class MyInvocationHandler implements InvocationHandler {
     ThreadLocal<Writer> w = new ThreadLocal<Writer>();
@@ -35,10 +33,9 @@ public class MyInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass().equals(Object.class)) {
-            writer.get().writeCharacters("\n");
-            return null;
+            return method.invoke(implementation.get(), args);
         }
-        Object result = null;
+        Object result;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         if (invokeCounter.get() == 0) {
             MyInvocationHandler.writer.set(factory.createXMLStreamWriter(w.get()));
@@ -47,8 +44,8 @@ public class MyInvocationHandler implements InvocationHandler {
 
         writer.get().writeStartElement("invoke");
         writer.get().writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
-        writer.get().writeAttribute("class", String.valueOf(implementation.get().getClass().getCanonicalName()));
-        writer.get().writeAttribute("name", String.valueOf(method.getName()));
+        writer.get().writeAttribute("class", implementation.get().getClass().getName());
+        writer.get().writeAttribute("name", method.getName());
         if (args != null && args.length > 0) {
             writer.get().writeStartElement("arguments");
             for (Object arg : args) {
@@ -111,50 +108,6 @@ public class MyInvocationHandler implements InvocationHandler {
                 } else {
                     identityHashMap.get().put(arg, true);
                     logArgument(w, e);
-                    identityHashMap.get().remove(arg);
-                }
-                w.writeEndElement();
-            }
-            w.writeEndElement();
-            return;
-        }
-        if (Set.class.isAssignableFrom(arg.getClass().getSuperclass())) {
-            w.writeStartElement("set");
-            Set set = (Set) arg;
-            for (Object e : set) {
-                w.writeStartElement("value");
-                if (identityHashMap.get().get(e) != null && identityHashMap.get().get(arg)) {
-                    w.writeCharacters("cyclic");
-                } else {
-                    identityHashMap.get().put(arg, true);
-                    logArgument(w, e);
-                    identityHashMap.get().remove(arg);
-                }
-                w.writeEndElement();
-            }
-            w.writeEndElement();
-            return;
-        }
-        if (Map.class.isAssignableFrom(arg.getClass().getSuperclass())) {
-            w.writeStartElement("map");
-            Map map = (Map) arg;
-            for (Object key : map.keySet()) {
-                w.writeStartElement("key");
-                if (identityHashMap.get().get(key) != null && identityHashMap.get().get(key)) {
-                    w.writeCharacters("cyclic");
-                } else {
-                    identityHashMap.get().put(arg, true);
-                    logArgument(w, key);
-                    identityHashMap.get().remove(arg);
-                }
-                w.writeEndElement();
-                w.writeStartElement("value");
-                Object value = map.get(key);
-                if (identityHashMap.get().get(value) != null && identityHashMap.get().get(value)) {
-                    w.writeCharacters("cyclic");
-                } else {
-                    identityHashMap.get().put(arg, true);
-                    logArgument(w, value);
                     identityHashMap.get().remove(arg);
                 }
                 w.writeEndElement();
