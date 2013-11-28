@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -33,7 +32,7 @@ public class MultiDbCreate implements Command {
         } catch (DbWrongTypeException e) {
             System.out.println("wrong type (" + e.getMessage() + ")");
             return 0;
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("create: " + e.getMessage());
             return 1;
         }

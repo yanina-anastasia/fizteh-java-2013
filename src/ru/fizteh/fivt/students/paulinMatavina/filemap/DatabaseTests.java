@@ -14,7 +14,7 @@ import org.junit.rules.TemporaryFolder;
 
 import ru.fizteh.fivt.storage.structured.*;
 
-public class MultiDbStateTest {
+public class DatabaseTests {
     @Rule
     public TemporaryFolder rootFolder = new TemporaryFolder();  
     Table table;

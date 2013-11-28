@@ -9,27 +9,37 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import ru.fizteh.fivt.storage.structured.*;
 
 public class DbState extends State {
-    public HashMap<String, Storeable> data;
     private HashMap<String, Storeable> initial;
+    private ThreadLocal<HashMap<String, Storeable>> changes;
     public RandomAccessFile dbFile;
     public String path;
     private TableProvider provider;
     private Table table;
     private int foldNum;
     private int fileNum;
+    private ReentrantReadWriteLock initialChangeLock;
     
     public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
                                                       throws ParseException, IOException {
+        initial = new HashMap<String, Storeable>();
         foldNum = folder;
         fileNum = file;
         provider = prov;
         table = newTable;
         path = dbPath;
+        initialChangeLock = new ReentrantReadWriteLock(true);
+        changes = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
         loadData();
     }
     
@@ -52,11 +62,23 @@ public class DbState extends State {
     }
     
     public void assignInitial() {
-        initial = new HashMap<String, Storeable>(data);
+        initialChangeLock.writeLock().lock();
+        try {
+            for (Map.Entry<String, Storeable> s : changes.get().entrySet()) {
+                if (s.getValue() != null) {
+                    initial.put(s.getKey(), s.getValue());
+                } else {
+                    initial.remove(s.getKey());
+                }
+            }
+            changes.get().clear();
+        } finally {
+            initialChangeLock.writeLock().unlock();
+        }
     }
     
     public void assignData() {
-        data = new HashMap<String, Storeable>(initial);
+        changes.get().clear();
     }
     
     private String byteVectToStr(Vector<Byte> byteVect) throws IOException {
@@ -100,16 +122,16 @@ public class DbState extends State {
         return byteVectToStr(byteVect);
     }    
     
-    public int loadData() throws IOException, ParseException {
-        data = new HashMap<String, Storeable>();
-        assignInitial();
-        File dbTempFile = new File(path);
-        if (!dbTempFile.exists()) {
-            return 0;
-        }
+    public int loadData() throws IOException, ParseException {    
         int result = 0;  
         dbFile = null;
         try {
+            File dbTempFile = new File(path);
+            if (!dbTempFile.exists()) {
+                return 0;
+            }
+            changes.set(new HashMap<String, Storeable>());
+            assignInitial();
             fileCheck();  
             if (dbFile.length() == 0) {
                 (new File(path)).delete();
@@ -140,14 +162,17 @@ public class DbState extends State {
                     }
                     result++;
                     Storeable stor = provider.deserialize(table, value);
-                    data.put(key, stor);
+                    initialChangeLock.writeLock().lock();
+                    try {
+                        initial.put(key, stor);
+                    } finally {
+                        initialChangeLock.writeLock().unlock();
+                    }
                 }
                 
                 key = key2;
                 startOffset = endOffset;
             } while (position <= firstOffset); 
-            
-            assignInitial();
         } catch (IOException e) {
             if (e.getMessage() == null) {
                 throw new IOException("wrong database file " + path, e);
@@ -168,23 +193,32 @@ public class DbState extends State {
   
     public int getChangeNum() {
         int result = 0;
-        for (Map.Entry<String, Storeable> s : data.entrySet()) {
-            Storeable was = initial.get(s.getKey());
-            Storeable became = s.getValue();
-            if ((was != null && !was.equals(became)) 
-               || (was == null && became != null)) {
-                result++;
+        initialChangeLock.readLock().lock();
+        try {
+            for (Map.Entry<String, Storeable> entry : changes.get().entrySet()) {
+                if (entry.getValue() != null) {
+                    if (initial.get(entry.getKey()) == null || !initial.get(entry.getKey()).equals(entry.getValue())) {
+                        result++;
+                    }          
+                } else {
+                    if (initial.containsKey(entry.getKey())) {
+                        result++;
+                    }      
+                }
             }
+        } finally {
+            initialChangeLock.readLock().unlock();
         }
         return result;
     }  
 
     public void commit() throws IOException {
+        dbFile = null;
         assignInitial();
-        if (data.size() == 0) {
+        if (getChangeNum() == 0) {
             return;
         }
-        dbFile = null;
+        initialChangeLock.readLock().lock();
         try {
             fileCheck();
             if (size() == 0) {
@@ -193,12 +227,12 @@ public class DbState extends State {
             }
             int offset = 0;
             long pos = 0;
-            for (Map.Entry<String, Storeable> s : data.entrySet()) {
+            for (Map.Entry<String, Storeable> s : initial.entrySet()) {
                 if (s.getValue() != null) {
                     offset += s.getKey().getBytes("UTF-8").length + 5;
                 } 
             }
-            for (Map.Entry<String, Storeable> s : data.entrySet()) {
+            for (Map.Entry<String, Storeable> s : initial.entrySet()) {
                 if (s.getValue() != null) {
                     dbFile.seek(pos);
                     dbFile.write(s.getKey().getBytes("UTF-8"));
@@ -212,6 +246,7 @@ public class DbState extends State {
                 }
             }
         } finally {
+            initialChangeLock.readLock().unlock();
             if (dbFile != null) {
                 try {
                   dbFile.close();
@@ -231,29 +266,71 @@ public class DbState extends State {
     }
     
     public Storeable put(String key, Storeable value) {
-        return data.put(key, value);
+        Storeable change = changes.get().get(key);
+        boolean exist = changes.get().containsKey(key);
+        changes.get().put(key, value);
+        if (exist) {
+            return change;
+        } else {
+            initialChangeLock.readLock().lock();
+            try {
+                return initial.get(key);
+            } finally {
+                initialChangeLock.readLock().unlock();
+            } 
+        }   
     }
     
     public Storeable get(String key) {
-        if (data.containsKey(key)) {
-            return data.get(key);
+        Storeable change = changes.get().get(key);
+        boolean exist = changes.get().containsKey(key);
+        if (exist) {
+            return change;
         } else {
-            return null;
+            initialChangeLock.readLock().lock();
+            try {
+                return initial.get(key);
+            } finally {
+                initialChangeLock.readLock().unlock();
+            } 
         }
     }
     
     public Storeable remove(String key) {
-        Storeable value = data.get(key);
-        data.put(key, null);
-        return value;
+        Storeable change = changes.get().get(key);
+        boolean exist = changes.get().containsKey(key);
+        changes.get().put(key, null);
+        
+        if (exist) {
+            return change;
+        } else {
+            initialChangeLock.readLock().lock();
+            try {
+                return initial.get(key);
+            } finally {
+                initialChangeLock.readLock().unlock();
+            } 
+        }
     }
     
     public int size() {
+        initialChangeLock.readLock().lock();
         int result = 0;
-        for (Map.Entry<String, Storeable> entry : data.entrySet()) {
-            if (entry.getValue() != null) {
-                result++;
+        try {
+            result = initial.size();
+            for (Map.Entry<String, Storeable> entry : changes.get().entrySet()) {
+                if (entry.getValue() != null) {
+                    if (!initial.containsKey(entry.getKey())) {
+                        result++;
+                    }     
+                } else {
+                    if (initial.containsKey(entry.getKey())) {
+                        result--;
+                    }
+                }
             }
+        } finally {
+            initialChangeLock.readLock().unlock();
         }
         return result;
     }

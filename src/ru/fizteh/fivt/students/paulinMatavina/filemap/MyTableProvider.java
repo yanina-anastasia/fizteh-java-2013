@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.json.JSONArray;
 import java.text.ParseException;
+
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
@@ -17,8 +20,10 @@ public class MyTableProvider extends State implements TableProvider {
     private String rootDir;
     private ShellState shell;
     public String currTableName;
-    
+    private ReentrantLock tableAccessLock;
+
     public MyTableProvider(String dir) throws IOException {
+        tableAccessLock = new ReentrantLock(true);
         validate(dir);
         shell = new ShellState();    
         File root = new File(shell.makeNewSource(dir));
@@ -69,58 +74,73 @@ public class MyTableProvider extends State implements TableProvider {
         try {
             return tryToGetTable(name);
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e.getMessage());
         }
     }
     
     public MultiDbState tryToGetTable(String name) throws ParseException, IOException {
-        validate(name);
-        checkNameIsCorrect(name);
-        MultiDbState newTable;
-        if (tableMap.get(name) == null) {
-            if (fileExist(name)) {
-                newTable = new MultiDbState(rootDir, name, this);
-                tableMap.put(name, newTable);   
-            }
-        }   
-        return tableMap.get(name);
+        MultiDbState newTable = null;
+        tableAccessLock.lock();
+        try {
+            newTable = tableMap.get(name);
+            if (newTable == null) {
+                if (fileExist(name)) {
+                    newTable = new MultiDbState(rootDir, name, this);
+                    tableMap.put(name, newTable);
+                }
+            }  
+        } finally {
+            tableAccessLock.unlock();
+        }
+        
+        return newTable;
     }
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, DbWrongTypeException {
         validate(name);
-        checkNameIsCorrect(name);      
-        if (fileExist(name)) {
-            return null;
-        }   
-        if (columnTypes == null || columnTypes.size() == 0) {
-            throw new IllegalArgumentException("no column types provided");
-        }
-        MultiDbState table;
-        shell.mkdir(new String[] {shell.makeNewSource(name)});
-       
+        checkNameIsCorrect(name); 
+        tableAccessLock.lock();
         try {
+            if (fileExist(name) && new File(shell.makeNewSource(name)).isDirectory()) {
+                return null;
+            }     
+            if (fileExist(name) && !new File(shell.makeNewSource(name)).isDirectory()) {
+                throw new IOException(name + " exists and is not a directory");
+            }        
+            if (columnTypes == null || columnTypes.size() == 0) {
+                throw new IllegalArgumentException("no column types provided");
+            }
+            
+            MultiDbState table;
+            shell.mkdir(new String[] {shell.makeNewSource(name)});      
             table = new MultiDbState(rootDir, name, this, columnTypes);
+            tableMap.put(name, table);
+            return table;
         } catch (ParseException e) {
             throw new RuntimeException(e.getMessage(), e);
-        }
-        
-        tableMap.put(name, table);
-        return table;
+        } finally {
+            tableAccessLock.unlock();
+        }      
     }
 
     public void removeTable(String name) {
-        validate(name);
-        
-        if (!fileExist(name)) {
-            throw new IllegalStateException("removing not existing table");
+        validate(name); 
+        tableAccessLock.lock();
+        try {
+            if (!fileExist(name)) {
+                throw new IllegalStateException("removing not existing table");
+            } 
+            MultiDbState table = null;
+            table = tableMap.get(name);  
+            if (table != null) {
+                table.dropped();
+            }
+            tableMap.put(name, null);             
+            shell.rm(new String[]{name});
+        } finally {
+            tableAccessLock.unlock();
         }
-        
-        if (tableMap.get(name) != null) {
-            tableMap.get(name).dropped();
-        }
-        tableMap.put(name, null);
-        shell.rm(new String[]{name});
         
         return;
     }
@@ -149,11 +169,18 @@ public class MyTableProvider extends State implements TableProvider {
     }
     
     public Table getCurrTable() {
-        if (currTableName == null) {
-            return null;
-        } else {
-            return tableMap.get(currTableName);
+        Table answer = null;
+        tableAccessLock.lock();
+        try {
+            if (currTableName == null) {
+                return null;
+            } else {
+                answer = tableMap.get(currTableName);
+            }
+        } finally {
+            tableAccessLock.unlock();
         }
+        return answer;
     }
     
     @Override
@@ -172,10 +199,11 @@ public class MyTableProvider extends State implements TableProvider {
             }
             JSONArray array = new JSONArray(value);
             if (columnCount != array.length()) {
-                throw new ParseException("wrong array size " + columnCount, 0);
+                throw new ParseException("wrong array size " + columnCount 
+                        + ": expected " + array.length(), 0);
             }
             
-            Storeable newList = new MyStoreable(columnTypes);
+            Storeable newList = new MyStoreable(table, columnTypes);
             for (int i = 0; i < columnCount; i++) {
                 Object object = array.get(i);
                 newList.setColumnAt(i, object);
@@ -221,7 +249,7 @@ public class MyTableProvider extends State implements TableProvider {
         for (int i = 0; i < columnCount; i++) {
             columnTypes.add(table.getColumnType(i));
         }
-        return new MyStoreable(columnTypes);
+        return new MyStoreable(table, columnTypes);
     }
 
     @Override
@@ -236,7 +264,7 @@ public class MyTableProvider extends State implements TableProvider {
             types.add(table.getColumnType(i));
         }
         
-        MyStoreable newList = new MyStoreable(types);
+        MyStoreable newList = new MyStoreable(table, types);
         if (values.size() != columnCount) {
             throw new IndexOutOfBoundsException("wrong array size: " + values.size()
                     + " instead of " + columnCount);
@@ -251,7 +279,6 @@ public class MyTableProvider extends State implements TableProvider {
         ArrayList<Class<?>> columnTypes = new ArrayList<Class<?>>();
         while (tokens.hasMoreTokens()) {
             String nextToken = tokens.nextToken().trim();
-            
             switch (nextToken) {
                 case ("int") :
                     columnTypes.add(Integer.class);

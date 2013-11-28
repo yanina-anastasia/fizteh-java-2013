@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
@@ -14,25 +15,23 @@ import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import java.text.ParseException;
 
 public class MultiDbState extends State implements Table {
-    private MyTableProvider provider;
-    final int folderNum = 16;
-    final int fileInFolderNum = 16;
+    public MyTableProvider provider;
+    static final int FOLDER_NUM = 16;
+    static final int FILE_IN_FOLD_NUM = 16;
     private String tableName;
     DbState[][] data;
     public ShellState shell;
     private String rootPath;
-    public boolean isDropped;
-    private int dbSize;
-    private int primaryDbSize;
+    public volatile boolean isDropped;
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
+    private ReentrantReadWriteLock diskOperationLock;
     
-    private void init(String dbName) throws IOException, ParseException {          
-        dbSize = 0;
+    private void init(String dbName) throws IOException, ParseException {   
+        diskOperationLock = new ReentrantReadWriteLock(true);
         isDropped = false;
-        
-        data = new DbState[folderNum][fileInFolderNum];
+        data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
         shell = new ShellState();
         currentDir = new File(rootPath);
         if (!currentDir.exists() || !currentDir.isDirectory()) {
@@ -134,12 +133,11 @@ public class MultiDbState extends State implements Table {
     
     private void loadData() throws IOException, ParseException {
         checkDbDir(shell.currentDir.getAbsolutePath());
-        dbSize = 0;
-        data = new DbState[folderNum][fileInFolderNum];
-        for (int i = 0; i < folderNum; i++) {
+        data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
+        for (int i = 0; i < FOLDER_NUM; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (!fileExist(fold)) {
-                for (int j = 0; j < fileInFolderNum; j++) {
+                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                     String file = Integer.toString(j) + ".dat";
                     String filePath = shell.makeNewSource(fold, file);
                     data[i][j] = new DbState(filePath, i, j, provider, this);
@@ -147,14 +145,12 @@ public class MultiDbState extends State implements Table {
                 continue;
             }
             checkFolder(shell.makeNewSource(fold));
-            for (int j = 0; j < fileInFolderNum; j++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
                 data[i][j] = new DbState(filePath, i, j, provider, this);
-                dbSize += data[i][j].size();
             }
         }
-        primaryDbSize = dbSize;
     }
     
     public void dropped() {
@@ -166,26 +162,28 @@ public class MultiDbState extends State implements Table {
         if (isDropped) {
             throw new IllegalStateException("table was removed");
         }   
-        checkDbDir(shell.currentDir.getAbsolutePath());
-        int chNum = changesNum();
-        for (int i = 0; i < folderNum; i++) {
-            String fold = Integer.toString(i) + ".dir";
-            checkFolder(shell.makeNewSource(fold));
-            if (!fileExist(fold)) {
-                shell.mkdir(new String[] {fold});
+        int chNum = 0;
+        diskOperationLock.writeLock().lock();
+        try {
+            chNum = changesNum();
+            for (int i = 0; i < FOLDER_NUM; i++) {
+                String fold = Integer.toString(i) + ".dir";
+                if (!fileExist(fold)) {
+                    shell.mkdir(new String[] {fold});
+                }
+                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
+                    data[i][j].commit();
+                }
+               
+                File folderFile = new File(shell.makeNewSource(fold));
+                if (folderFile.exists() && folderFile.listFiles().length == 0) {
+                    String[] arg = {shell.makeNewSource(fold)};
+                    shell.rm(arg);
+                }
             }
-            for (int j = 0; j < fileInFolderNum; j++) {
-                data[i][j].commit();
-            }
-           
-            File folderFile = new File(shell.makeNewSource(fold));
-            if (folderFile.exists() && folderFile.listFiles().length == 0) {
-                String[] arg = {shell.makeNewSource(fold)};
-                shell.rm(arg);
-            }
+        } finally {
+            diskOperationLock.writeLock().unlock();
         }
-        
-        primaryDbSize = dbSize;
         return chNum;
     }
     
@@ -233,9 +231,6 @@ public class MultiDbState extends State implements Table {
         int file = getFileNum(key);
         Storeable result;
         result = data[folder][file].put(key, value);
-        if (result == null) {
-            dbSize++;
-        }
         return result;  
     }
     
@@ -262,17 +257,14 @@ public class MultiDbState extends State implements Table {
         int folder = getFolderNum(key);
         int file = getFileNum(key);
         Storeable result = data[folder][file].remove(key);
-        if (result != null) {
-            dbSize--;
-        }
         return result;  
     }
     
     @Override
     public int size() {
         int result = 0;
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
+        for (int i = 0; i < FOLDER_NUM; i++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 result += data[i][j].size();
             }
         }
@@ -281,12 +273,17 @@ public class MultiDbState extends State implements Table {
     
     @Override
     public int rollback() {
-        int chNum = changesNum();
-        dbSize = primaryDbSize;
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
-                data[i][j].assignData();
+        diskOperationLock.readLock().lock();
+        int chNum = 0;
+        try {
+            chNum = changesNum();
+            for (int i = 0; i < FOLDER_NUM; i++) {
+                for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
+                    data[i][j].assignData();
+                }
             }
+        } finally {
+            diskOperationLock.readLock().unlock();
         }
         return chNum;
     }
@@ -307,8 +304,8 @@ public class MultiDbState extends State implements Table {
     
     public int changesNum() {
         int result = 0;
-        for (int i = 0; i < folderNum; i++) {
-            for (int j = 0; j < fileInFolderNum; j++) {
+        for (int i = 0; i < FOLDER_NUM; i++) {
+            for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 result += data[i][j].getChangeNum();
             }
         } 
