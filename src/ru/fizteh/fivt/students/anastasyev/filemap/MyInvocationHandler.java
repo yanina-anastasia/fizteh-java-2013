@@ -13,32 +13,30 @@ import java.util.IdentityHashMap;
 public class MyInvocationHandler implements InvocationHandler {
     private Writer writer;
     private Object implementation;
-    private StringWriter stringWriter;
-    private XMLOutputFactory factory;
     private XMLStreamWriter xmlStreamWriter;
-    private IdentityHashMap<Object, Boolean> items = new IdentityHashMap<>();
+    private IdentityHashMap<Object, Boolean> discoveredItems = new IdentityHashMap<>();
 
-    private void writeList(Object arg) throws XMLStreamException {
-        if (arg == null) {
-            xmlStreamWriter.writeEmptyElement("null");
-        } else if (items.containsKey(arg)) {
-            xmlStreamWriter.writeStartElement("list");
+    private void writeList(Iterable list) throws XMLStreamException {
+        xmlStreamWriter.writeStartElement("list");
+        for (Object element : list) {
             xmlStreamWriter.writeStartElement("value");
-            xmlStreamWriter.writeCharacters("cyclic");
-            xmlStreamWriter.writeEndElement();
-            xmlStreamWriter.writeEndElement();
-        }  else if (arg instanceof Iterable) {
-            xmlStreamWriter.writeStartElement("list");
-            items.put(arg, true);
-            for (Object value : (Iterable) arg) {
-                xmlStreamWriter.writeStartElement("value");
-                writeList(value);
-                xmlStreamWriter.writeEndElement();
+            if (element == null) {
+                xmlStreamWriter.writeEmptyElement("null");
+            } else {
+                if (element instanceof Iterable) {
+                    if (discoveredItems.containsKey(element) && ((Iterable) element).iterator().hasNext()) {
+                        xmlStreamWriter.writeCharacters("cyclic");
+                    } else {
+                        discoveredItems.put(element, true);
+                        writeList((Iterable) element);
+                    }
+                } else {
+                    xmlStreamWriter.writeCharacters(element.toString());
+                }
             }
             xmlStreamWriter.writeEndElement();
-        } else {
-            xmlStreamWriter.writeCharacters(arg.toString());
         }
+        xmlStreamWriter.writeEndElement();
     }
 
     private void writeArg(Object arg) throws XMLStreamException {
@@ -46,14 +44,8 @@ public class MyInvocationHandler implements InvocationHandler {
         if (arg == null) {
             xmlStreamWriter.writeEmptyElement("null");
         } else if (arg instanceof Iterable) {
-            xmlStreamWriter.writeStartElement("list");
-            items.put(arg, true);
-            for (Object value : (Iterable) arg) {
-                xmlStreamWriter.writeStartElement("value");
-                writeList(value);
-                xmlStreamWriter.writeEndElement();
-            }
-            xmlStreamWriter.writeEndElement();
+            writeList((Iterable) arg);
+            discoveredItems.clear();
         } else {
             xmlStreamWriter.writeCharacters(arg.toString());
         }
@@ -79,32 +71,32 @@ public class MyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = null;
-        if (method.getName().equals("toString") || method.getName().equals("hashCode")
-                || method.getName().equals("equals")) {
-            result = method.invoke(implementation, args);
-            writer.write(System.getProperty("line.separator"));
-            return result;
+        if (method.getDeclaringClass() == Object.class) {
+            return method.invoke(implementation, args);
         }
+        Object result = null;
 
-        factory = XMLOutputFactory.newInstance();
-        stringWriter = new StringWriter();
+        XMLOutputFactory factory = XMLOutputFactory.newInstance();
+        StringWriter stringWriter = new StringWriter();
         xmlStreamWriter = factory.createXMLStreamWriter(stringWriter);
+
         xmlStreamWriter.writeStartElement("invoke");
         xmlStreamWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
         xmlStreamWriter.writeAttribute("class", implementation.getClass().getName());
         xmlStreamWriter.writeAttribute("name", method.getName());
+
         writeLog(args);
+
         try {
             result = method.invoke(implementation, args);
             if (!method.getReturnType().equals(void.class)) {
                 xmlStreamWriter.writeStartElement("return");
-                writeList(result);
+                xmlStreamWriter.writeCharacters(result.toString());
                 xmlStreamWriter.writeEndElement();
             }
         } catch (InvocationTargetException e) {
             xmlStreamWriter.writeStartElement("thrown");
-            writeList(e);
+            xmlStreamWriter.writeCharacters(e.getClass().getName() + ": " + e.getMessage());
             xmlStreamWriter.writeEndElement();
         } finally {
             xmlStreamWriter.writeEndElement();
