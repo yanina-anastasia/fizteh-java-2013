@@ -58,6 +58,9 @@ public class DataBase implements Table {
         if (!file.exists()) {
             throw new IOException(dataBaseDirectory + " isn't exist");
         }
+        if (file.isFile()) {
+            throw new IOException(dataBaseDirectory + " isn't exist");
+        }
         checkNames(file.list(), "dir");
         for (String fileNumber : file.list()) {
             if (!fileNumber.equals("signature.tsv")) {
@@ -76,10 +79,7 @@ public class DataBase implements Table {
 
         types = nTypes;
         BaseSignature.setBaseSignature(dataBaseDirectory, types);
-        File file = new File(nameDirectory);
-        if (!file.delete()) {
-            int i = 8;
-        }
+        
 
         checkCorrection();
         files = new DataBaseFile[256];
