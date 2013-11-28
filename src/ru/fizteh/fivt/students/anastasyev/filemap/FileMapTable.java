@@ -444,7 +444,6 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public String toString() {
-        checkStatus();
         return getClass().getSimpleName() + "[" + currentFileMapTable.getAbsolutePath() + "]";
     }
 
