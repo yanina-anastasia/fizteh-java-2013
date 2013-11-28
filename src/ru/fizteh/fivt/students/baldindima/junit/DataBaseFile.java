@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.baldindima.junit;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ public class DataBaseFile {
     protected File dataBaseFile;
     protected String fileName;
     private TableProvider provider;
+    private DataBase table;
     private int fileNumber;
     private int directoryNumber;
     static final byte OLD = 0;
@@ -82,7 +84,7 @@ public class DataBaseFile {
                         TableProvider nProvider, DataBase nTable) throws IOException {
         fileName = fullName;
         provider = nProvider;
-
+        table = nTable;
         dataBaseFile = new File(fileName);
         try {
             if (!dataBaseFile.exists()) {
@@ -107,6 +109,11 @@ public class DataBaseFile {
                 throw new IOException("Wrong file format key[0] =  "
                         + String.valueOf(Math.abs(curPair.getKey().getBytes("UTF-8")[0]))
                         + " in file " + fileName);
+            }
+            try {
+                provider.deserialize(table, (curPair.getValue().value));
+            } catch (ParseException e) {
+                throw new IOException("Invalid file format! (parse exception error!)");
             }
         }
         return true;
