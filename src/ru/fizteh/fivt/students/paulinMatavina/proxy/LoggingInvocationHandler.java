@@ -45,41 +45,32 @@ public class LoggingInvocationHandler implements InvocationHandler {
     private void writeNull(XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement("null");
         writer.writeEndElement();
-
     }
     
     private void writeList(XMLStreamWriter writer, Iterable<?> list, IdentityHashMap<Object, Boolean> map) 
-            throws XMLStreamException {
-        for (Object value : list) {
+                                                                    throws XMLStreamException {
+        for (Object element : list) {
             writer.writeStartElement("value");
-            if (value == null) {
+
+            if (element == null) {
                 writeNull(writer);
-                writer.writeEndElement();
-                continue;
-            }
+            } else {
+                if (element instanceof Iterable) {
+                    if (!map.containsKey(element)) {
+                        map.put(element, true);
 
-            if (value.getClass().isArray()) {
-                writer.writeCharacters(value.toString());
-                writer.writeEndElement();
-                continue;
-            }
+                        writer.writeStartElement("list");
+                        writeList(writer, list, map);
+                        writer.writeEndElement();
 
-            if (map.containsKey(value) && value instanceof Iterable && ((Iterable<?>) value).iterator().hasNext()) {
-                writer.writeCharacters("cyclic");
-                writer.writeEndElement();
-                continue;
+                        map.remove(element);
+                    } else {
+                        writer.writeCharacters("cyclic");
+                    }
+                } else {
+                    writer.writeCharacters(element.toString());
+                }
             }
-
-            map.put(value, true);
-            if (value instanceof Iterable) {
-                writer.writeStartElement("list");
-                writeList(writer, list, map);
-                writer.writeEndElement();
-                writer.writeEndElement();
-                continue;
-            }
-
-            writer.writeCharacters(value.toString());
             writer.writeEndElement();
         }
     }
@@ -123,7 +114,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 xmlWriter.writeCharacters(exception.getClass().getName() + ": " + exception.getMessage());
                 xmlWriter.writeEndElement();
             } else {
-                System.out.println(method.getReturnType());
                 if (method.getReturnType() != Void.TYPE) {
                     xmlWriter.writeStartElement("return");
                     if (returnValue == null) {
