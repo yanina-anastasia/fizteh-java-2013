@@ -263,13 +263,13 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int getColumnsCount() {
-        //assertClosed();
+        assertClosed();
         return types.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        //assertClosed();
+        assertClosed();
         if (columnIndex < 0 || columnIndex > types.size()) {
             throw new IndexOutOfBoundsException("Incorrect column number.");
         }
@@ -326,8 +326,10 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        lock.writeLock().lock();
         rollback();
         closed = true;
+        lock.writeLock().unlock();
     }
 
     private void assertClosed() {
