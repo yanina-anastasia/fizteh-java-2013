@@ -137,7 +137,7 @@ public class DataBase implements Table {
 
             }
         } catch (IOException e) {
-            saveDataBase();
+            
             throw e;
         }
 
