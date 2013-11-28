@@ -27,9 +27,7 @@ public class MyInvocationHandler implements InvocationHandler {
             xmlStreamWriter.writeCharacters("cyclic");
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.writeEndElement();
-        } else if (arg.getClass().isAssignableFrom(Class.class)) {
-            xmlStreamWriter.writeCharacters(arg.getClass().getCanonicalName());
-        } else if (arg instanceof Iterable) {
+        }  else if (arg instanceof Iterable) {
             xmlStreamWriter.writeStartElement("list");
             items.put(arg, true);
             for (Object value : (Iterable) arg) {
@@ -45,7 +43,9 @@ public class MyInvocationHandler implements InvocationHandler {
 
     private void writeArg(Object arg) throws XMLStreamException {
         xmlStreamWriter.writeStartElement("argument");
-        if (arg instanceof Iterable) {
+        if (arg == null) {
+            xmlStreamWriter.writeEmptyElement("null");
+        } else if (arg instanceof Iterable) {
             xmlStreamWriter.writeStartElement("list");
             items.put(arg, true);
             for (Object value : (Iterable) arg) {
