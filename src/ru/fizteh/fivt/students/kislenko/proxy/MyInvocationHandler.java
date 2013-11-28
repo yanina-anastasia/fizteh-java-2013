@@ -110,11 +110,11 @@ public class MyInvocationHandler implements InvocationHandler {
                 } else {
                     identityHashMap.get().put(arg, true);
                     logArgument(w, e);
+                    identityHashMap.get().remove(arg);
                 }
                 w.writeEndElement();
             }
             w.writeEndElement();
-            identityHashMap.get().remove(arg);
             return;
         }
         if (Set.class.isAssignableFrom(arg.getClass().getSuperclass())) {
@@ -127,11 +127,11 @@ public class MyInvocationHandler implements InvocationHandler {
                 } else {
                     identityHashMap.get().put(arg, true);
                     logArgument(w, e);
+                    identityHashMap.get().remove(arg);
                 }
                 w.writeEndElement();
             }
             w.writeEndElement();
-            identityHashMap.get().remove(arg);
             return;
         }
         if (Map.class.isAssignableFrom(arg.getClass().getSuperclass())) {
@@ -144,6 +144,7 @@ public class MyInvocationHandler implements InvocationHandler {
                 } else {
                     identityHashMap.get().put(arg, true);
                     logArgument(w, key);
+                    identityHashMap.get().remove(arg);
                 }
                 w.writeEndElement();
                 w.writeStartElement("value");
@@ -153,18 +154,21 @@ public class MyInvocationHandler implements InvocationHandler {
                 } else {
                     identityHashMap.get().put(arg, true);
                     logArgument(w, value);
+                    identityHashMap.get().remove(arg);
                 }
                 w.writeEndElement();
             }
             w.writeEndElement();
-            identityHashMap.get().remove(arg);
             return;
         }
         if (Method.class.isAssignableFrom(arg.getClass())) {
             Method method = (Method) arg;
             w.writeCharacters(method.getDeclaringClass().getCanonicalName() + "." + method.getName());
-            identityHashMap.get().remove(arg);
             return;
+        }
+        if (Exception.class.isAssignableFrom(arg.getClass())) {
+            Exception exception = (Exception) arg;
+            w.writeCharacters(exception.toString());
         }
         w.writeCharacters(arg.toString());
         identityHashMap.get().remove(arg);
