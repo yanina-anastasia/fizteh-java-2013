@@ -86,8 +86,8 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             cycles.remove(argument);
             
             arguments.put(list);
-        //} else if (argument.toString().startsWith("[I")) {
-        //        arguments.put(argument.toString());
+        } else if (argument.toString().startsWith("[I")) {
+            arguments.put(argument.toString());
         } else {
             arguments.put(argument);
         }
