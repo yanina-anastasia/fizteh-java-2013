@@ -38,7 +38,7 @@ public class LogInvocationHandler implements InvocationHandler {
                         identifyAttended.put(arg, arg);
                         for (Object obj: (Iterable) arg) {
                             try {
-                                newCreatingArray.put(recursiveLog(obj, newCreatingArray));
+                                newCreatingArray = recursiveLog(obj, newCreatingArray);
                             } catch (java.lang.ClassCastException e) {
                                 newCreatingArray.put(arg.toString());
                             }
@@ -54,7 +54,7 @@ public class LogInvocationHandler implements InvocationHandler {
                         identifyAttended.put(arg, arg);
                         for (Object obj: (Object[]) arg) {
                             try {
-                                newCreatingArray.put(recursiveLog(obj, newCreatingArray));
+                                newCreatingArray = recursiveLog(obj, newCreatingArray);
                             } catch (java.lang.ClassCastException e) {
                                 newCreatingArray.put(obj.toString());
                             }
@@ -91,7 +91,7 @@ public class LogInvocationHandler implements InvocationHandler {
         record.put("class", proxied.getClass().getName());
         record.put("method", method.getName());
         if (args == null) {
-            record.put("arguments", new JSONArray().put("null"));
+            record.put("arguments", new JSONArray());
         } else if (args.length == 0) {
             record.put("arguments", new JSONArray());
         } else {
