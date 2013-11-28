@@ -10,6 +10,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.annasavinova.shell.UserShell;
 
 public class FileMap extends UserShell {
+    DBaseProviderFactory factory;
     private DataBaseProvider prov;
     private DataBase currTable;
 
@@ -31,7 +32,7 @@ public class FileMap extends UserShell {
         } else {
             root = property + File.separatorChar;
         }
-        DBaseProviderFactory factory = new DBaseProviderFactory();
+        factory = new DBaseProviderFactory();
         try {
             prov = (DataBaseProvider) factory.create(root);
         } catch (IllegalArgumentException | IOException e) {
