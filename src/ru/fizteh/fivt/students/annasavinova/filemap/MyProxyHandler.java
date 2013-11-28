@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -51,12 +52,21 @@ public class MyProxyHandler implements InvocationHandler {
         return result;
     }
 
-    private void writeLog(JSONObject log, Object result) throws IOException {
-        String res = log.toString();
-        if (result == null) {
-            res = res.replaceFirst("\\{", "{\"returnValue\":null,");
+    private void writeLog(JSONObject object, Object returned) throws IOException {
+        String toWrite;
+        if (returned == null) {
+            StringWriter stringWriter = new StringWriter();
+            stringWriter.write(object.toString());
+            toWrite = stringWriter.toString().replaceFirst("\\{", "{\"returnValue\":null,");
+        } else {
+            if (!returned.equals(Void.class)) {
+                object.put("returnValue", returned);
+            }
+            toWrite = object.toString();
         }
-        writer.write(res + System.lineSeparator());
+        writer.write(toWrite);
+        writer.write(System.lineSeparator());
+
     }
 
     private JSONObject logging(Method method, Object[] arguments, Throwable exception, Object returnValue) {
