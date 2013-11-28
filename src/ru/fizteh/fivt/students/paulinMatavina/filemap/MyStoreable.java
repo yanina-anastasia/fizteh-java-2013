@@ -127,10 +127,14 @@ public class MyStoreable implements Storeable {
         } else if (expectedClass == Long.class) {
             if (object.getClass() == Long.class) {
                return object;
-            } else if (object.getClass() == Integer.class) {
+            } 
+            if (object.getClass() == Integer.class) {
                 return Long.valueOf(((Integer) object).longValue());
             }
         } else if (expectedClass == Byte.class) {
+            if (object.getClass() == Byte.class) {
+                return object;
+            }
             if (object.getClass() == Integer.class) {
                 Integer number = (Integer) object;
                 if (number <= Byte.MAX_VALUE && number >= Byte.MIN_VALUE) {
