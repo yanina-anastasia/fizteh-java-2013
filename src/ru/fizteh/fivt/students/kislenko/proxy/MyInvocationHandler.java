@@ -6,6 +6,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +18,11 @@ public class MyInvocationHandler implements InvocationHandler {
     ThreadLocal<Integer> invokeCounter = new ThreadLocal<Integer>() {
         public Integer initialValue() {
             return 0;
+        }
+    };
+    ThreadLocal<IdentityHashMap<Object, Boolean>> identityHashMap = new ThreadLocal<IdentityHashMap<Object, Boolean>>() {
+        public IdentityHashMap<Object, Boolean> initialValue() {
+            return new IdentityHashMap<Object, Boolean>();
         }
     };
 
@@ -43,7 +49,7 @@ public class MyInvocationHandler implements InvocationHandler {
         writer.get().writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
         writer.get().writeAttribute("class", String.valueOf(proxy.getClass().getCanonicalName()));
         writer.get().writeAttribute("name", String.valueOf(method.getName()));
-        if (args != null || args.length > 0) {
+        if (args != null && args.length > 0) {
             writer.get().writeStartElement("arguments");
             for (Object arg : args) {
                 writer.get().writeStartElement("argument");
@@ -55,7 +61,7 @@ public class MyInvocationHandler implements InvocationHandler {
             writer.get().writeEmptyElement("argument");
         }
         try {
-            result = method.invoke(proxy, args);
+            result = method.invoke(implementation.get(), args[0], args[1], args[2]);
             if (!method.getReturnType().isAssignableFrom(Void.class)) {
                 writer.get().writeStartElement("return");
                 logArgument(writer.get(), result);
@@ -66,18 +72,25 @@ public class MyInvocationHandler implements InvocationHandler {
             logArgument(writer.get(), e);
             writer.get().writeEndElement();
         }
-        writer.get().writeEndDocument();
+        writer.get().writeEndElement();
         writer.get().flush();
         return result;
     }
 
-    private static void logArgument(XMLStreamWriter w, Object arg) throws XMLStreamException {
+    private void logArgument(XMLStreamWriter w, Object arg) throws XMLStreamException {
+        if (identityHashMap.get().get(arg) != null && identityHashMap.get().get(arg)) {
+            w.writeCharacters("cyclic");
+            return;
+        }
+        identityHashMap.get().put(arg, true);
         if (arg == null) {
             w.writeEmptyElement("null");
+            identityHashMap.get().remove(arg);
             return;
         }
         if (arg.getClass().isAssignableFrom(Class.class)) {
             w.writeCharacters(arg.getClass().getCanonicalName());
+            identityHashMap.get().remove(arg);
             return;
         }
         if (List.class.isAssignableFrom(arg.getClass().getSuperclass())) {
@@ -89,6 +102,7 @@ public class MyInvocationHandler implements InvocationHandler {
                 w.writeEndElement();
             }
             w.writeEndElement();
+            identityHashMap.get().remove(arg);
             return;
         }
         if (Set.class.isAssignableFrom(arg.getClass().getSuperclass())) {
@@ -100,6 +114,7 @@ public class MyInvocationHandler implements InvocationHandler {
                 w.writeEndElement();
             }
             w.writeEndElement();
+            identityHashMap.get().remove(arg);
             return;
         }
         if (Map.class.isAssignableFrom(arg.getClass().getSuperclass())) {
@@ -114,13 +129,16 @@ public class MyInvocationHandler implements InvocationHandler {
                 w.writeEndElement();
             }
             w.writeEndElement();
+            identityHashMap.get().remove(arg);
             return;
         }
         if (Method.class.isAssignableFrom(arg.getClass())) {
             Method method = (Method) arg;
             w.writeCharacters(method.getDeclaringClass().getCanonicalName() + "." + method.getName());
+            identityHashMap.get().remove(arg);
             return;
         }
         w.writeCharacters(arg.toString());
+        identityHashMap.get().remove(arg);
     }
 }
