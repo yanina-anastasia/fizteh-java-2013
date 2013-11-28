@@ -100,7 +100,7 @@ public class LogInvocationHandler implements InvocationHandler {
             record.put("arguments", new JSONArray());
         } else {
             ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-            record.put("arguments", creatorJSONArray.getJSONArray().put(0));
+            record.put("arguments", creatorJSONArray.getJSONArray().get(0));
         }
         Object returnedValue = null;
         try {
