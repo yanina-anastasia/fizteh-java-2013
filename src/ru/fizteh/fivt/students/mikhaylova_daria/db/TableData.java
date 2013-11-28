@@ -401,12 +401,11 @@ public class TableData implements Table, AutoCloseable {
     public void close() {
         myWriteLock.lock();
         try {
-            if (isClosed) {
-                throw new IllegalStateException("Table is closed");
+            if (!isClosed) {
+                rollback();
+                manager.bidDataBase.remove(this.getName());
+                isClosed = true;
             }
-            rollback();
-            manager.bidDataBase.remove(this.getName());
-            isClosed = true;
         } finally {
             myWriteLock.unlock();
         }

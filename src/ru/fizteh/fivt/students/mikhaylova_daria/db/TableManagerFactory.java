@@ -26,15 +26,14 @@ public class TableManagerFactory implements TableProviderFactory, AutoCloseable 
     }
 
     public void close() {
-        if (isClosed) {
-            throw new IllegalArgumentException("This factory is closed");
-        }
-        isClosed = true;
-        for (TableManager manager: providers) {
-            try {
-                manager.close();
-            } catch (IllegalStateException e) {
+        if (!isClosed) {
+            isClosed = true;
+            for (TableManager manager: providers) {
+                try {
+                    manager.close();
+                } catch (IllegalStateException e) {
 
+                }
             }
         }
     }

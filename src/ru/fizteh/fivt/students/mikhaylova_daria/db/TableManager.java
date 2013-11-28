@@ -33,7 +33,6 @@ public class TableManager implements TableProvider, AutoCloseable {
     private File mainDir;
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
-    private final Lock myReadLock = readWriteLock.readLock();
 
     TableManager(String nameMainDir) throws IllegalArgumentException, IOException {
         if (nameMainDir == null) {
@@ -462,12 +461,13 @@ public class TableManager implements TableProvider, AutoCloseable {
                 table.close();
             }
             bidDataBase.clear();
-        } else {
-            throw new IllegalStateException("This provider is closed");
         }
     }
 
     public String toString() {
+        if (isClosed) {
+            throw new IllegalStateException("table is closed");
+        }
         return this.getClass().getSimpleName() + "[" + mainDir.toPath().toAbsolutePath() + "]";
     }
 }
