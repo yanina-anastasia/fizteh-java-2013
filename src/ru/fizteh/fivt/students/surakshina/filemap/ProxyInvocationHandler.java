@@ -38,7 +38,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
         }
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         StringWriter writerString = new StringWriter();
-        xmlWriter = factory.createXMLStreamWriter(writer);
+        xmlWriter = factory.createXMLStreamWriter(writerString);
         buildLog(method, args, exception, value);
         xmlWriter.writeEndElement();
         xmlWriter.flush();
