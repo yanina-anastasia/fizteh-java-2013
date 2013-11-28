@@ -5,6 +5,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,7 +30,15 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         log.put("timestamp", System.currentTimeMillis());
         log.put("class", target.getClass().getName());
         log.put("method", method.getName());
-        log.put("arguments", new JSONArray(args));
+        
+        
+        JSONArray arguments = new JSONArray();
+        
+        for (int i = 0; i < args.length; ++i) {
+            logArgument(args[i], arguments, new IdentityHashMap<Object, Object>());
+        }
+        
+        log.put("arguments", arguments);
         
         try {
             result = method.invoke(target, args);
@@ -36,8 +47,6 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             log.put("thrown", targetException.toString());
             throw targetException;
         } catch (Exception e) {
-            throw new RuntimeException("unexpected invocation exception: "
-                                       + e.getMessage());
         } finally {
             if (result != null) {
                 log.put("returnValue", result);
@@ -46,6 +55,27 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             writer.write(log.toString() + '\n');
         }
         return result;
+    }
+    
+    private void logArgument(Object argument, JSONArray arguments, Map<Object, Object> cycles) {
+        if (argument == null) {
+            arguments.put(JSONObject.NULL);
+        } else if (cycles.containsKey(argument)) {
+            arguments.put("cyclic");
+        } else if (Iterable.class.isAssignableFrom(argument.getClass())) {
+            Object element;
+            JSONArray list = new JSONArray();
+            Iterator it = ((Iterable) argument).iterator();
+            while (it.hasNext()) {
+                element = it.next();
+                cycles.put(argument, null);
+                logArgument(element, list, cycles);
+                cycles.remove(argument);
+            }
+            arguments.put(list);
+        } else {
+            arguments.put(argument);
+        }
     }
 
 }

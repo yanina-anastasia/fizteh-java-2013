@@ -23,6 +23,8 @@ public class TestsForProxy {
     TableProvider tableProvider;
     Table table;
     
+    LoggingProxyFactory loggingProxyFactory;
+    
     Storeable value1;
     
     StringWriter writer;
@@ -33,18 +35,7 @@ public class TestsForProxy {
     @Before
     public void createTable() throws IOException {
         writer = new StringWriter();
-        LoggingProxyFactory loggingProxyFactory = new LoggingProxyFactoryImplementation();
-        File databaseDirectory = folder.newFolder("database");
-        TableProviderFactoryImplementation tableProviderFactoryImplementation = new TableProviderFactoryImplementation();
-        tableProviderFactory = (TableProviderFactory) loggingProxyFactory.wrap(writer, tableProviderFactoryImplementation, TableProviderFactory.class);
-        tableProvider = tableProviderFactory.create(databaseDirectory.toString());
-        
-        
-        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-        columnTypes.add(Boolean.class);
-        columnTypes.add(String.class);
-        columnTypes.add(Integer.class);
-        table = tableProvider.createTable("tableName", columnTypes);
+        loggingProxyFactory = new LoggingProxyFactoryImplementation();
         
         /*value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, true);
@@ -53,9 +44,40 @@ public class TestsForProxy {
     }
     
     @Test
-    public void getName() {
-        Assert.assertEquals("tableName", table.getName());
+    public void arrayListCyclic() {
+        ArrayList array = new ArrayList();
+        
+        array.add(array);
+        
+        List wrappedList = (List) loggingProxyFactory.wrap(writer, array, List.class); 
+        
+        wrappedList.addAll(array);
+        //ArrayList newList = new ArrayList(wrappedList);
         
         System.out.println(writer.toString());
     }
+    
+    /*@Test
+    public void getName() throws IOException {
+        
+        File databaseDirectory = folder.newFolder("database");
+        TableProviderFactoryImplementation tableProviderFactoryImplementation = new TableProviderFactoryImplementation();
+        tableProviderFactory = (TableProviderFactory) loggingProxyFactory.wrap(writer, tableProviderFactoryImplementation, TableProviderFactory.class);
+        TableProvider tableProviderImplementation = tableProviderFactory.create(databaseDirectory.toString());
+        TableProvider tableProvider = (TableProvider) loggingProxyFactory.wrap(writer, tableProviderImplementation, TableProvider.class);;
+        
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        columnTypes.add(Boolean.class);
+        columnTypes.add(String.class);
+        columnTypes.add(Integer.class);
+        
+        
+        table = tableProvider.createTable("tableName", columnTypes);
+        
+        Assert.assertEquals("tableName", table.getName());
+        
+        System.out.println(writer.toString());
+        
+        
+    }*/
 }
