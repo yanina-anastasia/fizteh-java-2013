@@ -64,7 +64,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        
+
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
         }
@@ -161,7 +161,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        
+
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
         }
@@ -204,7 +204,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        
+
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
         }
@@ -222,9 +222,14 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
             lock.unlock();
         }
     }
-    
+
     protected void closeTable(String name) {
-        tableBase.remove(name);
+        lock.lock();
+        try {
+            tableBase.remove(name);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public static void doDelete(File currFile) throws RuntimeException {
@@ -292,7 +297,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        
+
         TableRow row = new TableRow(table);
         XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
         StringReader str = new StringReader(value);
@@ -367,7 +372,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        
+
         checkColumns(table, value);
 
         XMLOutputFactory xmlFactory = XMLOutputFactory.newFactory();
@@ -406,7 +411,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        
+
         return new TableRow(table);
     }
 
@@ -415,7 +420,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         if (isClosed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        
+
         TableRow row = new TableRow(table);
         if (values.size() != table.getColumnsCount()) {
             throw new ColumnFormatException("Incorrect num of columns");
@@ -427,22 +432,22 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {        
+    public void close() throws Exception {
         for (Entry<String, DataBase> entry : tableBase.entrySet()) {
             entry.getValue().close();
         }
         isClosed = true;
     }
-    
+
     @Override
     public String toString() {
-        
+
         StringBuffer str = new StringBuffer(getClass().getSimpleName());
         str.append("[");
         str.append(oldPath);
         str.append("]");
         return str.toString();
-        
+
     }
 
 }

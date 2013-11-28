@@ -356,14 +356,16 @@ public class DataBase implements Table, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {        
-        rollback();
+    public void close() throws Exception {
+        if (!closed) {
+            rollback();
+            closed = true;
+        }
         provider.closeTable(currTable);
-        closed = true;
     }
-    
+
     @Override
-    public String toString() {        
+    public String toString() {
         StringBuffer str = new StringBuffer(getClass().getSimpleName());
         str.append("[");
         str.append(rootDir + currTable);

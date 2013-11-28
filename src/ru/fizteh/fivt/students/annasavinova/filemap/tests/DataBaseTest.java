@@ -269,6 +269,7 @@ public class DataBaseTest {
         prov.createTable("testTable", list);
         DataBase tmp = (DataBase) prov.getTable("testTable");
         tmp.close();
+        tmp.close();
         DataBase tmp2 = (DataBase) prov.getTable("testTable");
         assertNotSame(tmp, tmp2);
         tmp2.size();
