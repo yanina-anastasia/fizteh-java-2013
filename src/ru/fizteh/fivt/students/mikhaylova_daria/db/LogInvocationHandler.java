@@ -85,9 +85,6 @@ public class LogInvocationHandler implements InvocationHandler {
 
 
     LogInvocationHandler(Object implementation, Writer writer) {
-        if (implementation == null || writer == null) {
-            throw new IllegalArgumentException("Argument is null");
-        }
         this.proxied = implementation;
         this.writer = writer;
     }
@@ -111,22 +108,19 @@ public class LogInvocationHandler implements InvocationHandler {
         } catch (InvocationTargetException e) {
             record.put("thrown", e.getTargetException().toString());
             throw e.getTargetException();
-        } catch (Exception e) {
-            throw new RuntimeException("unexpected invocation exception: "
-                    + e.getMessage());
         } finally {
             if (returnedValue != null) {
                 record.put("returnValue", returnedValue);
             }
-        }
-        writeLock.lock();
-        try {
-            writer.write(record.toString());
-            writer.write("\n");
-        } catch (IOException e) {
+            writeLock.lock();
+            try {
+                writer.write(record.toString());
+                writer.write("\n");
+            } catch (IOException e) {
 
-        } finally {
-            writeLock.unlock();
+            } finally {
+                writeLock.unlock();
+            }
         }
         return returnedValue;
     }
