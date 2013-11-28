@@ -33,7 +33,7 @@ public class MyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws NoSuchMethodException, XMLStreamException {
-        if (method.getDeclaringClass() == Object.class) {
+        if (method.getDeclaringClass() == Object.class && implementation.getClass().getMethod(method.getName(), method.getParameterTypes()) == null) {
             return null;
         }
         Object result = null;
