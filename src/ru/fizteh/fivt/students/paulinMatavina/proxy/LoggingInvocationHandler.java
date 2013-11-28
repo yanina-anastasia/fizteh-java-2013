@@ -21,13 +21,16 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {  
-        Object returnValue = null;
+        Object returnValue = Void.class;
         Throwable exception = null;
         try {
-            returnValue = method.invoke(implementation, args);
+            if (method.getReturnType() != Void.class) {
+                returnValue = method.invoke(implementation, args);
+            } else {
+                method.invoke(implementation, args);
+            }
         } catch (InvocationTargetException e) {
             exception = e.getTargetException();
-            throw e.getTargetException();
         } catch (Throwable e) {
             //do nothing
         } 
@@ -35,6 +38,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
         if (method.getDeclaringClass() != Object.class) {
             writer.write(composeLogString(method, args, exception, returnValue) + "\n");
         }
+        
+        if (exception != null) {
+            throw exception;
+        }
+        
         return returnValue;
     }
 

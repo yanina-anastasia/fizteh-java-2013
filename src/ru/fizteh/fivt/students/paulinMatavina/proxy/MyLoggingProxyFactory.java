@@ -19,6 +19,6 @@ public class MyLoggingProxyFactory implements LoggingProxyFactory {
         }
         
         return Proxy.newProxyInstance(implementation.getClass().getClassLoader(),
-                    new Class[]{interfaceClass}, handler);
+                    new Class<?>[]{interfaceClass}, handler);
     }
 }
