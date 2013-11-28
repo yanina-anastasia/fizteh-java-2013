@@ -137,12 +137,12 @@ public class MyStoreable implements Storeable {
                     return Byte.valueOf(number.byteValue());
                 }
             }
-        } else if (expectedClass == Float.class) {
-            if (object.getClass() == Double.class) {
-                return Float.valueOf(((Double) object).floatValue());
-            }
         } else if (expectedClass == Double.class) {
-            if (object.getClass() == Double.class) {
+            if (object.getClass() == Float.class) {
+                return Double.valueOf(((Float) object).doubleValue());
+            }
+        } else if (expectedClass == Float.class) {
+            if (object.getClass() == Float.class) {
                 return object;
             }
         } else if (expectedClass == String.class) {
