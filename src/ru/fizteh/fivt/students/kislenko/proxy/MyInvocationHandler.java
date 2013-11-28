@@ -91,7 +91,6 @@ public class MyInvocationHandler implements InvocationHandler {
     private void logArgument(XMLStreamWriter w, Object arg) throws XMLStreamException {
         if (arg == null) {
             w.writeEmptyElement("null");
-            identityHashMap.get().remove(arg);
             return;
         }
         if (arg.getClass().isAssignableFrom(Class.class)) {
