@@ -93,11 +93,11 @@ public class MyInvocationHandler implements InvocationHandler {
             w.writeEmptyElement("null");
             return;
         }
-        if (arg.getClass().isAssignableFrom(Class.class)) {
+        if (Class.class.isAssignableFrom(arg.getClass())) {
             w.writeCharacters(arg.getClass().getName());
             return;
         }
-        if (List.class.isAssignableFrom(arg.getClass().getSuperclass())) {
+        if (List.class.isAssignableFrom(arg.getClass())) {
             w.writeStartElement("list");
             List list = (List) arg;
             for (Object e : list) {
