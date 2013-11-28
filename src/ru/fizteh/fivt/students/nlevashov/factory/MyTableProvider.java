@@ -14,8 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 import java.io.IOException;
 import java.text.ParseException;
@@ -32,8 +31,7 @@ import java.util.List;
  */
 public class MyTableProvider implements TableProvider {
 
-    private final ReentrantReadWriteLock readWriteLocker = new ReentrantReadWriteLock(true);
-    private final Lock locker = readWriteLocker.writeLock();
+    private final ReentrantLock locker = new ReentrantLock(true);
 
     HashMap<String, Table> tables;
     Path dbPath;
