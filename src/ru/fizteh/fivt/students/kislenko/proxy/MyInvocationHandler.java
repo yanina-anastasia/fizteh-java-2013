@@ -68,11 +68,6 @@ public class MyInvocationHandler implements InvocationHandler {
                 writer.get().writeEndElement();
             }
         } catch (InvocationTargetException e) {
-            writer.get().writeStartElement("thrown");
-            writer.get().writeCharacters(e.getTargetException().toString());
-            writer.get().writeEndDocument();
-            writer.get().writeCharacters("\n");
-            writer.get().flush();
             throw e.getTargetException();
         } catch (Exception e) {
             writer.get().writeStartElement("thrown");
@@ -164,7 +159,7 @@ public class MyInvocationHandler implements InvocationHandler {
         }
         if (Method.class.isAssignableFrom(arg.getClass())) {
             Method method = (Method) arg;
-            w.writeCharacters(method.getDeclaringClass().getCanonicalName() + "." + method.getName());
+            w.writeCharacters(method.getName());
             return;
         }
         w.writeCharacters(arg.toString());
