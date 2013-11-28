@@ -356,11 +356,7 @@ public class DataBase implements Table, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
-        
+    public void close() throws Exception {        
         rollback();
         provider.closeTable(currTable);
         closed = true;

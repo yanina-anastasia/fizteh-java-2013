@@ -427,11 +427,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
-        
+    public void close() throws Exception {        
         for (Entry<String, DataBase> entry : tableBase.entrySet()) {
             entry.getValue().close();
         }
