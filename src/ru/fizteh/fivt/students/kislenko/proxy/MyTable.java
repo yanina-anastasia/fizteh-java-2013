@@ -280,6 +280,10 @@ public class MyTable implements Table, AutoCloseable {
         return types.get(columnIndex);
     }
 
+    public ArrayList<Class<?>> getTypes() {
+        return types;
+    }
+
     public HashMap<String, Storeable> getMap() {
         assertClosed();
         return storage;

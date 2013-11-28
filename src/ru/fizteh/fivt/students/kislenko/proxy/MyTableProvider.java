@@ -94,6 +94,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             // + " exit with name that doesn't contains in name list");
             return null;
         }
+        if (tables.get(name).isClosed()) {
+            return createTable(name, tables.get(name).getTypes());
+        }
         MyTable table = new MyTable(name, columnTypes, this);
         tables.put(name, table);
         nameOfCurrentCreatingTable = null;
