@@ -185,12 +185,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public Table getTable(String name) throws IllegalArgumentException, RuntimeException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         isBadName(name);
         return allFileMapTablesHashtable.get(name);
     }
@@ -198,12 +193,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException,
             IllegalArgumentException, RuntimeException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         isBadName(name);
         if (columnTypes == null) {
             throw new IllegalArgumentException("Null column type list");
@@ -252,12 +242,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         isBadName(name);
         write.lock();
         try {
@@ -281,12 +266,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         if (table == null) {
             throw new ParseException("Table is null", 0);
         }
@@ -315,12 +295,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         if (value == null) {
             return null;
         }
@@ -337,23 +312,13 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public Storeable createFor(Table table) {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         return new MyStoreable(table, values);
     }
 
@@ -364,16 +329,14 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public void close() {
-        write.lock();
-        try {
+        checkStatus();
+        if (!isOpen) {
             for (String tableName : allFileMapTablesHashtable.keySet()) {
                 if (allFileMapTablesHashtable.get(tableName).isOpen()) {
                     allFileMapTablesHashtable.get(tableName).close();
                 }
             }
             isOpen = false;
-        } finally {
-            write.unlock();
         }
     }
 }

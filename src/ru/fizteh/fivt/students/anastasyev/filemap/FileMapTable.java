@@ -270,23 +270,13 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public String getName() {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         return currentFileMapTable.getName();
     }
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         if (isEmptyString(key) || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Wrong key");
         }
@@ -307,12 +297,7 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         if (isEmptyString(key) || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Wrong key");
         }
@@ -331,12 +316,7 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         if (isEmptyString(key) || key.split("\\s").length > 1) {
             throw new IllegalArgumentException("Wrong key");
         }
@@ -354,12 +334,7 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public int commit() throws RuntimeException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         class Pair {
             int dir;
             int dat;
@@ -419,12 +394,7 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public int rollback() throws RuntimeException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         int changesCount;
         read.lock();
         try {
@@ -438,12 +408,7 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public int size() {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         read.lock();
         try {
             return oldSize() + changesSize();
@@ -453,12 +418,7 @@ public class FileMapTable implements Table, AutoCloseable {
     }
 
     public int uncommittedChangesCount() {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         read.lock();
         try {
             return changesCount();
@@ -469,23 +429,13 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public int getColumnsCount() {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         return columnTypes.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         if (columnIndex < 0 || columnIndex >= columnTypes.size()) {
             throw new IndexOutOfBoundsException(columnIndex + " outOfBounds");
         }
@@ -494,12 +444,7 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public String toString() {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
+        checkStatus();
         return getClass().getSimpleName() + "[" + currentFileMapTable.getAbsolutePath() + "]";
     }
 
@@ -509,14 +454,9 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public void close() {
-        write.lock();
-        try {
-            if (!isOpen) {
-                rollback();
-                isOpen = false;
-            }
-        } finally {
-            write.unlock();
+        if (!isOpen()) {
+            rollback();
+            isOpen = false;
         }
     }
 }
