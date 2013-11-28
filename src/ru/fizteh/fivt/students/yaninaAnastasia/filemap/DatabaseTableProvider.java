@@ -48,16 +48,16 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
         }
         lock.readLock().lock();
         try {
+            //
             if (!tables.containsKey(name)) {
                 return null;
             }
             if (tables.get(name).isClosed) {
-                createTable(name, tables.get(name).columnTypes);
                 if (!open()) {
                     throw new IllegalArgumentException("Wrong format");
                 }
             }
-
+                //
             DatabaseTable table = tables.get(name);
 
             if (table == null) {
