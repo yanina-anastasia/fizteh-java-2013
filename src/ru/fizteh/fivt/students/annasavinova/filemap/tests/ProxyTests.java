@@ -35,6 +35,7 @@ public class ProxyTests {
         str[0] = "lala";
         handler.invoke(prov.getClass(), prov.getClass().getMethod("getTable", String.class), str);
         writer.flush();
+        
     }
 
 }

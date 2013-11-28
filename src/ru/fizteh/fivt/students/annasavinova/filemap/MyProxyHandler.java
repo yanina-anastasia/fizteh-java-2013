@@ -29,7 +29,7 @@ public class MyProxyHandler implements InvocationHandler {
         }
         Object result = null;
         Throwable exception = null;
-        
+
         if (method.getReturnType().equals(Void.class)) {
             result = Void.class;
         } else {
@@ -66,9 +66,14 @@ public class MyProxyHandler implements InvocationHandler {
             log.put("thrown", exception.toString());
             return log;
         }
-        
+        if (result != null && result.equals(Void.class)) {
+            return log;
+        }
+
         Object value = null;
-        if (result != null && result != Void.class) {
+        if (result == null) {
+            value = JSONObject.NULL;
+        } else {
             if (result.getClass().isArray()) {
                 value = createJSONArray((Object[]) result, new IdentityHashMap<>());
             } else if (Iterable.class.isAssignableFrom(result.getClass())) {
@@ -76,9 +81,8 @@ public class MyProxyHandler implements InvocationHandler {
             } else {
                 value = result;
             }
-            log.put("returnValue", value);
         }
-        
+        log.put("returnValue", value);
         return log;
     }
 
