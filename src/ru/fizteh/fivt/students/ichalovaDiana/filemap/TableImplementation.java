@@ -487,18 +487,18 @@ public class TableImplementation implements Table, AutoCloseable {
     public void close() throws Exception {
         rollback();
         
-        isClosed();
-        
-        writeLock.lock();
-        try {
-            if (!isClosed) {
-                tableProvider.reinitialize(tableName);
+        if (!isClosed) {
+            writeLock.lock();
+            try {
+                if (!isClosed) {
+                    tableProvider.reinitialize(tableName);
+                }
+            } finally {
+                writeLock.unlock();
             }
-        } finally {
-            writeLock.unlock();
+            
+            isClosed = true;
         }
-        
-        isClosed = true;
         
     }
     

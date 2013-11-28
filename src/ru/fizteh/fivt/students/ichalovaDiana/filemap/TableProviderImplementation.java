@@ -384,8 +384,6 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
 
     @Override
     public void close() throws Exception {
-        isClosed();
-        
         isClosed = true;
     }
     

@@ -111,9 +111,9 @@ public class TableProviderFactoryImplementation implements TableProviderFactory,
 
     @Override
     public void close() throws Exception {
-        isClosed();
-        
-        isClosed = true;
+        if (!isClosed) {
+            isClosed = true;
+        }
     }
 
     private void isClosed() {
