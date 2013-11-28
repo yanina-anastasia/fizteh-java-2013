@@ -28,15 +28,19 @@ public class LogInvocationHandler implements InvocationHandler {
         }
 
 
-        private JSONArray recursiveLog(Object arg) {
-            JSONArray creatingArray = new JSONArray();
+        private JSONArray recursiveLog(Object arg, JSONArray creatingArray) {
+            JSONArray newCreatingArray = new JSONArray();
             if (Iterable.class.isAssignableFrom(arg.getClass())) {
                 if (identifyAttended.containsKey(arg)) {
                     creatingArray.put("cyclic");
                 } else {
                     identifyAttended.put(arg, arg);
                     for (Object obj: (Iterable) arg) {
-                        creatingArray.put(recursiveLog(obj));
+                        try {
+                            newCreatingArray.put(recursiveLog(obj, newCreatingArray));
+                        } catch (java.lang.ClassCastException e) {
+                            newCreatingArray.put(arg.toString());
+                        }
                     }
                     identifyAttended.remove(arg);
                 }
@@ -47,7 +51,11 @@ public class LogInvocationHandler implements InvocationHandler {
                     identifyAttended.put(arg, arg);
                     identifyAttended.put(arg, arg);
                     for (Object obj: (Object[]) arg) {
-                        creatingArray.put(recursiveLog(obj));
+                        try {
+                            newCreatingArray.put(recursiveLog(obj, newCreatingArray));
+                        } catch (java.lang.ClassCastException e) {
+                            creatingArray.put(obj.toString());
+                        }
                     }
                     identifyAttended.remove(arg);
                 }
@@ -59,12 +67,16 @@ public class LogInvocationHandler implements InvocationHandler {
 
 
         JSONArray getJSONArray() {
-                return  recursiveLog(argument);
+            JSONArray creatingArray = new JSONArray();
+            return  recursiveLog(argument, creatingArray);
         }
     }
 
 
     LogInvocationHandler(Object implementation, Writer writer) {
+        if (implementation == null || writer == null) {
+            throw new IllegalArgumentException("Argument is null");
+        }
         this.proxied = implementation;
         this.writer = writer;
     }
