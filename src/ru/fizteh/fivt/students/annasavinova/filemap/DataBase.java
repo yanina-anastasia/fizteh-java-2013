@@ -367,11 +367,10 @@ public class DataBase implements Table, AutoCloseable {
     }
     
     @Override
-    public String toString() {
-        
+    public String toString() {        
         StringBuffer str = new StringBuffer(getClass().getSimpleName());
         str.append("[");
-        str.append(rootDir);
+        str.append(rootDir + currTable);
         str.append("]");
         return str.toString();
     }
