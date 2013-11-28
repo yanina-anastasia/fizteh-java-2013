@@ -21,14 +21,10 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {  
-        Object returnValue = Void.class;
+        Object returnValue = null;
         Throwable exception = null;
         try {
-            if (method.getReturnType() != Void.class) {
-                returnValue = method.invoke(implementation, args);
-            } else {
-                method.invoke(implementation, args);
-            }
+            returnValue = method.invoke(implementation, args);
         } catch (InvocationTargetException e) {
             exception = e.getTargetException();
         } catch (Throwable e) {
@@ -89,9 +85,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
     }
 
     private void writeArguments(XMLStreamWriter writer, Object[] args) throws XMLStreamException {
+        if (args == null) {
+            return;
+        }
         for (int i = 0; i < args.length; i++) {
             writer.writeStartElement("argument");
-
             if (args[i] == null) {
                 writeNull(writer);
             } else {
@@ -116,19 +114,23 @@ public class LoggingInvocationHandler implements InvocationHandler {
             xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
             xmlWriter.writeAttribute("name", method.getName());
             xmlWriter.writeAttribute("class", implementation.getClass().getName());
-
+            
             xmlWriter.writeStartElement("arguments");
             writeArguments(xmlWriter, args);
             xmlWriter.writeEndElement();
-            
             if (exception != null) {
                 xmlWriter.writeStartElement("thrown");
                 xmlWriter.writeCharacters(exception.getClass().getName() + ": " + exception.getMessage());
                 xmlWriter.writeEndElement();
             } else {
-                if (method.getReturnType() != Void.class) {
+                System.out.println(method.getReturnType());
+                if (method.getReturnType() != Void.TYPE) {
                     xmlWriter.writeStartElement("return");
-                    xmlWriter.writeCharacters(returnValue.toString());
+                    if (returnValue == null) {
+                        writeNull(xmlWriter);
+                    } else {
+                        xmlWriter.writeCharacters(returnValue.toString());
+                    }
                     xmlWriter.writeEndElement();
                 }
             }
