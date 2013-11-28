@@ -7,8 +7,9 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -18,19 +19,20 @@ import ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProviderFactor
 
 public class TableTest {
 
-
-    private static final String DATA_BASE_DIR = "./src/ru/fizteh/fivt/students/irinapodorozhnaya/test";
-    private File f = new File(DATA_BASE_DIR);
+    private File f;
     private Table testTable;
     private TableProvider provider;
     private List<Class<?>> columnType = new ArrayList<>();
     private Storeable val1;
     private Storeable val2;
-    
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Before
     public void setUp() throws Exception {
-        f.mkdirs();
-        provider = new MyTableProviderFactory().create(DATA_BASE_DIR);
+        f = folder.newFolder("test");
+        provider = new MyTableProviderFactory().create(f.getAbsolutePath());
         columnType.add(Integer.class);
         columnType.add(Double.class);
         testTable = provider.createTable("table", columnType);
@@ -154,7 +156,7 @@ public class TableTest {
     }
 
     @Test (expected = ColumnFormatException.class)
-    public void incorrectStoreableSize() throws Exception{
+    public void incorrectStoreableSize() throws Exception {
         List<Object> list = new ArrayList<>();
         columnType.add(String.class);
         list.add(5);
@@ -167,7 +169,7 @@ public class TableTest {
     }
 
     @Test (expected = ColumnFormatException.class)
-    public void lessStoreableSize() throws Exception{
+    public void lessStoreableSize() throws Exception {
         List<Object> list = new ArrayList<>();
         columnType.remove(1);
         list.add(5);
@@ -178,7 +180,7 @@ public class TableTest {
     }
 
     @Test (expected = ColumnFormatException.class)
-    public void incorrectStoreableType() throws Exception{
+    public void incorrectStoreableType() throws Exception {
         List<Object> list = new ArrayList<>();
         columnType.set(1, String.class);
         list.add(5);

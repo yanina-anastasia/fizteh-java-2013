@@ -39,7 +39,6 @@ public class DistributedSaver {
 
             if (isBucketEmpty) {
                 MultifileMapUtils.deleteFile(bucketDirectory);
-                continue;
             }
 
             for (int fileNumber = 0; fileNumber < FILES_PER_DIR; ++fileNumber) {
@@ -55,5 +54,17 @@ public class DistributedSaver {
                 FilemapWriter.saveToFile(file.getAbsolutePath(), keysToSave.get(fileNumber), builder);
             }
         }
+    }
+
+    private static int getDirNumber(String key) {
+        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
+        int firstSymbol = Math.abs(bytes[0]);
+        return firstSymbol % BUCKET_COUNT;
+    }
+
+    private static int getFileNumber(String key) {
+        byte[] bytes = key.getBytes(AbstractStorage.CHARSET);
+        int firstSymbol = Math.abs(bytes[0]);
+        return firstSymbol / BUCKET_COUNT % FILES_PER_DIR;
     }
 }

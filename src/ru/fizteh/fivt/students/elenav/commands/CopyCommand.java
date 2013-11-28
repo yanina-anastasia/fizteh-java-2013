@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
@@ -12,7 +11,7 @@ public class CopyCommand extends AbstractCommand {
 	public CopyCommand(FilesystemState s) { 
 		super(s, "cp", 2);
 	}
-	public void execute(String args[], PrintStream s) throws IOException {
+	public void execute(String args[]) throws IOException {
 		File sourse = new File(absolutePath(args[1]));
 		File destination = new File(absolutePath(args[2]));
 		if (!sourse.getCanonicalPath().equals(destination.getCanonicalPath())) {

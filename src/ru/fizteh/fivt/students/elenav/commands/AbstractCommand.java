@@ -10,7 +10,7 @@ public abstract class AbstractCommand implements Command {
 	private final String name;
 	private final int argNumber;
 	
-	AbstractCommand(FilesystemState s, String nm, int n) {
+	protected AbstractCommand(FilesystemState s, String nm, int n) {
 		state = s;
 		name = nm;
 		argNumber = n;
@@ -28,7 +28,7 @@ public abstract class AbstractCommand implements Command {
 		return state;
 	}
 	
- 	protected String absolutePath(String path) throws IOException {
+ 	public String absolutePath(String path) throws IOException {
  		File f = new File(path);
  		if (!f.isAbsolute()) {
  			f = new File(state.getWorkingDirectory(), path);

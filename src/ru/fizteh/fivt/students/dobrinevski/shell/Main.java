@@ -26,6 +26,7 @@ public class Main {
         if (!dbsDir.isDirectory()) {
             throw new Exception(dbsDir + " doesn't exist or is not a directory");
         }
+
         Shell sl = new Shell(cmdMap, "user.dir");
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();

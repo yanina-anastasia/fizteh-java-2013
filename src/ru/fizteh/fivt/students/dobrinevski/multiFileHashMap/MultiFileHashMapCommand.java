@@ -2,11 +2,15 @@ package ru.fizteh.fivt.students.dobrinevski.multiFileHashMap;
 
 import ru.fizteh.fivt.students.dobrinevski.shell.Command;
 
-public abstract class MultiFileHashMapCommand extends Command {
-    MyMultiHashMap parent;
+import java.io.File;
 
-        MultiFileHashMapCommand(int argCount, MyMultiHashMap prnt) {
-            super(argCount);
-            parent = prnt;
-        }
+public abstract class MultiFileHashMapCommand extends Command {
+    public MyMultiHashMap parent;
+    public File root;
+
+    public MultiFileHashMapCommand(int argCount, MyMultiHashMap prnt, File realRoot) {
+        super(argCount);
+        parent = prnt;
+        root = realRoot;
     }
+}

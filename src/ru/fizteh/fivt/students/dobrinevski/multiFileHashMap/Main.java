@@ -10,46 +10,33 @@ public class Main {
     private static HashMap<String, Command> cmdMap = new HashMap<String, Command>();
 
     static {
-        dtb = new MyMultiHashMap();
-        MultiFileHashMapCommand buf = new MultiFileHashMapCommands.Create(dtb);
-        cmdMap.put("create", buf);
-        buf =  new MultiFileHashMapCommands.Drop(dtb);
-        cmdMap.put("drop", buf);
-        buf = new MultiFileHashMapCommands.Use(dtb);
-        cmdMap.put("use", buf);
-        buf = new MultiFileHashMapCommands.Put(dtb);
-        cmdMap.put("put", buf);
-        buf = new MultiFileHashMapCommands.Get(dtb);
-        cmdMap.put("get", buf);
-        buf = new MultiFileHashMapCommands.Remove(dtb);
-        cmdMap.put("remove", buf);
-        buf = new MultiFileHashMapCommands.Exit(dtb);
-        cmdMap.put("exit", buf);
-        }
-
-    public static void main(String[] args) throws Exception {
         try {
-            String way = System.getProperty("fizteh.db.dir");
+            String way = System.getProperty("user.dir");
             if (way == null) {
-                throw new Exception("Illegal table");
+                throw new Exception("Illegal way");
             }
             File dbsDir = new File(way);
             if (!dbsDir.isDirectory()) {
                 throw new Exception(dbsDir + " doesn't exist or is not a directory");
             }
-         /*  File[] files = dbsDir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    if(file.isFile()) {
-                    throw new Exception("It's a file in a root directory.");
-                    }
-                }
-            }  */
+            dtb = new MyMultiHashMap();
+            cmdMap.put("create", new MultiFileHashMapCommands.Create(dtb, dbsDir));
+            cmdMap.put("drop", new MultiFileHashMapCommands.Drop(dtb, dbsDir));
+            cmdMap.put("put", new MultiFileHashMapCommands.Put(dtb, dbsDir));
+            cmdMap.put("get", new MultiFileHashMapCommands.Get(dtb, dbsDir));
+            cmdMap.put("remove", new MultiFileHashMapCommands.Remove(dtb, dbsDir));
+            cmdMap.put("use", new MultiFileHashMapCommands.Use(dtb, dbsDir));
+            cmdMap.put("exit", new MultiFileHashMapCommands.Exit(dtb, dbsDir));
+
+
         } catch (Exception e) {
             System.out.println("Error while opening database: " + (e.getMessage()));
             System.exit(1);
         }
-        Shell sl = new Shell(cmdMap, "fizteh.db.dir");
+    }
+
+    public static void main(String[] args) throws Exception {
+        Shell sl = new Shell(cmdMap, "user.dir");
         if (args.length > 0) {
             StringBuilder builder = new StringBuilder();
             for (String arg : args) {

@@ -1,14 +1,13 @@
 package ru.fizteh.fivt.students.eltyshev.storable;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.CommandParser;
 import ru.fizteh.fivt.students.eltyshev.storable.database.TableInfo;
-import ru.fizteh.fivt.students.eltyshev.storable.xml.XmlDeserializer;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StoreableUtils {
 
@@ -76,9 +75,9 @@ public class StoreableUtils {
         switch (TypesFormatter.getSimpleName(type)) {
             case "String":
                 String stringValue = (String) value;
-                if (checkStringCorrect(stringValue)) {
+                /*if (checkStringCorrect(stringValue)) {
                     throw new ParseException("value cannot be null", 0);
-                }
+                }    */
                 break;
         }
     }

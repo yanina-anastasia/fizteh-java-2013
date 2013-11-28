@@ -1,264 +1,452 @@
 package ru.fizteh.fivt.students.ichalovaDiana.filemap;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class TableImplementation implements Table {
-    
-    private final Path databaseDirectory;
+    private static final int DIR_NUM = 16;
+    private static final int FILE_NUM = 16;
+
     private final String tableName;
+    private final TableProvider tableProvider;
+    private final List<Class<?>> columnTypes;
     
-    private Map<String, String> putChanges = new Hashtable<String, String>();
-    private Set<String> removeChanges = new HashSet<String>();
+    private final FileDatabase[][] database = new FileDatabase[DIR_NUM][FILE_NUM];
+
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
     
-    private int originTableSize;
-    private int currentTableSize;
+    private ThreadLocal<Map<String, Storeable>[][]> putChanges = new ThreadLocal<Map<String, Storeable>[][]>() {
+        @Override
+        protected Map<String, Storeable>[][] initialValue() {
+            Map<String, Storeable>[][] tempMapArray = new HashMap[DIR_NUM][FILE_NUM];
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                    tempMapArray[nDirectory][nFile] = new HashMap<String, Storeable>();
+                }
+            }
+            return tempMapArray;
+        }
+    };
+    private ThreadLocal<Set<String>[][]> removeChanges = new ThreadLocal<Set<String>[][]>() {
+        @Override
+        protected Set<String>[][] initialValue() {
+            Set<String>[][] tempSetArray = new HashSet[DIR_NUM][FILE_NUM];
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                    tempSetArray[nDirectory][nFile] = new HashSet<String>();
+                }
+            }
+            return tempSetArray;
+        }
+    };
     
-    public TableImplementation(Path databaseDirectory, String tableName) {
-        this.databaseDirectory = databaseDirectory;
+    public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
+            String tableName, List<Class<?>> columnTypes) throws IOException {
+
+        this.tableProvider = tableProvider;
         this.tableName = tableName;
-        currentTableSize = originTableSize = computeSize();
+        this.columnTypes = columnTypes;
+        
+        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+            for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                database[nDirectory][nFile] = new FileDatabase(databaseDirectory.resolve(tableName)
+                        .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"));
+            }
+        }
     }
     
     @Override
-    public String getName() { 
+    public String getName() {
         return tableName;
     }
 
     @Override
-    public String get(String key) {
+    public Storeable get(String key) {
+        tableExists();
         
-        if (!isValidKey(key)) {
-            throw new IllegalArgumentException("Invalid key");
-        }
+        isValidKey(key);
         
-        String value;
+        Storeable value;
         
-        value = putChanges.get(key);
+        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
+        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+        
+        value = putChanges.get()[nDirectory][nFile].get(key);
         if (value != null) {
             return value;
         }
         
-        if (removeChanges.contains(key)) {
+        if (removeChanges.get()[nDirectory][nFile].contains(key)) {
             return null;
         }
         
-        return getValueFromFile(key);
+        return getOriginValue(key);
     }
 
     @Override
-    public String put(String key, String value) {
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        tableExists();
         
-        if (!isValidKey(key)) {
-            throw new IllegalArgumentException("Invalid key");
-        }
-        if (!isValidValue(value)) {
-            throw new IllegalArgumentException("Invalid value");
-        }
+        isValidKey(key);
+        isValidValue(value);
         
-        String originValue = getValueFromFile(key);
-       
-        String prevValue = putChanges.get(key);
+        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
+        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+
+        Storeable prevValue = putChanges.get()[nDirectory][nFile].get(key);
+        putChanges.get()[nDirectory][nFile].put(key, value);
+        
         if (prevValue != null) {
-            if (value.equals(originValue)) {
-                putChanges.remove(key);
-            } else {
-                putChanges.put(key, value);
-            }
             return prevValue;
         }
         
-        if (removeChanges.contains(key)) {
-            if (value.equals(originValue)) {
-                removeChanges.remove(key);
-            } else {
-                removeChanges.remove(key);
-                putChanges.put(key, value);
-            }
-            currentTableSize += 1;
+        if (removeChanges.get()[nDirectory][nFile].contains(key)) {
+            removeChanges.get()[nDirectory][nFile].remove(key);
             return null;
         }
         
-        if (value.equals(originValue)) {
-            return originValue;
-        } else if (originValue == null) {
-            putChanges.put(key, value);
-            currentTableSize += 1;
-            return null;
-        } else {
-            putChanges.put(key, value);
-            return originValue;
-        }
+        return getOriginValue(key);
     }
 
     @Override
-    public String remove(String key) {
+    public Storeable remove(String key) {
+        tableExists();
         
-        if (!isValidKey(key)) {
-            throw new IllegalArgumentException("Invalid key");
-        }
+        isValidKey(key);
         
-        String originValue = getValueFromFile(key);
+        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
+        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        String prevValue = putChanges.get(key);
+        Storeable prevValue = putChanges.get()[nDirectory][nFile].get(key);
         if (prevValue != null) {
-            putChanges.remove(key);
-            if (originValue != null) {
-                removeChanges.add(key);
-            }
-            currentTableSize -= 1;
+            putChanges.get()[nDirectory][nFile].remove(key);
+            removeChanges.get()[nDirectory][nFile].add(key);
             return prevValue;
         }
         
-        if (removeChanges.contains(key)) {
+        if (removeChanges.get()[nDirectory][nFile].contains(key)) {
             return null;
         }
         
-        if (originValue != null) {
-            removeChanges.add(key);
-            currentTableSize -= 1;
-            return originValue;
-        } else {
-            return null;
-        }
+        removeChanges.get()[nDirectory][nFile].add(key);
+        
+        return getOriginValue(key);
     }
 
     @Override
     public int size() {
-        return currentTableSize;
+        tableExists();
+        
+        int size;
+        readLock.lock();
+        try {
+            size = computeOriginSize() + computeAdditionalSize();
+        } catch (IOException e) {
+            throw new RuntimeException("Error while computing size: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        } finally {
+            readLock.unlock();
+        }
+        
+        return size;
     }
 
     @Override
-    public int commit() {
-        int changesNumber = countChanges();
-        originTableSize = currentTableSize;
+    public int commit() throws IOException {
+        tableExists();
         
-        String value;
-        for (String key : putChanges.keySet()) {
-            value = putChanges.get(key);
-            putValueToFile(key, value);
+        int changesNumber;
+        writeLock.lock();
+        try {
+            changesNumber = countChanges();
+            
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                    if (!putChanges.get()[nDirectory][nFile].isEmpty() 
+                            || !removeChanges.get()[nDirectory][nFile].isEmpty()) {
+                        
+                        saveAllChangesToFile(nDirectory, nFile);  
+                    }
+                }
+            }
+        } finally {
+            writeLock.unlock();
         }
         
-        for (String key : removeChanges) {
-            removeValueFromFile(key);
+        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+            for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                putChanges.get()[nDirectory][nFile].clear();
+                removeChanges.get()[nDirectory][nFile].clear();
+            }
         }
         
-        putChanges.clear();
-        removeChanges.clear();
         return changesNumber;
     }
 
     @Override
     public int rollback() {
+        tableExists();
+        
         int changesNumber = countChanges();
-        currentTableSize = originTableSize;
-        putChanges.clear();
-        removeChanges.clear();
+        
+        for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+            for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                putChanges.get()[nDirectory][nFile].clear();
+                removeChanges.get()[nDirectory][nFile].clear();
+            }
+        }
         return changesNumber;
     }
     
+    @Override
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        return columnTypes.get(columnIndex);
+    }
+    
     public int countChanges() {
-        return putChanges.size() + removeChanges.size();
-    }
-    
-    private boolean isValidKey(final String key) {
-        if (key == null || key.trim().isEmpty() || key.contains(" ") || key.contains("\n") || key.contains("\t") 
-                || key.contains("\0")) {
-            return false;
+        int changesNumber = 0;
+        
+        readLock.lock();
+        try {
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                    for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                        
+                        Storeable value = putChanges.get()[nDirectory][nFile].get(key);
+                        Storeable originValue = getOriginValue(key);
+                        if (originValue == null || !storeableAreEqual(value, originValue)) {
+                            changesNumber += 1;
+                        }
+                    }
+                    
+                    for (String key : removeChanges.get()[nDirectory][nFile]) {
+                        
+                        Storeable originValue = getOriginValue(key);
+                        if (originValue != null) {
+                            changesNumber += 1;
+                        }
+                    }
+                }
+            }
+        } finally {
+            readLock.unlock();
         }
-        return true;
+        return changesNumber;
+        
     }
     
-    private boolean isValidValue(final String value) {
-        if (value == null || value.trim().isEmpty() || value.contains("\0")) {
-            return false;
+    private int computeAdditionalSize() {
+        int additionalSize = 0;
+        
+        readLock.lock();
+        try {
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                    for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                        
+                        Storeable originValue = getOriginValue(key);
+                        if (originValue == null) {
+                            additionalSize += 1;
+                        }
+                    }
+                    
+                    for (String key : removeChanges.get()[nDirectory][nFile]) {
+                        
+                        Storeable originValue = getOriginValue(key);
+                        if (originValue != null) {
+                            additionalSize -= 1;
+                        }
+                    }
+                }
+            }
+            
+        } finally {
+            readLock.unlock();
         }
-        return true;
+        
+        return additionalSize;
     }
     
-    private String getValueFromFile(String key) {
-        String value;
+    private int computeOriginSize() throws IOException {
+        int size = 0;
+        
+        readLock.lock();
+        try {
+                
+            for (int nDirectory = 0; nDirectory < DIR_NUM; ++nDirectory) {
+                for (int nFile = 0; nFile < FILE_NUM; ++nFile) {
+                    size += database[nDirectory][nFile].size();
+                }
+            }
+            
+        } finally {
+            readLock.unlock();
+        }
+        
+        return size;
+    }
+    
+    private void saveAllChangesToFile(int nDirectory, int nFile) throws IOException {
+        
+        try {
+            Storeable value;
+            String rawValue;
+            for (String key : putChanges.get()[nDirectory][nFile].keySet()) {
+                value = putChanges.get()[nDirectory][nFile].get(key);
+                rawValue = tableProvider.serialize(this, value);
+                database[nDirectory][nFile].put(key, rawValue);
+            }
+            
+            for (String key : removeChanges.get()[nDirectory][nFile]) {
+                database[nDirectory][nFile].remove(key);
+            }
+        } catch (IOException e) {
+            throw new IOException("Error while putting value to file: "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        } finally {
+            database[nDirectory][nFile].save();
+        }
+    }
+    
+    private String getValueFromDatabase(String key) throws IOException {
         int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
         int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            value = currentDatabase.get(key);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Error while getting value from file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-        }
-        return value;
-    }
-    
-    private String putValueToFile(String key, String value) {
-        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
+        return database[nDirectory][nFile].get(key);
         
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            return currentDatabase.put(key, value);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Error while putting value to file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-        }
     }
     
-    private String removeValueFromFile(String key) {
-        int nDirectory = DirectoryAndFileNumberCalculator.getnDirectory(key);
-        int nFile = DirectoryAndFileNumberCalculator.getnFile(key);
-        
-        try (FileDatabase currentDatabase = new FileDatabase(databaseDirectory.resolve(tableName)
-                .resolve(Integer.toString(nDirectory) + ".dir").resolve(Integer.toString(nFile) + ".dat"))) {
-            
-            return currentDatabase.remove(key);
-        } catch (Exception e) {
-            throw new RuntimeException("Error while removing value from file: "
-                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-        }
-    }
-    
-    private static class DirectoryAndFileNumberCalculator {
+    static class DirectoryAndFileNumberCalculator {
             
         static int getnDirectory(String key) {
             int firstByte = Math.abs(key.getBytes()[0]);
-            int nDirectory = firstByte % 16;
+            int nDirectory = firstByte % DIR_NUM;
             return nDirectory;
         }
         
         static int getnFile(String key) {
             int firstByte = Math.abs(key.getBytes()[0]);
-            int nFile = firstByte / 16 % 16;
+            int nFile = firstByte / FILE_NUM % FILE_NUM;
             return nFile;
         }
     }
     
-    private int computeSize() {
-        int size = 0;
+    boolean storeableAreEqual(Storeable first, Storeable second) {
+        if (first == null && second == null) {
+            return true;
+        } else if (!(first != null && second != null)) {
+            return false;
+        }
         
-        Path tableDirectory = databaseDirectory.resolve(tableName);
-        for (String dirName : tableDirectory.toFile().list()) {
-            for (String fileName : tableDirectory.resolve(dirName).toFile().list()) {
-                try (FileDatabase currentDatabase = new FileDatabase(tableDirectory
-                        .resolve(dirName).resolve(fileName))) {
-                    
-                    size += currentDatabase.getSize();
-                } catch (Exception e) {
-                    throw new RuntimeException("Error while openning file: "
-                            + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
-                }
+        if (getStoreableSize(first) != getStoreableSize(second)) {
+            return false;
+        }
+        
+        for (int columnIndex = 0; columnIndex < getStoreableSize(first); ++columnIndex) {
+            if (first.getColumnAt(columnIndex) == null && second.getColumnAt(columnIndex) == null) {
+                continue;
+            }
+            if (first.getColumnAt(columnIndex) == null || second.getColumnAt(columnIndex) == null 
+                    || first.getColumnAt(columnIndex).getClass() != second.getColumnAt(columnIndex).getClass() 
+                    || !first.getColumnAt(columnIndex).equals(second.getColumnAt(columnIndex))) {
+                return false;
             }
         }
         
+        return true;
+    }
+    
+    private int getStoreableSize(Storeable storeable) {
+        int size = 0;
+        while (true) {
+            try {
+                storeable.getColumnAt(size);
+            } catch (IndexOutOfBoundsException e) {
+                break;
+            }
+            size += 1;
+        }
         return size;
+    }
+    
+    private Storeable getOriginValue(String key) {
+        String originValueString;
+        readLock.lock();
+        try {
+            originValueString = getValueFromDatabase(key);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            readLock.unlock();
+        }
+        
+        Storeable originValue;
+        try {
+            originValue = tableProvider.deserialize(this, originValueString);
+        } catch (ParseException e) {
+            throw new RuntimeException("Error while deserializing value " + originValueString
+                    + " with key " + key + ": "
+                    + ((e.getMessage() != null) ? e.getMessage() : "unknown error"), e);
+        }
+        
+        return originValue;
+    }
+    
+    private void tableExists() {
+        if (tableProvider.getTable(tableName) != this) {
+            throw new RuntimeException(tableName + " was removed");
+        }
+    }
+    
+    private void isValidKey(final String key) throws IllegalArgumentException {
+        if (key == null || key.isEmpty() || key.matches(".*\\s.*") || key.contains("\0")) {
+            throw new IllegalArgumentException("Invalid key");
+        }
+    }
+    
+    private void isValidValue(final Storeable value) throws ColumnFormatException, IllegalArgumentException {
+        if (value == null) {
+            throw new IllegalArgumentException("value is null");
+        }
+        
+        for (int columnIndex = 0; columnIndex < getColumnsCount(); ++columnIndex) {
+            try {
+                if (value.getColumnAt(columnIndex) != null 
+                        && !value.getColumnAt(columnIndex).getClass().equals(getColumnType(columnIndex))) {
+                    throw new ColumnFormatException("Invalid column: value at index " + columnIndex 
+                            + " doesn't correspond to the type of column");
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("Invalid value: less columns");
+            }
+        }
+        
+        try {
+            value.getColumnAt(getColumnsCount());
+        } catch (IndexOutOfBoundsException e) {
+            /* OK */
+            return;
+        }
+        throw new ColumnFormatException("Invalid value: more columns");
     }
 }

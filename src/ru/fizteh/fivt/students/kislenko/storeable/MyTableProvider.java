@@ -37,9 +37,9 @@ public class MyTableProvider implements TableProvider {
             if (columnType == null) {
                 throw new IllegalArgumentException("Incorrect column types in creating table.");
             }
-            if (columnType != Integer.class && columnType != Long.class && columnType != Byte.class &&
-                    columnType != Float.class && columnType != Double.class && columnType != Boolean.class &&
-                    columnType != String.class) {
+            if (columnType != Integer.class && columnType != Long.class && columnType != Byte.class
+                    && columnType != Float.class && columnType != Double.class && columnType != Boolean.class
+                    && columnType != String.class) {
                 throw new IllegalArgumentException("Incorrect column types in creating table.");
             }
         }
@@ -80,16 +80,16 @@ public class MyTableProvider implements TableProvider {
             throw new ParseException("Very strange string in input.", -1);
         }
         if (array.length() != table.getColumnsCount()) {
-            throw new ParseException("Incorrect count of columns in input.", Math.min(array.length(), table.getColumnsCount()));
+            throw new ParseException("Incorrect count of columns in input.", 0);
         }
         List<Object> values = new ArrayList<Object>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             if (array.get(i).equals(null)) {
                 values.add(null);
-            } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
-                values.add(array.getInt(i));
-            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class) &&
-                    table.getColumnType(i) == Long.class) {
+            } else if (array.get(i).getClass() == table.getColumnType(i)) {
+                values.add(array.get(i));
+            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class)
+                    && table.getColumnType(i) == Long.class) {
                 values.add(array.getLong(i));
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
                 Integer a = array.getInt(i);
@@ -97,12 +97,6 @@ public class MyTableProvider implements TableProvider {
             } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Float.class) {
                 Double a = array.getDouble(i);
                 values.add(a.floatValue());
-            } else if (array.get(i).getClass() == Double.class && table.getColumnType(i) == Double.class) {
-                values.add(array.getDouble(i));
-            } else if (array.get(i).getClass() == Boolean.class && table.getColumnType(i) == Boolean.class) {
-                values.add(array.getBoolean(i));
-            } else if (array.get(i).getClass() == String.class && table.getColumnType(i) == String.class) {
-                values.add(array.getString(i));
             } else {
                 throw new ParseException("Incorrect value string.", -1);
             }

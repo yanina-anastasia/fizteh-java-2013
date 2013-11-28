@@ -15,8 +15,13 @@ public class CreateCommand extends AbstractDataBaseCommand {
 			displayMessage(tablename + " exists" + SEPARATOR, out);
 			return;
 		}
-
-		state.getProvider().createTable(tablename);
+ 
+		try {
+			state.getProvider().createTable(tablename, null);
+		} catch (IllegalArgumentException ex) {
+			displayMessage("operation failed: " + ex.getMessage() + SEPARATOR, out);
+			return;
+		}
 
 		displayMessage("created" + SEPARATOR, out);
 	}

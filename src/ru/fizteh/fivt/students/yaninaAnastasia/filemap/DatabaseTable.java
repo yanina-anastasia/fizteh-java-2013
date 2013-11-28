@@ -1,30 +1,39 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class DatabaseTable implements Table {
-    public HashMap<String, String> oldData;
-    public HashMap<String, String> modifiedData;
+    public HashMap<String, Storeable> oldData;
+    public HashMap<String, Storeable> modifiedData;
     public HashSet<String> deletedKeys;
     public int size;
     public int uncommittedChanges;
     private String tableName;
+    public List<Class<?>> columnTypes;
+    DatabaseTableProvider provider;
 
-    public DatabaseTable(String name) {
+
+    public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
         this.tableName = name;
-        oldData = new HashMap<String, String>();
-        modifiedData = new HashMap<String, String>();
+        oldData = new HashMap<String, Storeable>();
+        modifiedData = new HashMap<String, Storeable>();
         deletedKeys = new HashSet<String>();
+        columnTypes = colTypes;
+        provider = providerRef;
         uncommittedChanges = 0;
+        for (final Class<?> columnType : columnTypes) {
+            if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
+                throw new IllegalArgumentException("unknown column type");
+            }
+        }
     }
 
     public static int getDirectoryNum(String key) {
@@ -38,6 +47,9 @@ public class DatabaseTable implements Table {
     }
 
     public String getName() {
+        if (tableName == null) {
+            throw new IllegalArgumentException("Table name cannot be null");
+        }
         return tableName;
     }
 
@@ -45,7 +57,7 @@ public class DatabaseTable implements Table {
         this.tableName = name;
     }
 
-    public String get(String key) throws IllegalArgumentException {
+    public Storeable get(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
@@ -58,14 +70,33 @@ public class DatabaseTable implements Table {
         return oldData.get(key);
     }
 
-    public String put(String key, String value) throws IllegalArgumentException {
-        if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
-            throw new IllegalArgumentException("Key cannot be null");
+    public static boolean checkStringCorrect(String string) {
+        return string.matches("\\s*") || string.split("\\s+").length != 1;
+    }
+
+    public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        if ((key == null) || (key.trim().isEmpty())) {
+            throw new IllegalArgumentException("Key can not be null");
         }
-        if (value == null || (value.isEmpty() || value.trim().isEmpty())) {
-            throw new IllegalArgumentException("Value name cannot be null");
+        if (key.matches("\\s*") || key.split("\\s+").length != 1) {
+            throw new IllegalArgumentException("Key contains whitespaces");
         }
-        String oldValue = null;
+        if (value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
+        }
+        checkAlienStoreable(value);
+        for (int index = 0; index < getColumnsCount(); ++index) {
+                switch (ColumnTypes.fromTypeToName(columnTypes.get(index))) {
+                    case "String":
+                        String stringValue = (String) value.getColumnAt(index);
+                        if (stringValue == null) {
+                            continue;
+                        }
+                        break;
+                    default:
+                }
+        }
+        Storeable oldValue = null;
         oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {
             oldValue = oldData.get(key);
@@ -77,15 +108,15 @@ public class DatabaseTable implements Table {
         if (oldValue == null) {
             size += 1;
         }
-        uncommittedChanges += 1;
+        uncommittedChanges = changesCount();
         return oldValue;
     }
 
-    public String remove(String key) throws IllegalArgumentException {
+    public Storeable remove(String key) throws IllegalArgumentException {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
         }
-        String oldValue = null;
+        Storeable oldValue = null;
         oldValue = modifiedData.get(key);
         if (oldValue == null && !deletedKeys.contains(key)) {
             oldValue = oldData.get(key);
@@ -101,7 +132,7 @@ public class DatabaseTable implements Table {
         if (oldValue != null) {
             size -= 1;
         }
-        uncommittedChanges += 1;
+        uncommittedChanges = changesCount();
         return oldValue;
     }
 
@@ -110,26 +141,28 @@ public class DatabaseTable implements Table {
     }
 
     public int commit() {
-        int recordsCommited = changesCount();
+        int recordsCommitted = changesCount();
         for (String keyToDelete : deletedKeys) {
             oldData.remove(keyToDelete);
         }
         for (String keyToAdd : modifiedData.keySet()) {
             if (modifiedData.get(keyToAdd) != null) {
-            oldData.put(keyToAdd, modifiedData.get(keyToAdd));
+                oldData.put(keyToAdd, modifiedData.get(keyToAdd));
             }
         }
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
-        save();
+        TableBuilder tableBuilder = new TableBuilder(provider, this);
+        save(tableBuilder);
         uncommittedChanges = 0;
 
-        return recordsCommited;
+        return recordsCommitted;
     }
 
     public int rollback() {
         int recordsDeleted = changesCount();
+
         deletedKeys.clear();
         modifiedData.clear();
         size = oldData.size();
@@ -139,7 +172,22 @@ public class DatabaseTable implements Table {
         return recordsDeleted;
     }
 
-    public boolean save() {
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
+            throw new IndexOutOfBoundsException();
+        }
+        return columnTypes.get(columnIndex);
+    }
+
+    public Storeable storeableGet(String key) {
+        return oldData.get(key);
+    }
+
+    public void storeablePut(String key, Storeable value) {
+        oldData.put(key, value);
+    }
+
+    public boolean save(TableBuilder tableBuilder) {
         if (oldData == null) {
             return true;
         }
@@ -167,7 +215,7 @@ public class DatabaseTable implements Table {
             if (isDirEmpty) {
                 try {
                     if (path.exists()) {
-                        CommandDrop.recRemove(path);
+                        DatabaseTableProvider.recRemove(path);
                     }
                 } catch (IOException e) {
                     return false;
@@ -177,7 +225,7 @@ public class DatabaseTable implements Table {
             if (path.exists()) {
                 File file = path;
                 try {
-                    if (!CommandDrop.recRemove(file)) {
+                    if (!DatabaseTableProvider.recRemove(file)) {
                         System.err.println("File was not deleted");
                         return false;
                     }
@@ -191,7 +239,7 @@ public class DatabaseTable implements Table {
             for (int j = 0; j < 16; j++) {
                 File filePath = new File(path, String.format("%d.dat", j));
                 try {
-                    saveTable(keys.get(j), filePath.toString());
+                    saveTable(keys.get(j), filePath.toString(), tableBuilder);
                 } catch (IOException e) {
                     return false;
                 }
@@ -200,7 +248,7 @@ public class DatabaseTable implements Table {
         return true;
     }
 
-    public boolean saveTable(Set<String> keys, String path) throws IOException {
+    public boolean saveTable(Set<String> keys, String path, TableBuilder tableBuilder) throws IOException {
         if (keys.isEmpty()) {
             try {
                 Files.delete(Paths.get(path));
@@ -209,8 +257,7 @@ public class DatabaseTable implements Table {
             }
             return false;
         }
-        RandomAccessFile temp = new RandomAccessFile(path, "rw");
-        try {
+        try (RandomAccessFile temp = new RandomAccessFile(path, "rw")) {
             long offset = 0;
             temp.setLength(0);
             for (String step : keys) {
@@ -221,13 +268,13 @@ public class DatabaseTable implements Table {
                 temp.write(bytesToWrite);
                 temp.writeByte(0);
                 temp.writeInt((int) offset);
-                offset += oldData.get(step).getBytes(StandardCharsets.UTF_8).length;
+                String myOffset = tableBuilder.get(step);
+                offset += myOffset.getBytes(StandardCharsets.UTF_8).length;
             }
             for (String key : keys) {
-                String value = oldData.get(key);
+                String value = tableBuilder.get(key);
                 temp.write(value.getBytes(StandardCharsets.UTF_8));
             }
-            temp.close();
         } catch (IOException e) {
             return false;
         }
@@ -240,10 +287,46 @@ public class DatabaseTable implements Table {
         tempSet.addAll(modifiedData.keySet());
         tempSet.addAll(deletedKeys);
         for (String key : tempSet) {
-            if (modifiedData.containsKey(key) && oldData.get(key) == modifiedData.get(key)) {
+            if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get(key))) {
                 toRemove.add(key);
             }
         }
         return tempSet.size() - toRemove.size();
+    }
+
+    private boolean compare(Storeable key1, Storeable key2) {
+        if (key1 == null && key2 == null) {
+            return true;
+        }
+        if (key1 == null || key2 == null) {
+            return false;
+        }
+        return key1.equals(key2);
+    }
+
+    public int getColumnsCount() {
+        return columnTypes.size();
+    }
+
+    public void checkAlienStoreable(Storeable storeable) {
+        for (int index = 0; index < getColumnsCount(); ++index) {
+            try {
+                Object o = storeable.getColumnAt(index);
+                if (o == null) {
+                    continue;
+                }
+                if (!o.getClass().equals(getColumnType(index))) {
+                    throw new ColumnFormatException("Alien storeable with incompatible types");
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw new ColumnFormatException("Alien storeable with less columns");
+            }
+        }
+        try {
+            storeable.getColumnAt(getColumnsCount());
+        } catch (IndexOutOfBoundsException e) {
+            return;
+        }
+        throw new ColumnFormatException("Alien storeable with more columns");
     }
 }

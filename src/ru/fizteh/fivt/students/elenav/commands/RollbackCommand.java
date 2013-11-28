@@ -1,8 +1,5 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
-import java.io.PrintStream;
-
-import ru.fizteh.fivt.students.elenav.multifilemap.MultiFileMapState;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class RollbackCommand  extends AbstractCommand {
@@ -12,8 +9,8 @@ public class RollbackCommand  extends AbstractCommand {
 	}
 
 	@Override
-	public void execute(String[] args, PrintStream s) {
-		s.println(((MultiFileMapState) getState()).rollback());
+	public void execute(String[] args) {
+		getState().getStream().println(getState().rollback());
 	}
 
 }

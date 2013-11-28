@@ -1,9 +1,7 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
 import java.io.IOException;
-import java.io.PrintStream;
 
-import ru.fizteh.fivt.students.elenav.multifilemap.MultiFileMapState;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class SizeCommand extends AbstractCommand {
@@ -13,10 +11,9 @@ public class SizeCommand extends AbstractCommand {
 	}
 
 	@Override
-	public void execute(String[] args, PrintStream s) throws IOException {
-		MultiFileMapState multi = (MultiFileMapState) getState();
-		if (multi.getWorkingDirectory() != null) {
-			s.println(multi.size());
+	public void execute(String[] args) throws IOException {
+		if (getState().getWorkingDirectory() != null) {
+			getState().getStream().println(getState().size());
 		}
 		
 	}

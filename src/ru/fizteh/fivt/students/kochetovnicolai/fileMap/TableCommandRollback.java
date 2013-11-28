@@ -1,6 +1,6 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.kochetovnicolai.shell.Executable;
 
 public class TableCommandRollback extends Executable {

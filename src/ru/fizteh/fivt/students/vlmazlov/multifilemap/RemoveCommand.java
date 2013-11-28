@@ -16,8 +16,15 @@ public class RemoveCommand extends AbstractDataBaseCommand {
 		}
 
 		String key = args[0];
-		String oldValue = state.getActiveTable().remove(key);
-
+		
+		Object oldValue = null;
+		try {
+			oldValue = state.getActiveTable().remove(key);
+		} catch (IllegalArgumentException ex) {
+			displayMessage("operation failed: " + ex.getMessage() + SEPARATOR, out);
+			return;
+		}
+		
 		if (oldValue == null) {
 			displayMessage("not found" + SEPARATOR, out);
 		} else {

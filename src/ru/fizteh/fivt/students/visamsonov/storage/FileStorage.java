@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.visamsonov.storage;
 
-import ru.fizteh.fivt.storage.strings.Table;
 import java.util.TreeMap;
 import java.util.Map;
 import java.math.BigInteger;
