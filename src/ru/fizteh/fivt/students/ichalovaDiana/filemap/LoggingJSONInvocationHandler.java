@@ -69,7 +69,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         } catch (Exception e) {
         } finally {
             if (!method.getReturnType().equals(Void.class)) {
-                log.put("returnValue", (result != null) ? result.toString() : JSONObject.NULL);
+                log.put("returnValue", (result != null) ? result : JSONObject.NULL);
             } 
             
             writer.write(log.toString() + '\n');
