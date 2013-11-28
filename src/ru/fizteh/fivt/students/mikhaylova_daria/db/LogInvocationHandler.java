@@ -20,7 +20,6 @@ public class LogInvocationHandler implements InvocationHandler {
 
     class ProviderArrayJSON {
         private Object argument;
-        private JSONArray createdArray;
         private IdentityHashMap<Object, Object> identifyAttended = new IdentityHashMap<>();
 
         ProviderArrayJSON(Object argument) {
@@ -133,6 +132,7 @@ public class LogInvocationHandler implements InvocationHandler {
             } finally {
                 writeLock.unlock();
             }
+            return method.invoke(proxied, args);
         }
         return returnedValue;
     }
