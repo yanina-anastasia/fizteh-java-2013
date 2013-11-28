@@ -26,7 +26,8 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class DataBaseProvider implements TableProvider, AutoCloseable {
     private HashMap<String, DataBase> tableBase;
-    private String rootDir = "";
+    private String rootDir;
+    private String oldPath;
     private boolean isClosed = false;
 
     DataBaseLoader loader;
@@ -45,6 +46,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         } else {
             rootDir = dir + File.separatorChar;
         }
+        oldPath = dir;
         loader = new DataBaseLoader(dir, this);
         tableBase = loader.loadBase();
     }
@@ -441,10 +443,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         
         StringBuffer str = new StringBuffer(getClass().getSimpleName());
         str.append("[");
-        if (rootDir.equals(System.lineSeparator())) {
-            rootDir = "";
-        }
-        str.append(rootDir);
+        str.append(oldPath);
         str.append("]");
         return str.toString();
         
