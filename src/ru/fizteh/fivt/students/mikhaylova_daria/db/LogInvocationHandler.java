@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.mikhaylova_daria.db;
 
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.Annotated;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

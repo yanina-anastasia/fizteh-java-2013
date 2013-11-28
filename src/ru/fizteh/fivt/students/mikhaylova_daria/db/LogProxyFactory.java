@@ -5,13 +5,6 @@ import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 import java.io.Writer;
 import java.lang.reflect.Proxy;
 
-/**
- * Created with IntelliJ IDEA.
- * User: darya
- * Date: 28.11.13
- * Time: 19:38
- * To change this template use File | Settings | File Templates.
- */
 public class LogProxyFactory implements LoggingProxyFactory {
     public LogProxyFactory() {
 
