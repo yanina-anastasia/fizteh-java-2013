@@ -69,9 +69,6 @@ public class LogInvocationHandler implements InvocationHandler {
                         creatingArray.put(arg.toString());
                     }
                 }
-            } else {
-                Object obj = null;
-                creatingArray.put(obj);
             }
             return creatingArray;
         }
@@ -116,11 +113,7 @@ public class LogInvocationHandler implements InvocationHandler {
                     + e.getMessage());
         } finally {
             if (returnedValue != null) {
-                if (returnedValue.getClass().isPrimitive()) {
-                    record.put("returnValue", returnedValue);
-                } else {
-                    record.put("returnValue", returnedValue.toString());
-                }
+                record.put("returnValue", returnedValue);
             }
         }
         writeLock.lock();
