@@ -21,7 +21,10 @@ public class ProxyFactory implements LoggingProxyFactory {
         if (interfaceClass == null) {
             throw new IllegalArgumentException("InterfaceClass is null");
         }
-        if (!implementation.getClass().equals(interfaceClass)) {
+        if (!interfaceClass.isInterface()) {
+            throw new IllegalArgumentException("Not an interface");
+        }
+        if (!interfaceClass.isAssignableFrom(implementation.getClass())) {
             throw new IllegalArgumentException("Incorrect interfaceClass");
         }
         InvocationHandler handler = new ProxyInvocationHandler(writer, implementation);
