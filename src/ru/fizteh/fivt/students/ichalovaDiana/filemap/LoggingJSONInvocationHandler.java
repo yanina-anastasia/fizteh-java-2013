@@ -49,10 +49,8 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             for (int i = 0; i < args.length; ++i) {
                 logArgument(args[i], arguments, new IdentityHashMap<Object, Object>());
             }
-            log.put("arguments", arguments);
-        } else {
-            log.put("arguments", JSONObject.NULL);
         }
+        log.put("arguments", arguments);
         
         try {
             result = method.invoke(target, args);
