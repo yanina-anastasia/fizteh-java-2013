@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.CommandRunner;
 
-public class FileMap {
+public class FileMapMain {
     public static void main(String[] args) {
         try {
             String property = System.getProperty("fizteh.db.dir");

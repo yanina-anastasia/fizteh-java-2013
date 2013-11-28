@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import ru.fizteh.fivt.storage.structured.Table;
 
-public class MultiDbCreate implements Command {
+public class DbCreate implements Command {
     @Override
     public int execute(String[] args, State state) {
         String arg = args[0].trim();

@@ -3,7 +3,7 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
-public class MultiDbUse implements Command {
+public class DbUse implements Command {
     @Override
     public int execute(String[] args, State state) {
         String dbName = args[0];
@@ -20,7 +20,7 @@ public class MultiDbUse implements Command {
             System.out.println(dbName + " not exists");
         } else {
             if (multiState.getCurrTable() != null) {
-                int chNum = ((MultiDbState) multiState.getCurrTable()).changesNum();
+                int chNum = ((MyTable) multiState.getCurrTable()).changesNum();
                 if (chNum > 0) {
                     System.out.println(chNum + " unsaved changes");
                     return 0;
