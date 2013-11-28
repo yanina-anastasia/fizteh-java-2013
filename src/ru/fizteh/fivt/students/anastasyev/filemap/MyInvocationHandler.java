@@ -63,6 +63,10 @@ public class MyInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
+        if (method.getName().equals("toString") || method.getName().equals("hashCode")
+                || method.getName().equals("equals")) {
+            return method.invoke(implementation, args);
+        }
 
         factory = XMLOutputFactory.newInstance();
         stringWriter = new StringWriter();
@@ -73,7 +77,7 @@ public class MyInvocationHandler implements InvocationHandler {
         xmlStreamWriter.writeAttribute("name", method.getName());
         writeLog(args);
         try {
-            result = method.invoke(proxy, args);
+            result = method.invoke(implementation, args);
             if (!method.getReturnType().isAssignableFrom(Void.class)) {
                 xmlStreamWriter.writeStartElement("return");
                 writeObject(result);
