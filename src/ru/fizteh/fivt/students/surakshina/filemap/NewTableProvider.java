@@ -67,13 +67,6 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
         return currentTable;
     }
 
-    public File getCurrentTableFile() {
-        if (currentTable == null) {
-            return null;
-        }
-        return new File(workingDirectory, currentTable.getName());
-    }
-
     public void setCurrentTable(NewTable table) {
         currentTable = table;
     }

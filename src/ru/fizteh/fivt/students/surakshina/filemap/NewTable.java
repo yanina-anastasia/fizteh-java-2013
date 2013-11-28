@@ -328,7 +328,8 @@ public class NewTable implements Table, AutoCloseable {
     @Override
     public String toString() {
         state.checkClosed();
-        return this.getClass().getSimpleName() + "[" + provider.getCurrentTableFile().getAbsolutePath() + "]";
+        File file = new File(provider.getCurrentDirectory(), name);
+        return this.getClass().getSimpleName() + "[" + file.getAbsolutePath() + "]";
     }
 
 }
