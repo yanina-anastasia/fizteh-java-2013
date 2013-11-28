@@ -92,11 +92,11 @@ public class MyTable implements Table, AutoCloseable {
         }
         lock.readLock().lock();
         try {
+            assertClosed();
             resetTable();
             if (changes.get().containsKey(key)) {
                 return changes.get().get(key);
             }
-            assertClosed();
             return storage.get(key);
         } finally {
             lock.readLock().unlock();
@@ -126,6 +126,7 @@ public class MyTable implements Table, AutoCloseable {
         }
         lock.readLock().lock();
         try {
+            assertClosed();
             resetTable();
             if ((!changes.get().containsKey(key) && !storage.containsKey(key))
                     || (changes.get().containsKey(key) && changes.get().get(key) == null)) {
@@ -149,7 +150,6 @@ public class MyTable implements Table, AutoCloseable {
                 changes.get().remove(key);
                 fuckingDiff.get().put(copyOfKey, copyOfValue);
             }
-            assertClosed();
             return v;
         } finally {
             lock.readLock().unlock();
@@ -168,6 +168,7 @@ public class MyTable implements Table, AutoCloseable {
         }
         lock.readLock().lock();
         try {
+            assertClosed();
             resetTable();
             if (changes.get().get(key) != null || (!changes.get().containsKey(key) && storage.get(key) != null)) {
                 count.set(count.get() - 1);
@@ -183,7 +184,6 @@ public class MyTable implements Table, AutoCloseable {
                 changes.get().remove(key);
                 fuckingDiff.get().put(key, null);
             }
-            assertClosed();
             return v;
         } finally {
             lock.readLock().unlock();
@@ -195,8 +195,8 @@ public class MyTable implements Table, AutoCloseable {
         assertClosed();
         try {
             lock.readLock().lock();
-            resetTable();
             assertClosed();
+            resetTable();
             return count.get();
         } finally {
             lock.readLock().unlock();
@@ -238,7 +238,6 @@ public class MyTable implements Table, AutoCloseable {
             fuckingDiff.get().clear();
             revision++;
             threadRevision.set(revision);
-            assertClosed();
             return n;
         } finally {
             lock.writeLock().unlock();
@@ -249,13 +248,13 @@ public class MyTable implements Table, AutoCloseable {
     public int rollback() {
         assertClosed();
         lock.readLock().lock();
+        assertClosed();
         try {
             resetTable();
             int n = changes.get().size();
             changes.get().clear();
             fuckingDiff.get().clear();
             count.set(storage.size());
-            assertClosed();
             return n;
         } finally {
             lock.readLock().unlock();
@@ -264,13 +263,13 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int getColumnsCount() {
-        assertClosed();
+        //assertClosed();
         return types.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        assertClosed();
+        //assertClosed();
         if (columnIndex < 0 || columnIndex > types.size()) {
             throw new IndexOutOfBoundsException("Incorrect column number.");
         }
