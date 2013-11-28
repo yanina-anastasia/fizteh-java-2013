@@ -49,25 +49,43 @@ public class LoggingInvocationHandler implements InvocationHandler {
     
     private void writeList(XMLStreamWriter writer, Iterable<?> list, IdentityHashMap<Object, Boolean> map) 
                                                                     throws XMLStreamException {
+        /*
+         * if (value.getClass().isArray()) {
+                result.put(value.toString());
+                continue;
+            }
+         */
         writer.writeStartElement("list");
         for (Object element : list) {
             writer.writeStartElement("value");
 
             if (element == null) {
                 writeNull(writer);
-            } else {
-                if (element instanceof Iterable) {
-                    if (!map.containsKey(element)) {
-                        map.put(element, true);
-                        writeList(writer, list, map);
-                        map.remove(element);
-                    } else {
-                        writer.writeCharacters("cyclic");
-                    }
-                } else {
-                    writer.writeCharacters(element.toString());
-                }
+                writer.writeEndElement();
+                continue;
+            } 
+                
+            boolean isContainer = false;
+            boolean isEmpty = false;
+            
+            if (element instanceof Iterable) {
+                isContainer = true;
+                isEmpty = !((Iterable<?>) element).iterator().hasNext();
             }
+            
+            if (map.containsKey(element) && isContainer && !isEmpty) {
+                writer.writeCharacters("cyclic");
+                writer.writeEndElement();
+                continue;
+            }
+
+            map.put(element, true);
+            if (isContainer) {
+                writeList(writer, (Iterable<?>) element, map);
+                writer.writeEndElement();
+                continue;
+            }
+            writer.writeCharacters(element.toString());
             writer.writeEndElement();
         }
         writer.writeEndElement();
