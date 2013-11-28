@@ -6,6 +6,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
+import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTable;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
 import ru.fizteh.fivt.students.anastasyev.filemap.MyStoreable;
 
@@ -290,6 +291,13 @@ public class FileMapTableProviderTest {
         assertEquals(secondParallelTable, tableProvider.getTable("table"));
         assertEquals(firstParallelTable.getName(), secondParallelTable.getName());
         tableProvider.removeTable("table");
+    }
+
+    @Test
+    public void getTableAfterClose() throws IOException {
+        Table table = tableProvider.createTable("closedTable", classes);
+        ((FileMapTable) table).close();
+        assertNotSame(table, tableProvider.getTable("closedTable"));
     }
 }
 

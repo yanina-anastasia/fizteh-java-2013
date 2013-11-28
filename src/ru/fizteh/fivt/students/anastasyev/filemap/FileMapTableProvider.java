@@ -187,7 +187,20 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
     public Table getTable(String name) throws IllegalArgumentException, RuntimeException {
         checkStatus();
         isBadName(name);
-        return allFileMapTablesHashtable.get(name);
+        FileMapTable newTable = allFileMapTablesHashtable.get(name);
+        if (newTable != null && !newTable.isOpen()) {
+            File tableFile = new File(multiFileHashMapDir, name);
+            if (!tableFile.exists()) {
+                return null;
+            }
+            try {
+                newTable = new FileMapTable(tableFile.toString(), this);
+                allFileMapTablesHashtable.put(name, newTable);
+            } catch (IOException | ParseException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+        return newTable;
     }
 
     @Override
