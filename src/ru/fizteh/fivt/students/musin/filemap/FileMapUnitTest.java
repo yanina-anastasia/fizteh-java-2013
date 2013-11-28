@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
@@ -751,6 +750,15 @@ public class FileMapUnitTest {
                 }
             }
         }).get();
+
+        thread1.shutdown();
+        if (!thread1.awaitTermination(1, TimeUnit.SECONDS)) {
+            Assert.fail("Thread haven't terminated");
+        }
+        thread2.shutdown();
+        if (!thread2.awaitTermination(1, TimeUnit.SECONDS)) {
+            Assert.fail("Thread haven't terminated");
+        }
     }
 
     @Test
@@ -821,6 +829,15 @@ public class FileMapUnitTest {
                 Assert.assertFalse(table.storeableEqual(getSampleStoreable(), table.get("a")));
             }
         }).get();
+
+        thread1.shutdown();
+        if (!thread1.awaitTermination(1, TimeUnit.SECONDS)) {
+            Assert.fail("Thread haven't terminated");
+        }
+        thread2.shutdown();
+        if (!thread2.awaitTermination(1, TimeUnit.SECONDS)) {
+            Assert.fail("Thread haven't terminated");
+        }
     }
 }
 

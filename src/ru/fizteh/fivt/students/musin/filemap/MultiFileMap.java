@@ -109,8 +109,8 @@ public class MultiFileMap implements Table {
 
     public int size() {
         int size = 0;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             for (int i = 0; i < arraySize; i++) {
                 for (int j = 0; j < arraySize; j++) {
                     size += map[i][j].size();
@@ -134,7 +134,7 @@ public class MultiFileMap implements Table {
         return size;
     }
 
-    public boolean validateData() {
+    private boolean validateData() {
         for (int i = 0; i < arraySize; i++) {
             for (int j = 0; j < arraySize; j++) {
                 for (String key : map[i][j].getKeysList()) {
@@ -183,7 +183,7 @@ public class MultiFileMap implements Table {
     }
 
     /**
-     * @throws RuntimeException on fail
+     * Method is not synchronized, use methods of TableFactory instead
      */
     public void loadFromDisk() throws IOException, ParseException {
         columnTypes.clear();
@@ -250,7 +250,7 @@ public class MultiFileMap implements Table {
     }
 
     /**
-     * @throws RuntimeException on fail
+     * Method not synchronized use commit instead
      */
     public void writeToDisk() throws IOException {
         if (location.exists() && !location.isDirectory()) {
@@ -382,8 +382,8 @@ public class MultiFileMap implements Table {
             return diff.get().put(key, value);
         }
         Storeable result = null;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             result = map[dir][file].get(key);
             diff.get().put(key, value);
         } finally {
@@ -406,8 +406,8 @@ public class MultiFileMap implements Table {
             return diff.get().get(key);
         }
         Storeable result = null;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             result = map[dir][file].get(key);
         } finally {
             lock.readLock().unlock();
@@ -429,8 +429,8 @@ public class MultiFileMap implements Table {
             return diff.get().put(key, null);
         }
         Storeable result = null;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             result = map[dir][file].get(key);
             if (result != null) {
                 diff.get().put(key, null);
@@ -443,8 +443,8 @@ public class MultiFileMap implements Table {
 
     public int uncommittedChanges() {
         int result = 0;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
                 int hashCode = Math.abs(entry.getKey().hashCode());
                 int dir = (hashCode % 16 + 16) % 16;
@@ -464,9 +464,10 @@ public class MultiFileMap implements Table {
     }
 
     public int commit() throws IOException {
-        int changes = uncommittedChanges();
+        int changes = 0;
+        lock.writeLock().lock();
         try {
-            lock.writeLock().lock();
+            changes = uncommittedChanges();
             for (Map.Entry<String, Storeable> entry : diff.get().entrySet()) {
                 int hashCode = Math.abs(entry.getKey().hashCode());
                 int dir = (hashCode % 16 + 16) % 16;
