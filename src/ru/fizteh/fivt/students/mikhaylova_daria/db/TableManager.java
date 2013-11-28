@@ -27,8 +27,9 @@ import javax.xml.transform.stream.StreamResult;
 
 import ru.fizteh.fivt.storage.structured.*;
 
-public class TableManager implements TableProvider {
-    private ConcurrentHashMap<String, TableData> bidDataBase = new ConcurrentHashMap<>();
+public class TableManager implements TableProvider, AutoCloseable {
+    ConcurrentHashMap<String, TableData> bidDataBase = new ConcurrentHashMap<>();
+    private boolean isClosed = false;
     private File mainDir;
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();
@@ -129,6 +130,9 @@ public class TableManager implements TableProvider {
     }
 
     public TableData createTable(String nameTable, List<Class<?>> columnTypes) throws IOException {
+        if (isClosed) {
+            throw new IllegalStateException("This provider is closed");
+        }
         if (nameTable == null) {
             throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
@@ -167,6 +171,9 @@ public class TableManager implements TableProvider {
     }
 
     public TableData getTable(String nameTable) throws IllegalArgumentException {
+        if (isClosed) {
+            throw new IllegalStateException("This provider is closed");
+        }
         if (nameTable == null) {
             throw new IllegalArgumentException();
         }
@@ -211,6 +218,9 @@ public class TableManager implements TableProvider {
     }
 
     public void removeTable(String nameTable) throws IOException {
+        if (isClosed) {
+            throw new IllegalStateException("This provider is closed");
+        }
         if (nameTable == null) {
             throw new IllegalArgumentException("wrong type (nameTable is null)");
         }
@@ -242,6 +252,9 @@ public class TableManager implements TableProvider {
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (isClosed) {
+            throw new IllegalStateException("This provider is closed");
+        }
         if (table == null) {
             throw new IllegalArgumentException("wrong type (table is null)");
         }
@@ -312,6 +325,9 @@ public class TableManager implements TableProvider {
     }
 
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (isClosed) {
+            throw new IllegalStateException("This provider is closed");
+        }
         if (table == null) {
             throw new IllegalArgumentException("wrong type (table is null)");
         }
@@ -400,6 +416,9 @@ public class TableManager implements TableProvider {
     }
 
     public Storeable  createFor(Table table) {
+        if (isClosed) {
+            throw new IllegalStateException("This provider is closed");
+        }
         if (table == null) {
             throw new IllegalArgumentException("wrong type (table is null)");
         }
@@ -408,6 +427,9 @@ public class TableManager implements TableProvider {
 
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (isClosed) {
+            throw new IllegalStateException("This provider is closed");
+        }
         if (table == null) {
             throw new IllegalArgumentException("wrong type (table is null)");
         }
@@ -431,5 +453,21 @@ public class TableManager implements TableProvider {
             throw new IndexOutOfBoundsException("wrong type (" + e.getMessage() + ")");
         }
         return created;
+    }
+
+    public void close() {
+        if (!isClosed) {
+            isClosed = true;
+            for (TableData table: bidDataBase.values()) {
+                table.close();
+            }
+            bidDataBase.clear();
+        } else {
+            throw new IllegalStateException("This provider is closed");
+        }
+    }
+
+    public String toString() {
+        return this.getClass().getSimpleName() + "[" + mainDir.toPath().toAbsolutePath() + "]";
     }
 }
