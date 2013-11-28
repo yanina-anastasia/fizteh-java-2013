@@ -342,6 +342,6 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + getPath().toAbsolutePath() + "]";
+        return getClass().getSimpleName() + "[" + provider.getPath().resolve(name).toFile().getAbsolutePath() + "]";
     }
 }

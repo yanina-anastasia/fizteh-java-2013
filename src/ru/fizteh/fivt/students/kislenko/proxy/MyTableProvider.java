@@ -27,6 +27,10 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         path = Paths.get(providerPath);
     }
 
+    public Path getPath() {
+        return path;
+    }
+
     @Override
     public MyTable getTable(String name) {
         assertClosed();
