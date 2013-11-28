@@ -33,7 +33,7 @@ public class LogInvocationHandler implements InvocationHandler {
             if (arg != null) {
                 if (Iterable.class.isAssignableFrom(arg.getClass())) {
                     if (identifyAttended.containsKey(arg)) {
-                        newCreatingArray.put("cyclic");
+                        creatingArray.put("cyclic");
                     } else {
                         identifyAttended.put(arg, arg);
                         for (Object obj: (Iterable) arg) {
@@ -48,7 +48,7 @@ public class LogInvocationHandler implements InvocationHandler {
                     creatingArray.put(newCreatingArray);
                 } else if (arg.getClass().isArray()) {
                     if (identifyAttended.containsKey(arg)) {
-                        newCreatingArray.put("cyclic");
+                        creatingArray.put("cyclic");
                     } else {
                         identifyAttended.put(arg, arg);
                         identifyAttended.put(arg, arg);
@@ -63,8 +63,15 @@ public class LogInvocationHandler implements InvocationHandler {
                     }
                     creatingArray.put(newCreatingArray);
                 } else {
-                    creatingArray.put(arg.toString());
+                    try {
+                        creatingArray.put(arg);
+                    } catch (java.lang.ClassCastException e) {
+                        creatingArray.put(arg.toString());
+                    }
                 }
+            } else {
+                Object obj = null;
+                creatingArray.put(obj);
             }
             return creatingArray;
         }
@@ -96,7 +103,7 @@ public class LogInvocationHandler implements InvocationHandler {
             record.put("arguments", new JSONArray());
         } else {
             ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-            record.put("arguments", creatorJSONArray.getJSONArray());
+            record.put("arguments", creatorJSONArray.getJSONArray().put(0));
         }
         Object returnedValue = null;
         try {
