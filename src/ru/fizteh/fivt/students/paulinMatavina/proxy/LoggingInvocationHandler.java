@@ -123,7 +123,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             
             if (exception != null) {
                 xmlWriter.writeStartElement("thrown");
-                xmlWriter.writeCharacters(exception.getClass().toString() + ": " + exception.getMessage());
+                xmlWriter.writeCharacters(exception.getClass().getName() + ": " + exception.getMessage());
                 xmlWriter.writeEndElement();
             } else {
                 if (method.getReturnType() != Void.class) {
