@@ -269,9 +269,15 @@ public class DataBase implements Table {
     }
 
     private void checkString(String str) {
-        if ((str == null) || (str.trim().length() == 0)) {
+    	for (int i = 0; i < str.length(); ++i) {
+            if (Character.isWhitespace(str.charAt(i))) {
+            	throw new IllegalArgumentException("Wrong key!");
+            }
+        }
+    	if ((str == null) || (str.trim().length() == 0)) {
             throw new IllegalArgumentException("Wrong key!");
         }
+        
     }
 
 
