@@ -56,7 +56,15 @@ public class XMLFormatter implements Closeable {
         try {
             xmlWriter.writeStartElement("arguments");
             if (args != null) {
-                writeItereable(Arrays.asList(args));
+                for (Object object : args) {
+                    if (object == null) {
+                        writeNull();
+                    } else if (object instanceof Iterable) {
+                        writeItereable((Iterable) object);
+                    } else {
+                        writeObject(object);
+                    }
+                }
             }
             xmlWriter.writeEndElement();
         } catch (XMLStreamException e) {
@@ -100,37 +108,37 @@ public class XMLFormatter implements Closeable {
     }
 
     private void writeNull() throws XMLStreamException {
-        xmlWriter.writeStartElement("value");
         xmlWriter.writeStartElement("null");
-        xmlWriter.writeEndElement();
         xmlWriter.writeEndElement();
     }
 
     private void writeItereable(Iterable iterable) throws XMLStreamException {
-        if (!identityHashMap.containsKey(iterable)) {
-            identityHashMap.put(iterable, true);
+        xmlWriter.writeStartElement("list");
 
-            xmlWriter.writeStartElement("list");
-            for (Object object : iterable) {
-                if (object == null) {
-                    writeNull();
-                } else if (object instanceof Iterable) {
-                    writeItereable((Iterable) object);
-                } else {
-                    writeObject(object);
-                }
-            }
-            xmlWriter.writeEndElement();
-        } else {
+        for (Object object : iterable) {
             xmlWriter.writeStartElement("value");
-            xmlWriter.writeCharacters("cyclic");
+
+            if (object == null) {
+                writeNull();
+            } else if (object instanceof Iterable) {
+                if (identityHashMap.containsKey(object)) {
+                    xmlWriter.writeCharacters("cyclic");
+                } else {
+                    identityHashMap.put(object, true);
+                    writeItereable((Iterable) object);
+                }
+            } else {
+                identityHashMap.put(object, true);
+                writeObject(object);
+            }
+
             xmlWriter.writeEndElement();
         }
+
+        xmlWriter.writeEndElement();
     }
 
     private void writeObject(Object object) throws XMLStreamException {
-        xmlWriter.writeStartElement("value");
         xmlWriter.writeCharacters(object.toString());
-        xmlWriter.writeEndElement();
     }
 }
