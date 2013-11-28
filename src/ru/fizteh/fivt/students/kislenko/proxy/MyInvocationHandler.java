@@ -69,16 +69,16 @@ public class MyInvocationHandler implements InvocationHandler {
             }
         } catch (InvocationTargetException e) {
             writer.get().writeStartElement("thrown");
-            logArgument(writer.get(), e.getTargetException());
-            writer.get().writeEndElement();
-            writer.get().writeEndElement();
-            writer.get().writeCharacters("\n");
+            writer.get().writeCharacters(e.getTargetException().toString());
+            writer.get().writeEndDocument();
             writer.get().flush();
             throw e.getTargetException();
         } catch (Exception e) {
             writer.get().writeStartElement("thrown");
             logArgument(writer.get(), e);
-            writer.get().writeEndElement();
+            writer.get().writeEndDocument();
+            writer.get().flush();
+            throw e;
         }
         writer.get().writeEndElement();
         invokeCounter.set(invokeCounter.get() - 1);
@@ -96,8 +96,7 @@ public class MyInvocationHandler implements InvocationHandler {
             return;
         }
         if (arg.getClass().isAssignableFrom(Class.class)) {
-            w.writeCharacters(arg.getClass().getCanonicalName());
-            identityHashMap.get().remove(arg);
+            w.writeCharacters(arg.getClass().getName());
             return;
         }
         if (List.class.isAssignableFrom(arg.getClass().getSuperclass())) {
@@ -165,10 +164,6 @@ public class MyInvocationHandler implements InvocationHandler {
             Method method = (Method) arg;
             w.writeCharacters(method.getDeclaringClass().getCanonicalName() + "." + method.getName());
             return;
-        }
-        if (Exception.class.isAssignableFrom(arg.getClass())) {
-            Exception exception = (Exception) arg;
-            w.writeCharacters(exception.toString());
         }
         w.writeCharacters(arg.toString());
         identityHashMap.get().remove(arg);
