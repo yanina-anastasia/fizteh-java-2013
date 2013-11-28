@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MyTable implements Table {
+public class MyTable implements Table, AutoCloseable {
 
     private DataBase[][] data = new DataBase[16][16];
     private String currTablePath = null;
@@ -26,7 +26,7 @@ public class MyTable implements Table {
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
-    
+    private boolean isClosed = false;
     
     private ThreadLocal<HashMap<String, Storeable>> changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
@@ -43,7 +43,7 @@ public class MyTable implements Table {
         return currTablePath;
     }
 
-    protected DataBase getDataBaseFromKey(String key) throws RuntimeException {
+    private DataBase getDataBaseFromKey(String key) throws RuntimeException {
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
         int nfile = hashcode / 16 % 16;
@@ -54,17 +54,24 @@ public class MyTable implements Table {
         return currTableName;
     }
 
-    public boolean isEmpty(String val) {
+    private boolean isEmpty(String val) {
         return (val == null || val.trim().isEmpty());
     }
 
-    public boolean isCorrectKey(String key) {
+    private boolean isCorrectKey(String key) {
         return (!provider.hasBadSymbols(key) && !key.contains("[") && !key
                 .contains("]"));
     }
    
+    private void checkClosed() throws IllegalStateException {
+        if (isClosed) {
+            throw new IllegalStateException(currTableName + " is closed");
+        }
+    }
+    
 //read
     public Storeable get(String key) throws IllegalArgumentException {
+        checkClosed();
         if (isEmpty(key)) {
             throw new IllegalArgumentException("get: key is empty");
         }
@@ -118,6 +125,7 @@ public class MyTable implements Table {
 //read
     public Storeable put(String key, Storeable value)
             throws IllegalArgumentException, ColumnFormatException {
+        checkClosed();
         if (isEmpty(key)) {
             throw new IllegalArgumentException("put: key is empty");
         }
@@ -156,6 +164,7 @@ public class MyTable implements Table {
     
 //read
     public Storeable remove(String key) throws IllegalArgumentException {
+        checkClosed();
         if (isEmpty(key)) {
             throw new IllegalArgumentException("remove: key is empty");
         }
@@ -184,6 +193,7 @@ public class MyTable implements Table {
 
 //read
     public int size() {
+        checkClosed();
         int n = 0;
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
@@ -209,7 +219,7 @@ public class MyTable implements Table {
     }
 
 // write
-    public void trackChanges() {
+    private void trackChanges() {
         Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
         String key;
         Storeable value;
@@ -234,6 +244,7 @@ public class MyTable implements Table {
     }
     
     public int commit() throws RuntimeException {
+        checkClosed();
         int nchanges = getUncommitedChanges();
         trackChanges();
         if (nchanges != 0) {
@@ -244,18 +255,20 @@ public class MyTable implements Table {
     }
 
     public int rollback() throws RuntimeException {
+        checkClosed();
         int nchanges = getUncommitedChanges();
         changesMap.get().clear();
         return nchanges;
     }
 
     public void setNameToNull() {
+        checkClosed();
         currTablePath = null;
         currTableName = null;
     }
 
 // write to disk
-    public void saveChanges() throws RuntimeException {
+    private void saveChanges() throws RuntimeException {
         if (currTableName == null) {
             return;
         }
@@ -289,7 +302,7 @@ public class MyTable implements Table {
     }
 
 //read from disk
-    public void loadFromDisk() throws RuntimeException {
+    private void loadFromDisk() throws RuntimeException {
         if (changesMap != null) {
             changesMap.get().clear();
         } else {
@@ -304,29 +317,6 @@ public class MyTable implements Table {
                     } catch (ParseException e) {
                         throw new RuntimeException("wrong type (load "
                                 + e.getMessage() + ")", e);
-                    }
-                } finally {
-                    read.unlock();
-                }
-            }
-        }
-    }
-
-//read
-    public void loadFromDataMap() throws IllegalArgumentException,
-            ParseException {
-        if (changesMap != null) {
-            changesMap.get().clear();
-        } else {
-            changesMap.set(new HashMap<String, Storeable>());
-        }
-
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                read.lock();
-                try {
-                    if (data[i][j].hasFile()) {
-                        data[i][j].loadDataToMap(changesMap.get());
                     }
                 } finally {
                     read.unlock();
@@ -351,10 +341,12 @@ public class MyTable implements Table {
 
     @Override
     public int getColumnsCount() {
+        checkClosed();
         return types.size();
     }
 
     public int getUncommitedChanges() {
+        checkClosed();
         Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
         String key;
         Storeable value;
@@ -374,6 +366,7 @@ public class MyTable implements Table {
     @Override
     public Class<?> getColumnType(int columnIndex)
             throws IndexOutOfBoundsException {
+        checkClosed();
         if (0 > columnIndex || columnIndex >= types.size()) {
             throw new IndexOutOfBoundsException(
                     "get column type: index is out of bounds");
@@ -401,7 +394,27 @@ public class MyTable implements Table {
         } catch (RuntimeException e3) {
             System.err.println(e3.getMessage());
             System.exit(1);
+        } finally {
+            try {
+                myFactory.close();
+            } catch (Exception e) {
+                //what's a pitty
+            }
         }
     }
+    
+    @Override
+    public String toString() {
+        checkClosed();
+        String className = MyTable.class.getSimpleName();
+        return (className + "[" + currTablePath + "]");
+    }
 
+    @Override
+    public void close() throws Exception {
+        checkClosed();
+        rollback();
+        isClosed = true;
+        provider.removeTableFromMap(currTableName);
+    }
 }
