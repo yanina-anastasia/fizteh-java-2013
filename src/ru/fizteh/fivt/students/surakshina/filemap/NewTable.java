@@ -315,9 +315,12 @@ public class NewTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        rollback();
-        state.setClose();
-        provider.setClose(name);
+        if (!state.isClose()) {
+            rollback();
+            state.setClose();
+            provider.setClose(name);
+        }
+
     }
 
     @Override

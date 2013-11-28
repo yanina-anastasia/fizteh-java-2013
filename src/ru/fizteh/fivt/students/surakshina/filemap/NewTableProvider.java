@@ -358,7 +358,6 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
     public void close() throws Exception {
         providerController.lock();
         try {
-
             for (NewTable table : tables.values()) {
                 table.close();
             }

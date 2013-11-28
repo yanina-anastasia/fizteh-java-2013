@@ -18,4 +18,8 @@ public class CloseState {
         isClosed.set(true);
     }
 
+    public boolean isClose() {
+        return isClosed.get();
+    }
+
 }
