@@ -64,7 +64,7 @@ public class MyInvocationHandler implements InvocationHandler {
             try {
                 result = method.invoke(implementation.get(), args);
             } catch (InvocationTargetException e) {
-                throw e.getTargetException();
+                throw e.getCause();
             }
             if (!method.getReturnType().isAssignableFrom(void.class)) {
                 writer.get().writeStartElement("return");
