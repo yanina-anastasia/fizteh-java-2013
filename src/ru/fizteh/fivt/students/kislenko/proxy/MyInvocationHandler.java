@@ -45,7 +45,7 @@ public class MyInvocationHandler implements InvocationHandler {
 
         writer.get().writeStartElement("invoke");
         writer.get().writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
-        writer.get().writeAttribute("class", String.valueOf(proxy.getClass().getCanonicalName()));
+        writer.get().writeAttribute("class", String.valueOf(implementation.get().getClass().getCanonicalName()));
         writer.get().writeAttribute("name", String.valueOf(method.getName()));
         if (args != null && args.length > 0) {
             writer.get().writeStartElement("arguments");
