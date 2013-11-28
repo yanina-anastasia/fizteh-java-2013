@@ -10,7 +10,7 @@ public class DatabaseTableProviderFactory implements TableProviderFactory, AutoC
 
     public DatabaseTableProvider create(String directory) throws IOException {
         if (isClosed) {
-            throw new IllegalStateException ("It is closed");
+            throw new IllegalStateException("It is closed");
         }
         if (directory == null || directory.isEmpty()) {
             throw new IllegalArgumentException("Error while getting property");

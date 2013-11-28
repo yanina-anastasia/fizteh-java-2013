@@ -460,6 +460,6 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public boolean isClose() {
-        return isClosed == true;
+        return isClosed;
     }
 }
