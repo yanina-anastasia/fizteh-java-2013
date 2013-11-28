@@ -35,15 +35,16 @@ public class ProxyInvocationHandler implements InvocationHandler {
             throw exception;
         } catch (Throwable e1) {
             // It is ok
+        } finally {
+            XMLOutputFactory factory = XMLOutputFactory.newInstance();
+            StringWriter writerString = new StringWriter();
+            xmlWriter = factory.createXMLStreamWriter(writerString);
+            buildLog(method, args, exception, value);
+            xmlWriter.writeEndElement();
+            xmlWriter.flush();
+            writer.write(writerString.toString());
+            writer.write(System.lineSeparator());
         }
-        XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        StringWriter writerString = new StringWriter();
-        xmlWriter = factory.createXMLStreamWriter(writerString);
-        buildLog(method, args, exception, value);
-        xmlWriter.writeEndElement();
-        xmlWriter.flush();
-        writer.write(writerString.toString());
-        writer.write(System.lineSeparator());
         return value;
 
     }
