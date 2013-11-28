@@ -25,13 +25,13 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         
-        System.out.println(method.getName());
+        /*System.out.println(method.getName());
         
         if (args != null) {
             for (int i = 0; i < args.length; ++i) {
                 System.out.println(args[i]);
             }
-        }
+        }*/
         
         Object result = null;
         
@@ -69,8 +69,8 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         } catch (Exception e) {
         } finally {
             if (!method.getReturnType().equals(Void.class)) {
-                log.put("returnValue", result);
-            }
+                log.put("returnValue", (result != null) ? result.toString() : JSONObject.NULL);
+            } 
             
             writer.write(log.toString() + '\n');
         }
@@ -94,7 +94,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             }
             arguments.put(list);
         } else {
-            arguments.put(argument);
+            arguments.put(argument.toString());
         }
     }
 

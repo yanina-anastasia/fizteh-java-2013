@@ -55,7 +55,7 @@ public class TestsForProxy {
         
         wrappedList.equals(wrappedList);
         
-        wrappedList.indexOf(new ArrayList());
+        wrappedList.indexOf(new int[0]);
         //ArrayList newList = new ArrayList(wrappedList);
         
         System.out.println(writer.toString());
