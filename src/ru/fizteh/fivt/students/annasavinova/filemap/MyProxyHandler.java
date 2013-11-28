@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -40,9 +39,20 @@ public class MyProxyHandler implements InvocationHandler {
                 exception = e.getTargetException();
             }
         }
-        JSONObject log = logging(method, arguments, exception, result);
+        JSONObject log = logging(method, arguments, exception);
+
+        Object value = null;
+        if (result != null) {
+            if (result.getClass().isArray()) {
+                value = createJSONArray((Object[]) result, new IdentityHashMap<>());
+            } else if (Iterable.class.isAssignableFrom(result.getClass())) {
+                value = createJSONArrayIterable((Iterable<?>) result, new IdentityHashMap<>());
+            } else {
+                value = result;
+            }
+        }
         try {
-            writeLog(log, result);
+            writeLog(log, value);
         } catch (Throwable e) {
             // ignore
         }
@@ -52,24 +62,23 @@ public class MyProxyHandler implements InvocationHandler {
         return result;
     }
 
-    private void writeLog(JSONObject object, Object returned) throws IOException {
-        String toWrite;
+    private void writeLog(JSONObject log, Object returned) throws IOException {
+        String res;
         if (returned == null) {
-            StringWriter stringWriter = new StringWriter();
-            stringWriter.write(object.toString());
-            toWrite = stringWriter.toString().replaceFirst("\\{", "{\"returnValue\":null,");
+            res = log.toString();
+            res = res.replaceAll("\\}", ",\"returnValue\":null}");
         } else {
             if (!returned.equals(Void.class)) {
-                object.put("returnValue", returned);
+                log.put("returnValue", returned);
             }
-            toWrite = object.toString();
+            res = log.toString();
         }
-        writer.write(toWrite);
+        writer.write(res);
         writer.write(System.lineSeparator());
 
     }
 
-    private JSONObject logging(Method method, Object[] arguments, Throwable exception, Object returnValue) {
+    private JSONObject logging(Method method, Object[] arguments, Throwable exception) {
         JSONObject log = new JSONObject();
         log.put("timestamp", System.currentTimeMillis());
         log.put("class", implementation.getClass().getName());
@@ -83,17 +92,6 @@ public class MyProxyHandler implements InvocationHandler {
             log.put("thrown", exception.toString());
             return log;
         }
-        Object value = null;
-        if (returnValue != null) {
-            if (returnValue.getClass().isArray()) {
-                value = createJSONArray((Object[]) returnValue, new IdentityHashMap<>());
-            } else if (Iterable.class.isAssignableFrom(returnValue.getClass())) {
-                value = createJSONArrayIterable((Iterable<?>) returnValue, new IdentityHashMap<>());
-            } else {
-                value = returnValue;
-            }
-        }
-        log.put("returnValue", value);
         return log;
     }
 
