@@ -26,13 +26,14 @@ public class MyInvocationHandler implements InvocationHandler {
         } else if (arg.getClass().isAssignableFrom(Class.class)) {
             xmlStreamWriter.writeCharacters(arg.getClass().getCanonicalName());
         } else if (arg instanceof Iterable) {
-            xmlStreamWriter.writeCharacters(arg.getClass().getName());
+            xmlStreamWriter.writeStartElement("list");
             items.put(arg, true);
             for (Object value : (Iterable) arg) {
                 xmlStreamWriter.writeStartElement("value");
                 writeArg(value);
                 xmlStreamWriter.writeEndElement();
             }
+            xmlStreamWriter.writeEndElement();
         } else {
             xmlStreamWriter.writeCharacters(arg.toString());
         }
