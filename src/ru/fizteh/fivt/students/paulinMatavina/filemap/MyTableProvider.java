@@ -336,7 +336,6 @@ public class MyTableProvider extends State implements TableProvider, AutoCloseab
     
     @Override
     public String toString() {
-        checkClosed();
         String result = getClass().getSimpleName() + "[" + rootDir + "]";
         return result;
     }
