@@ -16,6 +16,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory,
 
     @Override
     public TableProvider create(String dir) throws IOException {
+        isClosed();
         
         if (!isValidDatabaseDirectory(dir)) {
             throw new IllegalArgumentException("Invalid dir path");
@@ -110,9 +111,14 @@ public class TableProviderFactoryImplementation implements TableProviderFactory,
 
     @Override
     public void close() throws Exception {
-        // TODO Auto-generated method stub
+        isClosed();
         
+        isClosed = true;
     }
 
-    
+    private void isClosed() {
+        if (isClosed) {
+            throw new IllegalStateException("table object is closed");
+        }
+    }
 }

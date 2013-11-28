@@ -62,6 +62,8 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
     
     @Override
     public Table getTable(String name) {
+        isClosed();
+        
         if (!isValidTableName(name)) {
             throw new IllegalArgumentException("Invalid table name");
         }
@@ -76,6 +78,7 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        isClosed();
         
         if (!isValidTableName(name)) {
             throw new IllegalArgumentException("Invalid table name");
@@ -141,6 +144,8 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
 
     @Override
     public void removeTable(String name) throws IOException {
+        isClosed();
+        
         if (!isValidTableName(name)) {
             throw new IllegalArgumentException("Invalid table name");
         }
@@ -167,6 +172,8 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
     
 
     public Storeable deserialize(Table table, String value) throws ParseException {
+        isClosed();
+        
         if (value == null) {
             return null;
         }
@@ -236,6 +243,8 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
     }
         
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        isClosed();
+        
         if (value == null) {
             return null;
         }
@@ -280,10 +289,14 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
     }
 
     public Storeable createFor(Table table) {
+        isClosed();
+        
         return new StoreableImplementation(table);
     }
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        isClosed();
+        
         return new StoreableImplementation(table, values);
     }
     
@@ -361,6 +374,8 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
     
     @Override
     public String toString() {
+        isClosed();
+        
         String result = "";
         result += this.getClass().getSimpleName();
         result += "[" + databaseDirectory.normalize() + "]";
@@ -369,7 +384,30 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
 
     @Override
     public void close() throws Exception {
-        // TODO Auto-generated method stub
+        isClosed();
         
+        isClosed = true;
+    }
+    
+    void reinitialize(String tableName) throws IOException {
+        writeLock.lock();
+        try {
+            Table prevTable = tables.remove(tableName);
+            
+            List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+            for (int columnIndex = 0; columnIndex < prevTable.getColumnsCount(); ++columnIndex) {
+                columnTypes.add(prevTable.getColumnType(columnIndex));
+            }
+            
+            tables.put(tableName, new TableImplementation(this, databaseDirectory, tableName, columnTypes));
+        } finally {
+            writeLock.unlock();
+        }
+    }
+    
+    private void isClosed() {
+        if (isClosed) {
+            throw new IllegalStateException("table object is closed");
+        }
     }
 }

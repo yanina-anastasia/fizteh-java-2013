@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class TableImplementation implements Table, AutoCloseable {
     private static final int DIR_NUM = 16;
@@ -22,7 +21,7 @@ public class TableImplementation implements Table, AutoCloseable {
     
     private final Path databaseDirectory;
     private final String tableName;
-    private final TableProvider tableProvider;
+    private final TableProviderImplementation tableProvider;
     private final List<Class<?>> columnTypes;
     
     private final FileDatabase[][] database = new FileDatabase[DIR_NUM][FILE_NUM];
@@ -58,7 +57,7 @@ public class TableImplementation implements Table, AutoCloseable {
         }
     };
     
-    public TableImplementation(TableProvider tableProvider, Path databaseDirectory, 
+    public TableImplementation(TableProviderImplementation tableProvider, Path databaseDirectory, 
             String tableName, List<Class<?>> columnTypes) throws IOException {
 
         this.tableProvider = tableProvider;
@@ -76,11 +75,15 @@ public class TableImplementation implements Table, AutoCloseable {
     
     @Override
     public String getName() {
+        isClosed();
+        
         return tableName;
     }
 
     @Override
     public Storeable get(String key) {
+        isClosed();
+        
         tableExists();
         
         isValidKey(key);
@@ -104,6 +107,8 @@ public class TableImplementation implements Table, AutoCloseable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        isClosed();
+        
         tableExists();
         
         isValidKey(key);
@@ -129,6 +134,8 @@ public class TableImplementation implements Table, AutoCloseable {
 
     @Override
     public Storeable remove(String key) {
+        isClosed();
+        
         tableExists();
         
         isValidKey(key);
@@ -154,6 +161,8 @@ public class TableImplementation implements Table, AutoCloseable {
 
     @Override
     public int size() {
+        isClosed();
+        
         tableExists();
         
         int size;
@@ -172,6 +181,8 @@ public class TableImplementation implements Table, AutoCloseable {
 
     @Override
     public int commit() throws IOException {
+        isClosed();
+        
         tableExists();
         
         int changesNumber;
@@ -204,6 +215,8 @@ public class TableImplementation implements Table, AutoCloseable {
 
     @Override
     public int rollback() {
+        isClosed();
+        
         tableExists();
         
         int changesNumber = countChanges();
@@ -219,15 +232,21 @@ public class TableImplementation implements Table, AutoCloseable {
     
     @Override
     public int getColumnsCount() {
+        isClosed();
+        
         return columnTypes.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        isClosed();
+        
         return columnTypes.get(columnIndex);
     }
     
     public int countChanges() {
+        isClosed();
+        
         int changesNumber = 0;
         
         readLock.lock();
@@ -456,6 +475,8 @@ public class TableImplementation implements Table, AutoCloseable {
     
     @Override
     public String toString() {
+        isClosed();
+        
         String result = "";
         result += this.getClass().getSimpleName();
         result += "[" + databaseDirectory.resolve(tableName).normalize() + "]";
@@ -466,5 +487,24 @@ public class TableImplementation implements Table, AutoCloseable {
     public void close() throws Exception {
         rollback();
         
+        isClosed();
+        
+        writeLock.lock();
+        try {
+            if (!isClosed) {
+                tableProvider.reinitialize(tableName);
+            }
+        } finally {
+            writeLock.unlock();
+        }
+        
+        isClosed = true;
+        
+    }
+    
+    private void isClosed() {
+        if (isClosed) {
+            throw new IllegalStateException("table object is closed");
+        }
     }
 }

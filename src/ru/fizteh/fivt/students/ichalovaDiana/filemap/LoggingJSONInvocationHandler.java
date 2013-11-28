@@ -25,14 +25,6 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         
-        /*System.out.println(method.getName());
-        
-        if (args != null) {
-            for (int i = 0; i < args.length; ++i) {
-                System.out.println(args[i]);
-            }
-        }*/
-        
         Object result = null;
         
         if (method.getDeclaringClass().equals(Object.class)) {
