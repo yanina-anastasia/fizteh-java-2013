@@ -43,17 +43,7 @@ public class NewTableProviderFactory implements TableProviderFactory, AutoClosea
         for (AutoCloseable object : providers) {
             object.close();
         }
-        providers.clear();
         state.setClose();
-    }
-
-    public void setClose(AutoCloseable provider) {
-        factoryController.lock();
-        try {
-            providers.remove(provider);
-        } finally {
-            factoryController.unlock();
-        }
     }
 
 }

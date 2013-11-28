@@ -367,6 +367,7 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
             for (NewTable table : tables.values()) {
                 table.close();
             }
+            state.setClose();
         } finally {
             providerController.unlock();
         }
