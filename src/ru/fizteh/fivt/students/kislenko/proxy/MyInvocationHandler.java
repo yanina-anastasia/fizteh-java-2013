@@ -107,7 +107,9 @@ public class MyInvocationHandler implements InvocationHandler {
                 } else {
                     identityHashMap.get().put(arg, true);
                     logArgument(w, e);
-                    identityHashMap.get().remove(arg);
+                    if (identityHashMap.get().containsKey(arg)) {
+                        identityHashMap.get().remove(arg);
+                    }
                 }
                 w.writeEndElement();
             }
