@@ -441,6 +441,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
         
         StringBuffer str = new StringBuffer(getClass().getSimpleName());
         str.append("[");
+        rootDir.replaceAll(File.separatorChar + "$", "");
         str.append(rootDir);
         str.append("]");
         return str.toString();
