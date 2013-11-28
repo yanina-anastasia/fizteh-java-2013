@@ -46,7 +46,7 @@ public class MyProxyHandler implements InvocationHandler {
         return result;
     }
 
-    public JSONObject logging(Method method, Object[] arguments, Throwable exception, Object returnValue) {
+    private JSONObject logging(Method method, Object[] arguments, Throwable exception, Object returnValue) {
         JSONObject log = new JSONObject();
         log.put("timestamp", System.currentTimeMillis());
         log.put("class", implementation.getClass().getName());
@@ -64,6 +64,8 @@ public class MyProxyHandler implements InvocationHandler {
         if (returnValue == null) {
             if (method.getReturnType().equals(Void.class)) {
                 value = Void.class;
+            } else {
+                value = new MyNull();
             }
         } else {
             if (returnValue.getClass().isArray()) {
@@ -74,7 +76,10 @@ public class MyProxyHandler implements InvocationHandler {
                 value = returnValue;
             }
         }
+        //TODO
+        System.out.println(value);
         log.put("returnValue", value);
+        System.out.println(log.get("returnValue"));
         return log;
     }
 
@@ -121,4 +126,11 @@ public class MyProxyHandler implements InvocationHandler {
         addedElements.remove(array);
         return jsonArray;
     }
+    
+    private class MyNull {
+        @Override
+        public String toString() {
+            return "null";
+        }
+    };
 }
