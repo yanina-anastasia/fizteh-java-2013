@@ -1,17 +1,29 @@
 package ru.fizteh.fivt.students.baldindima.junit;
 
 import java.io.File;
+import java.io.PrintWriter;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
 
 public class DataBase implements Table {
     private String dataBaseDirectory;
+    private TableProvider provider;
+    private List<Class<?>> types;
     private DataBaseFile[] files;
 
     private void checkNames(String[] fileList, String extension) throws IOException {
         for (String fileNumber : fileList) {
+            if (fileNumber.equals("signature.tsv")) {
+                continue;
+
+            }
             String[] nameFile = fileNumber.split("\\.");
             if ((nameFile.length != 2)
                     || !nameFile[1].equals(extension)) {
@@ -48,20 +60,45 @@ public class DataBase implements Table {
         }
         checkNames(file.list(), "dir");
         for (String fileNumber : file.list()) {
-            checkCorrectionDirectory(dataBaseDirectory + File.separator + fileNumber);
+            if (!fileNumber.equals("signature.tsv")) {
+                checkCorrectionDirectory(dataBaseDirectory + File.separator + fileNumber);
+            }
+
         }
 
 
     }
 
-    public DataBase(String nameDirectory) throws IOException {
+    public DataBase(String nameDirectory, TableProvider nProvider, List<Class<?>> nTypes) throws IOException {
+
         dataBaseDirectory = nameDirectory;
+        provider = nProvider;
+
+        types = nTypes;
+        BaseSignature.setBaseSignature(dataBaseDirectory, types);
+        File file = new File(nameDirectory);
+        if (!file.delete()) {
+            int i = 8;
+        }
+
         checkCorrection();
         files = new DataBaseFile[256];
-
         loadDataBase();
-
     }
+
+    public DataBase(String nameDirectory, TableProvider nProvider) throws IOException {
+
+        dataBaseDirectory = nameDirectory;
+        provider = nProvider;
+
+        types = BaseSignature.getBaseSignature(dataBaseDirectory);
+
+
+        checkCorrection();
+        files = new DataBaseFile[256];
+        loadDataBase();
+    }
+
 
     private void addDirectory(final String directoryName) throws IOException {
         File file = new File(dataBaseDirectory + File.separator + directoryName);
@@ -84,7 +121,7 @@ public class DataBase implements Table {
                 for (int j = 0; j < 16; ++j) {
                     int nFile = j;
                     int nDir = i;
-                    DataBaseFile file = new DataBaseFile(getFullName(i, j), i, j);
+                    DataBaseFile file = new DataBaseFile(getFullName(i, j), i, j, provider, this);
                     files[i * 16 + j] = file;
                 }
 
@@ -122,6 +159,9 @@ public class DataBase implements Table {
             }
             deleteEmptyDirectory(Integer.toString(i) + ".dir");
         }
+        if (!new File(dataBaseDirectory, "signature.tsv").delete()) {
+            throw new IOException("Cannot delete a file!");
+        }
     }
 
     public void saveDataBase() throws IOException {
@@ -141,29 +181,31 @@ public class DataBase implements Table {
         }
     }
 
-    public String get(String keyString) {
+    public Storeable get(String keyString) {
         checkString(keyString);
         int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
-        return file.get(keyString);
+        return JSONClass.deserialize(this, file.get(keyString));
     }
 
-    public String put(String keyString, String valueString) {
+    public Storeable put(String keyString, Storeable storeable) {
         checkString(keyString);
-        checkString(valueString);
+        if (storeable == null) {
+            throw new IllegalArgumentException("Value is null!");
+        }
         int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
-        return file.put(keyString, valueString);
+        return JSONClass.deserialize(this, file.put(keyString, JSONClass.serialize(this, storeable)));
     }
 
-    public String remove(String keyString) {
+    public Storeable remove(String keyString) {
         checkString(keyString);
         int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
-        return file.remove(keyString);
+        return JSONClass.deserialize(this, file.remove(keyString));
     }
 
     public int countCommits() {
@@ -208,6 +250,10 @@ public class DataBase implements Table {
         return count;
     }
 
+    public Storeable putStoreable(String keyStr, String valueStr) throws ParseException {
+        return put(keyStr, provider.deserialize(this, valueStr));
+    }
+
     public String getName() {
         return new File(dataBaseDirectory).getName();
     }
@@ -216,6 +262,20 @@ public class DataBase implements Table {
         if ((str == null) || (str.trim().length() == 0)) {
             throw new IllegalArgumentException("Wrong key!");
         }
+    }
+
+
+    public int getColumnsCount() {
+        return types.size();
+    }
+
+
+    public Class<?> getColumnType(int columnIndex)
+            throws IndexOutOfBoundsException {
+        if ((columnIndex < 0) || (columnIndex >= types.size())) {
+            throw new IndexOutOfBoundsException("wrong columnIndex");
+        }
+        return types.get(columnIndex);
     }
 
 

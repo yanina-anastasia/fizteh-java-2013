@@ -10,12 +10,12 @@ public class ShellDbCreateTable extends ShellIsItCommand {
     public ShellDbCreateTable(Context nContext) {
         context = nContext;
     	setName("create");
-        setNumberOfArgs(2);
+        setNumberOfArgs(3);
 
     }
 
     public void run() throws IOException {
-        if (context.provider.createTable(arguments[1]) != null) {
+        if (context.provider.createTable(arguments[1], BaseSignature.getTypes(arguments[2])) != null) {
             System.out.println("created");
 
         } else {

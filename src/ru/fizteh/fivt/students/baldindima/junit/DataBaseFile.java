@@ -6,11 +6,14 @@ import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.fizteh.fivt.storage.structured.TableProvider;
+
 
 public class DataBaseFile {
     protected final Map<String, Node> currentTable = new HashMap<String, Node>();
     protected File dataBaseFile;
     protected String fileName;
+    private TableProvider provider;
     private int fileNumber;
     private int directoryNumber;
     static final byte OLD = 0;
@@ -75,8 +78,10 @@ public class DataBaseFile {
 
     }
 
-    public DataBaseFile(String fullName, int newDirectoryNumber, int newFileNumber) throws IOException {
+    public DataBaseFile(String fullName, int nDirectoryNumber, int nFileNumber,
+                        TableProvider nProvider, DataBase nTable) throws IOException {
         fileName = fullName;
+        provider = nProvider;
 
         dataBaseFile = new File(fileName);
         try {
@@ -88,8 +93,8 @@ public class DataBaseFile {
         } catch (IOException e) {
             throw new IOException("Open file error! " + e.getMessage());
         }
-        fileNumber = newFileNumber;
-        directoryNumber = newDirectoryNumber;
+        fileNumber = nFileNumber;
+        directoryNumber = nDirectoryNumber;
         read();
         check();
 
@@ -114,6 +119,13 @@ public class DataBaseFile {
 
     public void read() throws IOException {
         //     open(shell, fileFunctions);
+        File dataBaseDirectory = new File(dataBaseFile.getParent());
+        if (dataBaseDirectory.exists() && dataBaseDirectory.list().length == 0) {
+            throw new IOException("Empty dir!");
+        }
+        if (!dataBaseDirectory.exists() || !dataBaseFile.exists()) {
+            return;
+        }
         RandomAccessFile randomDataBaseFile = new RandomAccessFile(fileName, "rw");
         if (randomDataBaseFile.length() == 0) {
             randomDataBaseFile.close();

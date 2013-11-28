@@ -3,8 +3,8 @@ package ru.fizteh.fivt.students.baldindima.junit;
 import java.io.File;
 import java.io.IOException;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 public class MyTableProviderFactory implements TableProviderFactory{
 	
 	public TableProvider create(String directory){

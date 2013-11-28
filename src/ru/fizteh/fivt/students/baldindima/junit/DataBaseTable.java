@@ -2,11 +2,19 @@ package ru.fizteh.fivt.students.baldindima.junit;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
+
+import org.json.JSONArray;
+
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.storage.structured.TableProvider;
 
 public class DataBaseTable implements TableProvider {
 
@@ -18,22 +26,6 @@ public class DataBaseTable implements TableProvider {
         tables = new HashMap();
     }
 
-    public DataBase getTableFromMap(String name) {
-        if (!tables.containsKey(name)) {
-            try {
-                tables.put(name, new DataBase(name));
-            } catch (IOException e) {
-                throw new RuntimeException("cannot get table");
-            }
-        }
-        return tables.get(name);
-    }
-
-    public void deleteTableFromMap(String name) {
-        if (tables.containsKey(name)) {
-            tables.remove(name);
-        }
-    }
 
     private void checkName(String name) {
         if ((name == null) || name.trim().length() == 0) {
@@ -46,7 +38,7 @@ public class DataBaseTable implements TableProvider {
         }
     }
 
-    public Table createTable(String name) {
+    public Table createTable(String name, List<Class<?>> types) throws IOException {
         checkName(name);
         String path = tableDirectory + File.separator + name;
 
@@ -60,7 +52,16 @@ public class DataBaseTable implements TableProvider {
             throw new RuntimeException("Cannot create table " + name);
         }
 
-        return getTableFromMap(path);
+        if (types == null || types.size() == 0) {
+            throw new IllegalArgumentException("wrong list of types");
+        }
+
+        DataBase table = new DataBase(path, this, types);
+
+        tables.put(name, table);
+        return table;
+
+
     }
 
     public Table getTable(String name) {
@@ -71,28 +72,88 @@ public class DataBaseTable implements TableProvider {
         if ((!file.exists()) || (file.isFile())) {
             return null;
         }
-        return getTableFromMap(path);
+
+        if (tables.containsKey(name)) {
+            return tables.get(name);
+        } else {
+
+            try {
+                DataBase table = new DataBase(path, this);
+                tables.put(name, table);
+                return table;
+            } catch (IOException e) {
+                throw new RuntimeException();
+            }
+
+        }
     }
 
-    public void removeTable(String name) {
+    public void removeTable(String name) throws IOException {
         checkName(name);
         String path = tableDirectory + File.separator + name;
 
         File file = new File(path);
+
         if (!file.exists()) {
             throw new IllegalStateException("Table not exist");
         }
 
-        DataBase base = getTableFromMap(path);
-        try {
+        if (tables.containsKey(name)) {
+            tables.get(name).drop();
+            tables.remove(name);
+
+        } else {
+            DataBase base = new DataBase(name, this);
             base.drop();
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot delete a table " + name);
+
         }
+
+
         if (!file.delete()) {
             throw new RuntimeException("Cannot delete a table " + name);
         }
-        deleteTableFromMap(path);
+
+    }
+
+
+    @Override
+    public Storeable deserialize(Table table, String value)
+            throws ParseException {
+        JSONArray jsonValue = new JSONArray(value);
+        List<Object> values = new ArrayList<>();
+        for (int i = 0; i < jsonValue.length(); ++i) {
+            values.add(jsonValue.get(i));
+        }
+
+        Storeable storeable;
+        try {
+            storeable = createFor(table, values);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ParseException("Invalud number of arguments", 0);
+        } catch (ColumnFormatException e) {
+            throw new ParseException(e.getMessage(), 0);
+        }
+
+        return storeable;
+    }
+
+
+    public String serialize(Table table, Storeable value)
+            throws ColumnFormatException {
+        return JSONClass.serialize(table, value);
+    }
+
+
+    public Storeable createFor(Table table) {
+        return new BaseStoreable(table);
+    }
+
+
+    public Storeable createFor(Table table, List<?> values)
+            throws ColumnFormatException, IndexOutOfBoundsException {
+        BaseStoreable storeable = new BaseStoreable(table);
+        storeable.setValues(values);
+        return storeable;
     }
 
 

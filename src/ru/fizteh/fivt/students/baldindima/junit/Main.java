@@ -4,7 +4,7 @@ package ru.fizteh.fivt.students.baldindima.junit;
 import java.io.File;
 import java.io.IOException;
 
-import ru.fizteh.fivt.storage.strings.TableProviderFactory;
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.baldindima.shell.ExitException;
 import ru.fizteh.fivt.students.baldindima.shell.Shell;
 
@@ -21,7 +21,7 @@ public class Main {
         return true;
     }
 
-    private static void makeShell() {
+    private static void makeShell() throws IOException {
 
         shell = new Shell();
 
@@ -48,7 +48,8 @@ public class Main {
             	System.exit(1); ;
             }
             makeShell();
-
+           
+                   
             if (args.length > 0) {
                 shell.nonInteractiveMode(args);
 

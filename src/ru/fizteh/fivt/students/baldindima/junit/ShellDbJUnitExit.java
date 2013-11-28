@@ -12,7 +12,7 @@ import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
 		}
 		public void run(){
 			
-			context.table.commit();
+			
 			if (context.getChanges() == 0) {
 	            throw new ExitException();
 	        } else {
