@@ -105,10 +105,10 @@ public class MyInvocationHandler implements InvocationHandler {
                 if (identityHashMap.get().get(e) != null && identityHashMap.get().get(arg)) {
                     w.writeCharacters("cyclic");
                 } else {
-                    identityHashMap.get().put(arg, true);
+                    identityHashMap.get().put(e, true);
                     logArgument(w, e);
-                    if (identityHashMap.get().containsKey(arg)) {
-                        identityHashMap.get().remove(arg);
+                    if (identityHashMap.get().containsKey(e)) {
+                        identityHashMap.get().remove(e);
                     }
                 }
                 w.writeEndElement();
