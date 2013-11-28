@@ -53,7 +53,9 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             }
             if (tables.get(name).isClosed) {
                 createTable(name, tables.get(name).columnTypes);
-                open();
+                if (!open()) {
+                    throw new IllegalArgumentException("Wrong format");
+                }
             }
 
             DatabaseTable table = tables.get(name);
