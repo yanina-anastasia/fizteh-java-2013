@@ -500,7 +500,7 @@ public class FileMapTable implements Table, AutoCloseable {
         } finally {
             read.unlock();
         }
-        return getClass().getSimpleName() + "[" + currentFileMapTable.toString() + "]";
+        return getClass().getSimpleName() + "[" + currentFileMapTable.getAbsolutePath() + "]";
     }
 
     public boolean isOpen() {

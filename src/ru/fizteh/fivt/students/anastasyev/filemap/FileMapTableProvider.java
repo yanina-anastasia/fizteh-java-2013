@@ -359,7 +359,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "[" + multiFileHashMapDir.toString() + "]";
+        return getClass().getSimpleName() + "[" + multiFileHashMapDir.getAbsolutePath() + "]";
     }
 
     @Override

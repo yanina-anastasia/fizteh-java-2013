@@ -91,7 +91,11 @@ public class MyInvocationHandler implements InvocationHandler {
             result = method.invoke(implementation, args);
             if (!method.getReturnType().equals(void.class)) {
                 xmlStreamWriter.writeStartElement("return");
-                xmlStreamWriter.writeCharacters(result.toString());
+                if (result != null) {
+                    xmlStreamWriter.writeCharacters(result.toString());
+                } else {
+                    xmlStreamWriter.writeEmptyElement("null");
+                }
                 xmlStreamWriter.writeEndElement();
             }
         } catch (InvocationTargetException e) {
