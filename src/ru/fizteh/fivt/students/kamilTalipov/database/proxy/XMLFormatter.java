@@ -19,7 +19,7 @@ public class XMLFormatter implements Closeable {
         stringWriter = new StringWriter();
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
         xmlWriter = xmlOutputFactory.createXMLStreamWriter(stringWriter);
-        xmlWriter.writeStartDocument("invoke");
+        xmlWriter.writeStartElement("invoke");
         identityHashMap = new IdentityHashMap<>();
     }
 
@@ -92,7 +92,7 @@ public class XMLFormatter implements Closeable {
     @Override
     public void close() throws IOException {
         try {
-            xmlWriter.writeEndDocument();
+            xmlWriter.writeEndElement();
             xmlWriter.flush();
         } catch (XMLStreamException e) {
             throw new IOException("Xml write error", e);
