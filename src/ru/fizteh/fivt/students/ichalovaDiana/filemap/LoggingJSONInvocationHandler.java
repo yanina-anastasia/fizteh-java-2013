@@ -79,18 +79,16 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         } else if (Iterable.class.isAssignableFrom(argument.getClass())) {
             JSONArray list = new JSONArray();
             
+            cycles.put(argument, null);
             for (Object element : (Iterable<Object>) argument) {
-                cycles.put(argument, null);
                 logArgument(element, list, cycles);
-                cycles.remove(argument);
             }
+            cycles.remove(argument);
             
             arguments.put(list);
-        } else {
-            if (argument.toString().startsWith("[I")) {
+        } else if (argument.toString().startsWith("[I")) {
                 arguments.put(argument.toString());
-                return;
-            }
+        } else {
             arguments.put(argument);
         }
     }
