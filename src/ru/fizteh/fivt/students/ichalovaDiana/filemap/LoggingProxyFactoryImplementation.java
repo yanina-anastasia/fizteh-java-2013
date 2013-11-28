@@ -7,7 +7,7 @@ import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
 public class LoggingProxyFactoryImplementation implements LoggingProxyFactory {
 
-    LoggingProxyFactoryImplementation() {};
+    public LoggingProxyFactoryImplementation() {};
     
     @Override
     public Object wrap(Writer writer, Object implementation, Class<?> interfaceClass) {
