@@ -71,12 +71,14 @@ public class MyInvocationHandler implements InvocationHandler {
             writer.get().writeStartElement("thrown");
             writer.get().writeCharacters(e.getTargetException().toString());
             writer.get().writeEndDocument();
+            writer.get().writeCharacters("\n");
             writer.get().flush();
             throw e.getTargetException();
         } catch (Exception e) {
             writer.get().writeStartElement("thrown");
             logArgument(writer.get(), e);
             writer.get().writeEndDocument();
+            writer.get().writeCharacters("\n");
             writer.get().flush();
             throw e;
         }
