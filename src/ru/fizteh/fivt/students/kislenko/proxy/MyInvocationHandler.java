@@ -81,11 +81,6 @@ public class MyInvocationHandler implements InvocationHandler {
     }
 
     private void logArgument(XMLStreamWriter w, Object arg) throws XMLStreamException {
-        if (identityHashMap.get().get(arg) != null && identityHashMap.get().get(arg)) {
-            w.writeCharacters("cyclic");
-            return;
-        }
-        identityHashMap.get().put(arg, true);
         if (arg == null) {
             w.writeEmptyElement("null");
             identityHashMap.get().remove(arg);
@@ -101,7 +96,12 @@ public class MyInvocationHandler implements InvocationHandler {
             List list = (List) arg;
             for (Object e : list) {
                 w.writeStartElement("value");
-                logArgument(w, e);
+                if (identityHashMap.get().get(e) != null && identityHashMap.get().get(arg)) {
+                    w.writeCharacters("cyclic");
+                } else {
+                    identityHashMap.get().put(arg, true);
+                    logArgument(w, e);
+                }
                 w.writeEndElement();
             }
             w.writeEndElement();
@@ -113,7 +113,12 @@ public class MyInvocationHandler implements InvocationHandler {
             Set set = (Set) arg;
             for (Object e : set) {
                 w.writeStartElement("value");
-                logArgument(w, e);
+                if (identityHashMap.get().get(e) != null && identityHashMap.get().get(arg)) {
+                    w.writeCharacters("cyclic");
+                } else {
+                    identityHashMap.get().put(arg, true);
+                    logArgument(w, e);
+                }
                 w.writeEndElement();
             }
             w.writeEndElement();
@@ -125,10 +130,21 @@ public class MyInvocationHandler implements InvocationHandler {
             Map map = (Map) arg;
             for (Object key : map.keySet()) {
                 w.writeStartElement("key");
-                logArgument(w, key);
+                if (identityHashMap.get().get(key) != null && identityHashMap.get().get(key)) {
+                    w.writeCharacters("cyclic");
+                } else {
+                    identityHashMap.get().put(arg, true);
+                    logArgument(w, key);
+                }
                 w.writeEndElement();
                 w.writeStartElement("value");
-                logArgument(w, map.get(key));
+                Object value = map.get(key);
+                if (identityHashMap.get().get(value) != null && identityHashMap.get().get(value)) {
+                    w.writeCharacters("cyclic");
+                } else {
+                    identityHashMap.get().put(arg, true);
+                    logArgument(w, value);
+                }
                 w.writeEndElement();
             }
             w.writeEndElement();
