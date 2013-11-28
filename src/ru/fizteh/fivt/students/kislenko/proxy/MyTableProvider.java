@@ -20,8 +20,13 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private HashMap<String, MyTable> tables = new HashMap<String, MyTable>();
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private String nameOfCurrentCreatingTable;
-    private boolean closed = false;
     private Path path;
+    ThreadLocal<Boolean> closed = new ThreadLocal<Boolean>() {
+        @Override
+        public Boolean initialValue() {
+            return false;
+        }
+    };
 
     public MyTableProvider(String providerPath) {
         path = Paths.get(providerPath);
@@ -223,17 +228,17 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                 tables.get(tableName).close();
             }
         }
-        closed = false;
+        closed.set(true);
     }
 
     private void assertClosed() {
-        if (closed) {
+        if (closed.get()) {
             throw new IllegalStateException("Provider was closed.");
         }
     }
 
     public boolean isClosed() {
-        return closed;
+        return closed.get();
     }
 
     @Override

@@ -22,7 +22,12 @@ public class MyTable implements Table, AutoCloseable {
     private boolean[][] globalUses;
     private int revision;
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private boolean closed = false;
+    ThreadLocal<Boolean> closed = new ThreadLocal<Boolean>() {
+        @Override
+        public Boolean initialValue() {
+            return false;
+        }
+    };
 
     private ThreadLocal<boolean[][]> uses = new ThreadLocal<boolean[][]>() {
         @Override
@@ -335,17 +340,17 @@ public class MyTable implements Table, AutoCloseable {
     @Override
     public void close() throws Exception {
         privateRollback();
-        closed = true;
+        closed.set(true);
     }
 
     private void assertClosed() {
-        if (closed) {
+        if (closed.get()) {
             throw new IllegalStateException("Table was closed.");
         }
     }
 
     public boolean isClosed() {
-        return closed;
+        return closed.get();
     }
 
     @Override
