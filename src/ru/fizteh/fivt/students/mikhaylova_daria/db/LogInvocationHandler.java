@@ -105,7 +105,7 @@ public class LogInvocationHandler implements InvocationHandler {
             }
             try {
                 returnedValue = method.invoke(proxied, args);
-                record.put("returnValue", returnedValue);
+                record.put("returnValue",  method.invoke(proxied, args));
             } catch (InvocationTargetException e) {
                 record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
@@ -132,7 +132,6 @@ public class LogInvocationHandler implements InvocationHandler {
             try {
                 returnedValue = method.invoke(proxied, args);
             } catch (InvocationTargetException e) {
-                record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
             }
         }
