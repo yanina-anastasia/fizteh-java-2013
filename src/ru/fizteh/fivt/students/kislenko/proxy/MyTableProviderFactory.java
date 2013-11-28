@@ -31,9 +31,6 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
         }
         MyTableProvider provider = new MyTableProvider(path);
         providers.add(provider);
-        if (closed) {
-            throw new IllegalStateException("Factory was closed.");
-        }
         return provider;
     }
 
@@ -45,5 +42,6 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
             }
         }
         closed = true;
+        throw new IllegalStateException("May be it will working now?");
     }
 }
