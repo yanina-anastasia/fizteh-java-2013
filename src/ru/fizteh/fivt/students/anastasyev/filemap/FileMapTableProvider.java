@@ -19,21 +19,32 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class FileMapTableProvider extends State implements TableProvider {
+public class FileMapTableProvider extends State implements TableProvider, AutoCloseable {
     private File multiFileHashMapDir;
     private ArrayList<Command> commands = new ArrayList<>();
     private HashMap<String, Class<?>> providedTypes;
     private HashMap<Class<?>, String> providedTypesNames;
     private String currentFileMapTable = null;
     private HashMap<String, FileMapTable> allFileMapTablesHashtable = new HashMap<String, FileMapTable>();
+    private boolean isOpen;
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
 
+    private void checkStatus() {
+        if (!isOpen) {
+            throw new IllegalStateException(multiFileHashMapDir.getName() + " provider is already closed");
+        }
+    }
+
     @Override
     public ArrayList<Command> getCommands() {
         return commands;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
     }
 
     private void isBadName(String val) {
@@ -95,6 +106,8 @@ public class FileMapTableProvider extends State implements TableProvider {
     }
 
     public FileMapTableProvider(String dbDir) throws IllegalArgumentException, IOException {
+        isOpen = true;
+
         if (dbDir == null || dbDir.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -172,6 +185,12 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     @Override
     public Table getTable(String name) throws IllegalArgumentException, RuntimeException {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
         isBadName(name);
         return allFileMapTablesHashtable.get(name);
     }
@@ -179,6 +198,12 @@ public class FileMapTableProvider extends State implements TableProvider {
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException,
             IllegalArgumentException, RuntimeException {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
         isBadName(name);
         if (columnTypes == null) {
             throw new IllegalArgumentException("Null column type list");
@@ -227,6 +252,12 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
         isBadName(name);
         write.lock();
         try {
@@ -250,6 +281,12 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
         if (table == null) {
             throw new ParseException("Table is null", 0);
         }
@@ -278,6 +315,12 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
         if (value == null) {
             return null;
         }
@@ -294,11 +337,49 @@ public class FileMapTableProvider extends State implements TableProvider {
 
     @Override
     public Storeable createFor(Table table) {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
         return new MyStoreable(table, values);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + multiFileHashMapDir.toString() + "]";
+    }
+
+    @Override
+    public void close() {
+        read.lock();
+        try {
+            checkStatus();
+        } finally {
+            read.unlock();
+        }
+        write.lock();
+        try {
+            for (String tableName : allFileMapTablesHashtable.keySet()) {
+                if (allFileMapTablesHashtable.get(tableName).isOpen()) {
+                    allFileMapTablesHashtable.get(tableName).close();
+                }
+            }
+            isOpen = false;
+        } finally {
+            write.unlock();
+        }
     }
 }
