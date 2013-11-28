@@ -4,6 +4,7 @@ import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.*;
 
+import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTable;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
 
 import java.io.IOException;
@@ -647,5 +648,15 @@ public class FileMapTableTest {
         second.start();
         first.join();
         second.join();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDoubleCloseTable() throws ParseException {
+        Storeable valueOld = tableProvider.deserialize(currTable, value);
+        String valueNewString = "[10,11,22,33,4.4,5,true,\"new1\",\"new2\"]";
+        Storeable valueNew = tableProvider.deserialize(currTable, valueNewString);
+        assertNull(currTable.put("key", valueOld));
+        ((FileMapTable) currTable).close();
+        currTable.put("key", valueNew);
     }
 }

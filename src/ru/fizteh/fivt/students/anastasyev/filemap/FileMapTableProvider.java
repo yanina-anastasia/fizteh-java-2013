@@ -330,7 +330,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
     @Override
     public void close() {
         checkStatus();
-        if (!isOpen) {
+        if (isOpen) {
             for (String tableName : allFileMapTablesHashtable.keySet()) {
                 if (allFileMapTablesHashtable.get(tableName).isOpen()) {
                     allFileMapTablesHashtable.get(tableName).close();

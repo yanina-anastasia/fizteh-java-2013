@@ -454,7 +454,8 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public void close() {
-        if (!isOpen()) {
+        checkStatus();
+        if (isOpen) {
             rollback();
             isOpen = false;
         }
