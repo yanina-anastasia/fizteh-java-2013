@@ -45,6 +45,7 @@ public class LogInvocationHandler implements InvocationHandler {
                         }
                         identifyAttended.remove(arg);
                     }
+                    creatingArray.put(newCreatingArray);
                 } else if (arg.getClass().isArray()) {
                     if (identifyAttended.containsKey(arg)) {
                         newCreatingArray.put("cyclic");
@@ -60,8 +61,9 @@ public class LogInvocationHandler implements InvocationHandler {
                         }
                         identifyAttended.remove(arg);
                     }
+                    creatingArray.put(newCreatingArray);
                 } else {
-                     creatingArray.put(arg.toString());
+                    creatingArray.put(arg.toString());
                 }
             }
             return creatingArray;
@@ -88,8 +90,14 @@ public class LogInvocationHandler implements InvocationHandler {
         record.put("timestamp", System.currentTimeMillis());
         record.put("class", proxied.getClass().getName());
         record.put("method", method.getName());
-        ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-        record.put("arguments", creatorJSONArray.getJSONArray());
+        if (args == null) {
+            record.put("arguments", new JSONArray().put("null"));
+        } else if (args.length == 0) {
+            record.put("arguments", new JSONArray());
+        } else {
+            ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
+            record.put("arguments", creatorJSONArray.getJSONArray());
+        }
         Object returnedValue = null;
         try {
             returnedValue = method.invoke(proxied, args);
@@ -101,7 +109,11 @@ public class LogInvocationHandler implements InvocationHandler {
                     + e.getMessage());
         } finally {
             if (returnedValue != null) {
-                record.put("returnValue", returnedValue.toString());
+                if (returnedValue.getClass().isPrimitive()) {
+                    record.put("returnValue", returnedValue);
+                } else {
+                    record.put("returnValue", returnedValue.toString());
+                }
             }
         }
         writeLock.lock();
