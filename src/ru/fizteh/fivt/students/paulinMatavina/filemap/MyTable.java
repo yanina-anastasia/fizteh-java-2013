@@ -400,9 +400,7 @@ public class MyTable extends State implements Table, AutoCloseable {
     }
     
     @Override
-    public String toString() {
-        checkCurrentTableState();
-        
+    public String toString() {        
         String result = getClass().getSimpleName() + "[" + shell.currentDir.getAbsolutePath() + "]";
         return result;
     }
