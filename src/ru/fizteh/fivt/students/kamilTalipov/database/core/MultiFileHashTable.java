@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MultiFileHashTable implements Table {
+public class MultiFileHashTable implements Table, AutoCloseable {
     private final HashMap<String, Storeable>[][] table;
     private final ThreadLocal<HashMap<String, Storeable>> newValues;
 
@@ -33,6 +33,7 @@ public class MultiFileHashTable implements Table {
     private final TableProvider myTableProvider;
 
     private volatile boolean isRemoved = false;
+    private volatile boolean isClosed = false;
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
@@ -105,6 +106,11 @@ public class MultiFileHashTable implements Table {
     }
 
     @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + tableDirectory.getAbsolutePath() + "]";
+    }
+
+    @Override
     public String getName() {
         checkState();
         return tableName;
@@ -169,7 +175,9 @@ public class MultiFileHashTable implements Table {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
+        readLock.lock();
         Storeable oldValue = get(key);
+        readLock.unlock();
         newValues.get().put(key, null);
 
         return oldValue;
@@ -277,6 +285,12 @@ public class MultiFileHashTable implements Table {
         return types.get(columnIndex);
     }
 
+    @Override
+    public void close() {
+        rollback();
+        isClosed = true;
+    }
+
     public int uncommittedChanges() {
         checkState();
         readLock.lock();
@@ -298,7 +312,10 @@ public class MultiFileHashTable implements Table {
 
     private void checkState() {
         if (isRemoved) {
-            throw new IllegalStateException("Table + '" + tableName + "' is removed");
+            throw new IllegalStateException("Table '" + tableName + "' is removed");
+        }
+        if (isClosed) {
+            throw new IllegalStateException("Table '" + tableName + "' is closed");
         }
     }
 

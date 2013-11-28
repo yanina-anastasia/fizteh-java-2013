@@ -16,13 +16,15 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MultiFileHashTableProvider implements TableProvider {
+public class MultiFileHashTableProvider implements TableProvider, AutoCloseable {
     private final File databaseDirectory;
     private final ArrayList<MultiFileHashTable> tables;
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
+
+    private volatile boolean isClosed = false;
 
     public MultiFileHashTableProvider(String databaseDirectory) throws IOException,
             DatabaseException {
@@ -37,11 +39,18 @@ public class MultiFileHashTableProvider implements TableProvider {
         }
 
         tables = new ArrayList<>();
+
         loadTables();
     }
 
     @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + databaseDirectory.getAbsolutePath() + "]";
+    }
+
+    @Override
     public MultiFileHashTable getTable(String name) throws IllegalArgumentException {
+        checkState();
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Table name must be not null");
         }
@@ -69,6 +78,7 @@ public class MultiFileHashTableProvider implements TableProvider {
     @Override
     public MultiFileHashTable createTable(String name, List<Class<?>> columnTypes) throws
                                                                         IllegalArgumentException, IOException {
+        checkState();
         writeLock.lock();
         try {
             if (getTable(name) != null) {
@@ -94,6 +104,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
+        checkState();
         if (name == null) {
             throw new IllegalArgumentException("Table name must be not null");
         }
@@ -122,6 +133,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        checkState();
         readLock.lock();
         try {
             return JsonUtils.deserialize(value, this, table);
@@ -132,6 +144,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        checkState();
         readLock.lock();
         try {
             return JsonUtils.serialize(value, table);
@@ -142,6 +155,7 @@ public class MultiFileHashTableProvider implements TableProvider {
 
     @Override
     public Storeable createFor(Table table) {
+        checkState();
         readLock.lock();
         try {
             return new TableRow(table);
@@ -153,11 +167,28 @@ public class MultiFileHashTableProvider implements TableProvider {
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException,
                                                                     IndexOutOfBoundsException {
+        checkState();
         readLock.lock();
         try {
             return new TableRow(table, values);
         } finally {
             readLock.unlock();
+        }
+    }
+
+    @Override
+    public void close() {
+        checkState();
+
+        isClosed = true;
+        for (MultiFileHashTable table : tables) {
+            table.close();
+        }
+    }
+
+    private void checkState() throws IllegalStateException {
+        if (isClosed) {
+            throw new IllegalStateException("Provider is closed");
         }
     }
 
