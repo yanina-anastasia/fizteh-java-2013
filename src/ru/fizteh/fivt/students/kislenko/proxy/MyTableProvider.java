@@ -38,6 +38,13 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             //System.out.println(Thread.currentThread().getName() + " exit get with incorrect table name");
             throw new IllegalArgumentException("Incorrect table name.");
         }
+        if (tables.containsKey(name) && tables.get(name).isClosed()) {
+            try {
+                return createTable(name, tables.get(name).getTypes());
+            } catch (IOException e) {
+                return null;
+            }
+        }
         lock.writeLock().lock();
         assertClosed();
         MyTable table = tables.get(name);
@@ -93,9 +100,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             //System.out.println(Thread.currentThread().getName()
             // + " exit with name that doesn't contains in name list");
             return null;
-        }
-        if (tables.containsKey(name) && tables.get(name).isClosed()) {
-            return createTable(name, tables.get(name).getTypes());
         }
         MyTable table = new MyTable(name, columnTypes, this);
         tables.put(name, table);
