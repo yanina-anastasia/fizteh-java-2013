@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 
+
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -118,21 +120,23 @@ public class DataBaseTable implements TableProvider {
 
     
     public Storeable deserialize(Table table, String value)
-            throws ParseException {
-        JSONArray jsonValue = new JSONArray(value);
-        List<Object> values = new ArrayList<>();
-        for (int i = 0; i < jsonValue.length(); ++i) {
-            values.add(jsonValue.get(i));
-        }
-
-        Storeable storeable;
-        try {
-            storeable = createFor(table, values);
+            throws ParseException{
+    	Storeable storeable;
+    	try {
+	    	JSONArray jsonValue = new JSONArray(value);
+	        List<Object> values = new ArrayList<>();
+	        for (int i = 0; i < jsonValue.length(); ++i) {
+	            values.add(jsonValue.get(i));
+	        }
+	        
+	        storeable = createFor(table, values);
+        } catch (JSONException e) {
+        	throw new ParseException(e.getMessage(), 0);
         } catch (IndexOutOfBoundsException e) {
-            throw new ParseException("Invalud number of arguments", 0);
+            throw new ParseException("Invalid number of arguments", 0);
         } catch (ColumnFormatException e) {
             throw new ParseException(e.getMessage(), 0);
-        }
+        } 
 
         return storeable;
     }
