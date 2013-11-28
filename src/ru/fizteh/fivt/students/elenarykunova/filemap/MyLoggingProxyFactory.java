@@ -9,7 +9,26 @@ public class MyLoggingProxyFactory implements LoggingProxyFactory {
     @Override
     public Object wrap(Writer writer, Object implementation,
             Class<?> interfaceClass) {
-        // TODO: check arguments
+        if (writer == null) {
+            throw new IllegalArgumentException("writer not set");
+        }
+
+        if (implementation == null) {
+            throw new IllegalArgumentException("implementation not set");
+        }
+
+        if (interfaceClass == null) {
+            throw new IllegalArgumentException("interface not set");
+        }
+
+        if (!interfaceClass.isInterface()) {
+            throw new IllegalArgumentException(interfaceClass.toString() + " is not an interface");
+        }
+
+        if (!interfaceClass.isInstance(implementation)) {
+            throw new IllegalArgumentException(implementation.getClass().toString() + " doesn't implement "
+                    + interfaceClass.toString());
+        }
         return Proxy.newProxyInstance(implementation.getClass().getClassLoader(), new Class[]{interfaceClass},
                 new MyInvocationHandler(writer, implementation));
 
