@@ -25,26 +25,28 @@ public class TestsForProxy {
     
     Storeable value1;
     
+    StringWriter writer;
+    
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     
     @Before
     public void createTable() throws IOException {
-        StringWriter writer = new StringWriter();
+        writer = new StringWriter();
         LoggingProxyFactory loggingProxyFactory = new LoggingProxyFactoryImplementation();
         File databaseDirectory = folder.newFolder("database");
         TableProviderFactoryImplementation tableProviderFactoryImplementation = new TableProviderFactoryImplementation();
         tableProviderFactory = (TableProviderFactory) loggingProxyFactory.wrap(writer, tableProviderFactoryImplementation, TableProviderFactory.class);
         tableProvider = tableProviderFactory.create(databaseDirectory.toString());
         
-        System.out.println(writer.toString());
-        /*List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+        
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>();
         columnTypes.add(Boolean.class);
         columnTypes.add(String.class);
         columnTypes.add(Integer.class);
         table = tableProvider.createTable("tableName", columnTypes);
         
-        value1 = new StoreableImplementation(columnTypes);
+        /*value1 = new StoreableImplementation(columnTypes);
         value1.setColumnAt(0, true);
         value1.setColumnAt(1, "AA");
         value1.setColumnAt(2, 5);*/
@@ -53,5 +55,7 @@ public class TestsForProxy {
     @Test
     public void getName() {
         Assert.assertEquals("tableName", table.getName());
+        
+        System.out.println(writer.toString());
     }
 }

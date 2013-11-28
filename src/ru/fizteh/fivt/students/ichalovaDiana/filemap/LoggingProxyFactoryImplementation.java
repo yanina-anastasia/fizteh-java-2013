@@ -15,6 +15,10 @@ public class LoggingProxyFactoryImplementation implements LoggingProxyFactory {
             throw new IllegalArgumentException("null arguments");
         }
         
+        if (!interfaceClass.isAssignableFrom(implementation.getClass())) {
+            throw new IllegalArgumentException("implementation doesn't implement iterfaceClass");
+        }
+        
         return Proxy.newProxyInstance(
                 ClassLoader.getSystemClassLoader(),
                 new Class[]{interfaceClass},
