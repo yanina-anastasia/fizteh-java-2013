@@ -40,7 +40,6 @@ public class NewTableProviderFactory implements TableProviderFactory, AutoClosea
 
     @Override
     public void close() throws Exception {
-        state.checkClosed();
         for (AutoCloseable object : providers) {
             object.close();
         }

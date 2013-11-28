@@ -315,11 +315,6 @@ public class NewTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        try {
-            state.checkClosed();
-        } catch (IllegalStateException e) {
-            return;
-        }
         rollback();
         state.setClose();
         provider.setClose(name);

@@ -356,7 +356,6 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        state.checkClosed();
         providerController.lock();
         try {
 
