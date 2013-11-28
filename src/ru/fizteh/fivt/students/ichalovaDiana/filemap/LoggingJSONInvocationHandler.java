@@ -68,10 +68,8 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             writer.write(log.toString() + '\n');
             throw targetException;
         } catch (Exception e) {
-        } finally {
-            
-            
         }
+        
         if (method.getReturnType() != void.class) {
             log.put("returnValue", (result != null) ? result : JSONObject.NULL);
         }
@@ -98,6 +96,9 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             }
             arguments.put(list);
         } else {
+            if (argument.toString().startsWith("[I")) {
+                arguments.put(argument.toString());
+            }
             arguments.put(argument);
         }
     }
