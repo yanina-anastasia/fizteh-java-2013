@@ -19,7 +19,8 @@ public class MyInvocationHandler implements InvocationHandler {
             return 0;
         }
     };
-    ThreadLocal<IdentityHashMap<Object, Boolean>> identityHashMap = new ThreadLocal<IdentityHashMap<Object, Boolean>>() {
+    ThreadLocal<IdentityHashMap<Object, Boolean>> identityHashMap
+            = new ThreadLocal<IdentityHashMap<Object, Boolean>>() {
         public IdentityHashMap<Object, Boolean> initialValue() {
             return new IdentityHashMap<Object, Boolean>();
         }
@@ -91,10 +92,6 @@ public class MyInvocationHandler implements InvocationHandler {
     private void logArgument(XMLStreamWriter w, Object arg) throws XMLStreamException {
         if (arg == null) {
             w.writeEmptyElement("null");
-            return;
-        }
-        if (Class.class.isAssignableFrom(arg.getClass())) {
-            w.writeCharacters(arg.getClass().getName());
             return;
         }
         if (List.class.isAssignableFrom(arg.getClass())) {
