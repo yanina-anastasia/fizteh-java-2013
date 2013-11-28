@@ -61,7 +61,7 @@ public class MyInvocationHandler implements InvocationHandler {
             writer.get().writeEmptyElement("argument");
         }
         try {
-            result = method.invoke(implementation.get(), args[0], args[1], args[2]);
+            result = method.invoke(implementation.get(), args);
             if (!method.getReturnType().isAssignableFrom(Void.class)) {
                 writer.get().writeStartElement("return");
                 logArgument(writer.get(), result);
