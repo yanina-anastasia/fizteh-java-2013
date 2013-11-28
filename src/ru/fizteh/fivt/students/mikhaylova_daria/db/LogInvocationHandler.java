@@ -133,7 +133,12 @@ public class LogInvocationHandler implements InvocationHandler {
             } finally {
                 writeLock.unlock();
             }
-            return method.invoke(proxied, args);
+            try {
+                returnedValue = method.invoke(proxied, args);
+            } catch (InvocationTargetException e) {
+                record.put("thrown", e.getTargetException().toString());
+                throw e.getTargetException();
+            }
         }
         return returnedValue;
     }
