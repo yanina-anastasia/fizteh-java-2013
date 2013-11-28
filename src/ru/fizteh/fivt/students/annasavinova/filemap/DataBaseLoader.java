@@ -36,7 +36,7 @@ public class DataBaseLoader {
         return base;
     }
 
-    private DataBase loadTable(File tableDir) {
+    public DataBase loadTable(File tableDir) {
         currentHashMap.clear();
         currentTable = new DataBase(tableDir.getName(), rootDir.getAbsolutePath(), provider);
         File signature = new File(tableDir + File.separator + "signature.tsv");

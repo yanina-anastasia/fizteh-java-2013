@@ -16,7 +16,7 @@ public class FileMap extends UserShell {
     private static String root = "";
 
     public FileMap() {
-        String property = System.getProperty("fizteh.db.dir"); 
+        String property = System.getProperty("fizteh.db.dir");
         if (property == null) {
             throw new RuntimeException("root dir not selected");
         }
@@ -152,9 +152,6 @@ public class FileMap extends UserShell {
     }
 
     private void doExit() {
-        if (currTable != null) {
-            currTable.unloadData();
-        }
         System.exit(0);
     }
 
@@ -262,7 +259,7 @@ public class FileMap extends UserShell {
                 System.out.println("overwrite");
                 System.out.println(prov.serialize(currTable, oldValue));
             }
-        } catch (ParseException e) {
+        } catch (ParseException | RuntimeException e) {
             printError("Cannot parse arguments");
         }
 
