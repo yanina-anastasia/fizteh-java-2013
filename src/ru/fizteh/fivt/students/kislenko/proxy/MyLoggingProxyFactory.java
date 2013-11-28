@@ -37,7 +37,7 @@ public class MyLoggingProxyFactory implements LoggingProxyFactory {
         if (!interfaceClass.isAssignableFrom(implementation.getClass())) {
             throw new IllegalArgumentException("Incorrect interface class.");
         }
-        return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{interfaceClass},
-                new MyInvocationHandler(writer));
+        return Proxy.newProxyInstance(implementation.getClass().getClassLoader(), new Class[]{interfaceClass},
+                new MyInvocationHandler(writer, implementation));
     }
 }

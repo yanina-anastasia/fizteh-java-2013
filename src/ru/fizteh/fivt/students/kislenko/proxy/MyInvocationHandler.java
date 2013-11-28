@@ -12,6 +12,7 @@ import java.util.Set;
 
 public class MyInvocationHandler implements InvocationHandler {
     ThreadLocal<Writer> w = new ThreadLocal<Writer>();
+    ThreadLocal<Object> implementation = new ThreadLocal<Object>();
     static ThreadLocal<XMLStreamWriter> writer = new ThreadLocal<XMLStreamWriter>();
     ThreadLocal<Integer> invokeCounter = new ThreadLocal<Integer>() {
         public Integer initialValue() {
@@ -19,8 +20,9 @@ public class MyInvocationHandler implements InvocationHandler {
         }
     };
 
-    public MyInvocationHandler(Writer writer) {
+    public MyInvocationHandler(Writer writer, Object impl) {
         w.set(writer);
+        implementation.set(impl);
     }
 
     @Override
@@ -41,7 +43,7 @@ public class MyInvocationHandler implements InvocationHandler {
         writer.get().writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
         writer.get().writeAttribute("class", String.valueOf(proxy.getClass().getCanonicalName()));
         writer.get().writeAttribute("name", String.valueOf(method.getName()));
-        if (args == null || args.length > 0) {
+        if (args != null || args.length > 0) {
             writer.get().writeStartElement("arguments");
             for (Object arg : args) {
                 writer.get().writeStartElement("argument");
