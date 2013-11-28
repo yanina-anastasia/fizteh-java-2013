@@ -228,7 +228,7 @@ public class MyStoreable implements Storeable {
 
     @Override
     public String toString() {
-        String className = Storeable.class.getSimpleName();
+        String className = MyStoreable.class.getSimpleName();
         StringBuffer res = new StringBuffer(className + "[");
 
         for (int i = 0; i < myValues.size(); i++) {
@@ -264,6 +264,7 @@ public class MyStoreable implements Storeable {
                 res.append(",");
             }
         }
+        res.append("]");
         return res.toString();
     }
 

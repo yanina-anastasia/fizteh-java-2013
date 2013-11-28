@@ -6,6 +6,10 @@ import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
 public class MyLoggingProxyFactory implements LoggingProxyFactory {
 
+    public MyLoggingProxyFactory() {
+    }
+    
+    
     @Override
     public Object wrap(Writer writer, Object implementation,
             Class<?> interfaceClass) {
@@ -31,6 +35,5 @@ public class MyLoggingProxyFactory implements LoggingProxyFactory {
         }
         return Proxy.newProxyInstance(implementation.getClass().getClassLoader(), new Class[]{interfaceClass},
                 new MyInvocationHandler(writer, implementation));
-
     }
 }

@@ -33,6 +33,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     public MyTableProvider(String newRootDir) {
         rootDir = newRootDir;
         tables = new HashMap<String, MyTable>();
+        isClosed = false;
     }
 
     public String getPath(String tableName) {
@@ -63,7 +64,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     private void checkClosed() throws IllegalStateException {
         if (isClosed) {
-            throw new IllegalStateException(this.toString() + " is closed");
+            throw new IllegalStateException("is closed");
         }
     }
 
@@ -385,7 +386,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public String toString() {
-        checkClosed();
         String className = MyTableProvider.class.getSimpleName();
         return (className + "[" + rootDir + "]");
     }
@@ -396,7 +396,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        checkClosed();
         for (MyTable table : tables.values()) {
             table.close();
         }

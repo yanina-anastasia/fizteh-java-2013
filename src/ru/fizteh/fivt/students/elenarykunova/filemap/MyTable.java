@@ -35,15 +35,18 @@ public class MyTable implements Table, AutoCloseable {
         }
     };
 
-    public MyTableProvider getProvider() {
+    protected MyTableProvider getProvider() {
+        checkClosed();
         return provider;
     }
 
-    public String getTablePath() {
+    protected String getTablePath() {
+        checkClosed();
         return currTablePath;
     }
 
     private DataBase getDataBaseFromKey(String key) throws RuntimeException {
+        checkClosed();
         int hashcode = Math.abs(key.hashCode());
         int ndir = hashcode % 16;
         int nfile = hashcode / 16 % 16;
@@ -51,14 +54,17 @@ public class MyTable implements Table, AutoCloseable {
     }
 
     public String getName() {
+        checkClosed();
         return currTableName;
     }
 
     private boolean isEmpty(String val) {
+        checkClosed();
         return (val == null || val.trim().isEmpty());
     }
 
     private boolean isCorrectKey(String key) {
+        checkClosed();
         return (!provider.hasBadSymbols(key) && !key.contains("[") && !key
                 .contains("]"));
     }
@@ -88,6 +94,7 @@ public class MyTable implements Table, AutoCloseable {
     }
 
     private void checkValue(Storeable value) {
+        checkClosed();
         for (int i = 0; i < types.size(); ++i) {
             try {
                 Object val = value.getColumnAt(i);
@@ -108,6 +115,7 @@ public class MyTable implements Table, AutoCloseable {
     }
 
     private boolean differs(Storeable st1, Storeable st2) {
+        checkClosed();
         if (st1 == null && st2 == null) {
             return true;
         }
@@ -220,6 +228,7 @@ public class MyTable implements Table, AutoCloseable {
 
 // write
     private void trackChanges() {
+        checkClosed();
         Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
         String key;
         Storeable value;
@@ -269,6 +278,7 @@ public class MyTable implements Table, AutoCloseable {
 
 // write to disk
     private void saveChanges() throws RuntimeException {
+        checkClosed();
         if (currTableName == null) {
             return;
         }
@@ -303,6 +313,7 @@ public class MyTable implements Table, AutoCloseable {
 
 //read from disk
     private void loadFromDisk() throws RuntimeException {
+        checkClosed();
         if (changesMap != null) {
             changesMap.get().clear();
         } else {
@@ -326,6 +337,7 @@ public class MyTable implements Table, AutoCloseable {
     }
 
     public MyTable() {
+        isClosed = false;
     }
 
     public MyTable(String path, String name, MyTableProvider mtp,
@@ -334,6 +346,8 @@ public class MyTable implements Table, AutoCloseable {
         currTablePath = path;
         currTableName = name;
         types = new ArrayList<Class<?>>(columnTypes);
+        isClosed = false;
+
         if (currTableName != null) {
             loadFromDisk();
         }
@@ -374,7 +388,7 @@ public class MyTable implements Table, AutoCloseable {
         return types.get(columnIndex);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchMethodException, Throwable {
         MyTableProviderFactory myFactory = new MyTableProviderFactory();
         MyTableProvider provider;
         try {
@@ -402,7 +416,7 @@ public class MyTable implements Table, AutoCloseable {
             }
         }
     }
-    
+
     @Override
     public String toString() {
         checkClosed();
@@ -412,9 +426,10 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        checkClosed();
-        rollback();
-        isClosed = true;
-        provider.removeTableFromMap(currTableName);
+        if (!isClosed) {
+            rollback();
+            isClosed = true;
+            provider.removeTableFromMap(currTableName);
+        }    
     }
 }

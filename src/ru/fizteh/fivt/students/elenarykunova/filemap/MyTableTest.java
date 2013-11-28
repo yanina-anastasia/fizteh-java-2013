@@ -294,5 +294,12 @@ public class MyTableTest {
         Storeable badStoreable = prov.createFor(bad, values);
         table.put("key3", badStoreable);
     }
+    
+    @Test (expected = IllegalStateException.class)
+    public void close() throws Exception {
+        table.close();
+//        table.commit();
+//        table.remove("1");
+    }
 
 }
