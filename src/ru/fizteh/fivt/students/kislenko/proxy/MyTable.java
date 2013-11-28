@@ -247,6 +247,10 @@ public class MyTable implements Table, AutoCloseable {
     @Override
     public int rollback() {
         assertClosed();
+        return privateRollback();
+    }
+
+    private int privateRollback() {
         lock.readLock().lock();
         try {
             resetTable();
@@ -254,7 +258,6 @@ public class MyTable implements Table, AutoCloseable {
             changes.get().clear();
             fuckingDiff.get().clear();
             count.set(storage.size());
-            assertClosed();
             return n;
         } finally {
             lock.readLock().unlock();
@@ -327,7 +330,7 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        rollback();
+        privateRollback();
         closed = true;
     }
 
