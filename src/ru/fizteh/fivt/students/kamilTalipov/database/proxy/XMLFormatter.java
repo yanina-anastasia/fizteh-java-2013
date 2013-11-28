@@ -23,6 +23,11 @@ public class XMLFormatter implements Closeable {
         identityHashMap = new IdentityHashMap<>();
     }
 
+    @Override
+    public String toString() {
+        return stringWriter.toString();
+    }
+
     public void writeTimestamp() throws IOException {
         try {
             xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
