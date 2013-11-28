@@ -4,9 +4,12 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DatabaseTableProviderFactory implements TableProviderFactory, AutoCloseable {
     boolean isClosed = false;
+    public Set<DatabaseTableProvider> providers = new HashSet<>();
 
     public DatabaseTableProvider create(String directory) throws IOException {
         if (isClosed) {
@@ -25,11 +28,17 @@ public class DatabaseTableProviderFactory implements TableProviderFactory, AutoC
             throw new IllegalArgumentException("Error while getting property");
         }
         DatabaseTableProvider provider = new DatabaseTableProvider(databaseDirectory.getAbsolutePath());
+        providers.add(provider);
         return provider;
     }
 
     @Override
     public void close() throws Exception {
-        isClosed = true;
+        if (!isClosed) {
+            for (DatabaseTableProvider provider: providers) {
+                provider.close();
+            }
+            isClosed = true;
+        }
     }
 }
