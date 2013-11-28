@@ -60,7 +60,11 @@ public class Main {
         } catch (ExitException e) {
             //dataBaseTable.saveTable();
             System.exit(0);
-        } catch (IOException e) {
+        } catch (DataBaseException e){
+        	System.err.println(e.getMessage());
+            System.exit(2);
+        }
+          catch (IOException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }

@@ -82,7 +82,7 @@ public class DataBaseTable implements TableProvider {
                 tables.put(name, table);
                 return table;
             } catch (IOException e) {
-                throw new RuntimeException();
+                throw new DataBaseException(e.getMessage());
             }
 
         }
