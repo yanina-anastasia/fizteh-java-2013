@@ -104,10 +104,12 @@ public class LogInvocationHandler implements InvocationHandler {
             }
             try {
                 returnedValue = method.invoke(proxied, args);
-                if (returnedValue == null) {
-                    record.put("returnValue",  JSONObject.NULL);
-                } else if (!returnedValue.getClass().equals(void.class)) {
-                    record.put("returnValue",  returnedValue);
+                if (!method.getReturnType().equals(void.class)) {
+                    if (returnedValue == null) {
+                        record.put("returnValue",  JSONObject.NULL);
+                    } else  {
+                        record.put("returnValue",  returnedValue);
+                    }
                 }
             } catch (InvocationTargetException e) {
                 record.put("thrown", e.getTargetException().toString());
