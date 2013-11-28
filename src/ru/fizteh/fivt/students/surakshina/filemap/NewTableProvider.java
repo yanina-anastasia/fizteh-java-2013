@@ -221,6 +221,7 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void removeTable(String name) {
+        state.checkClosed();
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
@@ -261,6 +262,7 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        state.checkClosed();
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("wrong type (Incorrect table name)");
         }
@@ -313,6 +315,7 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        state.checkClosed();
         if (value == null || value.trim().isEmpty()) {
             throw new ParseException("Illegal value", 0);
         }
@@ -338,6 +341,7 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        state.checkClosed();
         if (value == null) {
             throw new ColumnFormatException("wrong type (Incorrect column name)");
         }
@@ -346,11 +350,13 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable createFor(Table table) {
+        state.checkClosed();
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        state.checkClosed();
         return new MyStoreable(table, values);
     }
 
