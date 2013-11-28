@@ -8,7 +8,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 public class MyTableProviderFactory implements TableProviderFactory{
 	
 	public TableProvider create(String directory){
-		if (directory == null) {
+		if ((directory == null) || directory.trim().equals("")) {
 			throw new IllegalArgumentException(" Directory cannot be null");
 		}
 		File directoryFile = new File(directory);
