@@ -6,6 +6,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
 
@@ -25,7 +26,7 @@ public class MyInvocationHandler implements InvocationHandler {
         } else if (arg.getClass().isAssignableFrom(Class.class)) {
             xmlStreamWriter.writeCharacters(arg.getClass().getCanonicalName());
         } else if (arg instanceof Iterable) {
-            xmlStreamWriter.writeStartElement(arg.getClass().getName());
+            xmlStreamWriter.writeCharacters(arg.getClass().getName());
             items.put(arg, true);
             for (Object value : (Iterable) arg) {
                 xmlStreamWriter.writeStartElement("value");
@@ -83,15 +84,15 @@ public class MyInvocationHandler implements InvocationHandler {
                 writeObject(result);
                 xmlStreamWriter.writeEndElement();
             }
-        } catch (Exception e) {
+        } catch (InvocationTargetException e) {
             xmlStreamWriter.writeStartElement("thrown");
             writeObject(e);
             xmlStreamWriter.writeEndElement();
+        } finally {
+            xmlStreamWriter.writeEndElement();
+            xmlStreamWriter.flush();
+            writer.write(stringWriter.toString() + "\n");
         }
-
-        xmlStreamWriter.writeEndElement();
-        xmlStreamWriter.flush();
-        writer.write(stringWriter.toString() + "\n");
         return result;
     }
 }
