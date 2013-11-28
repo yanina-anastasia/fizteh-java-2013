@@ -12,21 +12,19 @@ import java.util.Set;
 
 public class MyInvocationHandler implements InvocationHandler {
     ThreadLocal<Writer> w = new ThreadLocal<Writer>();
-    ThreadLocal<Object> impl = new ThreadLocal<Object>();
     static ThreadLocal<XMLStreamWriter> writer = new ThreadLocal<XMLStreamWriter>();
-    static ThreadLocal<Integer> invokeCounter = new ThreadLocal<Integer>() {
+    ThreadLocal<Integer> invokeCounter = new ThreadLocal<Integer>() {
         public Integer initialValue() {
             return 0;
         }
     };
 
-    public MyInvocationHandler(Writer writer, Object implementation) {
+    public MyInvocationHandler(Writer writer) {
         w.set(writer);
-        impl.set(implementation);
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws NoSuchMethodException, XMLStreamException {
         if (method.equals(Object.class.getMethod("equals", Object.class))
                 || method.equals(Object.class.getMethod("toString"))
                 || method.equals(Object.class.getMethod("hashCode"))) {
@@ -34,11 +32,11 @@ public class MyInvocationHandler implements InvocationHandler {
         }
         Object result = null;
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
-//        try {
         if (invokeCounter.get() == 0) {
             MyInvocationHandler.writer.set(factory.createXMLStreamWriter(w.get()));
         }
         invokeCounter.set(invokeCounter.get() + 1);
+
         writer.get().writeStartElement("invoke");
         writer.get().writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
         writer.get().writeAttribute("class", String.valueOf(proxy.getClass().getCanonicalName()));
@@ -68,7 +66,6 @@ public class MyInvocationHandler implements InvocationHandler {
         }
         writer.get().writeEndDocument();
         writer.get().flush();
-//        } catch (Throwable ignored)
         return result;
     }
 

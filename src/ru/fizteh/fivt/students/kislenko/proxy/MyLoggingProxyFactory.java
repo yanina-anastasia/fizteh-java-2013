@@ -38,6 +38,6 @@ public class MyLoggingProxyFactory implements LoggingProxyFactory {
             throw new IllegalArgumentException("Incorrect interface class.");
         }
         return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{interfaceClass},
-                new MyInvocationHandler(writer, implementation));
+                new MyInvocationHandler(writer));
     }
 }
