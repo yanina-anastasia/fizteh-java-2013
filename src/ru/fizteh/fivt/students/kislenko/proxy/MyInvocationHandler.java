@@ -34,7 +34,7 @@ public class MyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getDeclaringClass() == Object.class) {
+        if (method.getDeclaringClass().equals(Object.class)) {
             writer.get().writeCharacters("\n");
             return null;
         }
@@ -61,16 +61,20 @@ public class MyInvocationHandler implements InvocationHandler {
             writer.get().writeEmptyElement("arguments");
         }
         try {
-            try {
-                result = method.invoke(implementation.get(), args);
-            } catch (InvocationTargetException e) {
-                throw e.getCause();
-            }
+            result = method.invoke(implementation.get(), args);
             if (!method.getReturnType().isAssignableFrom(void.class)) {
                 writer.get().writeStartElement("return");
                 logArgument(writer.get(), result);
                 writer.get().writeEndElement();
             }
+        } catch (InvocationTargetException e) {
+            writer.get().writeStartElement("thrown");
+            logArgument(writer.get(), e.getTargetException());
+            writer.get().writeEndElement();
+            writer.get().writeEndElement();
+            writer.get().writeCharacters("\n");
+            writer.get().flush();
+            throw e.getTargetException();
         } catch (Exception e) {
             writer.get().writeStartElement("thrown");
             logArgument(writer.get(), e);
