@@ -63,7 +63,7 @@ public class MyProxyHandler implements InvocationHandler {
         Object value = null;
         if (returnValue == null) {
             if (method.getReturnType().equals(Void.class)) {
-                return log;
+                value = Void.class;
             }
         } else {
             if (returnValue.getClass().isArray()) {
