@@ -33,9 +33,7 @@ public class MyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws NoSuchMethodException, XMLStreamException {
-        if (method == Object.class.getMethod("equals", Object.class)
-                || method == Object.class.getMethod("toString")
-                || method == Object.class.getMethod("hashCode")) {
+        if (method.getDeclaringClass() == Object.class) {
             return null;
         }
         Object result = null;
