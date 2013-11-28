@@ -5,6 +5,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ public class MyInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws NoSuchMethodException, XMLStreamException {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass() == Object.class) {
             writer.get().writeCharacters("\n");
             return null;
@@ -60,7 +61,11 @@ public class MyInvocationHandler implements InvocationHandler {
             writer.get().writeEmptyElement("arguments");
         }
         try {
-            result = method.invoke(implementation.get(), args);
+            try {
+                result = method.invoke(implementation.get(), args);
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
             if (!method.getReturnType().isAssignableFrom(void.class)) {
                 writer.get().writeStartElement("return");
                 logArgument(writer.get(), result);
