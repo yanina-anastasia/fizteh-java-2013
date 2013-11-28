@@ -101,6 +101,7 @@ public class MyInvocationHandler implements InvocationHandler {
             xmlWriter.writeEndElement();
         }
         xmlWriter.writeEndElement();
+        xmlWriter.writeCharacters(System.lineSeparator());
     }
 
     @Override
