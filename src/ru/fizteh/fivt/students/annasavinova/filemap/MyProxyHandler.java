@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.annasavinova.filemap;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -29,14 +30,18 @@ public class MyProxyHandler implements InvocationHandler {
         }
         Object result = null;
         Throwable exception = null;
-        try {
-            result = method.invoke(implementation, arguments);
-        } catch (InvocationTargetException e) {
-            exception = e.getTargetException();
+        if (method.getReturnType().equals(Void.class)) {
+            result = Void.class;
+        } else {
+            try {
+                result = method.invoke(implementation, arguments);
+            } catch (InvocationTargetException e) {
+                exception = e.getTargetException();
+            }
         }
         JSONObject log = logging(method, arguments, exception, result);
         try {
-            writer.write(log.toString() + System.lineSeparator());
+            writeLog(log, result);
         } catch (Throwable e) {
             // ignore
         }
@@ -44,6 +49,14 @@ public class MyProxyHandler implements InvocationHandler {
             throw exception;
         }
         return result;
+    }
+
+    private void writeLog(JSONObject log, Object result) throws IOException {
+        String res = log.toString();
+        if (result == null) {
+            res = res.replaceFirst("\\{", "{\"returnValue\":null,");
+        }
+        writer.write(res + System.lineSeparator());
     }
 
     private JSONObject logging(Method method, Object[] arguments, Throwable exception, Object returnValue) {
@@ -61,13 +74,7 @@ public class MyProxyHandler implements InvocationHandler {
             return log;
         }
         Object value = null;
-        if (returnValue == null) {
-            if (method.getReturnType().equals(Void.class)) {
-                value = Void.class;
-            } else {
-                value = new MyNull();
-            }
-        } else {
+        if (returnValue != null) {
             if (returnValue.getClass().isArray()) {
                 value = createJSONArray((Object[]) returnValue, new IdentityHashMap<>());
             } else if (Iterable.class.isAssignableFrom(returnValue.getClass())) {
@@ -76,10 +83,7 @@ public class MyProxyHandler implements InvocationHandler {
                 value = returnValue;
             }
         }
-        //TODO
-        System.out.println(value);
         log.put("returnValue", value);
-        System.out.println(log.get("returnValue"));
         return log;
     }
 
@@ -126,11 +130,4 @@ public class MyProxyHandler implements InvocationHandler {
         addedElements.remove(array);
         return jsonArray;
     }
-    
-    private class MyNull {
-        @Override
-        public String toString() {
-            return "null";
-        }
-    };
 }
