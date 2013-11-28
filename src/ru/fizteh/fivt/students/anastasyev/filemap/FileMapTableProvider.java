@@ -364,12 +364,6 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
 
     @Override
     public void close() {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
         write.lock();
         try {
             for (String tableName : allFileMapTablesHashtable.keySet()) {

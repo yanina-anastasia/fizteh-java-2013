@@ -509,17 +509,12 @@ public class FileMapTable implements Table, AutoCloseable {
 
     @Override
     public void close() {
-        read.lock();
-        try {
-            checkStatus();
-        } finally {
-            read.unlock();
-        }
         write.lock();
         try {
-            checkStatus();
-            rollback();
-            isOpen = false;
+            if (!isOpen) {
+                rollback();
+                isOpen = false;
+            }
         } finally {
             write.unlock();
         }

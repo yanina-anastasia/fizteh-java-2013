@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.anastasyev.filemap;
+package ru.fizteh.fivt.students.anastasyev.ru.fizteh.fivt.students.anastasyev.proxy;
 
 import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
