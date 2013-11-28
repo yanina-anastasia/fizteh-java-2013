@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,6 +14,7 @@ import org.json.JSONObject;
 public class MyProxyHandler implements InvocationHandler {
     Writer writer;
     Object implementation;
+    Lock lock = new ReentrantLock(true);
 
     public MyProxyHandler(Writer wr, Object implement) {
         writer = wr;
@@ -38,10 +41,13 @@ public class MyProxyHandler implements InvocationHandler {
 
         JSONObject log = logging(method, arguments, exception, result);
 
+        lock.lock();
         try {
             writer.write(log.toString() + System.lineSeparator());
         } catch (Throwable e) {
             // ignore
+        } finally {
+            lock.unlock();
         }
         if (exception != null) {
             throw exception;
