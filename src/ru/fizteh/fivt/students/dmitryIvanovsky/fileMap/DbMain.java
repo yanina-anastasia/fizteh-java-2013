@@ -3,7 +3,10 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.json.JSONObject;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
@@ -27,6 +30,23 @@ public class DbMain {
 //        b.create("table");
 //        a.flush();
 //        System.exit(1);
+
+//        JSONObject record = new JSONObject();
+//        FileMapProviderFactory factory = new FileMapProviderFactory();
+//        FileMapProvider v = (FileMapProvider) factory.create("/home/deamoon/Music/deamoonSql/table");
+//        List<Class<?>> list2 = new ArrayList<>();
+//        list2.add(Integer.class);
+//        list2.add(Long.class);
+//        list2.add(Byte.class);
+//        FileMap q = (FileMap) v.createTable("table", list2);
+//        record.put("key", "key");
+//        System.out.println(record);
+//        String r = v.createFor(q).toString();
+//        record.put("key2", r);
+//        //record.put("key2", "Gwuefyg[,,]");
+//
+//        System.out.println(record);
+//        System.exit(0);
 
         try {
             String path = System.getProperty("fizteh.db.dir");
