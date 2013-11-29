@@ -28,4 +28,8 @@ public class ClassState {
     public void close() {
         state = CLOSED;
     }
+
+    public boolean isClosed() {
+        return (state == CLOSED);
+    }
 }

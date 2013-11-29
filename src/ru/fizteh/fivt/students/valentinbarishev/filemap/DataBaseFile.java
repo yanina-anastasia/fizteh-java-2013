@@ -341,6 +341,9 @@ public class DataBaseFile implements AutoCloseable {
 
     @Override
     public void close() {
+        if (state.isClosed()) {
+            return;
+        }
         rollback();
         old.clear();
         state.close();

@@ -206,8 +206,10 @@ public class MyTableTest {
 
     @Test
     public void testTableClose() throws Exception {
+        Storeable storeable = provider.createFor(table);
+        storeable.setColumnAt(0, "");
+        Assert.assertNull(table.put("abacaba", storeable));
         ((AutoCloseable) table).close();
-        table.toString();
         ((AutoCloseable) table).close();
     }
 }

@@ -294,6 +294,9 @@ public final class DataBase implements Table, AutoCloseable {
 
     @Override
     public void close() {
+        if (state.isClosed()) {
+            return;
+        }
         writeLock.lock();
         try {
             state.close();
