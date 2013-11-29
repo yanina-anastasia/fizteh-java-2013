@@ -44,7 +44,7 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
     Set<String> setDirTable;
     FileMap dbData;
     boolean out;
-    Map<String, FileMap> mapFileMap = new ConcurrentHashMap<>();
+    Map<String, FileMap> mapFileMap = new HashMap<>();
 
     final HashSet allowType = new HashSet(){ {
         add(String.class);

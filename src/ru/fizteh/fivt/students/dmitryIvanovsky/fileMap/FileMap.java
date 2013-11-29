@@ -575,6 +575,7 @@ public class FileMap implements Table {
         }
         int count = 0;
         Set<String> changedKey = new HashSet<>();
+        Exception err = null;
         write.lock();
         try {
             for (String key : changeTable.get().keySet()) {
@@ -600,12 +601,24 @@ public class FileMap implements Table {
                     tableData.put(key, changeTable.get().get(key));
                 }
             }
-            refreshTableFiles(changedKey);
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            err = e;
         } finally {
-            write.unlock();
-            changeTable.get().clear();
+            try {
+                refreshTableFiles(changedKey);
+            } catch (Exception errRefresh) {
+                if (err == null) {
+                    err = errRefresh;
+                } else {
+                    err.addSuppressed(errRefresh);
+                }
+            } finally {
+                write.unlock();
+                changeTable.get().clear();
+                if (err != null) {
+                    throw new IllegalStateException(err);
+                }
+            }
         }
         return count;
     }
