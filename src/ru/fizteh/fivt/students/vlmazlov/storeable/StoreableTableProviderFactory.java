@@ -35,7 +35,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
             throw new IllegalArgumentException("Directory not specified");
         }
 
-        if ((!(new File(dir)).exists()) && (!(new File(dir)).mkdir())) {
+        if ((!(new File(dir)).exists()) && (!(new File(dir)).mkdirs())) {
             throw new IOException("Unable to create " + dir);
         }
 
