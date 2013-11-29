@@ -6,6 +6,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
+import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTable;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProvider;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
 import ru.fizteh.fivt.students.anastasyev.filemap.MyStoreable;
@@ -339,6 +340,31 @@ public class FileMapTableProviderTest {
     public void testToString() {
         String str = tableProvider.toString();
         assertTrue(str.startsWith("FileMapTableProvider"));
+    }
+
+    @Test
+    public void testClosingOfTablesInProvider() throws IOException {
+        FileMapTableProvider fileMapTableProvider = (FileMapTableProvider) tableProvider;
+        FileMapTable table1 = (FileMapTable) fileMapTableProvider.createTable("newTable1", types);
+        FileMapTable table2 = (FileMapTable) fileMapTableProvider.createTable("newTable2", types);
+        FileMapTable table3 = (FileMapTable) fileMapTableProvider.createTable("newTable3", types);
+        fileMapTableProvider.close();
+
+        try {
+            table1.get("key");
+        } catch (IllegalStateException e) {
+            // IllegalStateException expected
+        }
+        try {
+            table2.get("key");
+        } catch (IllegalStateException e) {
+            // IllegalStateException expected
+        }
+        try {
+            table3.get("key");
+        } catch (IllegalStateException e) {
+            // IllegalStateException expected
+        }
     }
 }
 
