@@ -251,7 +251,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     }
 
     @Override
-    public Storeable createFor(Table table) {
+    public Storeable createFor(Table table) throws IllegalStateException {
         if (isProviderClosed) {
             throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
