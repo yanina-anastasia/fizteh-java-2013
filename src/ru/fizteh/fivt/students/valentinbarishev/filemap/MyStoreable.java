@@ -248,6 +248,7 @@ public class MyStoreable implements Storeable, AutoCloseable {
 
         values.clear();
         types.clear();
+
         state.close();
     }
 

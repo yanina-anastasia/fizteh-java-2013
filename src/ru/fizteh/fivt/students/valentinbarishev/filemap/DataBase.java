@@ -183,6 +183,7 @@ public final class DataBase implements Table, AutoCloseable {
 
     @Override
     public String getName() {
+        state.check();
         return name;
     }
 
@@ -227,6 +228,7 @@ public final class DataBase implements Table, AutoCloseable {
 
     @Override
     public int commit() {
+        state.check();
         int allNew = 0;
         writeLock.lock();
         try {
@@ -243,6 +245,7 @@ public final class DataBase implements Table, AutoCloseable {
 
     @Override
     public int size() {
+        state.check();
         int allSize = 0;
         for (int i = 0; i < files.length; ++i) {
             state.check();
@@ -253,6 +256,7 @@ public final class DataBase implements Table, AutoCloseable {
 
     @Override
     public int rollback() {
+        state.check();
         int allCanceled = 0;
         for (int i = 0; i < files.length; ++i) {
             state.check();
