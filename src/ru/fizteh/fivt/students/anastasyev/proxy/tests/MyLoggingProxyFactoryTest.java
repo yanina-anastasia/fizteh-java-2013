@@ -24,6 +24,12 @@ public class MyLoggingProxyFactoryTest {
     private Writer expectedWriter;
     private Impl impl;
 
+    public String timeStamp(String str) {
+        int first = str.indexOf("\"");
+        int last = str.indexOf("\" class");
+        return str.substring(first + 1, last);
+    }
+
     @Before
     public void init() throws XMLStreamException {
         logWriter = new StringWriter();
@@ -61,7 +67,7 @@ public class MyLoggingProxyFactoryTest {
         xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(expectedWriter);
 
         xmlStreamWriter.writeStartElement("invoke");
-        xmlStreamWriter.writeAttribute("timestamp", logWriter.toString().substring(19, 32));
+        xmlStreamWriter.writeAttribute("timestamp", timeStamp(logWriter.toString()));
         xmlStreamWriter.writeAttribute("class", impl.getClass().getName());
         xmlStreamWriter.writeAttribute("name", "run");
 
@@ -87,7 +93,7 @@ public class MyLoggingProxyFactoryTest {
         xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(expectedWriter);
 
         xmlStreamWriter.writeStartElement("invoke");
-        xmlStreamWriter.writeAttribute("timestamp", logWriter.toString().substring(19, 32));
+        xmlStreamWriter.writeAttribute("timestamp", timeStamp(logWriter.toString()));
         xmlStreamWriter.writeAttribute("class", impl.getClass().getName());
         xmlStreamWriter.writeAttribute("name", "runWithArguments");
 
@@ -133,7 +139,7 @@ public class MyLoggingProxyFactoryTest {
         xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(expectedWriter);
 
         xmlStreamWriter.writeStartElement("invoke");
-        xmlStreamWriter.writeAttribute("timestamp", logWriter.toString().substring(19, 32));
+        xmlStreamWriter.writeAttribute("timestamp", timeStamp(logWriter.toString()));
         xmlStreamWriter.writeAttribute("class", impl.getClass().getName());
         xmlStreamWriter.writeAttribute("name", "runCycle");
 
@@ -175,7 +181,7 @@ public class MyLoggingProxyFactoryTest {
             xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(expectedWriter);
 
             xmlStreamWriter.writeStartElement("invoke");
-            xmlStreamWriter.writeAttribute("timestamp", logWriter.toString().substring(19, 32));
+            xmlStreamWriter.writeAttribute("timestamp", timeStamp(logWriter.toString()));
             xmlStreamWriter.writeAttribute("class", impl.getClass().getName());
             xmlStreamWriter.writeAttribute("name", "runThrowable");
 
