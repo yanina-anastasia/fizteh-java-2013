@@ -51,8 +51,8 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
             if (c == '\\' || c == '/' || c == '.' || c == ':' || c == '*' || c == '?' || c == '|' || c == '"'
-                    || c == '<' || c == '>' || c == ' ' || c == '\t' || c == '\n' 
-                    || c == '\r' || c == '(' || c == ')') {
+                    || c == '<' || c == '>' || c == ' ' || c == '\t' 
+                    || c == '\n' || c == '\r' || c == '(' || c == ')') {
                 return true;
             }
         }
@@ -393,7 +393,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     }
 
     protected void removeTableFromMap(String key) {
-        tables.remove(key);
+        tables.put(key, null);
     }
 
     @Override
@@ -403,5 +403,4 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         isClosed = true;
     }
-
 }
