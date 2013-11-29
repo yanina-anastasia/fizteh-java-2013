@@ -14,6 +14,7 @@ public class Main {
 
     private static boolean checkDirectory() {
         String path = System.getProperty("fizteh.db.dir");
+        new File(path).mkdirs();
         if ((path == null) || (!(new File(path)).isDirectory())) {
             System.err.println("Choose a directory!");
             return false;
