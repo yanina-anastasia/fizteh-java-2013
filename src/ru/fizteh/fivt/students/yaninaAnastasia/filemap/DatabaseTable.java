@@ -61,6 +61,26 @@ public class DatabaseTable implements Table, AutoCloseable {
         this.columnTypes = other.columnTypes;
         this.provider = other.provider;
         this.oldData = other.oldData;
+        isClosed = false;
+        modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
+        deletedKeys = new ThreadLocal<HashSet<String>>() {
+            @Override
+            public HashSet<String> initialValue() {
+                return new HashSet<String>();
+            }
+        };
+        uncommittedChanges = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return new Integer(0);
+            }
+        };
+        uncommittedChanges.set(0);
     }
 
     public static int getDirectoryNum(String key) {
