@@ -1,8 +1,5 @@
 package ru.fizteh.fivt.students.musin.filemap;
 
-import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
-import com.sun.xml.internal.ws.streaming.XMLStreamWriterException;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -15,13 +12,12 @@ import java.util.IdentityHashMap;
 public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
 
     Object target;
-    IndentingXMLStreamWriter writer;
+    XMLStreamWriter writer;
     IdentityHashMap<Object, Boolean> identityHashMap;
 
     public XMLLoggingProxyInvocationHandler(Object target, Writer writer) throws XMLStreamException {
         this.target = target;
-        this.writer = new IndentingXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
-        this.writer.setIndentStep("    ");
+        this.writer = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         this.identityHashMap = new IdentityHashMap<>();
     }
 
@@ -92,7 +88,7 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
                 if (error != null) {
                     throw error;
                 }
-            } catch (XMLStreamWriterException e) {
+            } catch (XMLStreamException e) {
                 //Proxy not allowed to throw exceptions
             }
         }
