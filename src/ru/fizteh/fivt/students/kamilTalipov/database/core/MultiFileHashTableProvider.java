@@ -178,7 +178,9 @@ public class MultiFileHashTableProvider implements TableProvider, AutoCloseable 
 
     @Override
     public void close() {
-        checkState();
+        if (isClosed) {
+            return;
+        }
 
         isClosed = true;
         for (MultiFileHashTable table : tables) {
