@@ -55,7 +55,7 @@ public class DataBaseTable implements TableProvider {
         }
 
         if (types == null || types.size() == 0) {
-            throw new IllegalArgumentException("wrong list of types");
+            throw new IOException("wrong list of types");
         }
 
         DataBase table = new DataBase(path, this, types);
