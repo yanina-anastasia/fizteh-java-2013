@@ -51,14 +51,16 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             if (!tables.containsKey(name)) {
                 return null;
             }
+            DatabaseTable table = tables.get(name);
+            if (table.isClosed) {
+                table = new DatabaseTable(table);
+                tables.put(table.getName(), table);
+            }
             /*if (tables.get(name) != null && tables.get(name).isClosed) {
                 if (!open()) {
                     throw new IllegalArgumentException("Wrong format");
                 }
             }  */
-
-            DatabaseTable table = tables.get(name);
-
             if (table == null) {
                 return table;
             }
@@ -66,10 +68,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             if (curTable != null && curTable.uncommittedChanges.get() > 0) {
                 throw new IllegalArgumentException(String.format("%d unsaved changes", curTable.uncommittedChanges));
             }
-            if (table.isClosed) {
-                table = new DatabaseTable(table);
-                tables.put(table.getName(), table);
-            }
+
 
             curTable = table;
 
