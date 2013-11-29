@@ -901,7 +901,10 @@ public class FileMapUnitTest {
                 InterfaceToProxy.class
         );
         ArrayList a = new ArrayList();
-        a.add(a);
+        ArrayList b = new ArrayList();
+        b.add(a);
+        a.add(new Integer(3));
+        a.add(b);
         a.add(new Integer(3));
         proxy.valueReturn(a);
         String result = writer.toString();

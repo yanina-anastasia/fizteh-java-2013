@@ -61,39 +61,41 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
             //Proxy not allowed to throw exception
         }
         if (method.getDeclaringClass() != Object.class) {
-            try {
-                writer.writeStartElement("invoke");
-                writer.writeAttribute("timestamp", Long.valueOf(System.currentTimeMillis()).toString());
-                writer.writeAttribute("class", target.getClass().getName());
-                writer.writeAttribute("name", method.getName());
-                if (args != null && args.length != 0) {
-                    writer.writeStartElement("arguments");
-                    for (int i = 0; i < args.length; i++) {
-                        writer.writeStartElement("argument");
-                        writeObject(args[i]);
+            synchronized (writer) {
+                try {
+                    writer.writeStartElement("invoke");
+                    writer.writeAttribute("timestamp", Long.valueOf(System.currentTimeMillis()).toString());
+                    writer.writeAttribute("class", target.getClass().getName());
+                    writer.writeAttribute("name", method.getName());
+                    if (args != null && args.length != 0) {
+                        writer.writeStartElement("arguments");
+                        for (int i = 0; i < args.length; i++) {
+                            writer.writeStartElement("argument");
+                            writeObject(args[i]);
+                            writer.writeEndElement();
+                        }
+                        writer.writeEndElement();
+                    } else {
+                        writer.writeEmptyElement("arguments");
+                    }
+                    if (method.getReturnType() != void.class && error == null) {
+                        writer.writeStartElement("return");
+                        writeObject(result);
+                        writer.writeEndElement();
+                    } else if (error != null) {
+                        writer.writeStartElement("thrown");
+                        writer.writeCharacters(error.toString());
                         writer.writeEndElement();
                     }
                     writer.writeEndElement();
-                } else {
-                    writer.writeEmptyElement("arguments");
+                    writer.flush();
+                    initialWriter.write("\n");
+                    if (error != null) {
+                        throw error;
+                    }
+                } catch (XMLStreamException e) {
+                    //Proxy not allowed to throw exceptions
                 }
-                if (method.getReturnType() != void.class && error == null) {
-                    writer.writeStartElement("return");
-                    writeObject(result);
-                    writer.writeEndElement();
-                } else if (error != null) {
-                    writer.writeStartElement("thrown");
-                    writer.writeCharacters(error.toString());
-                    writer.writeEndElement();
-                }
-                writer.writeEndElement();
-                writer.flush();
-                initialWriter.write("\n");
-                if (error != null) {
-                    throw error;
-                }
-            } catch (XMLStreamException e) {
-                //Proxy not allowed to throw exceptions
             }
         }
         return result;
