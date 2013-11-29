@@ -222,7 +222,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        assertClosed();
+        if (closed.get()) {
+            return;
+        }
         for (String tableName : tables.keySet()) {
             if (!tables.get(tableName).isClosed()) {
                 tables.get(tableName).close();
