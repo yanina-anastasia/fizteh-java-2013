@@ -120,7 +120,10 @@ public class FileMapLogging implements InvocationHandler {
                         if (method.getName().equals("createFor")) {
                             record.put("returnValue", "FileMapStoreable[,,]");
                         } else {
-                            record.put("returnValue", returnedValue.toString());
+                            record.put("returnValue", returnedValue);
+                        }
+                        if (method.getName().equals("put")) {
+                            throw new Exception("\n-- "+returnedValue+" -- "+record.toString()+" --\n");
                         }
                         s1 += " -- "+returnedValue+" -- " + " " + record.toString()+"\n";
                     }
