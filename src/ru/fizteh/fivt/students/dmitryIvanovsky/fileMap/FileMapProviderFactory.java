@@ -7,10 +7,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 
 public class FileMapProviderFactory implements TableProviderFactory {
 
+    HashSet<FileMapProvider> setFileMapProvider = new HashSet<FileMapProvider>();
+    volatile boolean isFactoryClose = false;
+
     public TableProvider create(String dir) throws IOException {
+        if (isFactoryClose) {
+            throw new IllegalStateException("factory is closed");
+        }
         if (dir == null || dir.equals("")) {
             throw new IllegalArgumentException();
         }
@@ -32,10 +39,24 @@ public class FileMapProviderFactory implements TableProviderFactory {
         }
         Path pathTables = Paths.get(".").resolve(dir);
         try {
-            TableProvider table = new FileMapProvider(pathTables.toFile().getCanonicalPath());
-            return table;
+            FileMapProvider provider = new FileMapProvider(pathTables.toFile().getCanonicalPath());
+            setFileMapProvider.add(provider);
+            return provider;
         } catch (Exception e) {
             throw new RuntimeException();
+        }
+    }
+
+    public void close() {
+        if (!isFactoryClose) {
+            isFactoryClose = true;
+            for (FileMapProvider provider: setFileMapProvider) {
+                try {
+                    provider.close();
+                } catch (IllegalStateException e) {
+                    //pass
+                }
+            }
         }
     }
 
