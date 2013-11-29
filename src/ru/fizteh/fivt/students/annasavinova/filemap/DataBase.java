@@ -40,6 +40,12 @@ public class DataBase implements Table, AutoCloseable {
         closed = true;
     }
 
+    private void checkClosed() {
+        if (closed) {
+            throw new IllegalStateException("table is closed");
+        }
+    }
+
     public DataBase(String tableName, String root, TableProvider prov) {
         if (prov == null) {
             throw new IllegalArgumentException("Provider is null");
@@ -181,9 +187,7 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public String getName() {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         return currTable;
     }
 
@@ -201,9 +205,7 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public Storeable get(String key) {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         checkKey(key);
         Storeable val = null;
         if (dataMap.get().containsKey(key)) {
@@ -221,9 +223,7 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         checkKey(key);
         if (value == null) {
             throw new IllegalArgumentException("Value is null");
@@ -246,9 +246,7 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         checkKey(key);
         Storeable val = null;
         if (dataMap.get().containsKey(key)) {
@@ -269,9 +267,7 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public int size() {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         int size = 0;
         read.lock();
         try {
@@ -294,9 +290,7 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public int commit() throws IOException {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         int changesCount = countChanges();
         mergeMaps();
         dataMap.get().clear();
@@ -328,9 +322,7 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public int rollback() {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         int changesCount = countChanges();
         dataMap.get().clear();
         return changesCount;
@@ -338,17 +330,13 @@ public class DataBase implements Table, AutoCloseable {
 
     @Override
     public int getColumnsCount() {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         return typesList.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (closed) {
-            throw new IllegalStateException("table is closed");
-        }
+        checkClosed();
         if (columnIndex < 0 || columnIndex >= typesList.size()) {
             throw new IndexOutOfBoundsException("Incorrect index " + columnIndex);
         }

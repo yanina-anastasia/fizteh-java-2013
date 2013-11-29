@@ -41,13 +41,10 @@ public class MyProxyHandler implements InvocationHandler {
 
         JSONObject log = logging(method, arguments, exception, result);
 
-        lock.lock();
         try {
             writer.write(log.toString() + System.lineSeparator());
         } catch (Throwable e) {
             // ignore
-        } finally {
-            lock.unlock();
         }
         if (exception != null) {
             throw exception;

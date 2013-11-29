@@ -18,14 +18,14 @@ import ru.fizteh.fivt.students.annasavinova.filemap.DataBase;
 public class DataBaseTest {
     DataBase test;
     TableProvider prov;
+    DBaseProviderFactory fact;
 
     @Rule
     public TemporaryFolder root = new TemporaryFolder();
 
     @Before
     public void initializeAnsdFillingBase() {
-        @SuppressWarnings("resource")
-        DBaseProviderFactory fact = new DBaseProviderFactory();
+        fact = new DBaseProviderFactory();
         try {
             prov = fact.create(root.newFolder().toString());
         } catch (IllegalArgumentException | IOException e1) {
