@@ -110,6 +110,9 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
+
+
+        System.out.println("key: " + key);
         if (modifiedData.get().containsKey(key)) {
             System.out.println("modified");
             return modifiedData.get().get(key);
