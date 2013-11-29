@@ -94,6 +94,7 @@ public class FileMapLogging implements InvocationHandler {
             record.put("timestamp", System.currentTimeMillis());
             record.put("class", proxied.getClass().getName());
             record.put("method", method.getName());
+            s += "2";
             if (args == null) {
                 record.put("arguments", new JSONArray());
             } else if (args.length == 0) {
@@ -102,31 +103,39 @@ public class FileMapLogging implements InvocationHandler {
                 ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
                 record.put("arguments", creatorJSONArray.getJSONArray().get(0));
             }
+            s += "3";
             try {
+                s += "4";
                 returnedValue = method.invoke(proxied, args);
                 if (!method.getReturnType().equals(void.class)) {
                     if (returnedValue == null) {
+                        s += "5";
                         record.put("returnValue", JSONObject.NULL);
                     } else {
+                        s += "6";
                         record.put("returnValue", returnedValue);
                     }
                 }
             } catch (InvocationTargetException e) {
+                s += "7";
                 record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
             } finally {
+                s += "8";
                 writeLock.lock();
                 try {
+                    s += "9";
                     writer.write(record.toString());
                     writer.write("\n");
                 } catch (IOException e) {
                     //pass
                 } finally {
                     writeLock.unlock();
+                    s += "a";
                 }
             }
         } else {
-            s += "2";
+            s += "b";
             writeLock.lock();
             try {
                 writer.write("");
@@ -135,12 +144,14 @@ public class FileMapLogging implements InvocationHandler {
             } finally {
                 writeLock.unlock();
             }
+            s += "c";
             try {
                 returnedValue = method.invoke(proxied, args);
             } catch (InvocationTargetException e) {
                 throw e.getTargetException();
             }
         }
+        s += "d";
         if (method.getName().equals("createFor")) {
             throw new Exception("\n-- "+s+" "+record.toString()+" --\n");
         }
