@@ -1,9 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.tests;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -27,14 +25,17 @@ import java.util.List;
  */
 public class StoreableTableProviderUnitTest {
     StoreableTableProvider testProvider;
-    String source = System.getProperty("fizteh.db.dir");
-    File sandBoxDirectory = new File(source);
+    File sandBoxDirectory;
     List<Class<?>> typesTestListOne;
     List<Class<?>> typesTestListTwo;
     List<Class<?>> typesTestListThree;
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Before
     public void setUpTestObject() throws IOException {
+        sandBoxDirectory = folder.newFolder();
         testProvider = new StoreableTableProvider(sandBoxDirectory);
     }
 
@@ -438,7 +439,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void toStringTest() {
-        Assert.assertEquals("StoreableTableProvider[" + source + "]",
+        Assert.assertEquals("StoreableTableProvider[" + sandBoxDirectory.getAbsolutePath() + "]",
                 testProvider.toString());
     }
 }

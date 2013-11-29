@@ -1,10 +1,8 @@
 
 package ru.fizteh.fivt.students.adanilyak.tests;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
@@ -30,11 +28,14 @@ public class StoreableTableUnitTest {
     Table testTableRus;
     List<Class<?>> typesTestListOne;
     List<Class<?>> typesTestListTwo;
-    String source = System.getProperty("fizteh.db.dir");
-    File sandBoxDirectory = new File(source);
+    File sandBoxDirectory;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void setUpTestObject() throws IOException {
+        sandBoxDirectory = folder.newFolder();
         tableProvider = new StoreableTableProvider(sandBoxDirectory);
 
         typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
@@ -391,9 +392,9 @@ public class StoreableTableUnitTest {
 
     @Test
     public void toStringTest() {
-        Assert.assertEquals("StoreableTable["+ source + "/testTable20]",
+        Assert.assertEquals("StoreableTable["+ sandBoxDirectory.getAbsolutePath() + "/testTable20]",
                 testTableEng.toString());
-        Assert.assertEquals("StoreableTable["+ source + "/тестоваяТаблица21]",
+        Assert.assertEquals("StoreableTable["+ sandBoxDirectory.getAbsolutePath() + "/тестоваяТаблица21]",
                 testTableRus.toString());
     }
 }

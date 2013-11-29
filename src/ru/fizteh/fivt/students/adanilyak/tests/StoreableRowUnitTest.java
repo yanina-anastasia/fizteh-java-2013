@@ -1,9 +1,7 @@
 package ru.fizteh.fivt.students.adanilyak.tests;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -27,10 +25,15 @@ public class StoreableRowUnitTest {
     Table testTable;
     Storeable testStoreable;
     Storeable newTestStoreable;
-    File sandBoxDirectory = new File(System.getProperty("fizteh.db.dir"));
+    File sandBoxDirectory;
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void setUpTestObject() throws IOException, ParseException {
+        sandBoxDirectory = folder.newFolder();
+
         tableProvider = new StoreableTableProvider(sandBoxDirectory);
         List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.
                 createListOfTypesFromString("int long byte float double boolean String");
