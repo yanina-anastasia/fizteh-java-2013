@@ -45,11 +45,11 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                 returnTable.put(key, map.get(key));
             }
             tables.put(name, returnTable);
-            try {
-                returnTable.commit();
-            } catch (IOException e) {
-                // YOU SHALL NOT PASS
-            }
+//            try {
+//                returnTable.commit();
+//            } catch (IOException e) {
+//                // YOU SHALL NOT PASS
+//            }
             return returnTable;
         }
         lock.writeLock().lock();
