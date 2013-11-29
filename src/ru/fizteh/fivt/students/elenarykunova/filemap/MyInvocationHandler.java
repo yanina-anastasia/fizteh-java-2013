@@ -10,16 +10,12 @@ import java.util.IdentityHashMap;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyInvocationHandler implements InvocationHandler {
 
     private Writer myWriter;
     private Object myImplementation;
     private XMLStreamWriter xmlWriter;
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private Lock write = readWriteLock.writeLock();
 
     public MyInvocationHandler(Writer writer, Object implementation) {
         myWriter = writer;
@@ -48,12 +44,12 @@ public class MyInvocationHandler implements InvocationHandler {
         }
         xmlWriter.writeEndElement();
     }
-    
+
     public void writeArgs(Object[] args) throws XMLStreamException {
         if (args == null || args.length == 0) {
             xmlWriter.writeEmptyElement("arguments");
         } else {
-            xmlWriter.writeStartElement("arguments");    
+            xmlWriter.writeStartElement("arguments");
             for (Object object : args) {
                 xmlWriter.writeStartElement("argument");
                 if (object == null) {
@@ -65,7 +61,7 @@ public class MyInvocationHandler implements InvocationHandler {
                 }
                 xmlWriter.writeEndElement();
             }
-        xmlWriter.writeEndElement();
+            xmlWriter.writeEndElement();
         }
     }
 
@@ -77,7 +73,7 @@ public class MyInvocationHandler implements InvocationHandler {
         xmlWriter.writeAttribute("class", impl.getClass().getName());
         xmlWriter.writeAttribute("name", method.getName());
 
-            writeArgs(args);
+        writeArgs(args);
 
         if (exception != null) {
             xmlWriter.writeStartElement("thrown");
@@ -116,16 +112,11 @@ public class MyInvocationHandler implements InvocationHandler {
             throw methodException;
         } finally {
             try {
-                write.lock();
-                try {
-                    StringWriter stringWriter = new StringWriter();
-                    XMLOutputFactory xmlFactory = XMLOutputFactory.newInstance();
-                    xmlWriter = xmlFactory.createXMLStreamWriter(stringWriter);
-                    writeToXMLWriter(myImplementation, method, args, returnVal, methodException);
-                    myWriter.write(stringWriter.toString() + System.lineSeparator());
-                } finally {
-                    write.unlock();
-                }
+                StringWriter stringWriter = new StringWriter();
+                XMLOutputFactory xmlFactory = XMLOutputFactory.newInstance();
+                xmlWriter = xmlFactory.createXMLStreamWriter(stringWriter);
+                writeToXMLWriter(myImplementation, method, args, returnVal, methodException);
+                myWriter.write(stringWriter.toString() + System.lineSeparator());
             } catch (Throwable e) {
                 // nothing to do here
             }
