@@ -17,7 +17,7 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
     }
 
     public boolean equal(Storeable left, Storeable right) {
-        if(left == null || right == null) {
+        if (left == null || right == null) {
             return left == right;
         }
         for (int index = 0; ; index++) {

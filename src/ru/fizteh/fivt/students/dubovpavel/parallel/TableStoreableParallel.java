@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class TableStoreableParallel extends TableStoreable implements Table {
@@ -38,8 +37,8 @@ public class TableStoreableParallel extends TableStoreable implements Table {
 
     private int countChanges() {
         int changes = 0;
-        for(String key: updates.get().keySet()) {
-            if(!localDict.containsKey(key) || !transformer.equal(updates.get().get(key), localDict.get(key))) {
+        for (String key: updates.get().keySet()) {
+            if (!localDict.containsKey(key) || !transformer.equal(updates.get().get(key), localDict.get(key))) {
                 changes++;
             }
         }
@@ -58,9 +57,9 @@ public class TableStoreableParallel extends TableStoreable implements Table {
     }
 
     private Storeable getLocalValue(String key) {
-        if(updates.get().containsKey(key)) {
+        if (updates.get().containsKey(key)) {
             return updates.get().get(key);
-        } else if(removed.get().contains(key)) {
+        } else if (removed.get().contains(key)) {
             return null;
         } else {
             return localDict.get(key);
@@ -122,7 +121,7 @@ public class TableStoreableParallel extends TableStoreable implements Table {
         try {
             int ret = countChanges();
             localDict.putAll(updates.get());
-            for(String key: removed.get()) {
+            for (String key: removed.get()) {
                 localDict.remove(key);
             }
             super.commit();
