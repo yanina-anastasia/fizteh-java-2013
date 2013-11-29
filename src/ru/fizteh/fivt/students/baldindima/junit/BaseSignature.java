@@ -81,7 +81,7 @@ public class BaseSignature {
     }
 
 
-    public static List<Class<?>> getTypes(final String str) throws IOException {
+    public static List<Class<?>> getTypes(String str) throws IOException {
         List<Class<?>> result = new ArrayList<>();
         byte[] s = str.trim().getBytes();
         if (!(s[0] == '(' && s[str.length() - 1] == ')')) {

@@ -86,15 +86,6 @@ public class DataBaseFile {
         provider = nProvider;
         table = nTable;
         dataBaseFile = new File(fileName);
-        try {
-            if (!dataBaseFile.exists()) {
-                if (!dataBaseFile.createNewFile()) {
-                    throw new IOException("Cannot create " + fileName);
-                }
-            }
-        } catch (IOException e) {
-            throw new IOException("Open file error! " + e.getMessage());
-        }
         fileNumber = nFileNumber;
         directoryNumber = nDirectoryNumber;
         read();
@@ -165,21 +156,53 @@ public class DataBaseFile {
         randomDataBaseFile.close();
 
     }
-
-    public void write() throws IOException {
-        RandomAccessFile randomDataBaseFile = new RandomAccessFile(fileName, "rw");
-        randomDataBaseFile.getChannel().truncate(0);
-        for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
-            if (curPair.getValue().type != DELETED) {
-                randomDataBaseFile.writeInt(curPair.getKey().getBytes("UTF-8").length);
-                randomDataBaseFile.writeInt(curPair.getValue().value.getBytes("UTF-8").length);
-                randomDataBaseFile.write(curPair.getKey().getBytes("UTF-8"));
-                randomDataBaseFile.write(curPair.getValue().value.getBytes("UTF-8"));
-            }
-
-        }
-        randomDataBaseFile.close();
+    public int realMapSize(){
+    	int size = 0;
+    	for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
+    		if (curPair.getValue().type != DELETED){
+    			++size;
+    	}
+    	}
+    	return size;
     }
+    public void write() throws IOException {
+    	File dataBaseDirectory = new File(dataBaseFile.getParent());
+    	if (realMapSize() == 0){
+        	if ((dataBaseFile.exists()) && (!dataBaseFile.delete())) {
+                throw new DataBaseException("Cannot delete a file!");
+            }
+        	
+        	if (dataBaseDirectory.exists() && dataBaseDirectory.list().length <= 0){
+        		if (!dataBaseDirectory.delete()){
+        			throw new DataBaseException("Cannot delete a directory");
+        		}
+        	}
+        } else {
+        	if (!dataBaseDirectory.exists() && !dataBaseDirectory.mkdir()){
+        		throw new DataBaseException("Cannot create a directory");
+        	}
+        	if (!dataBaseFile.exists()) {
+                if (!dataBaseFile.createNewFile()) {
+                    throw new DataBaseException("Cannot create a file " + fileName);
+                }
+            }
+        	RandomAccessFile randomDataBaseFile = new RandomAccessFile(fileName, "rw");
+        	
+            randomDataBaseFile.getChannel().truncate(0);
+            for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
+                if (curPair.getValue().type != DELETED) {
+                    randomDataBaseFile.writeInt(curPair.getKey().getBytes("UTF-8").length);
+                    randomDataBaseFile.writeInt(curPair.getValue().value.getBytes("UTF-8").length);
+                    randomDataBaseFile.write(curPair.getKey().getBytes("UTF-8"));
+                    randomDataBaseFile.write(curPair.getValue().value.getBytes("UTF-8"));
+                }
+
+            }
+            randomDataBaseFile.close();
+
+        	
+        }
+}
 
     private void checkString(String str) {
         if ((str == null) || (str.trim().length() == 0)) {

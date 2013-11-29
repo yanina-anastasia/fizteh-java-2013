@@ -27,6 +27,6 @@ public class ShellDbUseTable extends ShellIsItCommand {
              System.out.println(arguments[1] + " not exists");
          }
     }
-
+    
 }
 

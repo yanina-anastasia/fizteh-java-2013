@@ -17,6 +17,7 @@ public class BaseStoreable implements Storeable {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(table.getColumnType(i));
             values.add(null);
+            
         }
     }
 
@@ -30,12 +31,12 @@ public class BaseStoreable implements Storeable {
 
         for (int i = 0; i < nValues.size(); ++i) {
             Object value = cast(types.get(i), nValues.get(i));
-            if (!nValues.get(i).equals(types.get(i))) {
+            if (value != null && value.getClass() != (types.get(i))) {
                 throw new ColumnFormatException(nValues.get(i).toString() + " must be " + types.get(i)
                         + " but it is " + nValues.get(i).getClass());
             }
 
-            values.add(nValues.get(i));
+            values.set(i,value);
         }
 
     }
@@ -198,7 +199,7 @@ public class BaseStoreable implements Storeable {
             value = null;
         }
         value = cast(types.get(columnIndex), value);
-        if (value != null && !value.getClass().equals(types.get(columnIndex))) {
+        if (value != null && (value.getClass() != (types.get(columnIndex)))) {
             throw new ColumnFormatException(columnIndex + " column has incorrect format");
         }
         values.set(columnIndex, value);

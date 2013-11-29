@@ -110,14 +110,7 @@ public class DataBase implements Table {
     }
 
 
-    private void addDirectory(final String directoryName) throws IOException {
-        File file = new File(dataBaseDirectory + File.separator + directoryName);
-        if (!file.exists()) {
-            if (!file.mkdir()) {
-                throw new IOException("Cannot create a directory!");
-            }
-        }
-    }
+    
 
     private String getFullName(int nDir, int nFile) {
         return dataBaseDirectory + File.separator + Integer.toString(nDir)
@@ -127,8 +120,7 @@ public class DataBase implements Table {
     private void loadDataBase() throws IOException {
         try {
             for (int i = 0; i < 16; ++i) {
-                addDirectory(Integer.toString(i) + ".dir");
-                for (int j = 0; j < 16; ++j) {
+                 for (int j = 0; j < 16; ++j) {
                     int nFile = j;
                     int nDir = i;
                     DataBaseFile file = new DataBaseFile(getFullName(i, j), i, j, provider, this);

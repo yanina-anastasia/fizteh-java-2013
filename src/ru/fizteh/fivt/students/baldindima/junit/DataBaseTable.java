@@ -80,7 +80,8 @@ public class DataBaseTable implements TableProvider {
         } else {
 
             try {
-                DataBase table = new DataBase(path, this);
+               
+            	DataBase table = new DataBase(path, this);
                 tables.put(name, table);
                 return table;
             } catch (IOException e) {

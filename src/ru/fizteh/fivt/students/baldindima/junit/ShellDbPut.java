@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.baldindima.junit;
 
+import java.io.IOException;
 import java.text.ParseException;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
@@ -19,8 +20,14 @@ public class ShellDbPut extends ShellIsItCommand {
 			return;
 		}
 		Storeable storeable;
+		StringBuilder argsBuilder = new StringBuilder(); 
+    	for (int i = 2; i < arguments.length; ++i){
+    		argsBuilder.append(arguments[i]).append(" ");
+    	}
+    	argsBuilder.deleteCharAt(argsBuilder.length() - 1);
+    	String args = argsBuilder.toString();
 		try {
-			storeable = ((DataBase) context.table).putStoreable(arguments[1], arguments[2]);
+			storeable = ((DataBase) context.table).putStoreable(arguments[1], args);
 			if (storeable == null){
 				System.out.println("new");
 			} else {
@@ -32,5 +39,17 @@ public class ShellDbPut extends ShellIsItCommand {
 		}
 		
 	}
+	public boolean isItCommand(final String[] commands) throws IOException{
+		if (commands[0].equals(name)){
+		if (commands.length < numberOfArgs){
+			throw new IOException("Invalid number of arguments");
+		
+		}
+		arguments = commands;
+		return true;
+		}
+		return false;
+	}
+
 
 }
