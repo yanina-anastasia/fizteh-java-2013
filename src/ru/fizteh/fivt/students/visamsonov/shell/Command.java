@@ -2,11 +2,11 @@ package ru.fizteh.fivt.students.visamsonov.shell;
 
 import java.io.PrintStream;
 
-interface Command {
+interface Command<T> {
 
 	public void printError (String message);
 
 	public String getName ();
 	
-	public boolean evaluate (ShellState state, String args);
+	public boolean evaluate (T state, String args);
 }

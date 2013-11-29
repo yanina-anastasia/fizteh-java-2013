@@ -248,12 +248,15 @@ public class TestsDatabaseProvider {
             @Override
             public void run() {
                 provider.createTable("testTable", columnTypes);
+                provider.removeTable("testTable");
             }
         });
         Thread second = new Thread(new Runnable() {
             @Override
             public void run() {
-                provider.removeTable("testTable");
+                if (provider.tables.containsKey("testTable")) {
+                    provider.removeTable("testTable");
+                }
             }
         });
         first.start();

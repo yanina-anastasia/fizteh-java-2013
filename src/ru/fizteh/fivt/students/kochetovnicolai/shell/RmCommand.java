@@ -2,22 +2,13 @@ package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
 import java.io.File;
 
-public class RmCommand implements Executable {
+public class RmCommand extends Executable {
 
     private FileManager manager;
 
     public RmCommand(FileManager fileManager) {
+        super("rm", 2);
         manager = fileManager;
-    }
-
-    @Override
-    public String name() {
-        return "rm";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 2;
     }
 
     @Override

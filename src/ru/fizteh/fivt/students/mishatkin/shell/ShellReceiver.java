@@ -9,14 +9,22 @@ import java.nio.file.Files;
  *
  */
 
-public class ShellReceiver {
+public class ShellReceiver implements CommandReceiver{
 	protected boolean interactiveMode;
 
-	protected PrintStream out;
+	private ShellPrintStream out;
 
 	private File shellPath;
 
+	public ShellReceiver() {
+		this((ShellPrintStream) null, false);
+	}
+
 	public ShellReceiver(PrintStream out, boolean interactiveMode) {
+		this(new ShellPrintStream(out), interactiveMode);
+	}
+
+	public ShellReceiver(ShellPrintStream out, boolean interactiveMode) {
 		this.out = out;
 		this.interactiveMode = interactiveMode;
 		shellPath = new File(".");
@@ -26,17 +34,20 @@ public class ShellReceiver {
 
 		}
 	}
-
 	public boolean isInteractiveMode() {
 		return interactiveMode;
 	}
 
-	private void print(String s) {
+	protected ShellPrintStream getOut() {
+		return out;
+	}
+
+	public void print(String s) {
 		out.print(s);
 	}
 
-	private void println(String s) {
-	out.println(s);
+	public void println(String s) {
+		out.println(s);
 	}
 
 	public void showPrompt() {
@@ -89,14 +100,28 @@ public class ShellReceiver {
 		directoryToCreate.mkdir();
 	}
 
-	public void removeCommand(String arg) throws ShellException {
+	public void rmCommand(String arg) throws ShellException {
 		File fileToDelete = normalizedFile(arg);
 		deleteFile(fileToDelete);
 	}
 
 	private void deleteFile(File fileToDelete) throws ShellException {
-		if (!fileToDelete.exists() || !fileToDelete.delete()) {
-			throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory");
+		if (!fileToDelete.exists()) {
+			throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + "\': No such file or directory.");
+		}
+		File[] subFiles = fileToDelete.listFiles();
+		if (subFiles == null) {
+			if(!fileToDelete.delete()) {
+				throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + ".");
+			}
+		} else {
+			assert subFiles != null;
+			for (File subFile : subFiles) {
+				deleteFile(subFile);
+			}
+			if(!fileToDelete.delete()) {
+				throw new ShellException("rm: cannot remove \'" + fileToDelete.getName() + ".");
+			}
 		}
 	}
 
@@ -108,7 +133,7 @@ public class ShellReceiver {
 		File destinationDirectory = normalizedFile(destinationDirectoryName);
 		File destinationFileOrDirectory = new File(destinationDirectory, sourceFileOrDirectory.getName());
 		if (destinationFileOrDirectory.exists()) {
-			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destination directory already exists");
+			throw new ShellException("cp: \'" + destinationFileOrDirectory.getAbsolutePath() + "\' : Destinfation directory already exists");
 		}
 		if (!destinationFileOrDirectory.isDirectory()) {
 			if (destinationDirectory.toPath().equals(sourceFileOrDirectory.toPath())) {

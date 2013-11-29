@@ -1,28 +1,34 @@
 package ru.fizteh.fivt.students.kochetovnicolai.fileMap;
 
-import ru.fizteh.fivt.storage.strings.Table;
-import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.students.kochetovnicolai.shell.FileManager;
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.kochetovnicolai.shell.Manager;
 
-import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 
-public class TableManager extends FileManager implements TableProvider {
+public class TableManager extends Manager {
 
-    protected DistributedTable currentTable;
-
+    protected DistributedTable currentTable = null;
+    DistributedTableProvider provider;
     HashMap<String, DistributedTable> tables;
 
     public boolean existsTable(String name) {
-        return (new File(currentPath + File.separator + name).exists());
+        if (!tables.containsKey(name)) {
+            try {
+                return provider.existsTable(name);
+            } catch (IllegalArgumentException e) {
+                printMessage(e.getMessage());
+                return false;
+            }
+        }
+        return tables.containsKey(name);
     }
 
-    public TableManager(File workingDirectory) throws IOException {
-        currentPath = workingDirectory;
-        if (!currentPath.exists() && !currentPath.mkdir()) {
-            throw new IOException("couldn't create working directory");
-        }
+    public TableManager(DistributedTableProvider provider) {
+        this.provider = provider;
         tables = new HashMap<>();
     }
 
@@ -30,65 +36,75 @@ public class TableManager extends FileManager implements TableProvider {
         currentTable = table;
     }
 
-    @Override
     public DistributedTable getTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
         }
-        if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
-            return null;
-        }
-        return createTable(name);
-    }
-
-    @Override
-    public DistributedTable createTable(String name) throws IllegalArgumentException {
-        if (name == null) {
-            throw new IllegalArgumentException("table name shouldn't be null");
-        }
         if (!tables.containsKey(name)) {
-            try {
-                DistributedTable table = new DistributedTable(currentPath, name);
+            DistributedTable table = provider.getTable(name);
+            if (table != null) {
                 tables.put(name, table);
-            } catch (IOException e) {
-                return null;
             }
         }
         return tables.get(name);
     }
 
-    @Override
-    public void removeTable(String name) throws IllegalArgumentException {
+    public DistributedTable createTable(String name, List<Class<?>> columnTypes) throws IllegalArgumentException {
+        if (name == null || columnTypes == null) {
+            throw new IllegalArgumentException("table name shouldn't be null");
+        }
+        if (!tables.containsKey(name)) {
+            try {
+                tables.put(name, provider.createTable(name, columnTypes));
+                if (tables.get(name) == null) {
+                   tables.put(name, provider.getTable(name));
+                }
+            } catch (IllegalArgumentException e) {
+                printMessage(e.getMessage());
+            } catch (IOException e) {
+                printMessage("couldn't create table: " + e.getMessage());
+            }
+        }
+        return tables.get(name);
+    }
+
+    public boolean removeTable(String name) throws IllegalArgumentException {
         if (name == null) {
             throw new IllegalArgumentException("table name shouldn't be null");
         }
-        if (!(new File(currentPath.getPath() + File.separator + name)).exists()) {
-            throw new IllegalStateException("table is not exists");
+        if (currentTable == tables.get(name)) {
+            currentTable = null;
         }
-        if (tables.containsKey(name)) {
-            tables.remove(name);
+        tables.remove(name);
+        try {
+            provider.removeTable(name);
+        } catch (IllegalArgumentException e) {
+            printMessage(e.getMessage());
+            return false;
+        } catch (IOException e) {
+            printMessage(e.getMessage());
+            return false;
         }
-        recursiveRemove(new File(currentPath.getPath() + File.separator + name), "table");
+        return true;
     }
 
-    @Override
-    public void setExit() {
-        if (currentTable != null) {
-            currentTable.commit();
-        }
-        super.setExit();
-    }
-
-    public Table getCurrentTable() {
+    public DistributedTable getCurrentTable() {
         return currentTable;
+    }
+
+    public String serialize(Storeable storiable) throws ParseException {
+        return provider.serialize(currentTable, storiable);
+    }
+
+    public Storeable deserialize(String string) throws ColumnFormatException, ParseException {
+        return provider.deserialize(currentTable, string);
     }
 
     @Override
     public void printSuggestMessage() {
-        outputStream.print(currentPath.getName() + File.separator);
         if (currentTable != null) {
             outputStream.print(currentTable.getName());
         }
-        outputStream.print("$ ");
+        outputStream.print(" $ ");
     }
 }

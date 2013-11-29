@@ -1,21 +1,12 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-public class DirCommand implements Executable {
+public class DirCommand extends Executable {
 
     private FileManager manager;
 
     public DirCommand(FileManager fileManager) {
+        super("dir", 1);
         manager = fileManager;
-    }
-
-    @Override
-    public String name() {
-        return "dir";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 1;
     }
 
     @Override

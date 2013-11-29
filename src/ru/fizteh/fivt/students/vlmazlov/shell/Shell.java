@@ -71,14 +71,14 @@ public class Shell<T> {
 
 	private String[] parseLine(String commandLine) {
 		commandLine = commandLine.trim();
-		return commandLine.split("\\s*;\\s*", -1);
+		return commandLine.split("(\\s*;\\s*)", -1);
 	}
 
 	private void executeLine(String commandLine) 
 	throws WrongCommandException, CommandFailException, UserInterruptionException {
 
 		for (String exArg : parseLine(commandLine)) {
-			invokeCommand(exArg.split("\\s+"));
+			invokeCommand(exArg.split("\\s+(?![^\\(]*\\))"));
 		}
 	}
 

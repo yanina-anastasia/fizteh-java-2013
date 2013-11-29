@@ -1,58 +1,48 @@
 package ru.fizteh.fivt.students.nadezhdakaratsapova.filemap;
 
-import ru.fizteh.fivt.storage.strings.Table;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.FileReader;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.FileWriter;
+import ru.fizteh.fivt.students.nadezhdakaratsapova.tableutils.UniversalDataTable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.text.ParseException;
 
-public class DataTable implements Table {
-    private String tableName;
-    private Map<String, String> dataStorage = new HashMap<String, String>();
+public class DataTable extends UniversalDataTable<String> {
 
     public DataTable() {
+        super();
     }
 
     public DataTable(String name) {
-        tableName = name;
+        super(name);
     }
 
-    public String getName() {
-        return tableName;
-    }
-
+    @Override
     public String put(String key, String value) {
-        String oldValue = dataStorage.get(key);
-        dataStorage.put(key, value);
-        return oldValue;
+        return putSimple(key, value);
     }
 
-    public Set<String> getKeys() {
-        return dataStorage.keySet();
-    }
-
-    public String get(String key) {
-        return dataStorage.get(key);
-    }
-
-    public String remove(String key) {
-        return dataStorage.remove(key);
-    }
-
-    public boolean isEmpty() {
-        return dataStorage.isEmpty();
-    }
-
-    public int size() {
-        return dataStorage.size();
-    }
-
+    @Override
     public int commit() {
-        throw new UnsupportedOperationException("commit operation is not supported");
+        return commitWithoutWriteToDataBase();
     }
 
-    public int rollback() {
-        throw new UnsupportedOperationException("rollback operation is not supported");
+    @Override
+    public void load() throws IOException, ParseException {
+        FileReader fileReader = new FileReader(getWorkingDirectory(), this);
+        while (fileReader.checkingLoadingConditions()) {
+            fileReader.getNextKey();
+        }
+        while (fileReader.valuesToReadExists()) {
+            fileReader.putValueToTable(valueConverter.convertStringToValueType(fileReader.getNextValue()));
+        }
+        fileReader.closeResources();
     }
+
+    @Override
+    public void writeToDataBase() throws IOException {
+        FileWriter fileWriter = new FileWriter();
+        fileWriter.writeDataToFile(getWorkingDirectory(), this);
+    }
+
 }
-

@@ -1,29 +1,26 @@
 package ru.fizteh.fivt.students.vlmazlov.multifilemap;
 
-import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
-import ru.fizteh.fivt.students.vlmazlov.shell.AbstractCommand;
-import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
 import java.io.OutputStream;
-import ru.fizteh.fivt.students.vlmazlov.shell.AbstractCommand;
 import ru.fizteh.fivt.students.vlmazlov.shell.CommandFailException;
-import java.io.IOException;
-import java.io.File;
 
-public class DropCommand extends AbstractMultiTableDataBaseCommand {
+public class DropCommand extends AbstractDataBaseCommand {
 	public DropCommand() {
 		super("drop", 1);
 	}
 
-	public void execute(String[] args, MultiTableDataBase state, OutputStream out) throws CommandFailException {
+	public void execute(String[] args, DataBaseState state, OutputStream out) throws CommandFailException {
 		String tablename = args[0];
-		File directory = state.drop(tablename);
 
-		if (directory == null) {
+		if (state.getProvider().getTable(tablename) == null) {
 			displayMessage(tablename + " not exists" + SEPARATOR, out);
 			return;
 		}
 
-		FileUtils.recursiveDelete(directory);
+		if (state.getProvider().getTable(tablename) == state.getActiveTable()) {
+			state.setActiveTable(null);
+		}
+
+		state.getProvider().removeTable(tablename);
 
 		displayMessage("dropped" + SEPARATOR, out);
 	}

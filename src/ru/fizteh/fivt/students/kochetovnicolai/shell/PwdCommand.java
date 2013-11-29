@@ -1,21 +1,12 @@
 package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
-public class PwdCommand implements Executable {
+public class PwdCommand extends Executable {
 
     private FileManager manager;
 
     public PwdCommand(FileManager fileManager) {
+        super("pwd", 1);
         manager = fileManager;
-    }
-
-    @Override
-    public String name() {
-        return "pwd";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 1;
     }
 
     @Override
