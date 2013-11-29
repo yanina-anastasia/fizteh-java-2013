@@ -32,7 +32,7 @@ public class InvocationHandlerTest {
 
     @Test
     public void testFactory() throws IOException {
-        Writer writer = new FileWriter(folder.newFile("file"));
+        Writer writer = new StringWriter();
         TableProviderFactory proxyFactory = (TableProviderFactory) logFactory.wrap(writer,
                 factory, TableProviderFactory.class);
 
@@ -46,17 +46,12 @@ public class InvocationHandlerTest {
 
 
         writer.flush();
-        writer.close();
-
-        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
-        char[] buf = new char[10000];
-        reader.read(buf);
-        System.out.println(buf);
+        System.out.println(writer.toString());
     }
 
     @Test
     public void testProvider() throws IOException {
-        Writer writer = new FileWriter(folder.newFile("file"));
+        Writer writer = new StringWriter();
         TableProviderFactory factory = new MyTableProviderFactory();
         provider = factory.create(folder.newFolder("folder").getCanonicalPath());
 
@@ -72,17 +67,12 @@ public class InvocationHandlerTest {
         proxyProvider.createFor(table);
 
         writer.flush();
-        writer.close();
-
-        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
-        char[] buf = new char[20000];
-        reader.read(buf);
-        System.out.println(buf);
+        System.out.println(writer.toString());
     }
 
     @Test
     public void testProviderError() throws IOException {
-        Writer writer = new FileWriter(folder.newFile("file"));
+        Writer writer = new StringWriter();
         TableProviderFactory factory = new MyTableProviderFactory();
         provider = factory.create(folder.newFolder("folder").getCanonicalPath());
 
@@ -98,18 +88,13 @@ public class InvocationHandlerTest {
             //silent
         }
         writer.flush();
-        writer.close();
-
-        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
-        char[] buf = new char[20000];
-        reader.read(buf);
-        System.out.println(buf);
+        System.out.println(writer.toString());
     }
 
 
     @Test
     public void testTestInterface() throws IOException {
-        Writer writer = new FileWriter(folder.newFile("file"));
+        Writer writer = new StringWriter();
         List<Object> list = new ArrayList<>();
         list.add(list);
         list.add(new Integer(123));
@@ -130,17 +115,12 @@ public class InvocationHandlerTest {
         test.arrayParameter(list2);
 
         writer.flush();
-        writer.close();
-
-        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
-        char[] buf = new char[20000];
-        reader.read(buf);
-        System.out.println(buf);
+        System.out.println(writer.toString());
     }
 
     @Test
     public void testNested() throws IOException {
-        Writer writer = new FileWriter(folder.newFile("file"));
+        Writer writer = new StringWriter();
 
         List<Object> array = new ArrayList<>();
         array.add(null);
@@ -149,22 +129,17 @@ public class InvocationHandlerTest {
         nestedList.add(array);
 
         TestInterface test = (TestInterface) logFactory.wrap(writer, new TestClass(), TestInterface.class);
+
         test.arrayParameter(array);
 
         writer.flush();
-        writer.close();
-
-        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
-        char[] buf = new char[20000];
-        reader.read(buf);
-        System.out.println(buf);
-
+        System.out.println(writer.toString());
     }
 
 
     @Test
     public void proxyOfDbTypes() throws IOException {
-        Writer writer = new FileWriter(folder.newFile("file"));
+        Writer writer = new StringWriter();
         TableProviderFactory factory = new MyTableProviderFactory();
         provider = factory.create(folder.newFolder("folder").getCanonicalPath());
 
@@ -185,12 +160,7 @@ public class InvocationHandlerTest {
         proxyTable.put("123", storeable);
 
         writer.flush();
-        writer.close();
-
-        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
-        char[] buf = new char[20000];
-        reader.read(buf);
-        System.out.println(buf);
+        System.out.println(writer.toString());
     }
 
 }

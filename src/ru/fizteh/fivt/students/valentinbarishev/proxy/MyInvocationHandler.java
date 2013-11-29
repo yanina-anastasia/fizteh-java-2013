@@ -34,6 +34,7 @@ public class MyInvocationHandler implements InvocationHandler {
             try {
                 writer.write(log.write());
                 writer.write(System.lineSeparator());
+                writer.flush();
             } catch (Exception e) {
                 //silent
             }

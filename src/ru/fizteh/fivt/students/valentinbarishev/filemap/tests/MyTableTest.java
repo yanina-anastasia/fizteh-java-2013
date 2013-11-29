@@ -213,4 +213,28 @@ public class MyTableTest {
         ((AutoCloseable) table).close();
     }
 
+    @Test (expected = IllegalStateException.class)
+    public void testTableCloseGet() throws Exception {
+        ((AutoCloseable) table).close();
+        table.get("asdasd");
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void testTableClosePut() throws Exception {
+        ((AutoCloseable) table).close();
+        table.put("asdasd", provider.createFor(table));
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void testTableCloseSize() throws Exception {
+        ((AutoCloseable) table).close();
+        table.size();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void testTableCloseName() throws Exception {
+        ((AutoCloseable) table).close();
+        table.getName();
+    }
+
 }
