@@ -13,11 +13,13 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
 
     Object target;
     XMLStreamWriter writer;
+    Writer initialWriter;
     IdentityHashMap<Object, Boolean> identityHashMap;
 
     public XMLLoggingProxyInvocationHandler(Object target, Writer writer) throws XMLStreamException {
         this.target = target;
         this.writer = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
+        this.initialWriter = writer;
         this.identityHashMap = new IdentityHashMap<>();
     }
 
@@ -85,6 +87,8 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
                     writer.writeEndElement();
                 }
                 writer.writeEndElement();
+                writer.flush();
+                initialWriter.write("\n");
                 if (error != null) {
                     throw error;
                 }
