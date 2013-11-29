@@ -38,7 +38,8 @@ public class TableStoreableParallel extends TableStoreable implements Table {
     private int calculateAdditions(boolean countModified) {
         int additions = 0;
         for (String key: updates.get().keySet()) {
-            if (!localDict.containsKey(key) || (countModified && !transformer.equal(updates.get().get(key), localDict.get(key)))) {
+            if (!localDict.containsKey(key)
+                    || (countModified && !transformer.equal(updates.get().get(key), localDict.get(key)))) {
                 ++additions;
             }
         }
