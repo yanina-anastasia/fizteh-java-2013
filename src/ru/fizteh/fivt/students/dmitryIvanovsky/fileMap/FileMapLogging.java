@@ -114,6 +114,7 @@ public class FileMapLogging implements InvocationHandler {
                 if (!method.getReturnType().equals(void.class)) {
                     if (returnedValue == null) {
                         s += "5";
+                        s1 += record.toString()+"\n";
                         record.put("returnValue", JSONObject.NULL);
                     } else {
                         s1 += record.toString()+"\n";
@@ -122,9 +123,7 @@ public class FileMapLogging implements InvocationHandler {
                         } else {
                             record.put("returnValue", returnedValue);
                         }
-                        if (method.getName().equals("put")) {
-                            throw new Exception("\n-- "+returnedValue+" -- "+record.toString()+" --\n");
-                        }
+                        s1 += record.toString()+"\n";
                         s1 += " -- "+returnedValue+" -- " + " " + record.toString()+"\n";
                     }
                 }
@@ -170,7 +169,7 @@ public class FileMapLogging implements InvocationHandler {
             }
         }
         if (method.getName().equals("put")) {
-            //throw new Exception("\n-- "+record.toString()+" --\n");
+            throw new Exception("\n-- "+s1+" -- "+record.toString()+" --\n");
         }
         return returnedValue;
     }
