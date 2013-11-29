@@ -21,8 +21,7 @@ public class ClassState {
 
     public void check() {
         if (state == CLOSED) {
-            throw new IllegalStateException(parent != null ? parent.toString() : "Some object "
-                    + " is closed already!");
+            throw new IllegalStateException("Some object is closed already!");
         }
     }
 

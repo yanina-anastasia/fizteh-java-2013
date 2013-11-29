@@ -6,10 +6,14 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import java.io.File;
 import java.io.IOException;
 
-public class MyTableProviderFactory implements TableProviderFactory {
+public class MyTableProviderFactory implements TableProviderFactory, AutoCloseable  {
+
+    ClassState state = new ClassState(this);
 
     @Override
     public TableProvider create(String dir) throws IOException {
+        state.check();
+
         if (dir == null || dir.trim().equals("")) {
             throw new IllegalArgumentException("Dir cannot be null");
         }
@@ -27,5 +31,10 @@ public class MyTableProviderFactory implements TableProviderFactory {
         }
 
         return new DataBaseTable(dir);
+    }
+
+    @Override
+    public void close() {
+        state.close();
     }
 }
