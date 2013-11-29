@@ -34,7 +34,7 @@ public class DataBase implements Table, AutoCloseable {
 
     private String currTable = "";
     private static String rootDir = "";
-    private boolean closed = false;
+    private volatile boolean closed = false;
 
     public void setRemoved() {
         closed = true;
