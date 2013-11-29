@@ -122,7 +122,6 @@ public class MyInvocationHandler implements InvocationHandler {
     }
 
     public void writeIterable(Iterable<?> arg, IdentityHashMap<Object, String> identityMap) throws Throwable {
-        identityMap.put(arg, null);
         xmlWriter.writeStartElement("list");
         for (Object item : arg) {
             xmlWriter.writeStartElement("value");
@@ -133,6 +132,7 @@ public class MyInvocationHandler implements InvocationHandler {
                     if (identityMap.containsKey(item)) {
                         xmlWriter.writeCharacters("cyclic"); // very bad again
                     } else {
+                        identityMap.put(item, null);
                         writeIterable((Iterable<?>) item, identityMap);
                     }
                 } else {
@@ -142,7 +142,7 @@ public class MyInvocationHandler implements InvocationHandler {
             xmlWriter.writeEndElement();    // end of "value"
         }
         xmlWriter.writeEndElement();        // end of "list"
-        identityMap.remove(arg);
+        //identityMap.remove(arg);
     }
 
 }
