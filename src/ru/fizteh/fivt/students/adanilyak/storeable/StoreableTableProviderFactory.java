@@ -57,6 +57,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
 
     @Override
     public void close() {
+        status.isOkForClose();
         lock.lock();
         try {
             for (StoreableTableProvider provider : allProvidersMap.values()) {

@@ -42,6 +42,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
         }
         allTablesDirectory = atDirectory;
+        status = WorkStatus.NOT_INITIALIZED;
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new StoreableTable(tableFile, this);
             allTablesMap.put(tableFile.getName(), table);
@@ -173,6 +174,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() {
+        status.isOkForClose();
         for (String tableName : allTablesMap.keySet()) {
             ((StoreableTable) allTablesMap.get(tableName)).close();
         }
