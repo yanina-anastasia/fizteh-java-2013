@@ -211,7 +211,6 @@ public class MyTableTest {
         Assert.assertNull(table.put("abacaba", storeable));
         ((AutoCloseable) table).close();
         ((AutoCloseable) table).close();
-        table.commit();
     }
 
 }
