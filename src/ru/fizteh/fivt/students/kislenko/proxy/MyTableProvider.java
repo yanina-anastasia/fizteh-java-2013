@@ -43,13 +43,13 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             HashMap<String, Storeable> map = tables.get(name).getMap();
             for (String key : map.keySet()) {
                 returnTable.put(key, map.get(key));
-                try {
-                    returnTable.commit();
-                } catch (IOException e) {
-                    // YOU SHALL NOT PASS
-                }
             }
             tables.put(name, returnTable);
+            try {
+                returnTable.commit();
+            } catch (IOException e) {
+                // YOU SHALL NOT PASS
+            }
             return returnTable;
         }
         lock.writeLock().lock();
