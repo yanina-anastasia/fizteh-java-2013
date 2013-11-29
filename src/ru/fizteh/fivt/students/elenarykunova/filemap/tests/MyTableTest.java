@@ -20,6 +20,7 @@ public class MyTableTest {
 
     private static MyTable table;
     private MyTableProvider prov;
+    private String tablePath;
     
     @Rule 
     public TemporaryFolder folder = new TemporaryFolder();
@@ -36,6 +37,7 @@ public class MyTableTest {
             types.add(Double.class);
             types.add(String.class);
             types.add(Boolean.class);
+            tablePath = rootDir.getAbsoluteFile() + File.separator + "newTable";
             table = (MyTable) prov.createTable("newTable", types);
         } catch (IOException e) {
             System.err.println("can't make tests");
@@ -350,5 +352,9 @@ public class MyTableTest {
         table.close();
         table.getColumnType(1);
     }
-
+    
+    @Test
+    public void toStringTest() {
+        assertEquals("MyTable[" + tablePath + "]", table.toString());
+    }
 }

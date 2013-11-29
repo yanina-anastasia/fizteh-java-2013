@@ -309,5 +309,43 @@ public class MyTableProviderTest {
         provider.close();
         provider.deserialize(table, serial);
     }
+    
+    @Test
+    public void toStringTest() {
+        assertEquals("MyTableProvider[" + existingDir.getAbsolutePath() + "]", provider.toString());
+    }    
+    
+    @Test
+    public void closeAll() throws Exception {
+        MyTable table1 = (MyTable) provider.createTable(existingDir.getName(), justList);
+        MyTable table2 = (MyTable) provider.createTable("aaaaa", justList);
+        MyTable table3 = (MyTable) provider.createTable("abbba", justList);
+        provider.close();
+        try {
+            table1.get("1");
+            fail("expected IllegalStateException in table.get() after closing provider");
+        } catch (IllegalStateException e1) {
+            // ok;
+        }
+        try {
+            table2.get("1");
+            fail("expected IllegalStateException in table.get() after closing provider");
+        } catch (IllegalStateException e1) {
+            // ok;
+        }
+        try {
+            table3.get("1");
+            fail("expected IllegalStateException in table.get() after closing provider");
+        } catch (IllegalStateException e1) {
+            // ok;
+        }
 
+    }
+    
+    @Test
+    public void closeTableAndGet() throws Exception {
+        MyTable table1 = (MyTable) provider.createTable("aaaa", justList);
+        table1.close();
+        assertNotEquals(table1, provider.getTable("aaaa"));
+    }
 }
