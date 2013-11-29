@@ -97,7 +97,6 @@ public class ProxyTests {
         list.add(list);
         list.add(3);
         wrapped.takeIterableReturnArray(list);
-        System.out.println(writer.toString());
         JSONObject log = new JSONObject(writer.toString());
         String rightResult = "{\"timestamp\":1385753633506,\"arguments\":[[2,\"cyclic\",3]],\"returnValue\":[],"
                 + "\"class\":\"ru.fizteh.fivt.students.annasavinova.filemap.tests.InterfaceImplementClass\","
