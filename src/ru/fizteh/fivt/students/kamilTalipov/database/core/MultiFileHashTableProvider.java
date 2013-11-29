@@ -178,13 +178,14 @@ public class MultiFileHashTableProvider implements TableProvider, AutoCloseable 
 
     @Override
     public void close() {
-        if (isClosed) {
-            return;
-        }
-
-        isClosed = true;
         writeLock.lock();
         try {
+            if (isClosed) {
+                return;
+            }
+
+            isClosed = true;
+
             for (MultiFileHashTable table : tables) {
                 table.close();
             }
