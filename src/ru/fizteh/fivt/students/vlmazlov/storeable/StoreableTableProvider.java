@@ -73,6 +73,7 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
         StoreableTable table = new StoreableTable(this, name, autoCommit, getTableSignature(tableDir));
         ProviderReader.readMultiTable(tableDir, table, this);
         tables.put(name, table);
+        table.pushChanges();
 
         return table;
     }

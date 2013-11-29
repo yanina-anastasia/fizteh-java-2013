@@ -217,6 +217,22 @@ public class StoreableTableTest {
     }
 
     @Test
+    public void removeFourCommitTest() throws IOException {
+        table.put("key1", val1);
+        table.put("key2", val2);
+        table.put("key3", val3);
+        table.put("key4", val4);
+        Assert.assertEquals("Incorrect diff on remove commit", 4, table.commit());   
+        table.close();
+        table = provider.getTable("testTable");     
+        table.remove("key1");
+        table.remove("key2"); 
+        table.remove("key3"); 
+        table.remove("key4");
+        Assert.assertEquals("Incorrect diff on remove commit", 4, table.commit());   
+    }
+
+    @Test
     public void columnTypeIsCorrect() {
         Assert.assertEquals("Incorrect columnt type", Byte.class, table.getColumnType(2));
     }
