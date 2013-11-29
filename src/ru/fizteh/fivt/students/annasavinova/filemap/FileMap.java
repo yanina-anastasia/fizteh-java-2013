@@ -23,8 +23,8 @@ public class FileMap extends UserShell {
         }
         File r = new File(property);
         if (!r.exists()) {
-            if (!r.mkdir()) {
-                throw new RuntimeException("cannot create root dir");
+            if (!r.mkdirs()) {
+                throw new RuntimeException("cannot create root dir " + property);
             }
         }
         if (property.endsWith(File.separator)) {
