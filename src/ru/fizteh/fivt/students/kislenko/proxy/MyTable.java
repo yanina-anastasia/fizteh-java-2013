@@ -80,6 +80,15 @@ public class MyTable implements Table, AutoCloseable {
         types = new ArrayList<Class<?>>(columnTypes);
     }
 
+    public MyTable(MyTable table) {
+        name = table.name;
+        provider = table.provider;
+        storage = table.storage;
+        globalUses = table.globalUses;
+        revision = table.revision;
+        types = table.types;
+    }
+
     @Override
     public String getName() {
         assertClosed();
