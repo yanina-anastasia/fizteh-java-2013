@@ -15,9 +15,11 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MyTableProvider implements TableProvider {
+public class MyTableProvider implements TableProvider, AutoCloseable {
 
-    public MyTableProvider(String dir) throws RuntimeException, IOException {
+    public MyTableProvider(String dir, MyTableProviderFactory factory) throws RuntimeException, IOException {
+        tableProviderFactory = factory;
+        isProviderClosed = false;
         workingDirectory = dir;
         currTable = null;
         multiFileMap = new HashMap<>();
@@ -34,6 +36,8 @@ public class MyTableProvider implements TableProvider {
     private HashMap<Class<?>, String> typeToString;
     private Lock readLock;
     private Lock writeLock;
+    private boolean isProviderClosed;
+    private MyTableProviderFactory tableProviderFactory;
 
     public void initTypeToString() {
         typeToString = new HashMap<>();
@@ -151,6 +155,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
@@ -164,6 +171,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public Table createTable(String tableName, List<Class<?>> types) throws IllegalArgumentException, IOException {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
@@ -187,6 +197,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
@@ -213,6 +226,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
         Parser myParser = new Parser();
         ArrayList<Object> values = myParser.parseValueToList(value);
         try {
@@ -224,6 +240,9 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
         multiFileMap.get(table.getName()).checkingValueForValid(value);
         ArrayList<Object> temp = new ArrayList<>();
         for (int i = 0; i < multiFileMap.get(table.getName()).getColumnsCount(); ++i) {
@@ -235,12 +254,43 @@ public class MyTableProvider implements TableProvider {
 
     @Override
     public Storeable createFor(Table table) {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
         return new MyStoreable(table, values);
     }
 
+    public void removeClosedTable(String tableName) {
+        multiFileMap.remove(tableName);
+    }
+
+    @Override
+    public String toString() {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
+        return MyTableProvider.class.getSimpleName() + "[" + workingDirectory + "]";
+    }
+
+    @Override
+    public void close() {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.toString() + " is closed");
+        }
+        Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
+        for (Map.Entry<String, MyTable> currItem : fileSet) {
+            MyTable value = currItem.getValue();
+            value.close();
+        }
+        tableProviderFactory.removeClosedProvider(this);
+        isProviderClosed = true;
+    }
 }

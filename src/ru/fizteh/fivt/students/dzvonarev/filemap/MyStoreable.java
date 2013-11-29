@@ -134,4 +134,21 @@ public class MyStoreable implements Storeable {
         return (String) column.get(columnIndex);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder strBuilder = new StringBuilder(Storeable.class.getSimpleName() + "[");
+        for (int i = 0; i < column.size(); ++i) {
+            if (column.get(i) == null) {
+                strBuilder.append("");
+            } else {
+                strBuilder.append(column.get(i).toString());
+            }
+            if (i != column.size() - 1) {
+                strBuilder.append(",");
+            }
+        }
+        strBuilder.append("]");
+        return strBuilder.toString();
+    }
+
 }

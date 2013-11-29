@@ -4,17 +4,30 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MyTableProviderFactory implements TableProviderFactory {
+public class MyTableProviderFactory implements TableProviderFactory, AutoCloseable {
+
+    private List<MyTableProvider> tableProvidersList;
+    private boolean isTableProviderFactoryClosed;
+
+    public MyTableProviderFactory() {
+        tableProvidersList = new ArrayList<>();
+        isTableProviderFactoryClosed = false;
+    }
 
     @Override
     public MyTableProvider create(String dir) throws IOException, RuntimeException {
+        if (isTableProviderFactoryClosed) {
+            throw new IllegalStateException("table provider factory " + this.getClass().getSimpleName() + " is closed");
+        }
         if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong type (invalid name of table provider)");
         }
         File providerFile = new File(dir);
         if (!providerFile.exists()) {
-            if (!providerFile.mkdir()) {
+            if (!providerFile.mkdirs()) {
                 throw new IOException("can't create provider in " + dir);
             }
         } else {
@@ -22,6 +35,23 @@ public class MyTableProviderFactory implements TableProviderFactory {
                 throw new IllegalArgumentException("wrong type (table provider is not a directory)");
             }
         }
-        return new MyTableProvider(dir);  // will read data in here
+        MyTableProvider newTableProvider = new MyTableProvider(dir, this);
+        tableProvidersList.add(newTableProvider);
+        return newTableProvider;  // will read data in here
+    }
+
+    @Override
+    public void close() {
+        if (isTableProviderFactoryClosed) {
+            throw new IllegalStateException("table provider factory " + this.toString() + " is closed");
+        }
+        for (MyTableProvider tableProvider : tableProvidersList) {
+            tableProvider.close();
+        }
+        isTableProviderFactoryClosed = true;
+    }
+
+    public void removeClosedProvider(MyTableProvider provider) {
+        tableProvidersList.remove(provider);
     }
 }
