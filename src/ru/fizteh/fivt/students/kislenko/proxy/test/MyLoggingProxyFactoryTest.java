@@ -40,8 +40,8 @@ public class MyLoggingProxyFactoryTest {
         o.clear();
 
         String result = writer.getBuffer().toString();
-        Assert.assertTrue(result.matches("<invoke timestamp=\"[0-9]{13}\" class=\"java.util.ArrayList\" name=\"clear" +
-                "\"><arguments/></invoke>\n"));
+        Assert.assertTrue(result.matches("<invoke timestamp=\"[0-9]{13}\" class=\"java.util.ArrayList\" name=\"clear\">"
+                + "<arguments/></invoke>\n"));
     }
 
     @Test
@@ -52,9 +52,9 @@ public class MyLoggingProxyFactoryTest {
         o.add(list);
 
         String result = writer.getBuffer().toString();
-        Assert.assertTrue(result.matches("<invoke timestamp=\"[0-9]{13}\" class=\"java.util.ArrayList\" name=\"add\">" +
-                "<arguments><argument><list><value><list><value>cyclic</value></list></value></list></argument>" +
-                "</arguments><return>true</return></invoke>\n"));
+        Assert.assertTrue(result.matches("<invoke timestamp=\"[0-9]{13}\" class=\"java.util.ArrayList\" name=\"add\">"
+                + "<arguments><argument><list><value><list><value>cyclic</value></list></value></list></argument>"
+                + "</arguments><return>true</return></invoke>\n"));
     }
 
     @Test
@@ -64,13 +64,13 @@ public class MyLoggingProxyFactoryTest {
         o.wrap(writer, proxyFactory, LoggingProxyFactory.class);
 
         String result = writer.getBuffer().toString();
-        Assert.assertTrue(result.matches("<invoke timestamp=\"[0-9]{13}\" class=\"ru.fizteh.fivt.students.kislenko.pr" +
-                "oxy.MyLoggingProxyFactory\" name=\"wrap\"><arguments><argument>&lt;invoke timestamp=\"[0-9]{13}\" cl" +
-                "ass=\"ru.fizteh.fivt.students.kislenko.proxy.MyLoggingProxyFactory\" name=\"wrap\"&gt;&lt;arguments&" +
-                "gt;&lt;argument</argument><argument>ru.fizteh.fivt.students.kislenko.proxy.MyLoggingProxyFactory@" +
-                "[0-9a-f]+</argument><argument>interface ru.fizteh.fivt.proxy.LoggingProxyFactory</argument></argumen" +
-                "ts><return>ru.fizteh.fivt.students.kislenko.proxy.MyLoggingProxyFactory@[0-9a-zA-Z]+</return></invok" +
-                "e>\n"));
+        Assert.assertTrue(result.matches("<invoke timestamp=\"[0-9]{13}\" class=\"ru.fizteh.fivt.students.kislenko.prox"
+                + "y.MyLoggingProxyFactory\" name=\"wrap\"><arguments><argument>&lt;invoke timestamp=\"[0-9]{13}\" clas"
+                + "s=\"ru.fizteh.fivt.students.kislenko.proxy.MyLoggingProxyFactory\" name=\"wrap\"&gt;&lt;arguments&gt"
+                + ";&lt;argument</argument><argument>ru.fizteh.fivt.students.kislenko.proxy.MyLoggingProxyFactory@"
+                + "[0-9a-f]+</argument><argument>interface ru.fizteh.fivt.proxy.LoggingProxyFactory</argument></argumen"
+                + "ts><return>ru.fizteh.fivt.students.kislenko.proxy.MyLoggingProxyFactory@[0-9a-zA-Z]+</return></invok"
+                + "e>\n"));
     }
 
     @Test(expected = IllegalArgumentException.class)
