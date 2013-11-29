@@ -130,8 +130,8 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         FileOutputStream os;
         os = new FileOutputStream(info);
 
-        for (Class<?> type : types) {
-            switch (type.getSimpleName()) {
+        for (int i = 0; i < types.size(); i++) {
+            switch (types.get(i).getSimpleName()) {
             case "Integer":
                 os.write("int".getBytes());
                 break;
@@ -156,7 +156,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             default:
                 throw new IOException("unexpected type in table");
             }
-            os.write(" ".getBytes());
+            if (i != types.size() - 1) {
+                os.write(" ".getBytes());
+            }
         }
         os.close();
     }
