@@ -6,8 +6,6 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -35,8 +33,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
         }
     }
 
-    public String getDatabaseDirectory()
-    {
+    public String getDatabaseDirectory() {
         return curDir;
     }
 
@@ -63,12 +60,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 table = new DatabaseTable(table);
                 tables.put(name, table);
             }
-            /*if (tables.get(name) != null && tables.get(name).isClosed) {
-                if (!op
-                en()) {
-                    throw new IllegalArgumentException("Wrong format");
-                }
-            }  */
+
             if (table == null) {
                 return table;
             }
@@ -76,7 +68,6 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             if (curTable != null && curTable.uncommittedChanges.get() > 0) {
                 throw new IllegalArgumentException(String.format("%d unsaved changes", curTable.uncommittedChanges));
             }
-
 
             curTable = table;
 
