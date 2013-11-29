@@ -4,7 +4,6 @@ import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
 import ru.fizteh.fivt.students.dubovpavel.filemap.DataBaseHandler;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMultiFileHashMap<V> {
@@ -20,28 +19,40 @@ public class WrappedMindfulDataBaseMultiFileHashMap<V> extends MindfulDataBaseMu
         this.dispatcher = dispatcher;
     }
 
-    @Override
-    protected V get(HashMap<String, V> dict, String key) {
+    protected void checkGetInput(String key) {
         if (key == null) {
             throw new IllegalArgumentException();
         }
-        return super.get(dict, key);
     }
 
     @Override
-    protected V put(HashMap<String, V> dict, String key, V value) {
+    public V get(String key) {
+        checkGetInput(key);
+        return super.get(key);
+    }
+
+    protected void checkPutInput(String key, V value) {
         if (key == null || key.isEmpty() || WHITESPACE_PATTERN.matcher(key).find()) {
             throw new IllegalArgumentException();
         }
-        return super.put(dict, key, value);
     }
 
     @Override
-    protected V remove(HashMap<String, V> dict, String key) {
+    public V put(String key, V value) {
+        checkPutInput(key, value);
+        return super.put(key, value);
+    }
+
+    protected void checkRemoveInput(String key) {
         if (key == null) {
             throw new IllegalArgumentException();
         }
-        return super.remove(dict, key);
+    }
+
+    @Override
+    public V remove(String key) {
+        checkRemoveInput(key);
+        return super.remove(key);
     }
 
     @Override

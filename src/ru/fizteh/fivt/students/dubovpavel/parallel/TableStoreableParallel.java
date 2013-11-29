@@ -67,9 +67,10 @@ public class TableStoreableParallel extends TableStoreable implements Table {
     }
 
     @Override
-    public Storeable put(final String key, final Storeable value) {
+    public Storeable put(String key, Storeable value) {
         lock.readLock().lock();
         try {
+            checkPutInput(key, value);
             Storeable ret = getLocalValue(key);
             updates.get().put(key, value);
             removed.get().remove(key);
@@ -80,9 +81,10 @@ public class TableStoreableParallel extends TableStoreable implements Table {
     }
 
     @Override
-    public Storeable get(final String key) {
+    public Storeable get(String key) {
         lock.readLock().lock();
         try {
+            checkGetInput(key);
             return getLocalValue(key);
         } finally {
             lock.readLock().unlock();
@@ -90,9 +92,10 @@ public class TableStoreableParallel extends TableStoreable implements Table {
     }
 
     @Override
-    public Storeable remove(final String key) {
+    public Storeable remove(String key) {
         lock.readLock().lock();
         try {
+            checkRemoveInput(key);
             Storeable ret = getLocalValue(key);
             updates.get().remove(key);
             removed.get().add(key);

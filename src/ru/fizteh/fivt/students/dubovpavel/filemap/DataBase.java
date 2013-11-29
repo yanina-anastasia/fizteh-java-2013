@@ -92,28 +92,20 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     public V put(String key, V value) {
-        return put(localDict, key, value);
-    }
-
-    protected V put(HashMap<String, V> dict, String key, V value) {
-        if (dict.containsKey(key)) {
-            V old = dict.get(key);
-            dict.put(key, value);
+        if (localDict.containsKey(key)) {
+            V old = localDict.get(key);
+            localDict.put(key, value);
             return old;
         } else {
-            dict.put(key, value);
+            localDict.put(key, value);
             return null;
         }
     }
 
     public V remove(String key) {
-        return remove(localDict, key);
-    }
-
-    protected V remove(HashMap<String, V> dict, String key) {
-        if (dict.containsKey(key)) {
-            V removing = dict.get(key);
-            dict.remove(key);
+        if (localDict.containsKey(key)) {
+            V removing = localDict.get(key);
+            localDict.remove(key);
             return removing;
         } else {
             return null;
@@ -121,12 +113,8 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     public V get(String key) {
-        return get(localDict, key);
-    }
-
-    protected V get(HashMap<String, V> dict, String key) {
-        if (dict.containsKey(key)) {
-            return dict.get(key);
+        if (localDict.containsKey(key)) {
+            return localDict.get(key);
         } else {
             return null;
         }

@@ -34,7 +34,7 @@ public class PerformerAdapterStoreable implements DataBaseHandler<String, String
     public String put(String key, String value) throws DataBaseException {
         TableStoreable table = storage.getCurrent();
         try {
-            Storeable old = table.putChecked(key, table.getTransformer().deserialize(value));
+            Storeable old = table.put(key, table.getTransformer().deserialize(value)); // Double check here
             return safeSerializedReturn(table, old);
         } catch (Serial.SerialException e) {
             throw new DataBaseException(String.format("SerialException: %s", e.getMessage()));
