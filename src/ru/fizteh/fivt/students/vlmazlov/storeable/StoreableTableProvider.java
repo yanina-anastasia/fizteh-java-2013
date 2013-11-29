@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Arrays;
 
 public class StoreableTableProvider extends GenericTableProvider<Storeable, StoreableTable>
         implements TableProvider, AutoCloseable {
@@ -37,7 +38,19 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
     public StoreableTable getTable(String name) {
         checkClosed();
 
-        return super.getTable(name);
+        StoreableTable table = super.getTable(name);
+
+        if (table == null) {
+            try {
+                table = loadTable(name);
+            } catch (IOException ex) {
+                System.err.println("Unable to load table " + name + ": " + ex.getMessage());
+            } catch (ValidityCheckFailedException ex) {
+                System.err.println("Unable to load table " + name + ": " + ex.getMessage());
+            }
+        }
+
+        return table;
     }
 
     public synchronized void removeTable(String name) {
@@ -48,6 +61,20 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
     public String getRoot() {
         checkClosed();
         return super.getRoot();
+    }
+
+    private StoreableTable loadTable(String name) throws IOException, ValidityCheckFailedException {
+        if (!Arrays.asList(new File(getRoot()).list()).contains(name)) {
+            return null;
+        }
+
+        File tableDir = new File(getRoot(), name);
+
+        StoreableTable table = new StoreableTable(this, name, autoCommit, getTableSignature(tableDir));
+        ProviderReader.readMultiTable(tableDir, table, this);
+        tables.put(name, table);
+
+        return table;
     }
 
     public synchronized StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
@@ -215,10 +242,10 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
         checkClosed();
 
         for (File file : ProviderReader.getTableDirList(this)) {
-            StoreableTable table = createTable(file.getName(), getTableSignature(file));
+            StoreableTable table = loadTable(file.getName());
             ProviderReader.readMultiTable(file, table, this);
             //read data has to be preserved
-            table.commit();
+            table.pushChanges();
         }
     }
 

@@ -194,7 +194,7 @@ public class StoreableTableProviderTest {
     public void closeTableGetTable() throws IOException {
         StoreableTable table = provider.createTable("testGetTable", valueTypes1);
         table.close();
-        Assert.assertNull("closed table accessible from provider", provider.getTable("testGetTable"));
+        Assert.assertNotNull("closed table not accessible from provider", provider.getTable("testGetTable"));
         table.close();
     }
 
