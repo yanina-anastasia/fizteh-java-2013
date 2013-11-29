@@ -80,34 +80,6 @@ public class MyTable implements Table, AutoCloseable {
         types = new ArrayList<Class<?>>(columnTypes);
     }
 
-    public MyTable(MyTable table) {
-        name = table.name;
-        provider = table.provider;
-        storage.putAll(table.storage);
-        globalUses = table.globalUses.clone();
-        revision = table.revision;
-        types.addAll(table.types);
-        lock = table.lock;
-
-        closed = new ThreadLocal<Boolean>();
-        closed.set(false);
-
-        count = new ThreadLocal<Integer>();
-        count.set(storage.size());
-
-        uses = new ThreadLocal<boolean[][]>();
-        uses.set(globalUses.clone());
-
-        changes = new ThreadLocal<HashMap<String, Storeable>>();
-        changes.set(new HashMap<String, Storeable>());
-
-        fuckingDiff = new ThreadLocal<HashMap<String, Storeable>>();
-        fuckingDiff.set(new HashMap<String, Storeable>());
-
-        threadRevision = new ThreadLocal<Integer>();
-        threadRevision.set(revision);
-    }
-
     @Override
     public String getName() {
         assertClosed();
