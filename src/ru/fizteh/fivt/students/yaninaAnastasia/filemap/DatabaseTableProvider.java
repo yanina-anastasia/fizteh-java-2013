@@ -35,6 +35,11 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
         }
     }
 
+    public String getDatabaseDirectory()
+    {
+        return curDir;
+    }
+
     public DatabaseTable getTable(String name) throws IllegalArgumentException, IllegalStateException {
         if (isClosed) {
             throw new IllegalStateException("It is closed");

@@ -300,7 +300,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (tableName.equals("")) {
             return true;
         }
-        File tablePath = new File(System.getProperty("fizteh.db.dir"), tableName);
+        File tablePath = new File(provider.getDatabaseDirectory(), tableName);
         for (int i = 0; i < 16; i++) {
             String directoryName = String.format("%d.dir", i);
             File path = new File(tablePath, directoryName);
