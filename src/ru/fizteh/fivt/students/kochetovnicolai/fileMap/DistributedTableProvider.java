@@ -94,7 +94,7 @@ public class DistributedTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("couldn't create working directory on file");
         }
         if (!Files.exists(currentPath)) {
-            Files.createDirectory(currentPath);
+            Files.createDirectories(currentPath);
         }
         tables = new HashMap<>();
         tablesLock = new ReentrantReadWriteLock(true);
