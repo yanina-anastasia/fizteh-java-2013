@@ -87,7 +87,10 @@ public class FileMapLogging implements InvocationHandler {
 //                            creatingArray.put(arg);
 //                        }
 
-                        JSONArray copy = new JSONArray(creatingArray);
+                        JSONArray copy = new JSONArray();
+                        for (int i = 0; i < creatingArray.length(); ++i) {
+                            copy.put(creatingArray.get(i));
+                        }
                         creatingArray.put(arg);
                         if (creatingArray.toString() == null) {
                             creatingArray = copy;
