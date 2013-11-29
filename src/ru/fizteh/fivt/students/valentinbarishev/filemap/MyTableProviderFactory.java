@@ -17,7 +17,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
     public TableProvider create(String dir) throws IOException {
         state.check();
 
-        if (providers.containsKey(dir)) {
+        if (providers.containsKey(dir) && !((DataBaseTable) providers.get(dir)).state.isClosed()) {
             return providers.get(dir);
         }
 

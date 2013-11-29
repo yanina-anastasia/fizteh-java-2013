@@ -24,7 +24,7 @@ public final class DataBaseTable implements TableProvider, AutoCloseable {
     private Lock readLock = readWriteLock.readLock();
     private Lock writeLock = readWriteLock.writeLock();
 
-    private ClassState state = new ClassState(this);
+    public ClassState state = new ClassState(this);
 
     public DataBaseTable(String newTableDir) {
         tableDir = newTableDir;
@@ -56,7 +56,7 @@ public final class DataBaseTable implements TableProvider, AutoCloseable {
 
         writeLock.lock();
         try {
-        if (file.exists()) {
+            if (file.exists()) {
                 return null;
             }
 
