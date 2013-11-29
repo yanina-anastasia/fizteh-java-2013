@@ -44,11 +44,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("Incorrect table name.");
         }
         if (tables.containsKey(name) && tables.get(name).isClosed()) {
-            try {
-                return createTable(name, tables.get(name).getTypes());
-            } catch (IOException e) {
-                throw new IllegalArgumentException("Chto proishodit!?");
-            }
+            return new MyTable(name, tables.get(name).getTypes(), this);
         }
         lock.writeLock().lock();
         assertClosed();
