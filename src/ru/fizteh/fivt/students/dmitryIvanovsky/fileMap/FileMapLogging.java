@@ -16,6 +16,7 @@ public class FileMapLogging implements InvocationHandler {
     private Writer writer;
     private ReentrantLock writeLock = new ReentrantLock(true);
     String s5 = "";
+    boolean qwe = false;
 
     class ProviderArrayJSON {
         private Object argument;
@@ -79,11 +80,12 @@ public class FileMapLogging implements InvocationHandler {
                     s5+="q";
                     try {
                         s5+="w";
-//                        if () {
-//                            creatingArray.put("FileMapStoreable[1,string,false]");
-//                        } else {
+                        //JSONArray a = creatingArray;
+                        if (qwe) {
+                            creatingArray.put("FileMapStoreable[1,string,false]");
+                        } else {
                             creatingArray.put(arg);
-                        //}
+                        }
                         s5+= " !! " + arg + " -- "+creatingArray + " !! ";
                     } catch (java.lang.ClassCastException e) {
                         s5+="e";
@@ -134,9 +136,13 @@ public class FileMapLogging implements InvocationHandler {
                 record.put("arguments", new JSONArray());
             } else {
                 ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-                //if (method.getName().equals("put")) {
-                //    String s3 = "[\"key\", \"FileMapStoreable[1,string,false]\"]";
-                //    record.put("arguments", s3);
+                if (method.getName().equals("put")) {
+                    //String s3 = "[\"key\", \"FileMapStoreable[1,string,false]\"]";
+                    //record.put("arguments", s3);
+                    qwe = true;
+                } else {
+                    //qwe = false;
+                }
                 //} else {
                     Object ob = creatorJSONArray.getJSONArray().get(0);
                     record.put("arguments", ob);
