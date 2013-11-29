@@ -287,13 +287,7 @@ public class MultiFileHashTable implements Table, AutoCloseable {
 
     @Override
     public void close() {
-        if (isClosed) {
-            return;
-        }
-        myTableProvider.closedTable(this);
-
-        rollback();
-        isClosed = true;
+        close(true);
     }
 
     public int uncommittedChanges() {
@@ -313,6 +307,19 @@ public class MultiFileHashTable implements Table, AutoCloseable {
         } finally {
             readLock.unlock();
         }
+    }
+
+    void close(boolean needProviderInform) {
+        if (isClosed) {
+            return;
+        }
+
+        if (needProviderInform) {
+            myTableProvider.closedTable(this);
+        }
+
+        rollback();
+        isClosed = true;
     }
 
     private void checkState() {

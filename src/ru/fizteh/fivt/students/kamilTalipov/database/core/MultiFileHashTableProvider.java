@@ -187,7 +187,7 @@ public class MultiFileHashTableProvider implements TableProvider, AutoCloseable 
             isClosed = true;
 
             for (MultiFileHashTable table : tables) {
-                table.close();
+                table.close(false);
             }
         } finally {
             writeLock.unlock();

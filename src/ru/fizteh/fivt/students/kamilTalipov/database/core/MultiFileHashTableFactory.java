@@ -51,9 +51,11 @@ public class MultiFileHashTableFactory implements TableProviderFactory, AutoClos
             return;
         }
 
-        isClosed = true;
-        for (Provider provider : providers) {
-            provider.provider.close();
+        synchronized (providers) {
+            isClosed = true;
+            for (Provider provider : providers) {
+                provider.provider.close();
+            }
         }
     }
 
