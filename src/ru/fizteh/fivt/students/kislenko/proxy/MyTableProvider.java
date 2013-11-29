@@ -185,9 +185,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     public Storeable createFor(Table table) {
         assertClosed();
         ArrayList<Class<?>> types = new ArrayList<Class<?>>();
-        if (table == null || !tables.containsValue(table)) {
-            return null;
-        }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(table.getColumnType(i));
         }
