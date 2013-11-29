@@ -283,7 +283,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public void close() {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
+            return;
         }
         Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
         for (Map.Entry<String, MyTable> currItem : fileSet) {

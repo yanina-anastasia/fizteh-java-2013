@@ -522,7 +522,7 @@ public class MyTable implements Table, AutoCloseable {
     @Override
     public void close() throws IndexOutOfBoundsException {
         if (tableIsClosed) {
-            throw new IllegalStateException("table " + tableName + " is closed");
+            return;
         }
         rollback();
         tableIsClosed = true;
