@@ -180,7 +180,6 @@ public final class DataBaseTable implements TableProvider, AutoCloseable {
 
     @Override
     public void close() {
-        state.check();
         writeLock.lock();
         try {
             state.close();

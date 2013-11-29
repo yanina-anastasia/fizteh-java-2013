@@ -203,4 +203,11 @@ public class MyTableTest {
         Assert.assertNull(table.put("abacaba", storeable));
         Assert.assertEquals(table.commit(), 0);
     }
+
+    @Test
+    public void testTableClose() throws Exception {
+        ((AutoCloseable) table).close();
+        table.toString();
+        ((AutoCloseable) table).close();
+    }
 }

@@ -242,7 +242,6 @@ public class MyStoreable implements Storeable, AutoCloseable {
 
     @Override
     public void close() {
-        state.check();
         values.clear();
         types.clear();
         state.close();
