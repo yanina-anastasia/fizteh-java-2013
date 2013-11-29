@@ -163,4 +163,14 @@ public class ProxyTests implements ProxyTestInterface {
         json.get("returnValue");
     }
 
+
+    @Test
+    public void logNotOverrideMethodShouldNoLog() {
+        HashMap<String, Object> obj = new HashMap<>();
+        Map instance = (Map) factory.wrap(writer, obj, Map.class);
+        instance.equals(new HashMap());
+        assertTrue(writer.toString().isEmpty());
+
+    }
+
 }
