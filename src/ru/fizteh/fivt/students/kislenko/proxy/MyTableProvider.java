@@ -47,7 +47,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             try {
                 return createTable(name, tables.get(name).getTypes());
             } catch (IOException e) {
-                return null;
+                throw new IllegalArgumentException("Incorrect table name");
             }
         }
         lock.writeLock().lock();
@@ -201,7 +201,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-//        assertClosed();
+        assertClosed();
         if (values.size() < table.getColumnsCount()) {
             throw new ColumnFormatException("Invalid list of values.");
         }
@@ -216,7 +216,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             v.setColumnAt(i, values.get(i));
         }
-//        assertClosed();
+        assertClosed();
         return v;
     }
 
