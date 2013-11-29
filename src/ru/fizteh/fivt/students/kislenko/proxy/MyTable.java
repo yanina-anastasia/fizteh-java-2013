@@ -87,6 +87,16 @@ public class MyTable implements Table, AutoCloseable {
         globalUses = table.globalUses;
         revision = table.revision;
         types = table.types;
+        closed = new ThreadLocal<Boolean>();
+        closed.set(false);
+        count = new ThreadLocal<Integer>();
+        count.set(storage.size());
+        uses = new ThreadLocal<boolean[][]>();
+        uses.set(globalUses);
+        changes = new ThreadLocal<HashMap<String, Storeable>>();
+        changes.set(new HashMap<String, Storeable>());
+        fuckingDiff = new ThreadLocal<HashMap<String, Storeable>>();
+        fuckingDiff.set(new HashMap<String, Storeable>());
     }
 
     @Override
