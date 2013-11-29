@@ -41,7 +41,10 @@ public class DataBaseTable implements TableProvider {
     }
 
     public Table createTable(String name, List<Class<?>> types) throws IOException {
-        checkName(name);
+    	if (types == null || types.size() == 0) {
+            throw new IllegalArgumentException("wrong list of types");
+        }
+    	checkName(name);
         String path = tableDirectory + File.separator + name;
 
         File file = new File(path);
@@ -54,9 +57,7 @@ public class DataBaseTable implements TableProvider {
             throw new RuntimeException("Cannot create table " + name);
         }
 
-        if (types == null || types.size() == 0) {
-            throw new IllegalArgumentException("wrong list of types");
-        }
+        
 
         DataBase table = new DataBase(path, this, types);
 
