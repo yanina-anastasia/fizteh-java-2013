@@ -35,7 +35,7 @@ public class XMLProxyLogger implements InvocationHandler {
             try {
                 XMLFormatter formatter = new XMLFormatter();
                 formatter.writeMethodCallLog(method, args, implementation, thrown, returnValue);
-                writer.write(formatter.toString());
+                writer.write(formatter.toString() + "\n");
             } catch (Throwable e) {
                 if (thrown != null) {
                     thrown.addSuppressed(e);
