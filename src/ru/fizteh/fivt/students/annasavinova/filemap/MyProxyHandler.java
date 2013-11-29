@@ -32,7 +32,7 @@ public class MyProxyHandler implements InvocationHandler {
         }
         Object result = null;
         Throwable exception = null;
-        
+
         try {
             result = method.invoke(implementation, arguments);
         } catch (InvocationTargetException e) {
@@ -56,37 +56,44 @@ public class MyProxyHandler implements InvocationHandler {
     }
 
     private JSONObject logging(Method method, Object[] arguments, Throwable exception, Object result) {
-        JSONObject log = new JSONObject();
-        log.put("timestamp", System.currentTimeMillis());
-        log.put("class", implementation.getClass().getName());
-        log.put("method", method.getName());
-        if (arguments == null || arguments.length == 0) {
-            log.put("arguments", new Object[0]);
-        } else {
-            log.put("arguments", createJSONArray(arguments, new IdentityHashMap<>()));
-        }
-        if (exception != null) {
-            log.put("thrown", exception.toString());
-            return log;
-        }
-        if (method.getReturnType().equals(void.class)) {
-            return log;
-        }
-
-        Object value = null;
-        if (result == null) {
-            value = JSONObject.NULL;
-        } else {
-            if (result.getClass().isArray()) {
-                value = createJSONArray((Object[]) result, new IdentityHashMap<>());
-            } else if (Iterable.class.isAssignableFrom(result.getClass())) {
-                value = createJSONArrayIterable((Iterable<?>) result, new IdentityHashMap<>());
+        try {
+            JSONObject log = new JSONObject();
+            log.put("timestamp", System.currentTimeMillis());
+            log.put("class", implementation.getClass().getName());
+            log.put("method", method.getName());
+            if (arguments == null || arguments.length == 0) {
+                log.put("arguments", new Object[0]);
             } else {
-                value = result;
+                log.put("arguments", createJSONArray(arguments, new IdentityHashMap<>()));
             }
+            if (exception != null) {
+                log.put("thrown", exception.toString());
+                return log;
+            }
+            if (method.getReturnType().equals(void.class)) {
+                return log;
+            }
+
+            Object value = null;
+            if (result == null) {
+                value = JSONObject.NULL;
+            } else {
+                if (Iterable.class.isAssignableFrom(result.getClass())) {
+                    value = createJSONArrayIterable((Iterable<?>) result, new IdentityHashMap<>());
+                } else if (result.getClass().isArray()) {
+                    value = createJSONArray((Object[]) result, new IdentityHashMap<>());
+                } else {
+                    value = result;
+                }
+            }
+            log.put("returnValue", value);
+            return log;
+        } catch (Throwable e) {
+            // TODO
+            e.printStackTrace();
+            // ignore
         }
-        log.put("returnValue", value);
-        return log;
+        return null;
     }
 
     private void addObjectInArray(JSONArray jsonArray, Object arg, IdentityHashMap<Object, Object> addedElements) {
