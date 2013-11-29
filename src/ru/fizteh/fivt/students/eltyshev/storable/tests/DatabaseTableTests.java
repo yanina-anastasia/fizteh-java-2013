@@ -151,21 +151,16 @@ public class DatabaseTableTests {
     }
 
     @Test
-    public void testToString() throws Exception {
-        Assert.assertEquals(currentTable.toString(), String.format("DatabaseTable[%s]", DATABASE));
-    }
-
-    @Test
     public void testStoreableToString() throws Exception {
         List<Object> values = new ArrayList<Object>() {{
             add(1);
             add("TEST");
         }};
         Storeable storeable = provider.createFor(currentTable, values);
-        Assert.assertEquals(storeable.toString(), "1,TEST");
+        Assert.assertEquals("DatabaseRow[1,TEST]", storeable.toString());
 
         values.set(0, null);
         storeable = provider.createFor(currentTable, values);
-        Assert.assertEquals(storeable.toString(), ",TEST");
+        Assert.assertEquals("DatabaseRow[,TEST]", storeable.toString());
     }
 }

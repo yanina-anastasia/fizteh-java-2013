@@ -24,21 +24,26 @@ public class JSONLogFormatter {
     }
 
     public void writeArguments(Object[] args) {
-        JSONArray array;
-        try {
-            array = makeJSONArray(Arrays.asList(args));
-        } catch (NullPointerException | ClassCastException e) {
-            array = new JSONArray();
+        if (args == null) {
+            jsonObject = jsonObject.put(JSONAttributeNames.ARGUMENTS.name, new JSONArray());
+            return;
         }
-        jsonObject = jsonObject.put(JSONAttributeNames.ARGUMENTS.name, array);
+        jsonObject = jsonObject.put(JSONAttributeNames.ARGUMENTS.name, makeJSONArray(Arrays.asList(args)));
         objects.clear();
     }
 
     public void writeReturnValue(Object result) {
-        if (result == null) {
-            result = JSONObject.NULL;
+        Object toWrite = null;
+        if (result != null) {
+            if (result instanceof Iterable) {
+                toWrite = makeJSONArray((Iterable) result);
+            } else {
+                toWrite = result;
+            }
+        } else {
+            toWrite = JSONObject.NULL;
         }
-        jsonObject = jsonObject.put(JSONAttributeNames.RETURN_VALUE.name, result);
+        jsonObject = jsonObject.put(JSONAttributeNames.RETURN_VALUE.name, toWrite);
     }
 
     public void writeThrown(Throwable cause) {
@@ -92,7 +97,7 @@ public class JSONLogFormatter {
 enum JSONAttributeNames {
     TIMESTAMP("timestamp"),
     CLASS("class"),
-    METHOD("name"),
+    METHOD("method"),
     ARGUMENTS("arguments"),
     RETURN_VALUE("returnValue"),
     THROWN("thrown"),

@@ -5,6 +5,10 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.eltyshev.shell.commands.CommandParser;
 import ru.fizteh.fivt.students.eltyshev.storable.database.TableInfo;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,5 +90,18 @@ public class StoreableUtils {
 
     public static boolean checkStringCorrect(String string) {
         return string.matches("\\s*") || string.split("\\s+").length != 1;
+    }
+
+    public static void writeSignature(File signatureFile, List<Class<?>> columnTypes) throws IOException {
+        File parent = signatureFile.getParentFile();
+        if (!parent.exists()) {
+            parent.mkdir();
+        }
+        signatureFile.createNewFile();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
+        List<String> formattedColumnTypes = StoreableUtils.formatColumnTypes(columnTypes);
+        String signature = StoreableUtils.join(formattedColumnTypes, true, " ");
+        writer.write(signature);
+        writer.close();
     }
 }

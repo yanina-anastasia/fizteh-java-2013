@@ -82,6 +82,11 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 throw new IllegalStateException(String.format("%d unsaved changes", activeTable.getUncommittedChangesCount()));
             }
 
+            if (table.isClosed()) {
+                table = new DatabaseTable(table);
+                tables.put(table.getName(), table);
+            }
+
             activeTable = table;
             return table;
         } finally {
@@ -111,6 +116,10 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             if (tables.containsKey(name)) {
                 return null;
             }
+
+            File tableDirectory = new File(databaseDirectoryPath, name);
+            File signatureFile = new File(tableDirectory, DatabaseTableProvider.SIGNATURE_FILE);
+            StoreableUtils.writeSignature(signatureFile, columnTypes);
 
             DatabaseTable table = new DatabaseTable(this, databaseDirectoryPath, name, columnTypes);
             tables.put(name, table);
@@ -249,11 +258,6 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
         return columnTypes;
     }
 
-    private boolean checkCorrectTable(File tableDirectory) {
-        File signatureFile = new File(tableDirectory, SIGNATURE_FILE);
-        return signatureFile.exists();
-    }
-
     private DatabaseRow rawCreateFor(Table table) {
         DatabaseRow row = new DatabaseRow();
         for (int index = 0; index < table.getColumnsCount(); ++index) {
@@ -279,7 +283,10 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        state.checkOperationsAllowed();
+        //state.checkOperationsAllowed();
+        if (state.equals(ContainerState.CLOSED)) {
+            return;
+        }
         for (final String tableName : tables.keySet()) {
             tables.get(tableName).close();
         }

@@ -10,9 +10,7 @@ import ru.fizteh.fivt.students.eltyshev.multifilemap.DistributedSaver;
 import ru.fizteh.fivt.students.eltyshev.multifilemap.MultifileMapUtils;
 import ru.fizteh.fivt.students.eltyshev.storable.StoreableUtils;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -26,7 +24,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     public DatabaseTable(DatabaseTableProvider provider, String databaseDirectory, String tableName, List<Class<?>> columnTypes) {
         super(databaseDirectory, tableName);
         if (columnTypes == null || columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("column types cannot be null");
+            throw new IllegalArgumentException("wrong type (column types cannot be null)");
         }
         this.columnTypes = columnTypes;
         this.provider = provider;
@@ -35,8 +33,15 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             checkTableDirectory();
             load();
         } catch (IOException e) {
-            throw new IllegalArgumentException("invalid file format");
+            throw new IllegalArgumentException("wrong type (invalid file format)");
         }
+    }
+
+    public DatabaseTable(DatabaseTable other) {
+        super(other.getDatabaseDirectory(), other.rawGetName());
+        this.columnTypes = other.columnTypes;
+        this.provider = other.provider;
+        this.oldData = other.oldData;
     }
 
     @Override
@@ -119,12 +124,6 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
         return MultifileMapUtils.makeDescriptor(key);
     }
 
-    @Override
-    public void close() throws Exception {
-        provider.removeTable(getName());
-        super.close();
-    }
-
     private void checkTableDirectory() throws IOException {
         File tableDirectory = new File(getDatabaseDirectory(), getName());
         if (!tableDirectory.exists()) {
@@ -132,8 +131,9 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
             writeSignatureFile();
         } else {
             File[] children = tableDirectory.listFiles();
+            writeSignatureFile();
             if (children == null || children.length == 0) {
-                throw new IllegalArgumentException(String.format("table directory: %s is empty", tableDirectory.getAbsolutePath()));
+                throw new IllegalArgumentException(String.format("wrong type (table directory: %s is empty)", tableDirectory.getAbsolutePath()));
             }
         }
     }
@@ -141,12 +141,7 @@ public class DatabaseTable extends AbstractStorage<String, Storeable> implements
     private void writeSignatureFile() throws IOException {
         File tableDirectory = new File(getDatabaseDirectory(), getName());
         File signatureFile = new File(tableDirectory, DatabaseTableProvider.SIGNATURE_FILE);
-        signatureFile.createNewFile();
-        BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
-        List<String> formattedColumnTypes = StoreableUtils.formatColumnTypes(columnTypes);
-        String signature = StoreableUtils.join(formattedColumnTypes, true, " ");
-        writer.write(signature);
-        writer.close();
+        StoreableUtils.writeSignature(signatureFile, columnTypes);
     }
 
     public boolean checkAlienStoreable(Storeable storeable) {

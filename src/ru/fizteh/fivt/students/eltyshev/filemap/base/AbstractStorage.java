@@ -92,7 +92,7 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
         }
 
         public int getUncommittedChanges() {
-            return uncommittedChanges;
+            return transactionChanges.get().countChanges();
         }
 
         public void clear() {
@@ -106,7 +106,7 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
 
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     // Data
-    protected final HashMap<Key, Value> oldData;
+    protected HashMap<Key, Value> oldData;
     protected final ThreadLocal<TransactionChanges> transactionChanges = new ThreadLocal<TransactionChanges>() {
         @Override
         public TransactionChanges initialValue() {
@@ -114,7 +114,7 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
         }
     };
 
-    final private String tableName;
+    final protected String tableName;
     private String directory;
     protected ContainerState state;
 
@@ -138,12 +138,12 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
     }
 
     public int getUncommittedChangesCount() {
-        state.checkOperationsAllowed();
         return transactionChanges.get().getUncommittedChanges();
     }
 
     // Table implementation
     public String getName() {
+        state.checkOperationsAllowed();
         return tableName;
     }
 
@@ -167,6 +167,7 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
         Value oldValue = transactionChanges.get().getValue(key);
 
         transactionChanges.get().addChange(key, value);
+        transactionChanges.get().increaseUncommittedChanges();
         return oldValue;
     }
 
@@ -239,11 +240,22 @@ public abstract class AbstractStorage<Key, Value> implements AutoCloseable {
         return oldData.get(key);
     }
 
+    protected String rawGetName() {
+        return tableName;
+    }
+
     @Override
     public void close() throws Exception {
-        state.checkOperationsAllowed();
+        //state.checkOperationsAllowed();
+        if (state.equals(ContainerState.CLOSED)) {
+            return;
+        }
         storageRollback();
         state = ContainerState.CLOSED;
+    }
+
+    public boolean isClosed() {
+        return state.equals(ContainerState.CLOSED);
     }
 
 }

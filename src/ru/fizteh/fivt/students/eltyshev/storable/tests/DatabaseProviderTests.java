@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.eltyshev.storable.tests;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -26,11 +25,6 @@ public class DatabaseProviderTests {
     @Before
     public void setUp() throws Exception {
         provider = (DatabaseTableProvider) factory.create(DATABASE);
-    }
-
-    @Test(expected = IOException.class)
-    public void createProviderUnavailableShouldFail() throws IOException {
-        factory.create("F:\\");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -80,12 +74,6 @@ public class DatabaseProviderTests {
         Table table = provider.createTable("NEWTABLE", columnTypes);
         provider.close();
         provider.deserialize(table, getXml(1, "SADA"));
-    }
-
-    @Test
-    public void testToString() throws Exception {
-        Assert.assertEquals(provider.toString(), String.format("DatabaseTableProvider[%s]", DATABASE));
-
     }
 
     private String getXml(int value1, String value2) {
