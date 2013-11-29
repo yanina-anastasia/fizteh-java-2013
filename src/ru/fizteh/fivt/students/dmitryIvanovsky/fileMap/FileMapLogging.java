@@ -173,7 +173,7 @@ public class FileMapLogging implements InvocationHandler {
             }
         }
         if (method.getName().equals("put")) {
-            throw new Exception("\n-- "+s1+" -- "+record.toString()+" --\n");
+            //throw new Exception("\n-- "+s1+" -- "+record.toString()+" --\n");
         }
         return returnedValue;
     }
