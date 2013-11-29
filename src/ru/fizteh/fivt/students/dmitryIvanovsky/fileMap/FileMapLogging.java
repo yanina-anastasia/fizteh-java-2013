@@ -106,7 +106,7 @@ public class FileMapLogging implements InvocationHandler {
             } else {
                 ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
                 if (method.getName().equals("put")) {
-                    //record.put("arguments", creatorJSONArray.getJSONArray().get(0));
+                    record.put("arguments", "[\"key\", \"FileMapStoreable[1,string,false]\"]");
                 } else {
                     record.put("arguments", creatorJSONArray.getJSONArray().get(0));
                 }
