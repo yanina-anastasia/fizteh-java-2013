@@ -288,7 +288,9 @@ public class NewTableProvider implements TableProvider, AutoCloseable {
                         throw new IllegalArgumentException("wrong type (Incorrect column name)");
                     }
                     newFile.print(getNameString(columnTypes.get(i)));
-                    newFile.print(" ");
+                    if (i != columnTypes.size() - 1) {
+                        newFile.print(" ");
+                    }
                 }
                 newFile.close();
             }
