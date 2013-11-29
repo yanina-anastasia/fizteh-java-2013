@@ -1,8 +1,15 @@
 package ru.fizteh.fivt.students.kamilTalipov.database.proxy;
 
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.IdentityHashMap;
 
 public class XMLProxyLogger implements InvocationHandler {
     private final Writer writer;
@@ -15,37 +22,31 @@ public class XMLProxyLogger implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (method.getDeclaringClass().equals(Object.class)) {
-            method.invoke(implementation, args);
-        }
-
         Object returnValue = null;
         Throwable thrown = null;
 
-        XMLFormatter formatter = new XMLFormatter();
-        formatter.writeTimestamp();
-        formatter.writeClass(implementation.getClass());
-        formatter.writeMethod(method);
-        formatter.writeArguments(args);
-
         try {
             returnValue = method.invoke(implementation, args);
-            if (!method.getReturnType().equals(void.class)) {
-                formatter.writeReturnValue(returnValue);
-            }
-        } catch (Throwable t) {
-            thrown = t;
-            formatter.writeThrown(thrown);
+        } catch (InvocationTargetException e) {
+            thrown = e.getTargetException();
         }
 
-        formatter.close();
+        if (method.getDeclaringClass() != Object.class) {
+            try {
+                XMLFormatter formatter = new XMLFormatter();
+                formatter.writeMethodCallLog(method, args, implementation, thrown, returnValue);
+                writer.write(formatter.toString());
+            } catch (Throwable e) {
+                if (thrown != null) {
+                    thrown.addSuppressed(e);
+                }
+            }
+        }
 
-        writer.write(formatter.toString() + "\n");
-
-        if (thrown == null) {
-            return returnValue;
-        } else {
+        if (thrown != null) {
             throw thrown;
         }
+
+        return returnValue;
     }
 }

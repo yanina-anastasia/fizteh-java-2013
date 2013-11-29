@@ -3,14 +3,12 @@ package ru.fizteh.fivt.students.kamilTalipov.database.proxy;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.IdentityHashMap;
 
-public class XMLFormatter implements Closeable {
+public class XMLFormatter {
     private final StringWriter stringWriter;
     private final XMLStreamWriter xmlWriter;
     private final IdentityHashMap<Object, Boolean> identityHashMap;
@@ -19,13 +17,41 @@ public class XMLFormatter implements Closeable {
         stringWriter = new StringWriter();
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
         xmlWriter = xmlOutputFactory.createXMLStreamWriter(stringWriter);
-        xmlWriter.writeStartElement("invoke");
         identityHashMap = new IdentityHashMap<>();
     }
 
     @Override
     public String toString() {
         return stringWriter.toString();
+    }
+
+    public void writeMethodCallLog(Method method, Object[] args, Object implementation,
+                                   Throwable thrown, Object returnValue) throws IOException {
+        try {
+            xmlWriter.writeStartElement("invoke");
+        } catch (XMLStreamException e) {
+            throw new IOException("XML write error", e);
+        }
+
+        writeTimestamp();
+        writeMethod(method);
+        writeClass(implementation.getClass());
+
+        writeArguments(args);
+        if (thrown != null) {
+            writeThrown(thrown);
+        } else {
+            if (method.getReturnType() != Void.TYPE) {
+                writeReturnValue(returnValue);
+            }
+        }
+
+        try {
+            xmlWriter.writeEndElement();
+            xmlWriter.flush();
+        } catch (XMLStreamException e) {
+            throw new IOException("XML write error", e);
+        }
     }
 
     public void writeTimestamp() throws IOException {
@@ -57,6 +83,8 @@ public class XMLFormatter implements Closeable {
             xmlWriter.writeStartElement("arguments");
             if (args != null) {
                 for (Object object : args) {
+                    xmlWriter.writeStartElement("argument");
+
                     if (object == null) {
                         writeNull();
                     } else if (object instanceof Iterable) {
@@ -64,6 +92,8 @@ public class XMLFormatter implements Closeable {
                     } else {
                         writeObject(object);
                     }
+
+                    xmlWriter.writeEndElement();
                 }
             }
             xmlWriter.writeEndElement();
@@ -76,8 +106,7 @@ public class XMLFormatter implements Closeable {
         try {
             xmlWriter.writeStartElement("return");
             if (returnValue == null) {
-                xmlWriter.writeStartElement("null");
-                xmlWriter.writeEndElement();
+                writeNull();
             } else {
                 xmlWriter.writeCharacters(returnValue.toString());
             }
@@ -94,16 +123,6 @@ public class XMLFormatter implements Closeable {
             xmlWriter.writeEndElement();
         } catch (XMLStreamException e) {
             throw new IOException("XML write error", e);
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        try {
-            xmlWriter.writeEndElement();
-            xmlWriter.flush();
-        } catch (XMLStreamException e) {
-            throw new IOException("Xml write error", e);
         }
     }
 
