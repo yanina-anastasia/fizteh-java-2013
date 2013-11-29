@@ -46,7 +46,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 || name.startsWith(".") || name.endsWith(".")) {
             throw new RuntimeException("Bad symbols in suggested tablename " + name);
         }
-        lock.readLock().lock();
+        lock.writeLock().lock();
         try {
             if (!tables.containsKey(name)) {
                 return null;
@@ -74,7 +74,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
             return table;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
