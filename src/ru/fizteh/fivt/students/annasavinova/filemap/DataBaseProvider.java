@@ -28,7 +28,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
     private HashMap<String, DataBase> tableBase;
     private String rootDir;
     private String oldPath;
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
 
     DataBaseLoader loader;
 

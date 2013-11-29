@@ -9,7 +9,7 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 public class DBaseProviderFactory implements TableProviderFactory, AutoCloseable {
     private HashSet<DataBaseProvider> providers = new HashSet<>();
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
     
     @Override
     public TableProvider create(String dir) throws IOException {
