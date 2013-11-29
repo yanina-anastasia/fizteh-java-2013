@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.elenarykunova.filemap;
+package ru.fizteh.fivt.students.elenarykunova.filemap.tests;
 
 import static org.junit.Assert.*;
 
@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 
 import org.junit.Test;
+import ru.fizteh.fivt.students.elenarykunova.filemap.*;
 
 
 public class MyLoggingProxyFactoryTest {

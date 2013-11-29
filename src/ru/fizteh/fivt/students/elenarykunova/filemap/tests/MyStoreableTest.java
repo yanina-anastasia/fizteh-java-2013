@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.elenarykunova.filemap;
+package ru.fizteh.fivt.students.elenarykunova.filemap.tests;
 
 import static org.junit.Assert.*;
 
@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.students.elenarykunova.filemap.*;
 
 public class MyStoreableTest {
 
