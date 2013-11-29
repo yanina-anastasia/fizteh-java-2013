@@ -95,9 +95,14 @@ public class MyTableProvider implements ExtendProvider, AutoCloseable {
             }
 
             try (PrintStream signature = new PrintStream(new File(table, "signature.tsv"))) {
+                boolean isFirst = true;
                 for (Class<?> s : columnTypes) {
+                    if (!isFirst) {
+                        signature.print(" ");
+                    } else {
+                        isFirst = false;
+                    }
                     signature.print(Types.getSimpleName(s));
-                    signature.print(" ");
                 }
             }
             ExtendTable newTable = new MyTable(name, dataBaseDir, this, columnTypes);

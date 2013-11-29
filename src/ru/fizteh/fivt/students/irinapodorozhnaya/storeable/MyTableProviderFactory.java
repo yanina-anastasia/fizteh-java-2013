@@ -27,7 +27,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
         File directory = new File(dataBaseDir);
         
         if (!directory.exists()) {
-            throw new IOException(dataBaseDir + " is not a directory name");
+            throw new IOException(dataBaseDir + " directory not exists");
         } else if (!directory.isDirectory()) {
             throw new IllegalArgumentException(dataBaseDir + " not a directory");    
         }

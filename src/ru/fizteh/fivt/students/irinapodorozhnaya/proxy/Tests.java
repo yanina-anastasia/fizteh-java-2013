@@ -67,7 +67,7 @@ public class Tests {
         JSONObject jsonObject = new JSONObject(writer.toString());
         File file = new File(f, "table");
         Assert.assertEquals(jsonObject.get("returnValue"), "MyTable[" + file.getAbsolutePath() + "]");
-        Assert.assertEquals(jsonObject.get("name"), "createTable");
+        Assert.assertEquals(jsonObject.get("method"), "createTable");
         Assert.assertEquals(jsonObject.get("class"),
                 "ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider");
         Assert.assertEquals(jsonObject.getJSONArray("arguments").toString(),
@@ -82,7 +82,7 @@ public class Tests {
         } catch (IllegalArgumentException e) {
             JSONObject jsonObject = new JSONObject(writer.toString());
             Assert.assertEquals(jsonObject.get("thrown"), e.toString());
-            Assert.assertEquals(jsonObject.get("name"), "createTable");
+            Assert.assertEquals(jsonObject.get("method"), "createTable");
             Assert.assertEquals(jsonObject.get("class"),
                     "ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider");
             Assert.assertEquals(jsonObject.getJSONArray("arguments").toString(),
@@ -99,7 +99,7 @@ public class Tests {
         } catch (IllegalArgumentException e) {
             JSONObject jsonObject = new JSONObject(writer.toString());
             Assert.assertEquals(jsonObject.get("thrown"), e.toString());
-            Assert.assertEquals(jsonObject.get("name"), "createTable");
+            Assert.assertEquals(jsonObject.get("method"), "createTable");
             Assert.assertEquals(jsonObject.get("class"),
                     "ru.fizteh.fivt.students.irinapodorozhnaya.storeable.MyTableProvider");
             Assert.assertEquals(jsonObject.getJSONArray("arguments").toString(), "[null,null]");
@@ -129,7 +129,7 @@ public class Tests {
 
         JSONObject jsonObject = new JSONObject(writer.toString());
         Assert.assertEquals(jsonObject.get("returnValue").toString(), "null");
-        Assert.assertEquals(jsonObject.get("name"), "list");
+        Assert.assertEquals(jsonObject.get("method"), "list");
         Assert.assertEquals(jsonObject.get("class"),
                 "ru.fizteh.fivt.students.irinapodorozhnaya.proxy.Tests$TestList");
         Assert.assertEquals(jsonObject.getJSONArray("arguments").toString(), "[[\"cyclic\"]]");
@@ -144,7 +144,7 @@ public class Tests {
         forEmptyList.list(empty);
         JSONObject jsonObject = new JSONObject(writer.toString());
         Assert.assertEquals(jsonObject.get("returnValue").toString(), "null");
-        Assert.assertEquals(jsonObject.get("name"), "list");
+        Assert.assertEquals(jsonObject.get("method"), "list");
         Assert.assertEquals(jsonObject.get("class"),
                 "ru.fizteh.fivt.students.irinapodorozhnaya.proxy.Tests$TestList");
         Assert.assertEquals(jsonObject.getJSONArray("arguments").toString(), "[[]]");
