@@ -1,25 +1,23 @@
 package ru.fizteh.fivt.students.surakshina.filemap;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class CloseState {
-    AtomicBoolean isClosed = new AtomicBoolean(false);
+    volatile boolean isClosed = false;
 
     public CloseState() {
     }
 
     public void checkClosed() {
-        if (isClosed.get()) {
+        if (isClosed) {
             throw new IllegalStateException("It has closed already");
         }
     }
 
     public void setClose() {
-        isClosed.set(true);
+        isClosed = true;
     }
 
     public boolean isClose() {
-        return isClosed.get();
+        return isClosed;
     }
 
 }

@@ -3,8 +3,6 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
@@ -12,7 +10,6 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 public class NewTableProviderFactory implements TableProviderFactory, AutoCloseable {
     private HashSet<AutoCloseable> providers = new HashSet<>();
     private CloseState state = new CloseState();
-    private final Lock factoryController = new ReentrantLock();
 
     public NewTableProviderFactory() {
     }
