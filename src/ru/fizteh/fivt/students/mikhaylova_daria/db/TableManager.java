@@ -45,7 +45,7 @@ public class TableManager implements TableProvider, AutoCloseable {
         myWriteLock.lock();
         try {
             if (!mainDir.exists()) {
-                if (!mainDir.mkdir()) {
+                if (!mainDir.mkdirs()) {
                     throw new IOException("wrong type (Creating " + nameMainDir + " is impossible)");
                 }
             }
@@ -57,7 +57,7 @@ public class TableManager implements TableProvider, AutoCloseable {
             } catch (Exception e) {
                 throw new IOException("wrong type (" + e.getMessage() + ")", e);
             }
-        }finally {
+        } finally {
             myWriteLock.unlock();
         }
     }
