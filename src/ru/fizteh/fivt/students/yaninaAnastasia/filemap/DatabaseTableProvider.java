@@ -48,16 +48,15 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
         }
         lock.readLock().lock();
         try {
-            //
             if (!tables.containsKey(name)) {
                 return null;
             }
-            if (tables.get(name).isClosed) {
+            /*if (tables.get(name) != null && tables.get(name).isClosed) {
                 if (!open()) {
                     throw new IllegalArgumentException("Wrong format");
                 }
-            }
-                //
+            }  */
+
             DatabaseTable table = tables.get(name);
 
             if (table == null) {
@@ -68,9 +67,11 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 throw new IllegalArgumentException(String.format("%d unsaved changes", curTable.uncommittedChanges));
             }
             if (table.isClose()) {
-                DatabaseTable info = table;
-                table = new DatabaseTable(info.getName(), info.columnTypes, this);
+                table = new DatabaseTable(name, table.columnTypes, this);
                 tables.put(table.getName(), table);
+                if (!open()) {
+                    throw new IllegalArgumentException("Wrong format");
+                }
             }
 
             curTable = table;
