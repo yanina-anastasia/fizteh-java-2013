@@ -13,15 +13,10 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     private List<MyTableProvider> tableProvidersList;
     private boolean isTableProviderFactoryClosed;
-    private Lock readLock;
-    private Lock writeLock;
 
     public MyTableProviderFactory() {
         tableProvidersList = new ArrayList<>();
         isTableProviderFactoryClosed = false;
-        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-        readLock = readWriteLock.readLock();
-        writeLock = readWriteLock.writeLock();
     }
 
     @Override
@@ -52,19 +47,11 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
         if (isTableProviderFactoryClosed) {
             return;
         }
-        writeLock.lock();
-        try {
-            for (MyTableProvider tableProvider : tableProvidersList) {
-                tableProvider.close();
-            }
-            tableProvidersList.clear();
-            isTableProviderFactoryClosed = true;
-        } finally {
-            writeLock.unlock();
+        for (MyTableProvider tableProvider : tableProvidersList) {
+            tableProvider.close();
         }
+        tableProvidersList.clear();
+        isTableProviderFactoryClosed = true;
     }
 
-    public void removeClosedProvider(MyTableProvider provider) {
-        tableProvidersList.remove(provider);
-    }
 }

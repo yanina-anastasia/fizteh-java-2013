@@ -289,7 +289,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             MyTable value = currItem.getValue();
             value.close();
         }
-        tableProviderFactory.removeClosedProvider(this);
         isProviderClosed = true;
     }
 }
