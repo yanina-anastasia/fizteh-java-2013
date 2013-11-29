@@ -47,6 +47,10 @@ public class MultiFileHashTableFactory implements TableProviderFactory, AutoClos
 
     @Override
     public void close() {
+        if (isClosed) {
+            return;
+        }
+
         isClosed = true;
         for (Provider provider : providers) {
             provider.provider.close();

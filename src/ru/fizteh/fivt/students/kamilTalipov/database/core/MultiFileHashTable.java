@@ -112,7 +112,6 @@ public class MultiFileHashTable implements Table, AutoCloseable {
 
     @Override
     public String getName() {
-        checkState();
         return tableName;
     }
 
