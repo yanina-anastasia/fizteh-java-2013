@@ -20,7 +20,7 @@ public class DatabaseTableProviderFactory implements TableProviderFactory, AutoC
         }
         File databaseDirectory = new File(directory);
         if (!databaseDirectory.exists()) {
-            if (!databaseDirectory.mkdir()) {
+            if (!databaseDirectory.mkdirs()) {
                 throw new IOException("Error while getting property");
             }
         }
