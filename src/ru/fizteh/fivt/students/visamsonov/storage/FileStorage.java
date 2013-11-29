@@ -194,14 +194,19 @@ public class FileStorage implements TableInterface {
 		if (key == null || key.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
+		String oldValue;
 		commitLock.lock();
-		actualizeRemoved();
-		if (diffRemoved.get(key) != null) {
-			commitLock.unlock();
-			return null;
+		try {
+			actualizeRemoved();
+			if (diffRemoved.get(key) != null) {
+				commitLock.unlock();
+				return null;
+			}
+			oldValue = memoryStore.get(key);
 		}
-		String oldValue = memoryStore.get(key);
-		commitLock.unlock();
+		finally {
+			commitLock.unlock();
+		}
 		if (oldValue != null) {
 			diffRemoved.put(key, oldValue);
 		}
@@ -214,10 +219,15 @@ public class FileStorage implements TableInterface {
 	public int rollback () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
+		int result;
 		commitLock.lock();
-		actualizeRemoved();
-		int result = diffAdded.size() + diffRemoved.size() - calculateRepeated();
-		commitLock.unlock();
+		try {
+			actualizeRemoved();
+			result = diffAdded.size() + diffRemoved.size() - calculateRepeated();
+		}
+		finally {
+			commitLock.unlock();
+		}
 		diffAdded.clear();
 		diffRemoved.clear();
 		return result;
@@ -226,15 +236,20 @@ public class FileStorage implements TableInterface {
 	public int size () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
+		int result;
 		commitLock.lock();
-		actualizeRemoved();
-		int result = memoryStore.size() + diffAdded.size() - diffRemoved.size();
-		for (String key : diffAdded.keySet()) {
-			if (memoryStore.get(key) != null) {
-				result--;
+		try {
+			actualizeRemoved();
+			result = memoryStore.size() + diffAdded.size() - diffRemoved.size();
+			for (String key : diffAdded.keySet()) {
+				if (memoryStore.get(key) != null) {
+					result--;
+				}
 			}
 		}
-		commitLock.unlock();
+		finally {
+			commitLock.unlock();
+		}
 		return result;
 	}
 
@@ -254,19 +269,20 @@ public class FileStorage implements TableInterface {
 	public int commit () {
 		Map<String, String> diffAdded = this.diffAdded.get();
 		Map<String, String> diffRemoved = this.diffRemoved.get();
+		int result = 0;
 		commitLock.lock();
-		actualizeRemoved();
-		actualizeAdded();
-		int result = diffAdded.size() + diffRemoved.size();
-		for (String key : diffRemoved.keySet()) {
-			memoryStore.remove(key);
-		}
-		for (Map.Entry<String, String> entry : diffAdded.entrySet()) {
-			memoryStore.put(entry.getKey(), entry.getValue());
-		}
-		diffAdded.clear();
-		diffRemoved.clear();
 		try {
+			actualizeRemoved();
+			actualizeAdded();
+			result = diffAdded.size() + diffRemoved.size();
+			for (String key : diffRemoved.keySet()) {
+				memoryStore.remove(key);
+			}
+			for (Map.Entry<String, String> entry : diffAdded.entrySet()) {
+				memoryStore.put(entry.getKey(), entry.getValue());
+			}
+			diffAdded.clear();
+			diffRemoved.clear();
 			if (memoryStore.size() == 0) {
 				dbFilePath.delete();
 				return result;
