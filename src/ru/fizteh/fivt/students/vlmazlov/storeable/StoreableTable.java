@@ -130,6 +130,7 @@ public class StoreableTable extends GenericTable<Storeable> implements Table, Cl
         }
 
         specificProvider.closeTable(getName());
+        rollback();
         isClosed = true;
     }
 
