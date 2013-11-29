@@ -86,36 +86,37 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
     private void fillTypesFile(File types, List<Class<?>> columnTypes) throws IOException {
         FileOutputStream out = new FileOutputStream(types);
         try {
+            StringBuffer res = new StringBuffer();
             for (Class<?> type : columnTypes) {
                 String name = type.getSimpleName();
-                String res;
                 switch (name) {
                 case "Integer":
-                    res = "int ";
+                    res.append("int ");
                     break;
                 case "Long":
-                    res = "long ";
+                    res.append("long ");
                     break;
                 case "Byte":
-                    res = "byte ";
+                    res.append("byte ");
                     break;
                 case "Float":
-                    res = "float ";
+                    res.append("float ");
                     break;
                 case "Double":
-                    res = "double ";
+                    res.append("double ");
                     break;
                 case "Boolean":
-                    res = "boolean ";
+                    res.append("boolean ");
                     break;
                 case "String":
-                    res = "String ";
+                    res.append("String ");
                     break;
                 default:
                     throw new RuntimeException("Incorrect type in file " + name);
                 }
-                out.write((res).getBytes("UTF-8"));
             }
+            res.setLength(res.length() - 1);
+            out.write((res.toString()).getBytes("UTF-8"));
         } catch (IOException e) {
             throw new IOException("Cannot create file " + types.getAbsolutePath(), e);
         } finally {
