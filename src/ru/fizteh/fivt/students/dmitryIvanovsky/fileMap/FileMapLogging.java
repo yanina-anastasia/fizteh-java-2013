@@ -138,6 +138,9 @@ public class FileMapLogging implements InvocationHandler {
                 throw e.getTargetException();
             }
         }
+        if (method.getName().equals("createFor")) {
+            throw new Exception("\n-- "+record.toString()+" --\n");
+        }
         return returnedValue;
     }
 }
