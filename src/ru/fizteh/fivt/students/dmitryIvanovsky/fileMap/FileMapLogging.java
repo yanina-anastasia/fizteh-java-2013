@@ -88,21 +88,18 @@ public class FileMapLogging implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object returnedValue = null;
         JSONObject record = new JSONObject();
-        String s="", s1="", s2="";
-        s2 = record.toString();
+        String s="", s1="";
+        s1 += record.toString()+"\n";
         if (!method.getDeclaringClass().equals(Object.class)) {
-            s += "1";
 
-            s1 = record.toString();
+            s1 += record.toString()+"\n";
             record.put("timestamp", System.currentTimeMillis());
 
-            if (method.getName().equals("createFor")) {
-                throw new Exception("\n-- "+s1+" "+s2+" "+record.toString()+" --\n");
-            }
-
+            s1 += record.toString()+"\n";
             record.put("class", proxied.getClass().getName());
+            s1 += record.toString()+"\n";
             record.put("method", method.getName());
-            s += "2";
+            s1 += record.toString()+"\n";
             if (args == null) {
                 record.put("arguments", new JSONArray());
             } else if (args.length == 0) {
@@ -111,21 +108,23 @@ public class FileMapLogging implements InvocationHandler {
                 ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
                 record.put("arguments", creatorJSONArray.getJSONArray().get(0));
             }
-            s += "3";
+            s1 += record.toString()+"\n";
             try {
-                s += "4";
                 returnedValue = method.invoke(proxied, args);
                 if (!method.getReturnType().equals(void.class)) {
                     if (returnedValue == null) {
                         s += "5";
                         record.put("returnValue", JSONObject.NULL);
                     } else {
-                        s += "6";
+                        s1 += record.toString()+"\n";
                         record.put("returnValue", returnedValue);
+                        s1 += record.toString()+"\n";
                     }
                 }
+                s1 += record.toString()+"\n";
             } catch (InvocationTargetException e) {
                 s += "7";
+                s1 += record.toString()+"\n";
                 record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
             } finally {
@@ -159,9 +158,8 @@ public class FileMapLogging implements InvocationHandler {
                 throw e.getTargetException();
             }
         }
-        s += "d";
         if (method.getName().equals("createFor")) {
-            throw new Exception("\n-- "+s+" "+record.toString()+" --\n");
+            throw new Exception("\n-- "+s1+" "+record.toString()+" --\n");
         }
         return returnedValue;
     }
