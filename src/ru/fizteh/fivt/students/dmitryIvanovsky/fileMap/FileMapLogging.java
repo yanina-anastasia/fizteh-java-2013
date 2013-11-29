@@ -140,7 +140,7 @@ public class FileMapLogging implements InvocationHandler {
                     writer.write(record.toString());
                     writer.write("\n");
                     if (method.getName().equals("createFor")) {
-                        throw new Exception("\n-- "+record.toString()+" --\n");
+                        //throw new Exception("\n-- "+record.toString()+" --\n");
                     }
                 } catch (IOException e) {
                     //pass
