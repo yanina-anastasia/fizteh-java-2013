@@ -295,11 +295,60 @@ public class MyTableTest {
         table.put("key3", badStoreable);
     }
     
-    @Test (expected = IllegalStateException.class)
+    @Test
     public void close() throws Exception {
         table.close();
-//        table.commit();
-//        table.remove("1");
+        table.close();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void closeCommit() throws Exception {
+        table.close();
+        table.commit();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void closeRollback() throws Exception {
+        table.close();
+        table.rollback();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void closeGet() throws Exception {
+        table.close();
+        table.get("1");
+    }
+    
+    @Test (expected = IllegalStateException.class)
+    public void closePut() throws Exception {
+        table.close();
+        MyStoreable stor = (MyStoreable) prov.createFor(table);
+        stor.setColumnAt(0, 1);
+        table.put("1", stor);
+    }
+    
+    @Test (expected = IllegalStateException.class)
+    public void closeSize() throws Exception {
+        table.close();
+        table.size();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void closeRemove() throws Exception {
+        table.close();
+        table.remove("1");
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void closeColumnsCount() throws Exception {
+        table.close();
+        table.getColumnsCount();
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void closeColumnType() throws Exception {
+        table.close();
+        table.getColumnType(1);
     }
 
 }

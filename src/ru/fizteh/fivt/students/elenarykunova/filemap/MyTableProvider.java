@@ -25,7 +25,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private String rootDir = null;
     private HashMap<String, MyTable> tables = new HashMap<String, MyTable>();
     private Lock write = new ReentrantLock(true);
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
 
     public MyTableProvider() {
     }

@@ -11,7 +11,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 public class MyTableProviderFactory implements TableProviderFactory, AutoCloseable {
 
     private Set<MyTableProvider> providers = new HashSet<MyTableProvider>();
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
 
     public TableProvider create(String dir) throws IllegalArgumentException, IOException {
         if (isClosed) {

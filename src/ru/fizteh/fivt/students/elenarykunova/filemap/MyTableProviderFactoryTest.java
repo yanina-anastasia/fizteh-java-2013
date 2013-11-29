@@ -93,10 +93,18 @@ public class MyTableProviderFactoryTest {
     }
     
     @Test (expected = IllegalStateException.class)
-    public void close() throws Exception {
+    public void closeCreate() throws Exception {
         MyTableProviderFactory factory = new MyTableProviderFactory();
         factory.close();
         factory.create(existingDir.getAbsolutePath());
     }
+
+    @Test
+    public void close() throws Exception {
+        MyTableProviderFactory factory = new MyTableProviderFactory();
+        factory.close();
+        factory.close();
+    }
+
 }
 

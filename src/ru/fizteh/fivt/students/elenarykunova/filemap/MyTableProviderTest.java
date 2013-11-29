@@ -21,28 +21,21 @@ public class MyTableProviderTest {
     private File existingFile;
     private File existingDir;
     private List<Class<?>> justList;
+    private MyTableProvider provider = null;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
-    public void prepare() {
-        try {
-            existingDir = folder.newFolder("existingDirPath");
-        } catch (IOException e1) {
-            System.err.println("can't make tests");
-        }
-        try {
-            existingFile = folder.newFile("existingPath");
-        } catch (IOException e1) {
-            System.err.println("can't make tests");
-        }
-        notExistingFile = new File(existingDir.getParent() + File.separator
-                + "notExistingPath");
+    public void prepare() throws IOException {
+        existingDir = folder.newFolder("existingDirPath");
+        existingFile = folder.newFile("existingPath");
+        notExistingFile = new File(existingDir.getParent() + File.separator + "notExistingPath");
         justList = new ArrayList<Class<?>>(3);
         justList.add(Integer.class);
         justList.add(String.class);
         justList.add(Long.class);
+        provider = new MyTableProvider(existingDir.getAbsolutePath());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -64,22 +57,19 @@ public class MyTableProviderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTableNull() throws IllegalArgumentException,
-            RuntimeException, IOException {
+    public void testCreateTableNull() throws IllegalArgumentException, RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
         prov.createTable(null, justList);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTableEmpty() throws IllegalArgumentException,
-            RuntimeException, IOException {
+    public void testCreateTableEmpty() throws IllegalArgumentException, RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
         prov.createTable("", justList);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTableNl() throws IllegalArgumentException,
-            RuntimeException, IOException {
+    public void testCreateTableNl() throws IllegalArgumentException, RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
         prov.createTable("                  ", justList);
     }
@@ -109,8 +99,7 @@ public class MyTableProviderTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testCreateTableBadSymbol() throws IllegalArgumentException,
-            RuntimeException, IOException {
+    public void testCreateTableBadSymbol() throws IllegalArgumentException, RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
         prov.createTable("/aaaa", justList);
     }
@@ -161,8 +150,7 @@ public class MyTableProviderTest {
     }
 
     @Test
-    public void testCreateTable() throws IllegalArgumentException,
-            RuntimeException, IOException {
+    public void testCreateTable() throws IllegalArgumentException, RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider();
         try {
             prov.getTable("anyPath");
@@ -181,8 +169,7 @@ public class MyTableProviderTest {
         try {
             Table res = prov.createTable("notExistingPath", justList);
             assertNotNull(res);
-            assertTrue(notExistingFile.exists()
-                    && notExistingFile.isDirectory());
+            assertTrue(notExistingFile.exists() && notExistingFile.isDirectory());
         } catch (RuntimeException e1) {
             // what a pity: couldn't create this file
         }
@@ -254,8 +241,7 @@ public class MyTableProviderTest {
     }
 
     @Test
-    public void testCreateGetRemove() throws IllegalArgumentException,
-            RuntimeException, IOException {
+    public void testCreateGetRemove() throws IllegalArgumentException, RuntimeException, IOException {
         MyTableProvider prov = new MyTableProvider(existingDir.getParent());
         String name = "newTable";
         Table createRes = prov.createTable(name, justList);
@@ -268,4 +254,60 @@ public class MyTableProviderTest {
         prov.removeTable(name);
         assertNull(prov.getTable(name));
     }
+
+    @Test
+    public void close() throws Exception {
+        provider.close();
+        provider.close();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void closeGetTable() throws Exception {
+        provider.close();
+        provider.getTable(existingDir.getName());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void closeCreateTable() throws Exception {
+        provider.close();
+        provider.createTable(existingDir.getName(), new ArrayList());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void closeRemoveTable() throws Exception {
+        provider.close();
+        provider.removeTable(existingDir.getName());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void closeCreateFor() throws Exception {
+        MyTable table = (MyTable) provider.getTable(existingDir.getName());
+        provider.close();
+        provider.createFor(table);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void closeCreateForList() throws Exception {
+        MyTable table = (MyTable) provider.getTable(existingDir.getName());
+        provider.close();
+        provider.createFor(table, justList);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void closeSerialize() throws Exception {
+        MyTable table = (MyTable) provider.createTable(existingDir.getName(), justList);
+        MyStoreable stor = (MyStoreable) provider.createFor(table);
+        provider.close();
+        provider.serialize(table, stor);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void closeDeerialize() throws Exception {
+        MyTable table = (MyTable) provider.createTable(existingDir.getName(), justList);
+        MyStoreable stor = (MyStoreable) provider.createFor(table);
+        String serial = provider.serialize(table, stor);
+        provider.close();
+        provider.deserialize(table, serial);
+    }
+
 }

@@ -26,7 +26,7 @@ public class MyTable implements Table, AutoCloseable {
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
     private Lock write = readWriteLock.writeLock();
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
     
     private ThreadLocal<HashMap<String, Storeable>> changesMap = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override
@@ -75,24 +75,6 @@ public class MyTable implements Table, AutoCloseable {
         }
     }
     
-//read
-    public Storeable get(String key) throws IllegalArgumentException {
-        checkClosed();
-        if (isEmpty(key)) {
-            throw new IllegalArgumentException("get: key is empty");
-        }
-        if (changesMap.get().containsKey(key)) {
-            return changesMap.get().get(key);
-        } else {
-            read.lock();
-            try {
-                return getDataBaseFromKey(key).get(key);
-            } finally {
-                read.unlock();
-            }
-        } 
-    }
-
     private void checkValue(Storeable value) {
         checkClosed();
         for (int i = 0; i < types.size(); ++i) {
@@ -128,146 +110,6 @@ public class MyTable implements Table, AutoCloseable {
         String str1 = provider.serialize(this, st1);
         String str2 = provider.serialize(this, st2);
         return (!str1.equals(str2));
-    }
-
-//read
-    public Storeable put(String key, Storeable value)
-            throws IllegalArgumentException, ColumnFormatException {
-        checkClosed();
-        if (isEmpty(key)) {
-            throw new IllegalArgumentException("put: key is empty");
-        }
-        if (!isCorrectKey(key)) {
-            throw new IllegalArgumentException("put: key has bad symbols");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("put: value is empty");
-        }
-        try {
-            checkValue(value);
-        } catch (ColumnFormatException e1) {
-            throw new ColumnFormatException("wrong type (put: "
-                    + e1.getMessage() + ")", e1);
-        }
-        
-        Storeable oldVal = null;        
-        read.lock();
-        try {
-            oldVal = getDataBaseFromKey(key).get(key);
-        } finally {
-            read.unlock();
-        }
-        
-        Storeable newVal = changesMap.get().get(key);
-        Storeable res = null;
-        if (changesMap.get().containsKey(key)) {
-            res = newVal;
-        } else if (oldVal != null) {
-            res = oldVal;
-        }
-        
-        changesMap.get().put(key, value);
-        return res;
-    }
-    
-//read
-    public Storeable remove(String key) throws IllegalArgumentException {
-        checkClosed();
-        if (isEmpty(key)) {
-            throw new IllegalArgumentException("remove: key is empty");
-        }
-        
-        Storeable oldVal = null;
-        read.lock();
-        try {
-            oldVal = getDataBaseFromKey(key).get(key);
-        } finally {
-            read.unlock();
-        }
-        
-        Storeable res;            
-        if (changesMap.get().containsKey(key)) {
-            res = changesMap.get().get(key);
-        } else {
-            res = oldVal;
-        }
-        if (oldVal == null) {
-            changesMap.get().remove(key);
-        } else {
-            changesMap.get().put(key, null);
-        }
-        return res;
-    }
-
-//read
-    public int size() {
-        checkClosed();
-        int n = 0;
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                read.lock();
-                try {
-                    n += data[i][j].getSize();
-                } finally {
-                    read.unlock();
-                }
-            }
-        }
-        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
-        for (Map.Entry<String, Storeable> myEntry : mySet) {
-            if (getDataBaseFromKey(myEntry.getKey()).get(myEntry.getKey()) == null) {
-                if (myEntry.getValue() != null) {
-                    n++;
-                }
-            } else if (myEntry.getValue() == null) {
-                n--;
-            }
-        }
-        return n;
-    }
-
-// write
-    private void trackChanges() {
-        checkClosed();
-        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
-        String key;
-        Storeable value;
-        DataBase mdb;
-        for (Map.Entry<String, Storeable> myEntry : mySet) {
-            key = myEntry.getKey();
-            value = myEntry.getValue();
-            mdb = getDataBaseFromKey(myEntry.getKey());
-            write.lock();
-            try {
-                if (value == null) {
-                    mdb.remove(key);
-                } else {
-                    mdb.put(key, value);
-                }
-                mdb.createFile();
-                mdb.hasChanged = true;
-            } finally {
-                write.unlock();
-            }
-        }
-    }
-    
-    public int commit() throws RuntimeException {
-        checkClosed();
-        int nchanges = getUncommitedChanges();
-        trackChanges();
-        if (nchanges != 0) {
-            saveChanges();
-            changesMap.get().clear();
-        }
-        return nchanges;
-    }
-
-    public int rollback() throws RuntimeException {
-        checkClosed();
-        int nchanges = getUncommitedChanges();
-        changesMap.get().clear();
-        return nchanges;
     }
 
     public void setNameToNull() {
@@ -336,6 +178,191 @@ public class MyTable implements Table, AutoCloseable {
         }
     }
 
+ // write
+    private void trackChanges() {
+        checkClosed();
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
+        String key;
+        Storeable value;
+        DataBase mdb;
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
+            key = myEntry.getKey();
+            value = myEntry.getValue();
+            mdb = getDataBaseFromKey(myEntry.getKey());
+            write.lock();
+            try {
+                if (value == null) {
+                    mdb.remove(key);
+                } else {
+                    mdb.put(key, value);
+                }
+                mdb.createFile();
+                mdb.hasChanged = true;
+            } finally {
+                write.unlock();
+            }
+        }
+    }
+    
+    public int getUncommitedChanges() {
+        checkClosed();
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
+        String key;
+        Storeable value;
+        DataBase mdb;
+        int nchanges = 0;
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
+            key = myEntry.getKey();
+            value = myEntry.getValue();
+            mdb = getDataBaseFromKey(key);
+            if (differs(value, mdb.get(key))) {
+                nchanges++;
+            }
+        }
+        return nchanges;
+    }
+
+//read
+    @Override
+    public Storeable get(String key) throws IllegalArgumentException {
+        checkClosed();
+        if (isEmpty(key)) {
+            throw new IllegalArgumentException("get: key is empty");
+        }
+        if (changesMap.get().containsKey(key)) {
+            return changesMap.get().get(key);
+        } else {
+            read.lock();
+            try {
+                return getDataBaseFromKey(key).get(key);
+            } finally {
+                read.unlock();
+            }
+        } 
+    }
+
+
+//read
+    @Override
+    public Storeable put(String key, Storeable value)
+            throws IllegalArgumentException, ColumnFormatException {
+        checkClosed();
+        if (isEmpty(key)) {
+            throw new IllegalArgumentException("put: key is empty");
+        }
+        if (!isCorrectKey(key)) {
+            throw new IllegalArgumentException("put: key has bad symbols");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("put: value is empty");
+        }
+        try {
+            checkValue(value);
+        } catch (ColumnFormatException e1) {
+            throw new ColumnFormatException("wrong type (put: "
+                    + e1.getMessage() + ")", e1);
+        }
+        
+        Storeable oldVal = null;        
+        read.lock();
+        try {
+            oldVal = getDataBaseFromKey(key).get(key);
+        } finally {
+            read.unlock();
+        }
+        
+        Storeable newVal = changesMap.get().get(key);
+        Storeable res = null;
+        if (changesMap.get().containsKey(key)) {
+            res = newVal;
+        } else if (oldVal != null) {
+            res = oldVal;
+        }
+        
+        changesMap.get().put(key, value);
+        return res;
+    }
+    
+//read
+    @Override
+    public Storeable remove(String key) throws IllegalArgumentException {
+        checkClosed();
+        if (isEmpty(key)) {
+            throw new IllegalArgumentException("remove: key is empty");
+        }
+        
+        Storeable oldVal = null;
+        read.lock();
+        try {
+            oldVal = getDataBaseFromKey(key).get(key);
+        } finally {
+            read.unlock();
+        }
+        
+        Storeable res;            
+        if (changesMap.get().containsKey(key)) {
+            res = changesMap.get().get(key);
+        } else {
+            res = oldVal;
+        }
+        if (oldVal == null) {
+            changesMap.get().remove(key);
+        } else {
+            changesMap.get().put(key, null);
+        }
+        return res;
+    }
+
+//read
+    @Override
+    public int size() {
+        checkClosed();
+        int n = 0;
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                read.lock();
+                try {
+                    n += data[i][j].getSize();
+                } finally {
+                    read.unlock();
+                }
+            }
+        }
+        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
+        for (Map.Entry<String, Storeable> myEntry : mySet) {
+            if (getDataBaseFromKey(myEntry.getKey()).get(myEntry.getKey()) == null) {
+                if (myEntry.getValue() != null) {
+                    n++;
+                }
+            } else if (myEntry.getValue() == null) {
+                n--;
+            }
+        }
+        return n;
+    }
+
+
+    @Override
+    public int commit() throws RuntimeException {
+        checkClosed();
+        int nchanges = getUncommitedChanges();
+        trackChanges();
+        if (nchanges != 0) {
+            saveChanges();
+            changesMap.get().clear();
+        }
+        return nchanges;
+    }
+
+    @Override
+    public int rollback() throws RuntimeException {
+        checkClosed();
+        int nchanges = getUncommitedChanges();
+        changesMap.get().clear();
+        return nchanges;
+    }
+
+
     public MyTable() {
         isClosed = false;
     }
@@ -357,24 +384,6 @@ public class MyTable implements Table, AutoCloseable {
     public int getColumnsCount() {
         checkClosed();
         return types.size();
-    }
-
-    public int getUncommitedChanges() {
-        checkClosed();
-        Set<Map.Entry<String, Storeable>> mySet = changesMap.get().entrySet();
-        String key;
-        Storeable value;
-        DataBase mdb;
-        int nchanges = 0;
-        for (Map.Entry<String, Storeable> myEntry : mySet) {
-            key = myEntry.getKey();
-            value = myEntry.getValue();
-            mdb = getDataBaseFromKey(key);
-            if (differs(value, mdb.get(key))) {
-                nchanges++;
-            }
-        }
-        return nchanges;
     }
     
     @Override
@@ -428,8 +437,8 @@ public class MyTable implements Table, AutoCloseable {
     public void close() throws Exception {
         if (!isClosed) {
             rollback();
-            isClosed = true;
             provider.removeTableFromMap(currTableName);
-        }    
+        }
+        isClosed = true;
     }
 }
