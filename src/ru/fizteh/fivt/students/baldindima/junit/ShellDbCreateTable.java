@@ -20,7 +20,7 @@ public class ShellDbCreateTable extends ShellIsItCommand {
     		argsBuilder.append(arguments[i]).append(" ");
     	}
     	argsBuilder.deleteCharAt(argsBuilder.length() - 1);
-    	String args = argsBuilder.toString();
+    	String args = argsBuilder.toString().trim();
     	try{
         if (context.provider.createTable(arguments[1], BaseSignature.getTypes(args)) != null) {
             System.out.println("created");
