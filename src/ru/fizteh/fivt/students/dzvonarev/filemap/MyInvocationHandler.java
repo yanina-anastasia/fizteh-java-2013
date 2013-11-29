@@ -74,8 +74,16 @@ public class MyInvocationHandler implements InvocationHandler {
                     writeResult(result);               // return part
                 }
             }
+            xmlWriter.writeEndElement();                // will close head tag
         } catch (Throwable ignored) {
         }
+    }
+
+    public void writeHead(Method method) throws Throwable {
+        xmlWriter.writeStartElement("invoke");
+        xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
+        xmlWriter.writeAttribute("class", currentImplementation.getClass().getName());
+        xmlWriter.writeAttribute("name", method.getName());
     }
 
     public void writeResult(Object result) throws Throwable {
@@ -92,13 +100,6 @@ public class MyInvocationHandler implements InvocationHandler {
         xmlWriter.writeStartElement("thrown");
         xmlWriter.writeCharacters(exception.getClass().getName() + ": " + exception.getMessage());
         xmlWriter.writeEndElement();
-    }
-
-    public void writeHead(Method method) throws Throwable {
-        xmlWriter.writeStartElement("invoke");
-        xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
-        xmlWriter.writeAttribute("class", currentImplementation.getClass().getName());
-        xmlWriter.writeAttribute("name", method.getName());
     }
 
     public void writeArguments(Object[] args) throws Throwable {
