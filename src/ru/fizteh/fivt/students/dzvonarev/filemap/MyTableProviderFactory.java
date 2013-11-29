@@ -6,15 +6,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTableProviderFactory implements TableProviderFactory, AutoCloseable {
 
     private List<MyTableProvider> tableProvidersList;
     private boolean isTableProviderFactoryClosed;
+    private Lock readLock;
+    private Lock writeLock;
 
     public MyTableProviderFactory() {
         tableProvidersList = new ArrayList<>();
         isTableProviderFactoryClosed = false;
+        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+        readLock = readWriteLock.readLock();
+        writeLock = readWriteLock.writeLock();
     }
 
     @Override
@@ -42,13 +49,19 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     @Override
     public void close() {
-        if (isTableProviderFactoryClosed) {
-            return;
+        readLock.lock();
+        try {
+            if (isTableProviderFactoryClosed) {
+                return;
+            }
+            for (MyTableProvider tableProvider : tableProvidersList) {
+                tableProvider.close();
+            }
+            tableProvidersList.clear();
+            isTableProviderFactoryClosed = true;
+        } finally {
+            readLock.unlock();
         }
-        for (MyTableProvider tableProvider : tableProvidersList) {
-            tableProvider.close();
-        }
-        isTableProviderFactoryClosed = true;
     }
 
     public void removeClosedProvider(MyTableProvider provider) {
