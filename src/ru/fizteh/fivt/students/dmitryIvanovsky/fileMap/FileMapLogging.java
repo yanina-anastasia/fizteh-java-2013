@@ -88,10 +88,18 @@ public class FileMapLogging implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object returnedValue = null;
         JSONObject record = new JSONObject();
-        String s="";
+        String s="", s1="", s2="";
+        s2 = record.toString();
         if (!method.getDeclaringClass().equals(Object.class)) {
             s += "1";
+
+            s1 = record.toString();
             record.put("timestamp", System.currentTimeMillis());
+
+            if (method.getName().equals("createFor")) {
+                throw new Exception("\n-- "+s1+" "+s2+" "+record.toString()+" --\n");
+            }
+
             record.put("class", proxied.getClass().getName());
             record.put("method", method.getName());
             s += "2";
@@ -125,9 +133,6 @@ public class FileMapLogging implements InvocationHandler {
                 writeLock.lock();
                 try {
                     s += "9";
-                    if (method.getName().equals("createFor")) {
-                        throw new Exception("\n-- "+s+" "+record.toString()+" --\n");
-                    }
                     writer.write(record.toString());
                     writer.write("\n");
                 } catch (IOException e) {
