@@ -47,7 +47,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             try {
                 return createTable(name, tables.get(name).getTypes());
             } catch (IOException e) {
-                return null;
             }
         }
         lock.writeLock().lock();
@@ -187,10 +186,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         ArrayList<Class<?>> types = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(table.getColumnType(i));
-        }
-        List<?> values = new ArrayList();
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
-            values.add(null);
         }
         Value v = new Value(types);
         for (int i = 0; i < table.getColumnsCount(); ++i) {
