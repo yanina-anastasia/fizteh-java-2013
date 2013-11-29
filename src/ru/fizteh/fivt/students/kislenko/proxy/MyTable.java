@@ -284,8 +284,12 @@ public class MyTable implements Table, AutoCloseable {
         return types;
     }
 
-    public HashMap<String, Storeable> getMap() {
+    public HashMap<String, Storeable> getStorage() {
         return storage;
+    }
+
+    public void setStorage(HashMap<String, Storeable> s) {
+        storage.putAll(s);
     }
 
     public Path getPath() {

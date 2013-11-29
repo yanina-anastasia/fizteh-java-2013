@@ -40,16 +40,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         if (tables.containsKey(name) && tables.get(name).isClosed()) {
             MyTable returnTable = new MyTable(name, tables.get(name).getTypes(), this);
-            HashMap<String, Storeable> map = tables.get(name).getMap();
-            for (String key : map.keySet()) {
-                returnTable.put(key, map.get(key));
-            }
-            tables.put(name, returnTable);
-//            try {
-//                returnTable.commit();
-//            } catch (IOException e) {
-//                // YOU SHALL NOT PASS
-//            }
+            returnTable.setStorage(tables.get(name).getStorage());
             return returnTable;
         }
         lock.writeLock().lock();
