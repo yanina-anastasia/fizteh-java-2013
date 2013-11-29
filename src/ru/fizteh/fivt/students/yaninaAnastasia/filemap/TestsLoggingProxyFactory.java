@@ -161,7 +161,7 @@ public class TestsLoggingProxyFactory {
         try {
             wrappedTable.commit();
         } catch (IOException e) {
-            //
+            // nothing
         }
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
