@@ -136,6 +136,9 @@ public class FileMapLogging implements InvocationHandler {
                 writeLock.lock();
                 try {
                     s += "9";
+                    if (method.getName().equals("createFor")) {
+                        throw new Exception("\n-- "+record.toString()+" --\n");
+                    }
                     writer.write(record.toString());
                     writer.write("\n");
                 } catch (IOException e) {
