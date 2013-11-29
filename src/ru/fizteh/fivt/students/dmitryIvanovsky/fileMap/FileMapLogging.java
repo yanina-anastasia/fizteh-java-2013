@@ -25,7 +25,7 @@ public class FileMapLogging implements InvocationHandler {
         ProviderArrayJSON(Object argument) {
             this.argument = argument;
         }
-
+//        "12acde12qwtude12qwtugtu"
         private JSONArray recursiveLog(Object arg, JSONArray creatingArray) {
             JSONArray newCreatingArray = new JSONArray();
             s5+="1";
@@ -129,13 +129,15 @@ public class FileMapLogging implements InvocationHandler {
                 record.put("arguments", new JSONArray());
             } else {
                 ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-                if (method.getName().equals("put")) {
-                    String s3 = "[\"key\", \"FileMapStoreable[1,string,false]\"]";
-                    record.put("arguments", s3);
-                } else {
-                    record.put("arguments", creatorJSONArray.getJSONArray().get(0));
-                }
-                s1 += "?? "+creatorJSONArray.getJSONArray().get(0)+" ??\n";
+                //if (method.getName().equals("put")) {
+                //    String s3 = "[\"key\", \"FileMapStoreable[1,string,false]\"]";
+                //    record.put("arguments", s3);
+                //} else {
+                    Object ob = creatorJSONArray.getJSONArray().get(0);
+                    record.put("arguments", ob);
+                //}
+
+                s1 += "?? "+ob+" ??\n";
             }
             s1 += record.toString()+"\n";
             try {
