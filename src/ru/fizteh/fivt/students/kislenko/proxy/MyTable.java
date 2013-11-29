@@ -83,10 +83,10 @@ public class MyTable implements Table, AutoCloseable {
     public MyTable(MyTable table) {
         name = table.name;
         provider = table.provider;
-        storage = table.storage;
-        globalUses = table.globalUses;
+        storage.putAll(table.storage);
+        globalUses = table.globalUses.clone();
         revision = table.revision;
-        types = table.types;
+        types.addAll(table.types);
         lock = table.lock;
 
         closed = new ThreadLocal<Boolean>();
@@ -96,7 +96,7 @@ public class MyTable implements Table, AutoCloseable {
         count.set(storage.size());
 
         uses = new ThreadLocal<boolean[][]>();
-        uses.set(globalUses);
+        uses.set(globalUses.clone());
 
         changes = new ThreadLocal<HashMap<String, Storeable>>();
         changes.set(new HashMap<String, Storeable>());
