@@ -95,8 +95,8 @@ public class DataBaseFile {
 
     public boolean check() throws IOException {
         for (Map.Entry<String, Node> curPair : getCurrentTable().entrySet()) {
-            if (!((Math.abs(curPair.getKey().getBytes("UTF-8")[0]) % 16) == directoryNumber)
-                    && ((Math.abs(curPair.getKey().getBytes("UTF-8")[0] / 16) % 16 == fileNumber))) {
+            if (!(((Math.abs(curPair.getKey().getBytes("UTF-8")[0]) % 16) == directoryNumber)
+                    && ((Math.abs(curPair.getKey().getBytes("UTF-8")[0] / 16) % 16 == fileNumber)))) {
                 throw new IOException("Wrong file format key[0] =  "
                         + String.valueOf(Math.abs(curPair.getKey().getBytes("UTF-8")[0]))
                         + " in file " + fileName);
