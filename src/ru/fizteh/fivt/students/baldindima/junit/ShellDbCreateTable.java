@@ -21,13 +21,16 @@ public class ShellDbCreateTable extends ShellIsItCommand {
     	}
     	argsBuilder.deleteCharAt(argsBuilder.length() - 1);
     	String args = argsBuilder.toString();
-    	
+    	try{
         if (context.provider.createTable(arguments[1], BaseSignature.getTypes(args)) != null) {
             System.out.println("created");
 
         } else {
             System.out.println(arguments[1] + " exists");
         }
+    	} catch (IOException e) {
+    		System.out.println("wrong type");
+    	}
     }
     public boolean isItCommand(final String[] commands) throws IOException{
 		if (commands[0].equals(name)){
