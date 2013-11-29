@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DistributedTable extends FileManager implements Table, AutoCloseable {
@@ -40,25 +39,26 @@ public class DistributedTable extends FileManager implements Table, AutoCloseabl
     private DistributedTableProvider provider;
 
     private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock(true);
-    private AtomicBoolean isClosed = new AtomicBoolean(false);
+    private volatile boolean isClosed = false;
 
     private void checkState() throws IllegalStateException {
-        if (isClosed.get()) {
+        if (isClosed) {
             throw new IllegalStateException("table " + tableName + " already closed");
         }
     }
 
     @Override
     public void close() throws IOException {
-        try {
-            checkState();
-        } catch (IllegalStateException e) {
+        if (isClosed) {
             return;
         }
         cacheLock.writeLock().lock();
         try {
+            if (isClosed) {
+                return;
+            }
             provider.forgetTable(tableName);
-            isClosed.set(true);
+            isClosed = true;
         } finally {
             cacheLock.writeLock().unlock();
         }

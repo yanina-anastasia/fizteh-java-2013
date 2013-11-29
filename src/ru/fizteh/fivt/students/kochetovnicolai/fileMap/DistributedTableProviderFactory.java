@@ -6,34 +6,34 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class DistributedTableProviderFactory implements TableProviderFactory, AutoCloseable {
     private HashMap<String, DistributedTableProvider> providers;
     private final Lock lock = new ReentrantLock();
-    private AtomicBoolean isClosed = new AtomicBoolean(false);
+    private volatile boolean isClosed = false;
 
     private void checkState() throws IllegalStateException {
-        if (isClosed.get()) {
+        if (isClosed) {
             throw new IllegalStateException("factory already closed");
         }
     }
 
     @Override
     public void close() throws IOException {
-        try {
-            checkState();
-        } catch (IllegalStateException e) {
+        if (isClosed) {
             return;
         }
         lock.lock();
         try {
+            if (isClosed) {
+                return;
+            }
             for (DistributedTableProvider provider : providers.values()) {
                 provider.close();
             }
-            isClosed.set(true);
+            isClosed = true;
         } finally {
             lock.unlock();
         }
