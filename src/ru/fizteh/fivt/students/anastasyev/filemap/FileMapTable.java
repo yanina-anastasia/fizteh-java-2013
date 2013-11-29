@@ -19,7 +19,7 @@ public class FileMapTable implements Table, AutoCloseable {
     private ArrayList<Class<?>> columnTypes;
     private FileMapTableProvider provider;
     private FileMap[][] mapsTable;
-    private boolean isOpen;
+    private volatile boolean isOpen;
 
     private ThreadLocal<HashMap<String, Storeable>> changedKeys = new ThreadLocal<HashMap<String, Storeable>>() {
         @Override

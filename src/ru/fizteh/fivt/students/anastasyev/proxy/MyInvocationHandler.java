@@ -104,6 +104,8 @@ public class MyInvocationHandler implements InvocationHandler {
             xmlStreamWriter.writeCharacters(throwable.toString());
             xmlStreamWriter.writeEndElement();
             throw throwable;
+        } catch (Exception e) {
+            //Not good
         } finally {
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.flush();

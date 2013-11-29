@@ -26,7 +26,7 @@ public class FileMapTableProvider extends State implements TableProvider, AutoCl
     private HashMap<Class<?>, String> providedTypesNames;
     private String currentFileMapTable = null;
     private HashMap<String, FileMapTable> allFileMapTablesHashtable = new HashMap<String, FileMapTable>();
-    private boolean isOpen;
+    private volatile boolean isOpen;
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock read = readWriteLock.readLock();
