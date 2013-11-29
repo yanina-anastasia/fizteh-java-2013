@@ -61,14 +61,28 @@ public class MultiFileHashTableProvider implements TableProvider, AutoCloseable 
             throw new IllegalArgumentException("Table name must be correct file name");
         }
 
-        readLock.lock();
+        writeLock.lock();
         try {
             int tableIndex = indexOfTable(name);
             if (tableIndex != -1) {
                 return tables.get(tableIndex);
             }
+            File tableDirectory = new File(databaseDirectory.getAbsoluteFile() + File.separator
+                                            + name);
+            if (tableDirectory.exists() && tableDirectory.isDirectory()) {
+                try {
+                    MultiFileHashTable table = new MultiFileHashTable(databaseDirectory.getAbsolutePath(),
+                                                                        name, this);
+                    tables.add(table);
+                    return table;
+                } catch (DatabaseException e) {
+                    throw new RuntimeException("DatabaseException", e);
+                } catch (IOException e) {
+                    throw new RuntimeException("IOException", e);
+                }
+            }
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
 
         return null;
