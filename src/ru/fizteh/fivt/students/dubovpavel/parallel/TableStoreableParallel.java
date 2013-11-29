@@ -35,22 +35,35 @@ public class TableStoreableParallel extends TableStoreable implements Table {
 
     // Other operations from interface Table are read-only
 
-    private int countChanges() {
-        int changes = 0;
+    private int calculateAdditions(boolean countModified) {
+        int additions = 0;
         for (String key: updates.get().keySet()) {
-            if (!localDict.containsKey(key) || !transformer.equal(updates.get().get(key), localDict.get(key))) {
-                changes++;
+            if (!localDict.containsKey(key) || (countModified && !transformer.equal(updates.get().get(key), localDict.get(key)))) {
+                ++additions;
             }
         }
-        changes += removed.get().size();
-        return changes;
+        return additions;
+    }
+
+    private int calculateDeletions() {
+        int deletions = 0;
+        for (String key: removed.get()) {
+            if (localDict.containsKey(key)) {
+                ++deletions;
+            }
+        }
+        return deletions;
+    }
+
+    private int countChanges() {
+        return calculateAdditions(true) + calculateDeletions();
     }
 
     @Override
     public int size() {
         lock.readLock().lock();
         try {
-            return countChanges() + localDict.size() - 2 * removed.get().size();
+            return localDict.size() + calculateAdditions(false) - calculateDeletions();
         } finally {
             lock.readLock().unlock();
         }
@@ -128,6 +141,8 @@ public class TableStoreableParallel extends TableStoreable implements Table {
                 localDict.remove(key);
             }
             super.commit();
+            updates.get().clear();
+            removed.get().clear();
             return ret;
         } finally {
             lock.writeLock().unlock();

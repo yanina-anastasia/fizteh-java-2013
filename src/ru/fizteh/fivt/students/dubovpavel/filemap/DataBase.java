@@ -113,10 +113,6 @@ public class DataBase<V> implements DataBaseHandler<String, V> {
     }
 
     public V get(String key) {
-        if (localDict.containsKey(key)) {
-            return localDict.get(key);
-        } else {
-            return null;
-        }
+        return localDict.get(key);
     }
 }
