@@ -132,4 +132,76 @@ public class MyTableTests {
         assertEquals(table.rollback(), 1);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testCloseGetPutRemove() {
+        Storeable st = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        st.setColumnAt(1, "string");
+        st.setColumnAt(2, 2.5);
+        table.put("key1", st);
+        MyTable oldTable = (MyTable) table;
+        oldTable.close();
+        table.get("key1");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testClosePut() {
+        Storeable st = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        st.setColumnAt(1, "string");
+        st.setColumnAt(2, 2.5);
+        table.put("key1", st);
+        MyTable oldTable = (MyTable) table;
+        oldTable.close();
+        table.put("newKey", st);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCloseRemove() throws IOException {
+        Storeable st = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        st.setColumnAt(1, "string");
+        st.setColumnAt(2, 2.5);
+        table.put("key1", st);
+        st.setColumnAt(0, 2);
+        st.setColumnAt(1, "string2");
+        st.setColumnAt(2, 4.5);
+        table.put("key2", st);
+        MyTable oldTable = (MyTable) table;
+        oldTable.close();
+        table.remove("key2");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCloseCommit() throws IOException {
+        Storeable st = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        st.setColumnAt(1, "string");
+        st.setColumnAt(2, 2.5);
+        table.put("key1", st);
+        st.setColumnAt(0, 2);
+        st.setColumnAt(1, "string2");
+        st.setColumnAt(2, 4.5);
+        table.put("key2", st);
+        MyTable oldTable = (MyTable) table;
+        oldTable.close();
+        table.commit();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCloseRollback() throws IOException {
+        Storeable st = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        st.setColumnAt(1, "string");
+        st.setColumnAt(2, 2.5);
+        table.put("key1", st);
+        st.setColumnAt(0, 2);
+        st.setColumnAt(1, "string2");
+        st.setColumnAt(2, 4.5);
+        table.put("key2", st);
+        MyTable oldTable = (MyTable) table;
+        oldTable.close();
+        table.rollback();
+    }
+
 }
