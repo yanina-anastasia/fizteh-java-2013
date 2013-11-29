@@ -41,6 +41,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         if (tables.containsKey(name) && tables.get(name).isClosed()) {
             MyTable returnTable = new MyTable(name, tables.get(name).getTypes(), this);
             returnTable.setStorage(tables.get(name).getStorage());
+            tables.put(name, returnTable);
             return returnTable;
         }
         lock.writeLock().lock();
