@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,52 +37,108 @@ public class TestsForProxy {
     public void createTable() throws IOException {
         writer = new StringWriter();
         loggingProxyFactory = new LoggingProxyFactoryImplementation();
-        
-        /*value1 = new StoreableImplementation(columnTypes);
-        value1.setColumnAt(0, true);
-        value1.setColumnAt(1, "AA");
-        value1.setColumnAt(2, 5);*/
     }
     
     @Test
     public void arrayListCyclic() {
-        ArrayList array = new ArrayList();
-        
+        ArrayList<Object> array = new ArrayList<Object>();
         array.add(array);
         
-        List wrappedList = (List) loggingProxyFactory.wrap(writer, array, List.class); 
-        
+        List<Object> wrappedList = (List<Object>) loggingProxyFactory.wrap(writer, array, List.class); 
         wrappedList.addAll(array);
         
-        wrappedList.equals(wrappedList);
-        
-        wrappedList.indexOf(new int[0]);
-        //ArrayList newList = new ArrayList(wrappedList);
-        
-        System.out.println(writer.toString());
+        JSONObject parsed = new JSONObject(writer.toString());
+        Assert.assertEquals(parsed.getJSONArray("arguments").getJSONArray(0).getString(0), "cyclic");
     }
     
-    /*@Test
-    public void getName() throws IOException {
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void arrayListInvalidIndex() {
+        ArrayList<Integer> array = new ArrayList<Integer>();
+        array.add(1);
+        
+        List<Integer> wrappedList = (List<Integer>) loggingProxyFactory.wrap(writer, array, List.class); 
+        wrappedList.get(2);
+        
+        JSONObject parsed = new JSONObject(writer.toString());
+        Assert.assertTrue(parsed.getJSONArray("thrown").getString(0).startsWith("java.lang.IndexOutOfBoundsException"));
+    }
+    
+    @Test
+    public void intArrayIsNotIterable() {
+        ArrayList<Object> array = new ArrayList<Object>();
+        array.add(5);
+        
+        List<Object> wrappedList = (List<Object>) loggingProxyFactory.wrap(writer, array, List.class);
+        
+        wrappedList.indexOf(new int[0]);
+        
+        JSONObject parsed = new JSONObject(writer.toString());
+        Assert.assertTrue(parsed.getJSONArray("arguments").getString(0).startsWith("[I"));
+    }
+    
+    @Test
+    public void primitiveTypes() {
+        ArrayList<Object> array = new ArrayList<Object>();
+        int a = 5;
+        
+        List<Object> wrappedList = (List<Object>) loggingProxyFactory.wrap(writer, array, List.class);
+        wrappedList.add(a);
+        
+        JSONObject parsed = new JSONObject(writer.toString());
+        Assert.assertTrue(parsed.getJSONArray("arguments").getInt(0) == a);
+    }
+    
+    @Test
+    public void newLine() {
+        ArrayList<Object> array = new ArrayList<Object>();
+        int a = 5;
+        
+        List<Object> wrappedList = (List<Object>) loggingProxyFactory.wrap(writer, array, List.class);
+        wrappedList.add(a);
+        wrappedList.add(a);
+        
+        System.out.println(writer.toString());
+
+        Assert.assertTrue(writer.toString().matches(".*\n.*\n"));
+    }
+    
+    @Test
+    public void voidNoReturnValue() {
+        ArrayList<Object> array = new ArrayList<Object>();
+        
+        List<Object> wrappedList = (List<Object>) loggingProxyFactory.wrap(writer, array, List.class);
+        wrappedList.clear();
+        
+        Assert.assertTrue(!writer.toString().contains("returnValue"));
+    }
+    
+    @Test
+    public void databaseTest() throws IOException {
         
         File databaseDirectory = folder.newFolder("database");
         TableProviderFactoryImplementation tableProviderFactoryImplementation = new TableProviderFactoryImplementation();
-        tableProviderFactory = (TableProviderFactory) loggingProxyFactory.wrap(writer, tableProviderFactoryImplementation, TableProviderFactory.class);
+        tableProviderFactory = (TableProviderFactory) loggingProxyFactory
+                .wrap(writer, tableProviderFactoryImplementation, TableProviderFactory.class);
         TableProvider tableProviderImplementation = tableProviderFactory.create(databaseDirectory.toString());
-        TableProvider tableProvider = (TableProvider) loggingProxyFactory.wrap(writer, tableProviderImplementation, TableProvider.class);;
+        
+        JSONObject parsed = new JSONObject(writer.toString());
+        Assert.assertTrue(parsed.get("returnValue")
+                .equals(String.format("TableProviderImplementation[%s]", databaseDirectory.toString())));
+        
+        writer = new StringWriter();
+        
+        TableProvider tableProvider = (TableProvider) loggingProxyFactory
+                .wrap(writer, tableProviderImplementation, TableProvider.class);
         
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
         columnTypes.add(Boolean.class);
         columnTypes.add(String.class);
         columnTypes.add(Integer.class);
         
-        
         table = tableProvider.createTable("tableName", columnTypes);
         
-        Assert.assertEquals("tableName", table.getName());
-        
-        System.out.println(writer.toString());
-        
-        
-    }*/
+        parsed = new JSONObject(writer.toString());
+        Assert.assertTrue(parsed.get("returnValue").equals(String.format("TableImplementation[%s]",
+                databaseDirectory.toPath().resolve("tableName").toString())));
+    }
 }

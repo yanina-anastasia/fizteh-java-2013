@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
@@ -15,6 +15,9 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 public class TableProviderFactoryImplementation implements TableProviderFactory, AutoCloseable {
     
     private Set<TableProviderImplementation> tableProviders = new HashSet<TableProviderImplementation>();
+    
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private final Lock writeLock = readWriteLock.writeLock();
     
     private volatile boolean isClosed = false;
     
@@ -120,11 +123,19 @@ public class TableProviderFactoryImplementation implements TableProviderFactory,
 
     @Override
     public void close() throws Exception {
-        for (TableProviderImplementation tableProvider : tableProviders) {
-            tableProvider.close();
+        if (!isClosed) {
+            writeLock.lock();
+            try {
+                if (!isClosed) {
+                    for (TableProviderImplementation tableProvider : tableProviders) {
+                        tableProvider.close();
+                    }
+                    isClosed = true;
+                }
+            } finally {
+                writeLock.unlock();
+            }
         }
-        
-        isClosed = true;
     }
 
     private void isClosed() {

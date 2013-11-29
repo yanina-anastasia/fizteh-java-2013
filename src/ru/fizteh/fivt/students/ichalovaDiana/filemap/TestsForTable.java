@@ -12,9 +12,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.TableProvider;
-import ru.fizteh.fivt.storage.structured.TableProviderFactory;
-import ru.fizteh.fivt.storage.structured.Table;
 
 public class TestsForTable {
     
@@ -44,17 +41,57 @@ public class TestsForTable {
         value1.setColumnAt(2, 5);
     }
     
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getName() throws Exception {
         Assert.assertEquals("tableName", table.getName());
-        table.close();
-        table.close();
+    }
+    
+    @Test(expected = IllegalStateException.class)
+    public void tableProviderFactoryCloseAndCreate() throws Exception {
         tableProviderFactory.close();
-        
-        tableProvider = (TableProviderImplementation) tableProviderFactory.create("smth");
+        tableProviderFactory.create("smth");
+    }
+    
+    @Test
+    public void tableProviderFactoryDoubleClose() throws Exception {
+        tableProviderFactory.close();
+        tableProviderFactory.close();
+    }
+    
+    @Test(expected = IllegalStateException.class)
+    public void tableProviderFactoryCloseTableProviderGetTable() throws Exception {
+        tableProviderFactory.close();
+        tableProvider.getTable("tableName");
+    }
+    
+    @Test(expected = IllegalStateException.class)
+    public void tableProviderCloseTableProviderGetTable() throws Exception {
         tableProvider.close();
+        tableProvider.getTable("tableName");
+    }
+    
+    @Test
+    public void tableProviderDoubleClose() throws Exception {
+        tableProvider.close();
+        tableProvider.close();
+    }
+    
+    @Test(expected = IllegalStateException.class)
+    public void tableProviderCloseTableCommit() throws Exception {
+        tableProvider.close();
+        table.commit();
+    }
+    
+    @Test(expected = IllegalStateException.class)
+    public void tableCloseTableCommit() throws Exception {
         table.close();
-        tableProvider.close();
+        table.commit();
+    }
+    
+    @Test
+    public void tableDoubleClose() throws Exception {
+        table.close();
+        table.close();
     }
     
     @Test

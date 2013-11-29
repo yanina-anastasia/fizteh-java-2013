@@ -4,9 +4,7 @@ import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -41,7 +39,6 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         log.put("timestamp", System.currentTimeMillis());
         log.put("class", target.getClass().getName());
         log.put("method", method.getName());
-        
         
         JSONArray arguments = new JSONArray();
         

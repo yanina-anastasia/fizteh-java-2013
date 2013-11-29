@@ -384,11 +384,19 @@ public class TableProviderImplementation implements TableProvider, AutoCloseable
 
     @Override
     public void close() throws Exception {
-        for (String tableName : tables.keySet()) {
-            tables.get(tableName).close();
+        if (!isClosed) {
+            writeLock.lock();
+            try {
+                if (!isClosed) {
+                    for (String tableName : tables.keySet()) {
+                        tables.get(tableName).close();
+                    }
+                    isClosed = true;
+                }
+            } finally {
+                writeLock.unlock();
+            }
         }
-        
-        isClosed = true;
     }
     
     void reinitialize(String tableName) throws IOException {
