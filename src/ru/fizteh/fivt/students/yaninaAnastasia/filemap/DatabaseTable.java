@@ -62,25 +62,9 @@ public class DatabaseTable implements Table, AutoCloseable {
         this.provider = other.provider;
         this.oldData = other.oldData;
         isClosed = false;
-        modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
-            @Override
-            public HashMap<String, Storeable> initialValue() {
-                return new HashMap<String, Storeable>();
-            }
-        };
-        deletedKeys = new ThreadLocal<HashSet<String>>() {
-            @Override
-            public HashSet<String> initialValue() {
-                return new HashSet<String>();
-            }
-        };
-        uncommittedChanges = new ThreadLocal<Integer>() {
-            @Override
-            public Integer initialValue() {
-                return new Integer(0);
-            }
-        };
-        uncommittedChanges.set(0);
+        this.modifiedData = other.modifiedData;
+        this.deletedKeys = other.deletedKeys;
+        this.uncommittedChanges = other.uncommittedChanges;
     }
 
     public static int getDirectoryNum(String key) {
@@ -484,9 +468,5 @@ public class DatabaseTable implements Table, AutoCloseable {
         }
         rollback();
         isClosed = true;
-    }
-
-    public boolean isClose() {
-        return isClosed;
     }
 }

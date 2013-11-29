@@ -6,6 +6,8 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -54,10 +56,11 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             DatabaseTable table = tables.get(name);
             if (table.isClosed) {
                 table = new DatabaseTable(table);
-                tables.put(table.getName(), table);
+                tables.put(name, table);
             }
             /*if (tables.get(name) != null && tables.get(name).isClosed) {
-                if (!open()) {
+                if (!op
+                en()) {
                     throw new IllegalArgumentException("Wrong format");
                 }
             }  */
