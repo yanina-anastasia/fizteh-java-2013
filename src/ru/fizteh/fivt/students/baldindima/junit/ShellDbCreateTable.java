@@ -30,7 +30,10 @@ public class ShellDbCreateTable extends ShellIsItCommand {
         }
     	} catch (IOException e) {
     		System.out.println("wrong type (" + e.getMessage() +")");
+    	} catch (IllegalArgumentException e) {
+    		System.out.println ("wrong type (" + e.getMessage() +")");
     	}
+    	
     }
     public boolean isItCommand(final String[] commands) throws IOException{
 		if (commands[0].equals(name)){
