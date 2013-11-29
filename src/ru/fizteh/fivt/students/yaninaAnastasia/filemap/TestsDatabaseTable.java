@@ -455,7 +455,7 @@ public class TestsDatabaseTable {
         }
     }
 
-    @Test
+    /*@Test
     public void multiThreadPerfomanceTest() throws Exception {
         List<Future<Storeable>> futures = new ArrayList<>(10);
         for (int i = 0; i < 1000; i++) {
@@ -473,7 +473,7 @@ public class TestsDatabaseTable {
         for (int i = 0; i < 1000; i++) {
             Assert.assertNull(futures.get(i).get());
         }
-    }
+    } */
 
     @Test(expected = IllegalStateException.class)
     public void testClosePutGet() throws Exception {

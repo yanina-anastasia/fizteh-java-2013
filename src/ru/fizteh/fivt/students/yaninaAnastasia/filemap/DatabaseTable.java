@@ -422,8 +422,8 @@ public class DatabaseTable implements Table, AutoCloseable {
             }
         }
         for (final String key : deletedKeys.get()) {
+            transactionLock.readLock().lock();
             try {
-                transactionLock.readLock().lock();
                 if (oldData.containsKey(key)) {
                     result -= 1;
                 }
