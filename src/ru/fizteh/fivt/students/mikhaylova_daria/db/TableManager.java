@@ -29,7 +29,7 @@ import ru.fizteh.fivt.storage.structured.*;
 
 public class TableManager implements TableProvider, AutoCloseable {
     ConcurrentHashMap<String, TableData> bidDataBase = new ConcurrentHashMap<>();
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
     private File mainDir;
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock myWriteLock = readWriteLock.writeLock();

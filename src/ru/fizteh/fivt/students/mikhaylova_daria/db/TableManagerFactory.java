@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public class TableManagerFactory implements TableProviderFactory, AutoCloseable {
 
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
 
     private HashSet<TableManager> providers = new HashSet<TableManager>();
 

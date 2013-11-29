@@ -13,7 +13,7 @@ import ru.fizteh.fivt.storage.structured.*;
 public class TableData implements Table, AutoCloseable {
 
     File tableFile;
-    boolean isClosed = false;
+    volatile boolean isClosed = false;
     DirDataBase[] dirArray = new DirDataBase[16];
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
