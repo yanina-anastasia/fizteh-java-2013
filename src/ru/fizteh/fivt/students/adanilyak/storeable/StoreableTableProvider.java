@@ -35,7 +35,7 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("Directory is not set");
         }
         if (!atDirectory.exists()) {
-            if (!atDirectory.mkdir()) {
+            if (!atDirectory.mkdirs()) {
                 throw new IOException("storeable table factory create: table provider unavailable");
             }
         } else if (!atDirectory.isDirectory()) {
