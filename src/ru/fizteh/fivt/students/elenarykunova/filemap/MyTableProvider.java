@@ -399,7 +399,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public void close() throws Exception {
         for (MyTable table : tables.values()) {
-            table.close();
+            if (table != null) {
+                table.close();
+            }
         }
         isClosed = true;
     }
