@@ -526,7 +526,12 @@ public class MyTable implements Table, AutoCloseable {
         }
         rollback();
         tableIsClosed = true;
-        tableProvider.removeClosedTable(tableName);
+        writeLock.lock();
+        try {
+            tableProvider.removeClosedTable(tableName);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
 }
