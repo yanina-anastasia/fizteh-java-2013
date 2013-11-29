@@ -33,7 +33,7 @@ public class MultiFileHashTableProvider implements TableProvider, AutoCloseable 
         }
 
         try {
-            this.databaseDirectory = FileUtils.makeDir(databaseDirectory);
+            this.databaseDirectory = FileUtils.makeDirs(databaseDirectory);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("File: " + databaseDirectory + " not a directory");
         }

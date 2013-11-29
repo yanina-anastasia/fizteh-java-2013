@@ -19,7 +19,7 @@ public class HashDatabase implements MultiTableDatabase, TransactionDatabase {
 
         File databaseDir = new File(databaseDirectory);
         if (!databaseDir.exists()) {
-            //System.err.println("Database directory path not exist: try to create");
+            System.err.println("Database directory path not exist: try to create");
         }
         this.tableProvider = new MultiFileHashTableProvider(databaseDirectory);
         activeTable = null;
