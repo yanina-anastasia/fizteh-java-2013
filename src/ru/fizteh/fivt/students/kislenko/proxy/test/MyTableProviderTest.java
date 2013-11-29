@@ -81,6 +81,6 @@ public class MyTableProviderTest {
 
     @Test
     public void testProviderToString() throws Exception {
-        Assert.assertEquals(new File("./database").getCanonicalPath(), provider.toString());
+        Assert.assertEquals("MyTableProvider[database]", provider.toString());
     }
 }

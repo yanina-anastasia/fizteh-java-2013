@@ -5,7 +5,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -65,20 +64,13 @@ public class MyInvocationHandler implements InvocationHandler {
                 logArgument(writer.get(), result);
                 writer.get().writeEndElement();
             }
-        } catch (InvocationTargetException e) {
-            writer.get().writeStartElement("thrown");
-            logArgument(writer.get(), e.getTargetException());
-            writer.get().writeEndDocument();
-            writer.get().writeCharacters("\n");
-            writer.get().flush();
-            throw e.getTargetException();
         } catch (Exception e) {
             writer.get().writeStartElement("thrown");
-            logArgument(writer.get(), e);
+            logArgument(writer.get(), e.getCause());
             writer.get().writeEndDocument();
             writer.get().writeCharacters("\n");
             writer.get().flush();
-            throw e;
+            throw e.getCause();
         }
         writer.get().writeEndElement();
         invokeCounter.set(invokeCounter.get() - 1);
