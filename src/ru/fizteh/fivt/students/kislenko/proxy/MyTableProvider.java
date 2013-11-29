@@ -54,6 +54,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                     // YOU SHALL NOT PASS
                 }
             }
+            tables.put(name, returnTable);
             return returnTable;
         }
         lock.writeLock().lock();
