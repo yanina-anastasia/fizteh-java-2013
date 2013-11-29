@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.surakshina.filemap;
 import java.util.List;
 
 public class TestImplementation implements InterfaceTest {
+    public TestImplementation() {
+    }
 
     @Override
     public String getStringFromIterable(List<?> list) {
