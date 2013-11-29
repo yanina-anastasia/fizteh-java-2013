@@ -45,7 +45,7 @@ public class FileMap implements Table, AutoCloseable {
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent) throws Exception {
         this.nameTable = nameTable;
-        this.pathDb = pathDb;
+        this.pathDb = pathDb.resolve(nameTable);
         this.parent = parent;
         this.mySystem = new CommandShell(pathDb.toString(), false, false);
 
@@ -112,7 +112,7 @@ public class FileMap implements Table, AutoCloseable {
 
     public FileMap(Path pathDb, String nameTable, FileMapProvider parent, List<Class<?>> columnType) throws Exception {
         this.nameTable = nameTable;
-        this.pathDb = pathDb;
+        this.pathDb = pathDb.resolve(nameTable);
         this.parent = parent;
         this.columnType = columnType;
         this.mySystem = new CommandShell(pathDb.toString(), false, false);

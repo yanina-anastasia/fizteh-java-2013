@@ -71,13 +71,11 @@ public class FileMapLogging implements InvocationHandler {
             return creatingArray;
         }
 
-
         JSONArray getJSONArray() {
             JSONArray creatingArray = new JSONArray();
             return recursiveLog(argument, creatingArray);
         }
     }
-
 
     FileMapLogging(Object implementation, Writer writer) {
         this.proxied = implementation;
@@ -139,6 +137,4 @@ public class FileMapLogging implements InvocationHandler {
         }
         return returnedValue;
     }
-
-
 }
