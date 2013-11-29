@@ -45,8 +45,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         if (tables.containsKey(name) && tables.get(name).isClosed()) {
             try {
+                ArrayList<Class<?>> tempList = tables.get(name).getTypes();
                 removeTable(name);
-                return createTable(name, tables.get(name).getTypes());
+                return createTable(name, tempList);
             } catch (IOException e) {
                 //ignored
             }
