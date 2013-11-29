@@ -42,12 +42,13 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException(atDirectory.getName() + ": not a directory");
         }
         allTablesDirectory = atDirectory;
-        status = WorkStatus.NOT_INITIALIZED;
+        status = WorkStatus.WORKING;
+        //status = WorkStatus.NOT_INITIALIZED;
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new StoreableTable(tableFile, this);
             allTablesMap.put(tableFile.getName(), table);
         }
-        status = WorkStatus.WORKING;
+        //status = WorkStatus.WORKING;
     }
 
     @Override
