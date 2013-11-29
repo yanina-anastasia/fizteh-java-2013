@@ -209,7 +209,7 @@ public class ProxyAllDataBaseMethodsUnitTest {
     }
 
     @Test
-    public void commitProxyTest() throws IOException{
+    public void commitProxyTest() throws IOException {
         testProxy = testProxyLoggingFactory.wrap(writer, testTable, Table.class);
         ((Table) testProxy).commit();
         Assert.assertEquals("<invoke class=\"ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable\" "
@@ -329,7 +329,8 @@ public class ProxyAllDataBaseMethodsUnitTest {
         tempListWithValues.add("Hello World!");
         ((TableProvider) testProxy).createFor(testTable, tempListWithValues);
         Assert.assertEquals("<invoke class=\"ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider\" "
-                + "name=\"createFor\"><arguments><argument>StoreableTable[" + sandBoxDirectory + "/testTable]</argument>"
+                + "name=\"createFor\"><arguments><argument>StoreableTable[" + sandBoxDirectory
+                + "/testTable]</argument>"
                 + "<argument><list><value>1</value><value>true</value><value>Hello World!</value></list></argument>"
                 + "</arguments><return>StoreableRow[1,true,Hello World!]</return></invoke>",
                 StringCreationTools.cutTimeStamp(writer.toString()));

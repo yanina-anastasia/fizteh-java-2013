@@ -392,9 +392,9 @@ public class StoreableTableUnitTest {
 
     @Test
     public void toStringTest() {
-        Assert.assertEquals("StoreableTable["+ sandBoxDirectory.getAbsolutePath() + "/testTable20]",
+        Assert.assertEquals("StoreableTable[" + sandBoxDirectory.getAbsolutePath() + "/testTable20]",
                 testTableEng.toString());
-        Assert.assertEquals("StoreableTable["+ sandBoxDirectory.getAbsolutePath() + "/тестоваяТаблица21]",
+        Assert.assertEquals("StoreableTable[" + sandBoxDirectory.getAbsolutePath() + "/тестоваяТаблица21]",
                 testTableRus.toString());
     }
 }
