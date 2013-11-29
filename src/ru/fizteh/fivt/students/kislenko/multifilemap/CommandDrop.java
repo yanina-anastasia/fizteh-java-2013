@@ -4,7 +4,6 @@ import ru.fizteh.fivt.students.kislenko.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 public class CommandDrop implements Command<MultiFileHashMapState> {
     public String getName() {

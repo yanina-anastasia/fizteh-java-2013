@@ -15,6 +15,8 @@
 7. [XML, JSON](http://yadi.sk/d/4GIQOjFHBGDnz)
 8. [Многопоточность](http://yadi.sk/d/NZgImdpzByxnP)
 9. [Многопоточность](http://yadi.sk/d/jIKk9vuVByxnq)
+10. [Многопоточность](http://yadi.sk/d/0tP_TrerCoKuL)
+11. [Работа с сетью. Сборщик мусора](http://yadi.sk/d/sNektz_-DCQUa)
 
 ## Семинары
 В папке [tasks](tasks) находятся описания заданий на

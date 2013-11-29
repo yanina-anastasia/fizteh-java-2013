@@ -1,29 +1,30 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
 
 public class ShellDbGet extends SimpleShellCommand {
-    private DataBaseTable dataBase;
+    private Context context;
 
-    public ShellDbGet(final DataBaseTable newBase) {
+    public ShellDbGet(final Context newContext) {
+        context = newContext;
         setName("get");
         setNumberOfArgs(2);
         setHint("usage: get <key>");
-        dataBase = newBase;
     }
 
     @Override
     public void run() {
-        if (!dataBase.exist()) {
+        if (context.table == null) {
             System.out.println("no table");
             return;
         }
-        String str = dataBase.get(getArg(1));
-        if (str.isEmpty()) {
+        Storeable storeable = context.table.get(getArg(1));
+        if (storeable == null) {
             System.out.println("not found");
         } else {
             System.out.println("found");
-            System.out.println(str);
+            System.out.println(context.provider.serialize(context.table, storeable));
         }
     }
 }

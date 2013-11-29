@@ -1,31 +1,37 @@
 package ru.fizteh.fivt.students.valentinbarishev.filemap;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.valentinbarishev.shell.CommandString;
 import ru.fizteh.fivt.students.valentinbarishev.shell.InvalidCommandException;
 import ru.fizteh.fivt.students.valentinbarishev.shell.SimpleShellCommand;
+import java.text.ParseException;
 
 public final class ShellDbPut  extends SimpleShellCommand {
-    private DataBaseTable dataBase;
+    private Context context;
 
-    public ShellDbPut(final DataBaseTable newDataBase) {
+    public ShellDbPut(final Context newContext) {
+        context = newContext;
         setName("put");
         setNumberOfArgs(3);
         setHint("usage: put <key> <value>");
-        dataBase = newDataBase;
     }
 
     @Override
     public void run() {
-        if (!dataBase.exist()) {
+        if (context.table == null) {
             System.out.println("no table");
             return;
         }
-        String str = dataBase.put(getArg(1), getSpacedArg(2));
-        if (str.isEmpty()) {
-            System.out.println("new");
-        } else {
-            System.out.println("overwrite");
-            System.out.println(str);
+        try {
+            Storeable storeable = ((DataBase) context.table).putStoreable(getArg(1), getSpacedArg(2));
+            if (storeable == null) {
+                System.out.println("new");
+            } else {
+                System.out.println("overwrite");
+                System.out.println(context.provider.serialize(context.table, storeable));
+            }
+        } catch (ParseException e) {
+            System.out.println("wrong type (" + e.getMessage() + ")");
         }
     }
 

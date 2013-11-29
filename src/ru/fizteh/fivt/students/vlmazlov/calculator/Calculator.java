@@ -1,11 +1,8 @@
 package ru.fizteh.fivt.students.vlmazlov.calculator;
-import java.util.Vector;
-import java.util.Scanner;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import java.lang.StringBuilder;
 
 public class Calculator {
 

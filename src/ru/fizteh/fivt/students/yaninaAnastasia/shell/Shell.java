@@ -71,19 +71,21 @@ public class Shell {
             return false;
         }
         boolean flag = false;
-        if (cmds.get(commandName).getCmd() == "put") {
+        boolean flagCreate = false;
+        if ((cmds.get(commandName).getCmd().equals("put")) || (cmds.get(commandName).getCmd().equals("create"))) {
             flag = true;
         }
         String[] params = getParams(command, flag);
         try {
+            if (cmds.get(commandName).getCmd().equals("exit")) {
+                System.exit(0);
+            }
             if (!cmds.get(commandName).exec(params, curState)) {
                 return false;
             }
-            if (cmds.get(commandName).getCmd() == "exit") {
-                System.exit(0);
-            }
+
         } catch (IllegalArgumentException e) {
-            System.err.println("Error: illegal arguments");
+            System.err.println(e.getMessage());
             return false;
         } catch (IOException e) {
             e.printStackTrace();
@@ -95,25 +97,31 @@ public class Shell {
 
     public void interActive() {
         Scanner scan = new Scanner(System.in);
-        System.out.print("$ ");
+        System.out.print(" $ ");
         try {
             while (scan.hasNextLine()) {
                 String input = scan.nextLine();
                 String[] commandArray = input.split(";");
                 for (final String command : commandArray) {
-                    if (!processCommand(command)) {
-                        System.getProperty("line.separator");
+                    try {
+                        processCommand(command);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
                     }
                 }
-                System.out.print("$ ");
+                System.out.print(" $ ");
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage() + e.getCause());
+            e.printStackTrace();
             String[] ar = {};
             try {
                 cmds.get("exit").exec(ar, curState);
                 System.exit(0);
             } catch (IOException r) {
                 System.exit(1);
+            } catch (IllegalArgumentException f) {
+                System.err.println(f.getMessage());
             }
             System.exit(1);
         }
@@ -149,3 +157,4 @@ public class Shell {
         }
     }
 }
+

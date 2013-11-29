@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 public class MultiDBState extends DBState {
-    Database myDatabase = new Database();
+    public DatabaseTableProvider database;
     String curTableName = "";
 
     public MultiDBState() {
@@ -11,8 +11,8 @@ public class MultiDBState extends DBState {
     public String getProperty(MultiDBState myState) {
         String path = System.getProperty("fizteh.db.dir");
         if (path == null) {
-            MultiFileMapUtils saver = new MultiFileMapUtils();
-            if (!saver.save(myState)) {
+            TableBuilder tableBuilder = new TableBuilder(myState.table.provider, myState.table);
+            if (!table.save(tableBuilder)) {
                 System.err.println("Previous file was not saved");
             }
             System.err.println("Error with getting property");
@@ -21,3 +21,4 @@ public class MultiDBState extends DBState {
         return path;
     }
 }
+

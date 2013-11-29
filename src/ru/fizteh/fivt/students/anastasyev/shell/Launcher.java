@@ -2,21 +2,21 @@ package ru.fizteh.fivt.students.anastasyev.shell;
 
 import ru.fizteh.fivt.students.anastasyev.filemap.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.Vector;
 
 public class Launcher {
-    private Vector<Command> allCommands;
+    private ArrayList<Command> allCommands;
     private State state;
 
-    private void trySaveState() {
+    /*private void beforeStop() {
         try {
-            state.save();
+            state.stopping();
         } catch (IOException e1) {
             System.err.println(e1.getMessage());
         }
-    }
+    }*/
 
     private boolean launch(final String arg) throws IOException {
         if (arg.equals("")) {
@@ -26,8 +26,8 @@ public class Launcher {
         boolean result = false;
         int i = 0;
         for (; i < allCommands.size(); ++i) {
-            if (allCommands.elementAt(i).commandName().equals(commands[0])) {
-                result = allCommands.elementAt(i).exec(state, commands);
+            if (allCommands.get(i).commandName().equals(commands[0])) {
+                result = allCommands.get(i).exec(state, commands);
                 break;
             }
         }
@@ -54,7 +54,7 @@ public class Launcher {
                     }
                 }
             } catch (NoSuchElementException e) {
-                trySaveState();
+                //beforeStop();
                 System.exit(1);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -94,7 +94,7 @@ public class Launcher {
         } catch (ExitException e) {
             exitCode = 1;
         } finally {
-            trySaveState();
+            //beforeStop();
             System.exit(exitCode);
         }
     }

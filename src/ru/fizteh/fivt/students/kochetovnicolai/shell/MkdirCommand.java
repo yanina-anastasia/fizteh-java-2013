@@ -2,22 +2,13 @@ package ru.fizteh.fivt.students.kochetovnicolai.shell;
 
 import java.io.File;
 
-public class MkdirCommand implements Executable {
+public class MkdirCommand extends Executable {
 
     private FileManager manager;
 
     public MkdirCommand(FileManager fileManager) {
+        super("mkdir", 2);
         manager = fileManager;
-    }
-
-    @Override
-    public String name() {
-        return "mkdir";
-    }
-
-    @Override
-    public int argumentsNumber() {
-        return 2;
     }
 
     @Override

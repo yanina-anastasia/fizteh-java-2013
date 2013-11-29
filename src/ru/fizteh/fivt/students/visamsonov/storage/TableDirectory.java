@@ -1,19 +1,21 @@
 package ru.fizteh.fivt.students.visamsonov.storage;
 
 import ru.fizteh.fivt.storage.strings.TableProvider;
-import ru.fizteh.fivt.storage.strings.Table;
+import java.util.HashMap;
 import java.io.*;
 
-public class TableDirectory implements TableProvider {
+public class TableDirectory implements TableProviderInterface {
 
 	private final String dbDirectory;
+	private final HashMap<String, MultiFileStorage> tables = new HashMap<String, MultiFileStorage>();
+	private static final String VALID_TABLENAME_REGEXP = "[A-Za-zА-Яа-я0-9\\._-]+";
 
 	public TableDirectory (String dbDirectory) {
 		this.dbDirectory = dbDirectory;
 	}
 
-	public Table getTable (String name) {
-		if (name == null) {
+	public TableInterface getTable (String name) {
+		if (name == null || !name.matches(VALID_TABLENAME_REGEXP)) {
 			throw new IllegalArgumentException();
 		}
 		File table = new File(dbDirectory, name);
@@ -21,27 +23,34 @@ public class TableDirectory implements TableProvider {
 			return null;
 		}
 		try {
-			return new MultiFileStorage(table.getAbsolutePath(), name);
+			MultiFileStorage savedTable = tables.get(name);
+			if (savedTable == null) {
+				savedTable = new MultiFileStorage(table.getCanonicalPath(), name);
+				tables.put(name, savedTable);
+			}
+			return savedTable;
 		}
 		catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 
-	public Table createTable (String name) {
-		if (name == null) {
+	public TableInterface createTable (String name) {
+		if (name == null || !name.matches(VALID_TABLENAME_REGEXP)) {
 			throw new IllegalArgumentException();
+		}
+		if (tables.get(name) != null) {
+			return null;
 		}
 		File table = new File(dbDirectory, name);
-		if (table.isDirectory()) {
-			throw new IllegalArgumentException(name + " exists");
-		}
-		if (!table.mkdir()) {
+		if (table.isFile()) {
 			throw new IllegalArgumentException();
 		}
-		String tablePath = table.getAbsolutePath();
 		try {
-			return new MultiFileStorage(table.getAbsolutePath(), name);
+			table.mkdir();
+			MultiFileStorage savedTable = new MultiFileStorage(table.getCanonicalPath(), name);
+			tables.put(name, savedTable);
+			return savedTable;
 		}
 		catch (IOException e) {
 			throw new IllegalArgumentException(e);
@@ -69,7 +78,7 @@ public class TableDirectory implements TableProvider {
 	}
 
 	public void removeTable (String name) {
-		if (name == null) {
+		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
 		File table = new File(dbDirectory, name);
@@ -79,5 +88,6 @@ public class TableDirectory implements TableProvider {
 		if (!delete(dbDirectory, name)) {
 			throw new IllegalArgumentException();
 		}
+		tables.remove(name);
 	}
 };

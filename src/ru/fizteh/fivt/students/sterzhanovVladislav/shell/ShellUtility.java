@@ -37,6 +37,9 @@ public class ShellUtility {
     }
     
     public static void removeDir(Path path) throws IOException {
+        if (!path.toFile().exists() || !path.toFile().isDirectory()) {
+            throw new IllegalStateException(path.toFile().getName() + " not exists");
+        }
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)

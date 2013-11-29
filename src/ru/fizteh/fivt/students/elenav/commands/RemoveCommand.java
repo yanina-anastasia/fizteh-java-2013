@@ -1,30 +1,28 @@
 package ru.fizteh.fivt.students.elenav.commands;
 
-import java.io.PrintStream;
+import java.io.IOException;
 
-import ru.fizteh.fivt.students.elenav.filemap.FileMapState;
-import ru.fizteh.fivt.students.elenav.states.MonoMultiAbstractState;
+import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 
 public class RemoveCommand extends AbstractCommand {
 
-	public RemoveCommand(MonoMultiAbstractState s) {
-		super(s, "remove", 1);
-	}
+    public RemoveCommand(FilesystemState s) {
+        super(s, "remove", 1);
+    }
 
-	public void execute(String[] args, PrintStream s) {
-		MonoMultiAbstractState currentState = (MonoMultiAbstractState) getState();
-		FileMapState fileMap = currentState.getWorkingTable();
-		if (fileMap == null) {
-			getState().getStream().println("no table");
-		} else {
-			if (fileMap.map.containsKey(args[1])) {
-				fileMap.map.remove(args[1]);
-				getState().getStream().println("removed");
-			} else {
-				getState().getStream().println("not found");
-			}
-		
-		}
-	}
-	
+    public void execute(String[] args) throws IOException {
+        FilesystemState table = getState();
+        String key = args[1];
+        if (table.getWorkingDirectory() == null) {
+            getState().getStream().println("no table");
+        } else {
+            if (table.getValue(key) != null) {
+                getState().getStream().println("removed");
+                getState().getStream().println(table.removeKey(key));
+            } else {
+                getState().getStream().println("not found");
+            }
+        }
+    }
+    
 }
