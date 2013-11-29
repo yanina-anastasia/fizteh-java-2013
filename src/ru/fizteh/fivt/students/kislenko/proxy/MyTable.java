@@ -97,6 +97,8 @@ public class MyTable implements Table, AutoCloseable {
         changes.set(new HashMap<String, Storeable>());
         fuckingDiff = new ThreadLocal<HashMap<String, Storeable>>();
         fuckingDiff.set(new HashMap<String, Storeable>());
+        threadRevision = new ThreadLocal<Integer>();
+        threadRevision.set(revision);
     }
 
     @Override
