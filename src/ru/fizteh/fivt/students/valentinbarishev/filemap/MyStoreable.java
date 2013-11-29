@@ -18,6 +18,7 @@ public class MyStoreable implements Storeable, AutoCloseable {
         if (newValues == null) {
             throw new IndexOutOfBoundsException("list of values cannot be null");
         }
+
         if (newValues.size() != table.getColumnsCount()) {
             throw new IndexOutOfBoundsException("invalid number of values");
         }
@@ -34,6 +35,9 @@ public class MyStoreable implements Storeable, AutoCloseable {
     }
 
     public MyStoreable(Table table) {
+        if (table == null) {
+            throw new IllegalArgumentException("null table!");
+        }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(table.getColumnType(i));
             values.add(null);

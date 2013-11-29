@@ -43,7 +43,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
     }
 
     @Override
-    public void close() throws Exception{
+    public void close() throws Exception {
         if (state.isClosed()) {
             return;
         }

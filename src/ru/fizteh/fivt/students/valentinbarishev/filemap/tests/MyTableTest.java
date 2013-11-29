@@ -7,7 +7,9 @@ import ru.fizteh.fivt.students.valentinbarishev.filemap.MyTableProviderFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyTableTest {
     static Table table;
@@ -213,4 +215,5 @@ public class MyTableTest {
         ((AutoCloseable) table).close();
         table.commit();
     }
+
 }
