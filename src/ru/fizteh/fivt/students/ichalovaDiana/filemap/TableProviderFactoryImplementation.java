@@ -31,7 +31,7 @@ public class TableProviderFactoryImplementation implements TableProviderFactory,
         Path dbDir = Paths.get(dir);
         
         if (!Files.exists(dbDir)) {
-            Files.createDirectory(dbDir);
+            Files.createDirectories(dbDir);
         }
         
         if (!Files.isDirectory(dbDir)) {
