@@ -90,8 +90,7 @@ public final class DataBaseTable implements TableProvider, AutoCloseable {
                 }
             } else {
                 tableInUse.get(tableName).drop();
-                tableInUse.get(tableName).close();
-                tableInUse.remove(tableName);
+                tableInUse.remove(tableName).close();
             }
             if (!file.delete()) {
                 throw new DataBaseException("Cannot delete a file " + tableName);
@@ -111,6 +110,17 @@ public final class DataBaseTable implements TableProvider, AutoCloseable {
         if ((!file.exists()) || (file.isFile())) {
             return null;
         }
+
+        writeLock.lock();
+        try {
+            if (tableInUse.containsKey(tableName) && tableInUse.get(tableName).state.isClosed()) {
+                tableInUse.remove(tableName);
+                return null;
+            }
+        } finally {
+            writeLock.unlock();
+        }
+
 
         readLock.lock();
         try {

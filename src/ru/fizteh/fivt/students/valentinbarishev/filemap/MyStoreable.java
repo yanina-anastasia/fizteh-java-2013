@@ -15,6 +15,10 @@ public class MyStoreable implements Storeable, AutoCloseable {
     ClassState state = new ClassState(this);
 
     public MyStoreable(Table table, List<?> newValues) {
+        if (table == null) {
+            throw new IllegalArgumentException("Null table!");
+        }
+
         if (newValues == null) {
             throw new IndexOutOfBoundsException("list of values cannot be null");
         }
@@ -36,7 +40,7 @@ public class MyStoreable implements Storeable, AutoCloseable {
 
     public MyStoreable(Table table) {
         if (table == null) {
-            throw new IllegalArgumentException("null table!");
+            throw new IllegalArgumentException("Null table!");
         }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(table.getColumnType(i));
