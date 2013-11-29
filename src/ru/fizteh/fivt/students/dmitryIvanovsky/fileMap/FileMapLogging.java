@@ -114,6 +114,7 @@ public class FileMapLogging implements InvocationHandler {
                 try {
                     writer.write(record.toString());
                     writer.write("\n");
+                    writer.flush();
                 } catch (IOException e) {
                     //pass
                 } finally {
@@ -124,6 +125,7 @@ public class FileMapLogging implements InvocationHandler {
             writeLock.lock();
             try {
                 writer.write("");
+                writer.flush();
             } catch (IOException e) {
                 //pass
             } finally {

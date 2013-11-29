@@ -3,6 +3,8 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandLauncher.Code;
 
@@ -11,6 +13,20 @@ public class DbMain {
     public static void main(String[] args) throws IOException {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
+
+//        FileMapLoggingFactory f = new FileMapLoggingFactory();
+//
+//        Writer a = new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"));
+//        //Writer a = new OutputStreamWriter(new FileOutputStream("/home/deamoon/Videos/4.txt"));
+//        //Writer w = new PrintWriter();
+//        //a.write("!23");
+//        //a.flush();
+//
+//        FileMapProviderFactory factory = new FileMapProviderFactory();
+//        TableProviderFactory b = (TableProviderFactory) f.wrap(a, factory, TableProviderFactory.class);
+//        b.create("table");
+//        a.flush();
+//        System.exit(1);
 
         try {
             String path = System.getProperty("fizteh.db.dir");
