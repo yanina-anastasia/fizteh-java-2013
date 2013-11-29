@@ -10,9 +10,6 @@ import java.util.List;
 public class MyStoreable implements Storeable {
 
     public MyStoreable(Table table, List<?> args) throws IndexOutOfBoundsException, ColumnFormatException {
-        /*if (table == null) {
-            throw new ColumnFormatException("storeable init: no table");
-        }   */
         columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
@@ -34,9 +31,6 @@ public class MyStoreable implements Storeable {
     }
 
     public MyStoreable(Table table) {
-        /*if (table == null) {
-            throw new ColumnFormatException("storeable init: no table");
-        }   */
         column = new ArrayList<>();
         columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {

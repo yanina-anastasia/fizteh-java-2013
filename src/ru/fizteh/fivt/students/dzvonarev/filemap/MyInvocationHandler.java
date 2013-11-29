@@ -142,7 +142,6 @@ public class MyInvocationHandler implements InvocationHandler {
             xmlWriter.writeEndElement();    // end of "value"
         }
         xmlWriter.writeEndElement();        // end of "list"
-        //identityMap.remove(arg);
     }
 
 }
