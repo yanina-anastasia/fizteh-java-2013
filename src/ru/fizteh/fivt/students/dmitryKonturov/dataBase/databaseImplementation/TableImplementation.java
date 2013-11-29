@@ -159,16 +159,17 @@ public class TableImplementation implements Table {
             throw new IllegalArgumentException("Empty key");
         }
         checkTableState();
-        readLock.lock();
-        try {
-            if (currentChangesMap.get().containsKey(key)) {
-                return currentChangesMap.get().get(key);
-            } else {
+        if (currentChangesMap.get().containsKey(key)) {
+            return currentChangesMap.get().get(key);
+        } else {
+            readLock.lock();
+            try {
                 return savedMap.get(key);
+            } finally {
+                readLock.unlock();
             }
-        } finally {
-            readLock.unlock();
         }
+
     }
 
     @Override
@@ -183,11 +184,6 @@ public class TableImplementation implements Table {
         Storeable toReturn = get(key);
         readLock.lock();
         try {
-            /*if (isTableStoreableEqual(value, savedMap.get(key))) {  // savedValue not changes
-                currentChangesMap.get().remove(key);
-            } else {
-                currentChangesMap.get().put(key, value);
-            }*/
             currentChangesMap.get().put(key, value);
             return toReturn;
         } finally {
@@ -201,9 +197,9 @@ public class TableImplementation implements Table {
             throw new IllegalArgumentException("Empty key");
         }
         checkTableState();
+        Storeable toReturn = get(key);
         readLock.lock();
         try {
-            Storeable toReturn = get(key);
             currentChangesMap.get().put(key, null);
             return toReturn;
         } finally {
