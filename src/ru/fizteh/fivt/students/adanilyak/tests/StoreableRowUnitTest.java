@@ -220,4 +220,15 @@ public class StoreableRowUnitTest {
     public void getStringAtTest() {
         Assert.assertEquals(null, testStoreable.getStringAt(6));
     }
+
+    /**
+     * TEST BLOCK
+     * TO STRING TESTS
+     */
+
+    @Test
+    public void toStringTest() {
+        Assert.assertEquals("StoreableRow[0,3000000000,0,0.123,1.7976931348623157E308,true,]",
+                testStoreable.toString());
+    }
 }

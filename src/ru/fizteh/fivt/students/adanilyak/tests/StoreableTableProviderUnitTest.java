@@ -7,6 +7,7 @@ import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
 import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
@@ -27,6 +28,9 @@ import java.util.List;
 public class StoreableTableProviderUnitTest {
     StoreableTableProvider testProvider;
     File sandBoxDirectory = new File("/Users/Alexander/Documents/JavaDataBase/Tests");
+    List<Class<?>> typesTestListOne;
+    List<Class<?>> typesTestListTwo;
+    List<Class<?>> typesTestListThree;
 
     @Before
     public void setUpTestObject() throws IOException {
@@ -45,9 +49,8 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void createTableTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int double boolean String");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
 
         Assert.assertNotNull(testProvider.createTable("testTable1", typesTestListOne));
         Assert.assertNull(testProvider.createTable("testTable1", typesTestListOne));
@@ -61,7 +64,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void createNullTableNotNullListTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         testProvider.createTable(null, typesTestListOne);
     }
 
@@ -77,20 +80,19 @@ public class StoreableTableProviderUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void createEmptyTableTest() throws IOException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int double boolean String");
+        typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
         testProvider.createTable("", typesTestListTwo);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createNlTableTest() throws IOException {
-        List<Class<?>> typesTestListThree = WorkWithStoreableDataBase.createListOfTypesFromString("String boolean");
+        typesTestListThree = WorkWithStoreableDataBase.createListOfTypesFromString("String boolean");
         testProvider.createTable("    ", typesTestListThree);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createBadNameTableTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         testProvider.createTable("not_normal-name@for$table^!", typesTestListOne);
     }
 
@@ -104,9 +106,8 @@ public class StoreableTableProviderUnitTest {
         Assert.assertNull(testProvider.getTable("testNonExictingTable3"));
         Assert.assertNull(testProvider.getTable("тестоваяНесуществующаяТаблица4"));
 
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int double boolean String");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
 
         testProvider.createTable("testTable5", typesTestListOne);
         Assert.assertNotNull(testProvider.getTable("testTable5"));
@@ -145,9 +146,8 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void removeTableTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int double boolean String");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
 
         testProvider.createTable("testTable7", typesTestListOne);
         testProvider.createTable("тестоваяТаблица8", typesTestListTwo);
@@ -191,24 +191,21 @@ public class StoreableTableProviderUnitTest {
 
     @Test(expected = ParseException.class)
     public void deserializeNullStringTest() throws IOException, ParseException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable10", typesTestListOne);
         testProvider.deserialize(testTable, null);
     }
 
     @Test(expected = ParseException.class)
     public void deserializeEmptyStringTest() throws IOException, ParseException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int double boolean String");
+        typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
         Table testTable = testProvider.createTable("testTable11", typesTestListTwo);
         testProvider.deserialize(testTable, "");
     }
 
     @Test
     public void deserializeStringJSON1Test() throws IOException, ParseException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable12", typesTestListOne);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
@@ -221,8 +218,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void deserializeStringWithNullFieldJSON2Test() throws IOException, ParseException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
-                createListOfTypesFromString("int double boolean String");
+        typesTestListTwo = WorkWithStoreableDataBase.createListOfTypesFromString("int double boolean String");
         Table testTable = testProvider.createTable("testTable13", typesTestListTwo);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
@@ -241,14 +237,14 @@ public class StoreableTableProviderUnitTest {
 
     @Test(expected = ColumnFormatException.class)
     public void serializeNullStorableTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable14", typesTestListOne);
         testProvider.serialize(testTable, null);
     }
 
     @Test
     public void serializeEmptyStorableTest() throws IOException {
-        List<Class<?>> typesTestListTwo = WorkWithStoreableDataBase.
+        typesTestListTwo = WorkWithStoreableDataBase.
                 createListOfTypesFromString("int double boolean String");
         Table testTable = testProvider.createTable("testTable15", typesTestListTwo);
         Storeable testStorable = testProvider.createFor(testTable);
@@ -258,7 +254,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void serializeMixedStorableTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable16", typesTestListOne);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
@@ -275,7 +271,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void createForWithOneParameterTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable17", typesTestListOne);
         Storeable testStoreable;
         Assert.assertNotNull(testStoreable = testProvider.createFor(testTable));
@@ -289,7 +285,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void createForWithTwoParametersTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable18", typesTestListOne);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
@@ -306,7 +302,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void createForWithTwoParametersBadObjectsListTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable19", typesTestListOne);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
@@ -316,12 +312,132 @@ public class StoreableTableProviderUnitTest {
 
     @Test(expected = ColumnFormatException.class)
     public void createForWithTwoParametersBadColumnTypesTest() throws IOException {
-        List<Class<?>> typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
         Table testTable = testProvider.createTable("testTable19", typesTestListOne);
         List<Object> valuesToMakeStoreable = new ArrayList<>();
         valuesToMakeStoreable.add(1);
         valuesToMakeStoreable.add(null);
         valuesToMakeStoreable.add(2.043);
         testProvider.createFor(testTable, valuesToMakeStoreable);
+    }
+
+    /**
+     * TEST BLOCK
+     * CLOSE TESTS
+     */
+
+    @Test(expected = IllegalStateException.class)
+    public void toStringAfterCloseTest() {
+        testProvider.close();
+        testProvider.toString();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void getNonExistingTableAfterCloseTest() {
+        testProvider.close();
+        testProvider.getTable("notExistingTable");
+    }
+
+    @Test
+    public void openTableUsingGetAfterClosedTable() throws IOException {
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        StoreableTable testTable = (StoreableTable) testProvider.createTable("testTable1", typesTestListOne);
+        testTable.close();
+        StoreableTable testTableNewReference;
+        Assert.assertNotNull(testTableNewReference = (StoreableTable) testProvider.getTable("testTable1"));
+        Assert.assertEquals("testTable1", testTableNewReference.getName());
+        Assert.assertNotEquals(testTable, testTableNewReference);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void createTableAfterCloseTest() throws IOException {
+        testProvider.close();
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        testProvider.createTable("newExistingTable", typesTestListOne);
+    }
+
+    @Test
+    public void openTableUsingCreateAfterCloseTest() throws IOException {
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        StoreableTable testTable = (StoreableTable) testProvider.createTable("testTable1", typesTestListOne);
+        testTable.close();
+        StoreableTable testTableNewReference;
+        Assert.assertNotNull(testTableNewReference =
+                (StoreableTable) testProvider.createTable("testTable1", typesTestListOne));
+        Assert.assertEquals("testTable1", testTableNewReference.getName());
+        Assert.assertNotEquals(testTable, testTableNewReference);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void removeTableAfterCloseTest() throws IOException {
+        testProvider.close();
+        testProvider.removeTable("testTable1");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void deserializeTableAfterCloseTest() throws ParseException, IOException {
+        testProvider.close();
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        Table testTable = testProvider.createTable("testTable12", typesTestListOne);
+        List<Object> valuesToMakeStoreable = new ArrayList<>();
+        valuesToMakeStoreable.add(1);
+        valuesToMakeStoreable.add(2);
+        valuesToMakeStoreable.add(3);
+        Storeable testStoreable = testProvider.createFor(testTable, valuesToMakeStoreable);
+        Assert.assertTrue(CountingTools.equals(testTable,
+                testProvider.deserialize(testTable, "[1, 2, 3]"), testStoreable));
+    }
+
+
+    @Test(expected = IllegalStateException.class)
+    public void serializeTableAfterCloseTest() throws ParseException, IOException {
+        testProvider.close();
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        Table testTable = testProvider.createTable("testTable16", typesTestListOne);
+        List<Object> valuesToMakeStoreable = new ArrayList<>();
+        valuesToMakeStoreable.add(1);
+        valuesToMakeStoreable.add(null);
+        valuesToMakeStoreable.add(3);
+        Storeable testStorable = testProvider.createFor(testTable, valuesToMakeStoreable);
+        Assert.assertTrue((testProvider.serialize(testTable, testStorable)).equals("[1,null,3]"));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void createForTableAfterCloseTest1() throws ParseException, IOException {
+        testProvider.close();
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        Table testTable = testProvider.createTable("testTable17", typesTestListOne);
+        Storeable testStoreable;
+        Assert.assertNotNull(testStoreable = testProvider.createFor(testTable));
+        Assert.assertNull(testStoreable.getColumnAt(1));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void createForTableAfterCloseTest2() throws IOException {
+        testProvider.close();
+        typesTestListOne = WorkWithStoreableDataBase.createListOfTypesFromString("int int int");
+        Table testTable = testProvider.createTable("testTable18", typesTestListOne);
+        List<Object> valuesToMakeStoreable = new ArrayList<>();
+        valuesToMakeStoreable.add(1);
+        valuesToMakeStoreable.add(null);
+        valuesToMakeStoreable.add(3);
+        Storeable testStoreable;
+        Assert.assertNotNull(testStoreable = testProvider.createFor(testTable, valuesToMakeStoreable));
+        List<Class<?>> columnTypes = new ArrayList<>();
+        for (int i = 0; i < testTable.getColumnsCount(); i++) {
+            columnTypes.add(testTable.getColumnType(i));
+        }
+        Assert.assertTrue(CheckOnCorrect.goodStoreable(testStoreable, columnTypes));
+    }
+
+    /**
+     * TEST BLOCK
+     * TO STRING TESTS
+     */
+
+    @Test
+    public void toStringTest() {
+        Assert.assertEquals("StoreableTableProvider[/Users/Alexander/Documents/JavaDataBase/Tests]",
+                testProvider.toString());
     }
 }

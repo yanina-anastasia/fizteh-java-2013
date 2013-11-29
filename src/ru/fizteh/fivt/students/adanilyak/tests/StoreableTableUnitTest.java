@@ -316,8 +316,13 @@ public class StoreableTableUnitTest {
         Assert.assertEquals(Boolean.class, testTableRus.getColumnType(2));
     }
 
+    /**
+     * TEST BLOCK
+     * CLOSE TESTS
+     */
+
     @Test
-    public void closeTest1() throws IOException {
+    public void doubleCloseTest() throws IOException {
         ((StoreableTable) testTableEng).close();
         ((StoreableTable) testTableEng).close();
         testTableEng = tableProvider.createTable("testTable20", typesTestListOne);
@@ -325,8 +330,69 @@ public class StoreableTableUnitTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getAfterClose() {
+    public void getAfterCloseTest() {
         ((StoreableTable) testTableEng).close();
         testTableEng.get("key");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void putAfterCloseTest() throws ParseException {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.put("key", tableProvider.deserialize(testTableEng, "[1, 2, 3]"));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void removeAfterCloseTest() {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.remove("key");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void getNameAfterCloseTest() {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.getName();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void rollbackAfterCloseTest() {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.rollback();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void commitAfterCloseTest() throws IOException {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.commit();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void getColumnTypeAfterCloseTest() {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.getColumnType(0);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void getColumnsCountAfterCloseTest() {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.getColumnsCount();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void toStringAfterCloseTest() {
+        ((StoreableTable) testTableEng).close();
+        testTableEng.toString();
+    }
+
+    /**
+     * TEST BLOCK
+     * TO STRING TESTS
+     */
+
+    @Test
+    public void toStringTest() {
+        Assert.assertEquals("StoreableTable[/Users/Alexander/Documents/JavaDataBase/Tests/testTable20]",
+                testTableEng.toString());
+        Assert.assertEquals("StoreableTable[/Users/Alexander/Documents/JavaDataBase/Tests/тестоваяТаблица21]",
+                testTableRus.toString());
     }
 }

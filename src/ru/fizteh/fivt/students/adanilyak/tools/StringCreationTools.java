@@ -26,4 +26,8 @@ public class StringCreationTools {
         builder.append("]");
         return builder.toString();
     }
+
+    public static String cutTimeStamp(String proxyResult) {
+        return proxyResult.replaceFirst(" timestamp=\"[0-9]+\"", "").trim();
+    }
 }

@@ -1,9 +1,11 @@
 package ru.fizteh.fivt.students.adanilyak.tests;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
+import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProviderFactory;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
 
@@ -45,9 +47,23 @@ public class StoreableTableProviderFactoryUnitTest {
         }
     }
 
+    /**
+     * TEST BLOCK
+     * CLOSE TESTS
+     */
+
     @Test(expected = IllegalStateException.class)
     public void createAfterClose() throws IOException {
         testProviderFactory.close();
         testProviderFactory.create(sandBoxDirectory);
+    }
+
+    @Test
+    public void openExistingProviderUsingCreateAfterClose() throws IOException {
+        StoreableTableProvider testProvider = (StoreableTableProvider) testProviderFactory.create(sandBoxDirectory);
+        testProvider.close();
+        StoreableTableProvider testProviderNewReference =
+                (StoreableTableProvider) testProviderFactory.create(sandBoxDirectory);
+        Assert.assertNotEquals(testProvider, testProviderNewReference);
     }
 }
