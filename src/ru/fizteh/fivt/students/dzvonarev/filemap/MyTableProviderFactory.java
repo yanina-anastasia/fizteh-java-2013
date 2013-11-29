@@ -49,18 +49,18 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     @Override
     public void close() {
-        readLock.lock();
+        if (isTableProviderFactoryClosed) {
+            return;
+        }
+        writeLock.lock();
         try {
-            if (isTableProviderFactoryClosed) {
-                return;
-            }
             for (MyTableProvider tableProvider : tableProvidersList) {
                 tableProvider.close();
             }
             tableProvidersList.clear();
             isTableProviderFactoryClosed = true;
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
 
