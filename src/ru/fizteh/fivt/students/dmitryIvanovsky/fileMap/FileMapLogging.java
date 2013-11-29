@@ -137,7 +137,7 @@ public class FileMapLogging implements InvocationHandler {
                     record.put("arguments", ob);
                 //}
 
-                s1 += "?? "+ob+" ??\n";
+                s1 += "?? "+ob.getClass().getName()+" ??\n";
             }
             s1 += record.toString()+"\n";
             try {
