@@ -393,16 +393,27 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     }
 
     protected void removeTableFromMap(String key) {
-        tables.put(key, null);
+        write.lock();
+        try {
+            tables.put(key, null);
+        } finally {
+            write.unlock();
+        }
     }
 
     @Override
     public void close() throws Exception {
-        for (MyTable table : tables.values()) {
-            if (table != null) {
-                table.close();
+        write.lock();
+        try {
+            for (MyTable table : tables.values()) {
+                if (table != null) {
+                    table.close();
+                }
             }
+            tables.clear();
+            isClosed = true;
+        } finally {
+            write.unlock();
         }
-        isClosed = true;
     }
 }
