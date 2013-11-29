@@ -56,6 +56,13 @@ public class DatabaseTable implements Table, AutoCloseable {
         }
     }
 
+    public DatabaseTable(DatabaseTable other) {
+        this.tableName = other.tableName;
+        this.columnTypes = other.columnTypes;
+        this.provider = other.provider;
+        this.oldData = other.oldData;
+    }
+
     public static int getDirectoryNum(String key) {
         int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
         return keyByte % 16;
