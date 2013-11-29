@@ -244,7 +244,6 @@ public class TableRowTest {
         row.setColumnAt(4, 2.3);
         row.setColumnAt(5, false);
         row.setColumnAt(6, "test");
-        System.out.println(row.toString());
         assertTrue(row.toString().equals("TableRow[1,2,,2.1,2.3,false,test]"));
     }
 }
