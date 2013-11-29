@@ -148,6 +148,10 @@ public final class DataBaseTable implements TableProvider, AutoCloseable {
 
     }
 
+    public void removeFromHashTable(String name) {
+        tableInUse.remove(name);
+    }
+
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
         state.check();

@@ -17,7 +17,7 @@ public final class DataBase implements Table, AutoCloseable {
     private String name;
     private String dataBaseDirectory;
     private DataBaseFile[] files;
-    private TableProvider provider;
+    private DataBaseTable provider;
     private List<Class<?>> types;
 
     public ClassState state = new ClassState(this);
@@ -54,7 +54,7 @@ public final class DataBase implements Table, AutoCloseable {
         }
     }
 
-    public DataBase(final String dbDirectory, final TableProvider newProvider, final List<Class<?>> newTypes)
+    public DataBase(final String dbDirectory, final DataBaseTable newProvider, final List<Class<?>> newTypes)
                 throws IOException {
         name = new File(dbDirectory).getName();
         dataBaseDirectory = dbDirectory;
@@ -304,6 +304,7 @@ public final class DataBase implements Table, AutoCloseable {
         writeLock.lock();
         try {
             state.close();
+            provider.removeFromHashTable(name);
             for (int i = 0; i < files.length; ++i) {
                 files[i].close();
             }
