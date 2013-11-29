@@ -110,7 +110,11 @@ public class MyLogWriter {
         } else {
             if (!method.getReturnType().toString().equals("void")) {
                 writer.writeStartElement("return");
-                writer.writeCharacters(returnValue.toString());
+                if (returnValue != null) {
+                    writer.writeCharacters(returnValue.toString());
+                } else {
+                    writeNull();
+                }
                 writer.writeEndElement();
             }
         }
