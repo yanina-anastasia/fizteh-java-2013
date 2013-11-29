@@ -147,6 +147,7 @@ public class FileMapStoreable implements Storeable {
                 listValue.append(",");
             }
         }
-        return String.format("%s[%s]", getClass().getSimpleName(), listValue);
+        //return String.format("%s[%s]", getClass().getSimpleName(), listValue);
+        return getClass().getSimpleName() + "[" + listValue + "]";
     }
 }

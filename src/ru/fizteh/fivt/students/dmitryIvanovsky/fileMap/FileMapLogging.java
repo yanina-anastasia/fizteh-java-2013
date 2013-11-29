@@ -79,7 +79,11 @@ public class FileMapLogging implements InvocationHandler {
                     s5+="q";
                     try {
                         s5+="w";
-                        creatingArray.put(arg);
+//                        if () {
+//                            creatingArray.put("FileMapStoreable[1,string,false]");
+//                        } else {
+                            creatingArray.put(arg);
+                        //}
                         s5+= " !! " + arg + " -- "+creatingArray + " !! ";
                     } catch (java.lang.ClassCastException e) {
                         s5+="e";
@@ -201,7 +205,7 @@ public class FileMapLogging implements InvocationHandler {
             }
         }
         if (method.getName().equals("put")) {
-            throw new Exception("\n-- "+s5+" --  "+s1+ " -- "+record.toString()+" --\n");
+            //throw new Exception("\n-- "+s5+" --  "+s1+ " -- "+record.toString()+" --\n");
         }
         return returnedValue;
     }
