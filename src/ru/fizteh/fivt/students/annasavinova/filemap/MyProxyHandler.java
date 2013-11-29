@@ -89,8 +89,6 @@ public class MyProxyHandler implements InvocationHandler {
             log.put("returnValue", value);
             return log;
         } catch (Throwable e) {
-            // TODO
-            e.printStackTrace();
             // ignore
         }
         return null;
