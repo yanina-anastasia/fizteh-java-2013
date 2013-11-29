@@ -111,8 +111,6 @@ public class DatabaseTable implements Table, AutoCloseable {
             throw new IllegalArgumentException("Table name cannot be null");
         }
 
-
-        System.out.println("key: " + key);
         if (modifiedData.get().containsKey(key)) {
             return modifiedData.get().get(key);
         }
