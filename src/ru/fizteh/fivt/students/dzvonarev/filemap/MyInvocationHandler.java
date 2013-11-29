@@ -104,21 +104,16 @@ public class MyInvocationHandler implements InvocationHandler {
 
     public void writeArguments(Object[] args) throws Throwable {
         xmlWriter.writeStartElement("arguments");
-        IdentityHashMap<Object, String> identityMap = new IdentityHashMap<>(); // to rid of cycles
-        identityMap.put(args, null);
         for (Object arg : args) {
             xmlWriter.writeStartElement("argument");
             if (arg == null) {
                 xmlWriter.writeEmptyElement("null");
             } else {
                 if (arg instanceof Iterable) {
-                    if (identityMap.containsKey(arg)) {
-                        xmlWriter.writeCharacters("cyclic"); // very bad
-                    } else {
-                        writeIterable((Iterable) arg, identityMap);
-                    }
+                    IdentityHashMap<Object, String> identityMap = new IdentityHashMap<>(); // to rid of cycles
+                    writeIterable((Iterable<?>) arg, identityMap);
                 } else {
-                    xmlWriter.writeCharacters(arg.getClass().getName());
+                    xmlWriter.writeCharacters(arg.toString());
                 }
             }
             xmlWriter.writeEndElement();    // end of "argument"
@@ -138,10 +133,10 @@ public class MyInvocationHandler implements InvocationHandler {
                     if (identityMap.containsKey(item)) {
                         xmlWriter.writeCharacters("cyclic"); // very bad again
                     } else {
-                        writeIterable((Iterable) item, identityMap);
+                        writeIterable((Iterable<?>) item, identityMap);
                     }
                 } else {
-                    xmlWriter.writeCharacters(item.getClass().getName());
+                    xmlWriter.writeCharacters(item.toString());
                 }
             }
             xmlWriter.writeEndElement();    // end of "value"
