@@ -20,7 +20,7 @@ public final class DataBase implements Table, AutoCloseable {
     private TableProvider provider;
     private List<Class<?>> types;
 
-    private ClassState state = new ClassState(this);
+    public ClassState state = new ClassState(this);
 
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     public Lock readLock = readWriteLock.readLock();

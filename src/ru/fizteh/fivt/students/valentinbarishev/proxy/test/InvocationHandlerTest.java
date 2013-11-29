@@ -139,7 +139,7 @@ public class InvocationHandlerTest {
     }
 
     @Test
-    public void testNested() throws IOException{
+    public void testNested() throws IOException {
         Writer writer = new FileWriter(folder.newFile("file"));
 
         List<Object> array = new ArrayList<>();
