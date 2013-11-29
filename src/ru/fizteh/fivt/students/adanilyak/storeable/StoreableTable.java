@@ -5,8 +5,8 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
-import ru.fizteh.fivt.students.adanilyak.tools.WorkStatus;
 import ru.fizteh.fivt.students.adanilyak.tools.CountingTools;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkStatus;
 import ru.fizteh.fivt.students.adanilyak.tools.WorkWithStoreableDataBase;
 
 import java.io.File;

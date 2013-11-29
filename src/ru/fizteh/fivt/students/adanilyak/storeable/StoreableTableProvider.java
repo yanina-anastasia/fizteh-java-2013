@@ -6,8 +6,8 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.adanilyak.serializer.JSONserializer;
 import ru.fizteh.fivt.students.adanilyak.tools.CheckOnCorrect;
-import ru.fizteh.fivt.students.adanilyak.tools.WorkStatus;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
+import ru.fizteh.fivt.students.adanilyak.tools.WorkStatus;
 
 import java.io.File;
 import java.io.IOException;

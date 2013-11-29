@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.adanilyak.tests;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTable;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProvider;
 import ru.fizteh.fivt.students.adanilyak.storeable.StoreableTableProviderFactory;
 import ru.fizteh.fivt.students.adanilyak.tools.DeleteDirectory;
