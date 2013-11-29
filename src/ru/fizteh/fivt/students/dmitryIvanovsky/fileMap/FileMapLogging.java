@@ -105,7 +105,11 @@ public class FileMapLogging implements InvocationHandler {
                 record.put("arguments", new JSONArray());
             } else {
                 ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-                record.put("arguments", creatorJSONArray.getJSONArray().get(0));
+                if (method.getName().equals("put")) {
+                    //record.put("arguments", creatorJSONArray.getJSONArray().get(0));
+                } else {
+                    record.put("arguments", creatorJSONArray.getJSONArray().get(0));
+                }
                 s1 += "?? "+creatorJSONArray.getJSONArray().get(0)+" ??\n";
             }
             s1 += record.toString()+"\n";
