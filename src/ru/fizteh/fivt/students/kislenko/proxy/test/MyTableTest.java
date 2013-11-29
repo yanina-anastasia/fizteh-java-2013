@@ -249,4 +249,41 @@ public class MyTableTest {
         Assert.assertEquals("MyTable[" + provider.getPath().toAbsolutePath().resolve(table.getName()).toString() + "]",
                 table.toString());
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCommitAfterClose() throws Exception {
+        table.close();
+        table.commit();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testRollbackAfterClose() throws Exception {
+        table.close();
+        table.rollback();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSizeAfterClose() throws Exception {
+        table.close();
+        table.size();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetAfterClose() throws Exception {
+        table.put("lonelyKeyInClosedTable", provider.deserialize(table, "[\"\",924]"));
+        table.close();
+        table.get("lonelyKeyInClosedTable");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testPutAfterClose() throws Exception {
+        table.close();
+        table.put("nothing", provider.deserialize(table, "[\"reallyNothing\",0]"));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowingExceptionInPut() throws Exception {
+        table.close();
+        table.put("sumkin", provider.deserialize(table, "[\"molodets\",\"aga\"]"));
+    }
 }
