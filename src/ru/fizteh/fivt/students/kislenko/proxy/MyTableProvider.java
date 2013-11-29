@@ -47,6 +47,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             try {
                 return createTable(name, tables.get(name).getTypes());
             } catch (IOException e) {
+                throw new IllegalArgumentException("Chto proishodit!?");
             }
         }
         lock.writeLock().lock();
