@@ -1,15 +1,9 @@
 package ru.fizteh.fivt.students.kamilTalipov.database.proxy;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.IdentityHashMap;
 
 public class XMLProxyLogger implements InvocationHandler {
     private final Writer writer;

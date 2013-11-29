@@ -287,6 +287,10 @@ public class MultiFileHashTable implements Table, AutoCloseable {
 
     @Override
     public void close() {
+        if (isClosed) {
+            return;
+        }
+
         rollback();
         isClosed = true;
     }
