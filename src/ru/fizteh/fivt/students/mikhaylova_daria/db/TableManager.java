@@ -42,18 +42,23 @@ public class TableManager implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("wrong type (Name of directory is empty)");
         }
         mainDir = new File(nameMainDir);
-        if (!mainDir.exists()) {
-            if (!mainDir.mkdir()) {
-                throw new IOException("wrong type (Creating " + nameMainDir + " is impossible)");
-            }
-        }
-        if (!mainDir.isDirectory()) {
-            throw new IllegalArgumentException("wrong type (" + nameMainDir + " is not a directory)");
-        }
+        myWriteLock.lock();
         try {
-            cleaner();
-        } catch (Exception e) {
-            throw new IOException("wrong type (" + e.getMessage() + ")", e);
+            if (!mainDir.exists()) {
+                if (!mainDir.mkdir()) {
+                    throw new IOException("wrong type (Creating " + nameMainDir + " is impossible)");
+                }
+            }
+            if (!mainDir.isDirectory()) {
+                throw new IllegalArgumentException("wrong type (" + nameMainDir + " is not a directory)");
+            }
+            try {
+                cleaner();
+            } catch (Exception e) {
+                throw new IOException("wrong type (" + e.getMessage() + ")", e);
+            }
+        }finally {
+            myWriteLock.unlock();
         }
     }
 
