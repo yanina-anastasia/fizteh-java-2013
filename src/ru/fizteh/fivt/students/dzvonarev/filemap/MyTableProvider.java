@@ -153,13 +153,13 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         readLock.lock();
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
+        }
         try {
             return multiFileMap.get(tableName);
         } finally {
@@ -169,14 +169,14 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table createTable(String tableName, List<Class<?>> types) throws IllegalArgumentException, IOException {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
         writeLock.lock();
         try {
+            if (isProviderClosed) {
+                throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
+            }
             if (multiFileMap.containsKey(tableName)) {
                 return null;
             }
@@ -195,14 +195,14 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         writeLock.lock();
         try {
+            if (isProviderClosed) {
+                throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
+            }
             if (!multiFileMap.containsKey(tableName)) {
                 throw new IllegalStateException(tableName + " not exists");
             }
@@ -251,7 +251,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     }
 
     @Override
-    public Storeable createFor(Table table) throws IllegalStateException {
+    public Storeable createFor(Table table) {
         if (isProviderClosed) {
             throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
