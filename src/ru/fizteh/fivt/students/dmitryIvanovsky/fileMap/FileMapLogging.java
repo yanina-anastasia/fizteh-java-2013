@@ -81,11 +81,19 @@ public class FileMapLogging implements InvocationHandler {
                     try {
                         s5+="w";
                         //JSONArray a = creatingArray;
-                        if (qwe) {
-                            creatingArray.put("FileMapStoreable[1,string,false]");
-                        } else {
-                            creatingArray.put(arg);
+//                        if (qwe) {
+//                            creatingArray.put("FileMapStoreable[1,string,false]");
+//                        } else {
+//                            creatingArray.put(arg);
+//                        }
+
+                        JSONArray copy = new JSONArray(creatingArray);
+                        creatingArray.put(arg);
+                        if (creatingArray.toString() == null) {
+                            creatingArray = copy;
+                            creatingArray.put(arg.toString());
                         }
+
                         s5+= " !! " + arg + " -- "+creatingArray + " !! ";
                     } catch (java.lang.ClassCastException e) {
                         s5+="e";
@@ -163,7 +171,15 @@ public class FileMapLogging implements InvocationHandler {
 //                        if (method.getName().equals("createFor")) {
 //                            record.put("returnValue", "FileMapStoreable[,,]");
 //                        } else {
+                        //String s6 = returnedValue.toString();
+
+                        JSONObject copy = new JSONObject(record, JSONObject.getNames(record));
+                        record.put("returnValue", returnedValue);
+                        if (record.toString() == null) {
+                            record = copy;
                             record.put("returnValue", returnedValue.toString());
+                        }
+
                         //}
                         s1 += record.toString()+"\n";
                         s1 += " -- "+returnedValue+" -- " + " " + record.toString()+"\n";
