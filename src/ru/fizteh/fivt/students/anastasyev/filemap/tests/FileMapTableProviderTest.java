@@ -6,7 +6,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
-import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTable;
+import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProvider;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
 import ru.fizteh.fivt.students.anastasyev.filemap.MyStoreable;
 
@@ -293,11 +293,52 @@ public class FileMapTableProviderTest {
         tableProvider.removeTable("table");
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testGetTableAfterClose() throws IOException {
+        FileMapTableProvider fileMapTableProvider = (FileMapTableProvider) tableProvider;
+        assertNotNull(fileMapTableProvider.createTable("ClosingTable", types));
+        fileMapTableProvider.close();
+        fileMapTableProvider.getTable("ClosingTable");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCreateTableAfterClose() throws IOException {
+        FileMapTableProvider fileMapTableProvider = (FileMapTableProvider) tableProvider;
+        assertNotNull(fileMapTableProvider.createTable("ClosingTable", types));
+        fileMapTableProvider.close();
+        fileMapTableProvider.getTable("ClosingTable");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDeserializeAfterClose() throws IOException, ParseException {
+        FileMapTableProvider fileMapTableProvider = (FileMapTableProvider) tableProvider;
+        Table table = fileMapTableProvider.createTable("ClosingTable", types);
+        fileMapTableProvider.close();
+        fileMapTableProvider.deserialize(table, "[\"not valide string\"]");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testPutAfterClose() throws IOException, ParseException {
+        FileMapTableProvider fileMapTableProvider = (FileMapTableProvider) tableProvider;
+        Table table = fileMapTableProvider.createTable("ClosingTable", types);
+        Storeable storeable = fileMapTableProvider.deserialize(table, "[1,2,3,4,5,\"str\"]");
+        fileMapTableProvider.close();
+        table.put("key", storeable);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSerializeAfterClose() throws IOException, ParseException {
+        FileMapTableProvider fileMapTableProvider = (FileMapTableProvider) tableProvider;
+        Table table = fileMapTableProvider.createTable("ClosingTable", types);
+        Storeable storeable = fileMapTableProvider.deserialize(table, "[1,2,3,4,5,\"str\"]");
+        fileMapTableProvider.close();
+        fileMapTableProvider.serialize(table, storeable);
+    }
+
     @Test
-    public void getTableAfterClose() throws IOException {
-        Table table = tableProvider.createTable("closedTable", classes);
-        ((FileMapTable) table).close();
-        assertNotSame(table, tableProvider.getTable("closedTable"));
+    public void testToString() {
+        String str = tableProvider.toString();
+        assertTrue(str.startsWith("FileMapTableProvider"));
     }
 }
 
