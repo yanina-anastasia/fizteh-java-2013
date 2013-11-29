@@ -47,7 +47,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             try {
                 return createTable(name, tables.get(name).getTypes());
             } catch (IOException e) {
-                throw new IllegalArgumentException("Incorrect table name");
+                return null;
             }
         }
         lock.writeLock().lock();
@@ -185,6 +185,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     public Storeable createFor(Table table) {
         assertClosed();
         ArrayList<Class<?>> types = new ArrayList<Class<?>>();
+        if (table == null) {
+            throw new IllegalArgumentException("Incorrect table instance to create for.");
+        }
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             types.add(table.getColumnType(i));
         }
