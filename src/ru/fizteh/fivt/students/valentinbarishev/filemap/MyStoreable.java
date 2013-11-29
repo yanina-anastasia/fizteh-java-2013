@@ -151,7 +151,7 @@ public class MyStoreable implements Storeable, AutoCloseable {
             if (valueType == Double.class) {
                 return new Float((double) value);
             }
-            if (value == Float.class) {
+            if (valueType == Float.class) {
                 return value;
             }
             throw new ColumnFormatException("Wrong type: " + valueType + " instead of Float");
