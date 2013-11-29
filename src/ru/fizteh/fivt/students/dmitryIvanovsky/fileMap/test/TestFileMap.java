@@ -6,8 +6,6 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;
 import ru.fizteh.fivt.students.dmitryIvanovsky.shell.CommandShell;
-import ru.fizteh.fivt.students.dmitryIvanovsky.shell.ErrorShell;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -140,27 +138,31 @@ public class TestFileMap {
 
     @Test()
     public void commitHardCount() throws IOException, ParseException {
-        fileMap.remove("1");
-        fileMap.remove("2");
-        fileMap.commit();
-        Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
-        Storeable st2 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>2</col></row>");
-        fileMap.put("1", st1);
-        fileMap.put("2", st1);
-        assertEquals(2, fileMap.commit());
+        try {
+            fileMap.remove("1");
+            fileMap.remove("2");
+            fileMap.commit();
+            Storeable st1 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>1</col></row>");
+            Storeable st2 = multiMap.deserialize(fileMap, "<row><col>qwe1</col><col>2</col></row>");
+            fileMap.put("1", st1);
+            fileMap.put("2", st1);
+            assertEquals(2, fileMap.commit());
 
-        fileMap.put("1", st1);
-        fileMap.remove("1");
-        fileMap.put("1", st1);
-        assertEquals(0, fileMap.commit());
+            fileMap.put("1", st1);
+            fileMap.remove("1");
+            fileMap.put("1", st1);
+            assertEquals(0, fileMap.commit());
 
-        fileMap.put("1", st1);
-        fileMap.remove("1");
-        fileMap.put("1", st2);
-        assertEquals(1, fileMap.commit());
-        fileMap.remove("1");
-        fileMap.remove("2");
-        fileMap.commit();
+            fileMap.put("1", st1);
+            fileMap.remove("1");
+            fileMap.put("1", st2);
+            assertEquals(1, fileMap.commit());
+            fileMap.remove("1");
+            fileMap.remove("2");
+            fileMap.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test()

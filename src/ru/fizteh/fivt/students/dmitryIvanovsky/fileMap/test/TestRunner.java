@@ -11,6 +11,7 @@ public class TestRunner {
         runner.runTest(TestFileMapProvider.class);
         runner.runTest(TestFileMapProviderFactory.class);
         runner.runTest(TestFileMapStoreable.class);
+        runner.runTest(TestFileMapParallel.class);
     }
 
     public void runTest(Class testClass) {
