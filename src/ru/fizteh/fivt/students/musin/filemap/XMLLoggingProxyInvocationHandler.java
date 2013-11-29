@@ -64,9 +64,9 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
             try {
                 writer.writeStartElement("invoke");
                 writer.writeAttribute("timestamp", Long.valueOf(System.currentTimeMillis()).toString());
-                writer.writeAttribute("class", target.getClass().getCanonicalName());
+                writer.writeAttribute("class", target.getClass().getName());
                 writer.writeAttribute("name", method.getName());
-                if (args.length != 0) {
+                if (args != null && args.length != 0) {
                     writer.writeStartElement("arguments");
                     for (int i = 0; i < args.length; i++) {
                         writer.writeStartElement("argument");
