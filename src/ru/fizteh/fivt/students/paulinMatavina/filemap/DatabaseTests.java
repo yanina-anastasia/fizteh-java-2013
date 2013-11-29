@@ -424,4 +424,15 @@ public class DatabaseTests {
     }  
      
     //end of Storeable tests 
+    
+    //close() tests
+    @Test
+    public void testCloseOpen() throws Exception {
+        table.put("new", correctValues);
+        table.commit();
+        ((MyTable) table).close();
+        table = provider.getTable("default");
+        assertNotNull(table.get("new"));
+    }  
+    //end of close() tests
 }

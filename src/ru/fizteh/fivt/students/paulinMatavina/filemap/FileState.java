@@ -215,9 +215,6 @@ public class FileState extends State {
     public void commit() throws IOException {
         dbFile = null;
         assignInitial();
-        if (getChangeNum() == 0) {
-            return;
-        }
         initialChangeLock.readLock().lock();
         try {
             fileCheck();

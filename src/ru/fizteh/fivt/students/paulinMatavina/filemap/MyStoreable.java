@@ -149,6 +149,9 @@ public class MyStoreable implements Storeable {
             if (object.getClass() == Float.class) {
                 return object;
             }
+            if (object.getClass() == Double.class) {
+                return ((Double) object).floatValue();
+            }
         } else if (expectedClass == String.class) {
             if (object.getClass() == String.class) {
                 return object;
