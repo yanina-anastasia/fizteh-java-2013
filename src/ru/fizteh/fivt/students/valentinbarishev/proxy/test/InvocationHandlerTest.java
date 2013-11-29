@@ -137,5 +137,27 @@ public class InvocationHandlerTest {
         System.out.println(buf);
     }
 
+    @Test
+    public void testNested() throws IOException{
+        Writer writer = new FileWriter(folder.newFile("file"));
+
+        List<Object> array = new ArrayList<>();
+        array.add(null);
+        ArrayList<Object> nestedList = new ArrayList<>();
+        array.add(nestedList);
+        nestedList.add(array);
+
+        TestInterface test = (TestInterface) logFactory.wrap(writer, new TestClass(), TestInterface.class);
+        test.arrayParameter(array);
+
+        writer.flush();
+        writer.close();
+
+        FileReader reader = new FileReader(new File(folder.getRoot(), "file"));
+        char[] buf = new char[20000];
+        reader.read(buf);
+        System.out.println(buf);
+
+    }
 
 }
