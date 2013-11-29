@@ -44,12 +44,17 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("Incorrect table name.");
         }
         if (tables.containsKey(name) && tables.get(name).isClosed()) {
-            try {
-                removeTable(name);
-                return createTable(name, tables.get(name).getTypes());
-            } catch (IOException e) {
-                //ignored
+            MyTable returnTable = new MyTable(name, tables.get(name).getTypes(), this);
+            HashMap<String, Storeable> map = tables.get(name).getMap();
+            for (String key : map.keySet()) {
+                returnTable.put(key, map.get(key));
+                try {
+                    returnTable.commit();
+                } catch (IOException e) {
+                    // YOU SHALL NOT PASS
+                }
             }
+            return returnTable;
         }
         lock.writeLock().lock();
         assertClosed();

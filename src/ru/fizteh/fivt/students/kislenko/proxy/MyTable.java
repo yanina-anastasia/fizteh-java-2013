@@ -290,7 +290,6 @@ public class MyTable implements Table, AutoCloseable {
     }
 
     public HashMap<String, Storeable> getMap() {
-        assertClosed();
         return storage;
     }
 
