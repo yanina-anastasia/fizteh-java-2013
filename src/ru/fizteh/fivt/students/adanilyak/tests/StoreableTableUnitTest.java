@@ -30,7 +30,8 @@ public class StoreableTableUnitTest {
     Table testTableRus;
     List<Class<?>> typesTestListOne;
     List<Class<?>> typesTestListTwo;
-    File sandBoxDirectory = new File("/Users/Alexander/Documents/JavaDataBase/Tests");
+    String source = System.getProperty("fizteh.db.dir");
+    File sandBoxDirectory = new File(source);
 
     @Before
     public void setUpTestObject() throws IOException {
@@ -390,9 +391,9 @@ public class StoreableTableUnitTest {
 
     @Test
     public void toStringTest() {
-        Assert.assertEquals("StoreableTable[/Users/Alexander/Documents/JavaDataBase/Tests/testTable20]",
+        Assert.assertEquals("StoreableTable["+ source + "/testTable20]",
                 testTableEng.toString());
-        Assert.assertEquals("StoreableTable[/Users/Alexander/Documents/JavaDataBase/Tests/тестоваяТаблица21]",
+        Assert.assertEquals("StoreableTable["+ source + "/тестоваяТаблица21]",
                 testTableRus.toString());
     }
 }

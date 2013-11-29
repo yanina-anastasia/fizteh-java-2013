@@ -27,7 +27,7 @@ public class StoreableRowUnitTest {
     Table testTable;
     Storeable testStoreable;
     Storeable newTestStoreable;
-    File sandBoxDirectory = new File("/Users/Alexander/Documents/JavaDataBase/Tests");
+    File sandBoxDirectory = new File(System.getProperty("fizteh.db.dir"));
 
     @Before
     public void setUpTestObject() throws IOException, ParseException {

@@ -19,12 +19,12 @@ import java.io.IOException;
  */
 public class StoreableTableProviderFactoryUnitTest {
     StoreableTableProviderFactory testProviderFactory;
-    String sandBoxDirectory = "/Users/Alexander/Documents/JavaDataBase/SandBox";
+    String sandBoxDirectory = System.getProperty("fizteh.db.dir");
 
     @Before
     public void setUpTestObject() {
         File sandBoxFile = new File(sandBoxDirectory);
-        sandBoxFile.mkdir();
+        sandBoxFile.mkdirs();
         testProviderFactory = new StoreableTableProviderFactory();
     }
 

@@ -27,7 +27,8 @@ import java.util.List;
  */
 public class StoreableTableProviderUnitTest {
     StoreableTableProvider testProvider;
-    File sandBoxDirectory = new File("/Users/Alexander/Documents/JavaDataBase/Tests");
+    String source = System.getProperty("fizteh.db.dir");
+    File sandBoxDirectory = new File(source);
     List<Class<?>> typesTestListOne;
     List<Class<?>> typesTestListTwo;
     List<Class<?>> typesTestListThree;
@@ -437,7 +438,7 @@ public class StoreableTableProviderUnitTest {
 
     @Test
     public void toStringTest() {
-        Assert.assertEquals("StoreableTableProvider[/Users/Alexander/Documents/JavaDataBase/Tests]",
+        Assert.assertEquals("StoreableTableProvider[" + source + "]",
                 testProvider.toString());
     }
 }

@@ -43,12 +43,10 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         }
         allTablesDirectory = atDirectory;
         status = WorkStatus.WORKING;
-        //status = WorkStatus.NOT_INITIALIZED;
         for (File tableFile : allTablesDirectory.listFiles()) {
             Table table = new StoreableTable(tableFile, this);
             allTablesMap.put(tableFile.getName(), table);
         }
-        //status = WorkStatus.WORKING;
     }
 
     @Override
