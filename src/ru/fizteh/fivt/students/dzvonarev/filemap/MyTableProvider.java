@@ -17,8 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTableProvider implements TableProvider, AutoCloseable {
 
-    public MyTableProvider(String dir, MyTableProviderFactory factory) throws RuntimeException, IOException {
-        tableProviderFactory = factory;
+    public MyTableProvider(String dir) throws RuntimeException, IOException {
         isProviderClosed = false;
         workingDirectory = dir;
         currTable = null;
@@ -37,7 +36,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private Lock readLock;
     private Lock writeLock;
     private boolean isProviderClosed;
-    private MyTableProviderFactory tableProviderFactory;
 
     public void initTypeToString() {
         typeToString = new HashMap<>();
@@ -254,11 +252,17 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable createFor(Table table) {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
+        }
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
+        }
         return new MyStoreable(table, values);
     }
 
@@ -276,19 +280,16 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() {
-        readLock.lock();
+        writeLock.lock();
         try {
-            if (isProviderClosed) {
-                return;
+            Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
+            for (Map.Entry<String, MyTable> currItem : fileSet) {
+                MyTable value = currItem.getValue();
+                value.close();
             }
+            isProviderClosed = true;
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
-        Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
-        for (Map.Entry<String, MyTable> currItem : fileSet) {
-            MyTable value = currItem.getValue();
-            value.close();
-        }
-        isProviderClosed = true;
     }
 }

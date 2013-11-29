@@ -521,13 +521,8 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws IndexOutOfBoundsException {
-        readLock.lock();
-        try {
-            if (tableIsClosed) {
-                return;
-            }
-        } finally {
-            readLock.unlock();
+        if (tableIsClosed) {
+            return;
         }
         rollback();
         tableIsClosed = true;

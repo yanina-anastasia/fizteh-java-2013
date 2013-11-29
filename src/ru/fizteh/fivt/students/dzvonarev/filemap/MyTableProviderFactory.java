@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTableProviderFactory implements TableProviderFactory, AutoCloseable {
 
@@ -37,7 +35,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
                 throw new IllegalArgumentException("wrong type (table provider is not a directory)");
             }
         }
-        MyTableProvider newTableProvider = new MyTableProvider(dir, this);
+        MyTableProvider newTableProvider = new MyTableProvider(dir);
         tableProvidersList.add(newTableProvider);
         return newTableProvider;  // will read data in here
     }
