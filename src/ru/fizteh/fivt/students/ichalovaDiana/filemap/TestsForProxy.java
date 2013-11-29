@@ -96,8 +96,6 @@ public class TestsForProxy {
         List<Object> wrappedList = (List<Object>) loggingProxyFactory.wrap(writer, array, List.class);
         wrappedList.add(a);
         wrappedList.add(a);
-        
-        System.out.println(writer.toString());
 
         Assert.assertTrue(writer.toString().matches(".*\n.*\n"));
     }
@@ -116,9 +114,9 @@ public class TestsForProxy {
     public void databaseTest() throws IOException {
         
         File databaseDirectory = folder.newFolder("database");
-        TableProviderFactoryImplementation tableProviderFactoryImplementation = new TableProviderFactoryImplementation();
+        TableProviderFactoryImplementation tableProviderFactoryImpl = new TableProviderFactoryImplementation();
         tableProviderFactory = (TableProviderFactory) loggingProxyFactory
-                .wrap(writer, tableProviderFactoryImplementation, TableProviderFactory.class);
+                .wrap(writer, tableProviderFactoryImpl, TableProviderFactory.class);
         TableProvider tableProviderImplementation = tableProviderFactory.create(databaseDirectory.toString());
         
         JSONObject parsed = new JSONObject(writer.toString());
