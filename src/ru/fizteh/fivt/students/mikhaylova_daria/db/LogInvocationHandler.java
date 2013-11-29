@@ -112,7 +112,7 @@ public class LogInvocationHandler implements InvocationHandler {
                     }
                 }
             } catch (InvocationTargetException e) {
-                record.append("thrown", e.getTargetException().toString());
+                record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
             } finally {
                 writeLock.lock();
