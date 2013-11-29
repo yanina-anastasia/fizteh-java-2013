@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.xml.stream.*;
@@ -20,10 +21,11 @@ public class DistributedTableProvider implements TableProvider, AutoCloseable {
     private HashMap<String, DistributedTable> tables;
     private Path currentPath;
     private ReadWriteLock tablesLock;
+    private AtomicBoolean isClosed = new AtomicBoolean(false);
     private DistributedTableProviderFactory factory;
 
     private void checkState() throws IllegalArgumentException {
-        if (tables == null) {
+        if (isClosed.get()) {
             throw new IllegalStateException("table provider already closed");
         }
     }
@@ -40,9 +42,7 @@ public class DistributedTableProvider implements TableProvider, AutoCloseable {
             for (DistributedTable table : tables.values()) {
                 table.close();
             }
-            tables = null;
-            currentPath = null;
-            factory = null;
+            isClosed.set(true);
         } finally {
             tablesLock.writeLock().unlock();
         }
