@@ -114,16 +114,13 @@ public class DatabaseTable implements Table, AutoCloseable {
 
         System.out.println("key: " + key);
         if (modifiedData.get().containsKey(key)) {
-            System.out.println("modified");
             return modifiedData.get().get(key);
         }
         if (deletedKeys.get().contains(key)) {
-            System.out.println("deleted");
             return null;
         }
         transactionLock.readLock().lock();
         try {
-            System.out.println("old");
             return oldData.get(key);
         } finally {
             transactionLock.readLock().unlock();
