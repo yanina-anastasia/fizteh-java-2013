@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MultiFileHashTableFactory implements TableProviderFactory, AutoCloseable {
-    private final ArrayList<Provider> providers;
+    private final ArrayList<MultiFileHashTableProvider> providers;
 
     private volatile boolean isClosed = false;
 
@@ -24,19 +24,8 @@ public class MultiFileHashTableFactory implements TableProviderFactory, AutoClos
 
         try {
             synchronized (providers) {
-                MultiFileHashTableProvider resultProvider = null;
-                for (Provider provider : providers) {
-                    if (provider.dir.equals(dir)) {
-                        resultProvider = provider.provider;
-                        break;
-                    }
-                }
-                if (resultProvider != null) {
-                    return resultProvider;
-                }
-
-                providers.add(new Provider(dir, new MultiFileHashTableProvider(dir)));
-                return providers.get(providers.size() - 1).provider;
+                providers.add(new MultiFileHashTableProvider(dir));
+                return providers.get(providers.size() - 1);
             }
         } catch (DatabaseException e) {
             throw new IllegalArgumentException("Database error", e);
@@ -51,10 +40,10 @@ public class MultiFileHashTableFactory implements TableProviderFactory, AutoClos
             return;
         }
 
+        isClosed = true;
         synchronized (providers) {
-            isClosed = true;
-            for (Provider provider : providers) {
-                provider.provider.close();
+            for (MultiFileHashTableProvider provider : providers) {
+                provider.close();
             }
         }
     }
@@ -62,16 +51,6 @@ public class MultiFileHashTableFactory implements TableProviderFactory, AutoClos
     private void checkState() throws IllegalStateException {
         if (isClosed) {
             throw new IllegalStateException("Factory is closed");
-        }
-    }
-
-    private class Provider {
-        public final String dir;
-        public final MultiFileHashTableProvider provider;
-
-        public Provider(String dir, MultiFileHashTableProvider provider) {
-            this.dir = dir;
-            this.provider = provider;
         }
     }
 }

@@ -195,6 +195,10 @@ public class MultiFileHashTableProvider implements TableProvider, AutoCloseable 
     }
 
     void closedTable(MultiFileHashTable table) throws IllegalArgumentException {
+        if (table == null) {
+            throw new IllegalArgumentException("Table must be not null");
+        }
+
         writeLock.lock();
         try {
             int tableIndex = -1;

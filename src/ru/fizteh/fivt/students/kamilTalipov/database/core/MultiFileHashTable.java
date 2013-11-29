@@ -309,12 +309,12 @@ public class MultiFileHashTable implements Table, AutoCloseable {
         }
     }
 
-    void close(boolean needProviderInform) {
+    void close(boolean needInformProvider) {
         if (isClosed) {
             return;
         }
 
-        if (needProviderInform) {
+        if (needInformProvider) {
             myTableProvider.closedTable(this);
         }
 
