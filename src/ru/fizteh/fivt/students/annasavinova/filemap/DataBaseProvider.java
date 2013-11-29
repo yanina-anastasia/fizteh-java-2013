@@ -34,6 +34,12 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
 
     private Lock lock = new ReentrantLock(true);
 
+    public void checkClosed() {
+        if (isClosed) {
+            throw new IllegalStateException("TableProvider is closed");
+        }
+    }
+
     public DataBaseProvider(String dir) {
         if (dir == null || dir.isEmpty()) {
             throw new IllegalArgumentException("Empty directory name");
@@ -61,9 +67,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table getTable(String name) throws IllegalArgumentException {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
+        checkClosed();
 
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
@@ -159,9 +163,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table createTable(String name, List<Class<?>> typesList) throws IOException {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
+        checkClosed();
 
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
@@ -202,9 +204,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void removeTable(String name) throws IOException {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
+        checkClosed();
 
         if (!checkTableName(name)) {
             throw new IllegalArgumentException("name is incorrect");
@@ -295,9 +295,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
+        checkClosed();
 
         TableRow row = new TableRow(table);
         XMLInputFactory xmlFactory = XMLInputFactory.newFactory();
@@ -370,9 +368,7 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
+        checkClosed();
 
         checkColumns(table, value);
 
@@ -409,18 +405,14 @@ public class DataBaseProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable createFor(Table table) {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
+        checkClosed();
 
         return new TableRow(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (isClosed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
+        checkClosed();
 
         TableRow row = new TableRow(table);
         if (values.size() != table.getColumnsCount()) {

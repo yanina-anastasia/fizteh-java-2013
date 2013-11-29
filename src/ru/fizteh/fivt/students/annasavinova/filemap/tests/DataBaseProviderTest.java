@@ -17,14 +17,14 @@ import ru.fizteh.fivt.students.annasavinova.filemap.DataBaseProvider;
 public class DataBaseProviderTest {
     DataBaseProvider test;
     ArrayList<Class<?>> list;
+    DBaseProviderFactory fact;
 
     @Rule
     public TemporaryFolder root = new TemporaryFolder();
 
     @Before
     public void initialize() throws IOException {
-        @SuppressWarnings("resource")
-        DBaseProviderFactory fact = new DBaseProviderFactory();
+        fact = new DBaseProviderFactory();
         test = (DataBaseProvider) fact.create(root.newFolder().toString());
         list = new ArrayList<>();
         list.add(int.class);
@@ -98,20 +98,20 @@ public class DataBaseProviderTest {
     
     @Test(expected = IllegalStateException.class)
     public void testClose1() throws Exception {
-        @SuppressWarnings("resource")
         DBaseProviderFactory tmpFactory = new DBaseProviderFactory();
         DataBaseProvider tmp = (DataBaseProvider) tmpFactory.create(root.newFolder().toString());
         tmp.close();
         tmp.createTable("aa", null);
+        tmpFactory.close();
     }
     
     @Test(expected = IllegalStateException.class)
     public void testClose2() throws Exception {
-        @SuppressWarnings("resource")
         DBaseProviderFactory tmpFactory = new DBaseProviderFactory();
         DataBaseProvider tmp = (DataBaseProvider) tmpFactory.create(root.newFolder().toString());
         DataBase tmpTable = (DataBase) tmp.createTable("test", list);
         tmp.close();
         tmpTable.size();
+        tmpFactory.close();
     }
 }
