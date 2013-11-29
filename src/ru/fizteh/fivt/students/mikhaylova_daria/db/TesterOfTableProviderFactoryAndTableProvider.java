@@ -787,5 +787,66 @@ public class TesterOfTableProviderFactoryAndTableProvider {
         }
     }
 
+    @Test
+    public void closeTest() throws IOException {
+        TableManager t = factory.create(mainDir.toString());
+        t.close();
+        try {
+            t.close();
+        } catch (Exception e) {
+            fail("Повторное закрытие не должно вызывать исключение");
+        }
+
+        try {
+            t.removeTable("123");
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.getTable("123");
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.toString();
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.createTable("123", goodTypeList);
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+        TableManager m = factory.create(mainDir.toString());
+        factory.close();
+        try {
+            factory.close();
+        } catch (IllegalStateException e) {
+            fail("Не нужно выбрасывать исключение при повторном закрытии");
+        }
+
+        try {
+            factory.create(mainDir.toString());
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            m.createTable("123", goodTypeList);
+            fail("После закрытия фаабрики не закрылся произведённый ей провайдер");
+        } catch (IllegalStateException e) {
+
+        }
+    }
+
+
 }
 

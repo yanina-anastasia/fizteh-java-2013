@@ -31,4 +31,7 @@ interface ProxyTestInterface {
     @Test
     void returnValueIsVoid();
 
+    @Test
+    void logNotOverrideMethodShouldNoLog();
+
 }

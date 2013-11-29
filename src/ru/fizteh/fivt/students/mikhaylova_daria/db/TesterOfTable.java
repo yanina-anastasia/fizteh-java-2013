@@ -296,4 +296,58 @@ public class TesterOfTable {
         }
     }
 
+    @Test
+    public void closeTest() throws IOException {
+        TableData t = provider.createTable("close", goodTypeList);
+        t.close();
+        try {
+            t.close();
+        } catch (Exception e) {
+            fail("Повторное закрытие не должно вызывать исключение");
+        }
+
+        try {
+            t.commit();
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.rollback();
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.getColumnsCount();
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.put("key", provider.createFor(t, goodValueList));
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.get("key");
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+
+        try {
+            t.remove("key");
+            fail("Не работает close");
+        } catch (IllegalStateException e) {
+
+        }
+    }
+
+
 }
