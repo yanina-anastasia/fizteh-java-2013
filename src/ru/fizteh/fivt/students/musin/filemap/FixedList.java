@@ -152,7 +152,7 @@ public class FixedList implements Storeable {
             }
         }
         sb.append("]");
-        return String.format("%s%s", this.getClass().toString(), sb.toString());
+        return String.format("%s%s", this.getClass().getSimpleName(), sb.toString());
     }
 
     public void fromString(String serialized) {

@@ -526,7 +526,7 @@ public class MultiFileMap implements Table, AutoCloseable {
     public String toString() {
         checkState();
         try {
-            return String.format("%s[%s]", this.getClass().getName(), location.getCanonicalPath());
+            return String.format("%s[%s]", this.getClass().getSimpleName(), location.getCanonicalPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

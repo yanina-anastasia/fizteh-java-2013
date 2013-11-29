@@ -21,7 +21,7 @@ public class XMLLoggingProxyFactory implements LoggingProxyFactory{
         if (!interfaceClass.isInterface()) {
             throw new IllegalArgumentException("interfaceClass is not an interface");
         }
-        if (!interfaceClass.isInstance(implementation)){
+        if (!interfaceClass.isInstance(implementation)) {
             throw new IllegalArgumentException("Object doesn't implement specified interface");
         }
         try {
