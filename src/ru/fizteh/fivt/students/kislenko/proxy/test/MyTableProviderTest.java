@@ -5,6 +5,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.students.kislenko.junit.test.Cleaner;
+import ru.fizteh.fivt.students.kislenko.proxy.MyTable;
 import ru.fizteh.fivt.students.kislenko.proxy.MyTableProvider;
 import ru.fizteh.fivt.students.kislenko.proxy.MyTableProviderFactory;
 
@@ -82,5 +83,45 @@ public class MyTableProviderTest {
     @Test
     public void testProviderToString() throws Exception {
         Assert.assertEquals("MyTableProvider[database]", provider.toString());
+    }
+
+    @Test
+    public void testGetClosedTable() throws Exception {
+        MyTable table = provider.createTable("closed", typeList);
+        table.close();
+        MyTable newTable = provider.getTable("closed");
+        Assert.assertFalse(newTable.equals(table));
+        Assert.assertNotNull(newTable);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCreateTableByClosedDatabase() throws Exception {
+        MyTableProvider provider1 = new MyTableProvider("database2");
+        provider1.close();
+        provider1.createTable("newTable", typeList);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetTableAtClosedDatabase() throws Exception {
+        MyTableProvider provider1 = new MyTableProvider("database2");
+        provider1.createTable("newTable", typeList);
+        provider1.close();
+        provider1.getTable("newTable");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testRemoveTableFromClosedDatabase() throws Exception {
+        MyTableProvider provider1 = new MyTableProvider("database2");
+        provider1.createTable("newTable", typeList);
+        provider1.close();
+        provider1.removeTable("newTable");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testWorkingWithTableFromClosedDatabase() throws Exception {
+        MyTableProvider provider1 = new MyTableProvider("database2");
+        MyTable table = provider1.createTable("newTable", typeList);
+        provider1.close();
+        table.size();
     }
 }

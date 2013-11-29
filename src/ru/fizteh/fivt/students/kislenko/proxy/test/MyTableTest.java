@@ -284,6 +284,6 @@ public class MyTableTest {
     @Test(expected = IllegalStateException.class)
     public void testThrowingExceptionInPut() throws Exception {
         table.close();
-        table.put("sumkin", provider.deserialize(table, "[\"molodets\",\"aga\"]"));
+        table.put("sumkin", provider.deserialize(table, "[\"molodets\",\"aga\",0,1,2,3,4,5,\"ololopwnz100500\"]"));
     }
 }
