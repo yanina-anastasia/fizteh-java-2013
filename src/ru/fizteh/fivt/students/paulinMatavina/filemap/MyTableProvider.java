@@ -40,7 +40,7 @@ public class MyTableProvider extends State implements TableProvider, AutoCloseab
             try {
                 shell.mkdir(new String[] {dir});
             } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
+                throw new IOException(dir + ": " + e.getMessage(), e);
             }
         }     
         

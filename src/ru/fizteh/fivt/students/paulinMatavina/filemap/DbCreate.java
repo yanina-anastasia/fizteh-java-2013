@@ -11,13 +11,13 @@ public class DbCreate implements Command {
     public int execute(String[] args, State state) {
         String arg = args[0].trim();
         if (arg.charAt(arg.length() - 1) != ')') {
-            System.out.println("wrong type (usage: create <name> <type1 [type2 ...]>)");
+            System.out.println("wrong type (usage: create <name> (<type1 [type2 ...]>))");
             return 0; 
         }
         arg = arg.substring(0, arg.length() - 1).trim();
         String[] argArray = arg.split("[/(]", 2);
         if (argArray.length < 2 || argArray[1].isEmpty()) {
-            System.out.println("wrong type (usage: create <name> <type1 [type2 ...]>)");
+            System.out.println("wrong type (usage: create <name> (<type1 [type2 ...]>))");
             return 0;
         }
         
