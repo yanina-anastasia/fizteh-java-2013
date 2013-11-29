@@ -38,18 +38,21 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             //System.out.println(Thread.currentThread().getName() + " exit get with incorrect table name");
             throw new IllegalArgumentException("Incorrect table name.");
         }
-        if (tables.containsKey(name) && tables.get(name).isClosed()) {
-            MyTable returnTable = new MyTable(name, tables.get(name).getTypes(), this);
-            returnTable.setStorage(tables.get(name).getStorage());
-            tables.put(name, returnTable);
-            return returnTable;
-        }
         lock.writeLock().lock();
-        assertClosed();
-        MyTable table = tables.get(name);
-        lock.writeLock().unlock();
-        //System.out.println(Thread.currentThread().getName() + " exit get with success");
-        return table;
+        try {
+            if (tables.containsKey(name) && tables.get(name).isClosed()) {
+                MyTable returnTable = new MyTable(name, tables.get(name).getTypes(), this);
+                returnTable.setStorage(tables.get(name).getStorage());
+                tables.put(name, returnTable);
+                return returnTable;
+            }
+            assertClosed();
+            MyTable table = tables.get(name);
+            //System.out.println(Thread.currentThread().getName() + " exit get with success");
+            return table;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     @Override
