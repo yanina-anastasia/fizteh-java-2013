@@ -61,7 +61,6 @@ public class FileMapLogging implements InvocationHandler {
                     } else {
                         s5+="c";
                         identifyAttended.put(arg, arg);
-                        identifyAttended.put(arg, arg);
                         for (Object obj: (Object[]) arg) {
                             s5+="d";
                             try {
@@ -81,9 +80,11 @@ public class FileMapLogging implements InvocationHandler {
                     try {
                         s5+="w";
                         creatingArray.put(arg);
+                        s5+= " !! " + arg + " -- "+creatingArray + " !! ";
                     } catch (java.lang.ClassCastException e) {
                         s5+="e";
                         creatingArray.put(arg.toString());
+                        s5+= " !! " + arg + " -- "+creatingArray + " !! ";
                     }
                 }
                 s5+="t";
@@ -137,7 +138,7 @@ public class FileMapLogging implements InvocationHandler {
                     record.put("arguments", ob);
                 //}
 
-                s1 += "?? "+creatorJSONArray.getJSONArray().length()+" ??\n";
+                s1 += "?? "+creatorJSONArray.getJSONArray().get(0)+" ??\n";
             }
             s1 += record.toString()+"\n";
             try {
