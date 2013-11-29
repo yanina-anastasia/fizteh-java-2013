@@ -43,7 +43,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
     @Override
     public void close() {
         if (isTableProviderFactoryClosed) {
-            throw new IllegalStateException("table provider factory " + this.toString() + " is closed");
+            throw new IllegalStateException("table provider factory " + this.getClass().getSimpleName() + " is closed");
         }
         for (MyTableProvider tableProvider : tableProvidersList) {
             tableProvider.close();

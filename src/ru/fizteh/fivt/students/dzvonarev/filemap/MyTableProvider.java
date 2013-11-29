@@ -156,7 +156,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
@@ -172,7 +172,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public Table createTable(String tableName, List<Class<?>> types) throws IllegalArgumentException, IOException {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
@@ -198,7 +198,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
@@ -227,7 +227,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         Parser myParser = new Parser();
         ArrayList<Object> values = myParser.parseValueToList(value);
@@ -241,7 +241,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         multiFileMap.get(table.getName()).checkingValueForValid(value);
         ArrayList<Object> temp = new ArrayList<>();
@@ -255,7 +255,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public Storeable createFor(Table table) {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         return new MyStoreable(table);
     }
@@ -263,7 +263,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         return new MyStoreable(table, values);
     }
@@ -275,7 +275,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public String toString() {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         return MyTableProvider.class.getSimpleName() + "[" + workingDirectory + "]";
     }
@@ -283,7 +283,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     @Override
     public void close() {
         if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.toString() + " is closed");
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
         Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
         for (Map.Entry<String, MyTable> currItem : fileSet) {
