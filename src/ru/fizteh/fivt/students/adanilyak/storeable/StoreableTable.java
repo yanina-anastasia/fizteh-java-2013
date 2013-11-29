@@ -45,7 +45,6 @@ public class StoreableTable implements Table, AutoCloseable {
 
     public StoreableTable(File dataDirectory, TableProvider givenProvider) throws IOException {
         data = new HashMap<>();
-        status.set(WorkStatus.NOT_INITIALIZED);
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -91,7 +90,6 @@ public class StoreableTable implements Table, AutoCloseable {
         }
 
         data = new HashMap<>();
-        status.set(WorkStatus.NOT_INITIALIZED);
         changes = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -294,7 +292,6 @@ public class StoreableTable implements Table, AutoCloseable {
 
     @Override
     public void close() {
-        status.get().isOkForClose();
         if (status.get() == WorkStatus.WORKING) {
             rollback();
         }
