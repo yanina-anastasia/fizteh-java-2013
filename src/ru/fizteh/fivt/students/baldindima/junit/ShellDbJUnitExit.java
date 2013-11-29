@@ -12,12 +12,8 @@ import ru.fizteh.fivt.students.baldindima.shell.ShellIsItCommand;
 		}
 		public void run(){
 			
+			throw new ExitException();
 			
-			if (context.getChanges() == 0) {
-	            throw new ExitException();
-	        } else {
-	            System.out.println(context.getChanges() + " unsaved changes");
-	        }
 
 	}
 
