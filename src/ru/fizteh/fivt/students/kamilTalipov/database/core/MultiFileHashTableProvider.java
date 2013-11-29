@@ -188,6 +188,39 @@ public class MultiFileHashTableProvider implements TableProvider, AutoCloseable 
         }
     }
 
+    void closedTable(MultiFileHashTable table) throws IllegalArgumentException {
+        writeLock.lock();
+        try {
+            int tableIndex = -1;
+            for (int i = 0; i < tables.size(); ++i) {
+                if (tables.get(i).equals(table)) {
+                    tableIndex = i;
+                    break;
+                }
+            }
+
+            if (tableIndex == -1) {
+                String tableName = null;
+                IllegalStateException exception = null;
+                try {
+                    tableName = table.getName();
+                } catch (IllegalStateException e) {
+                    exception = e;
+                }
+
+                if (exception == null) {
+                    throw new IllegalArgumentException("Table '" + tableName + "' not found");
+                } else {
+                    throw new IllegalArgumentException("Table not found", exception);
+                }
+            }
+
+            tables.remove(tableIndex);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     private void checkState() throws IllegalStateException {
         if (isClosed) {
             throw new IllegalStateException("Provider is closed");

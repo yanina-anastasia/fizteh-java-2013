@@ -4,7 +4,6 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.kamilTalipov.database.utils.FileUtils;
 import ru.fizteh.fivt.students.kamilTalipov.database.utils.JsonUtils;
 import ru.fizteh.fivt.students.kamilTalipov.database.utils.StoreableUtils;
@@ -30,7 +29,7 @@ public class MultiFileHashTable implements Table, AutoCloseable {
     private final String tableName;
     private final File tableDirectory;
 
-    private final TableProvider myTableProvider;
+    private final MultiFileHashTableProvider myTableProvider;
 
     private volatile boolean isRemoved = false;
     private volatile boolean isClosed = false;
@@ -48,7 +47,7 @@ public class MultiFileHashTable implements Table, AutoCloseable {
     private static final String SIGNATURE_FILE_NAME = "signature.tsv";
 
     public MultiFileHashTable(String workingDirectory, String tableName,
-                              TableProvider myTableProvider,
+                              MultiFileHashTableProvider myTableProvider,
                               List<Class<?>> types) throws DatabaseException, IOException {
         if (workingDirectory == null) {
             throw new IllegalArgumentException("Working directory path must be not null");
@@ -101,7 +100,8 @@ public class MultiFileHashTable implements Table, AutoCloseable {
     }
 
     public MultiFileHashTable(String workingDirectory, String tableName,
-                              TableProvider myTableProvider) throws DatabaseException, IOException {
+                              MultiFileHashTableProvider myTableProvider) throws DatabaseException,
+                                                                                    IOException {
         this(workingDirectory, tableName, myTableProvider, getTypes(workingDirectory, tableName));
     }
 
@@ -112,6 +112,7 @@ public class MultiFileHashTable implements Table, AutoCloseable {
 
     @Override
     public String getName() {
+        checkState();
         return tableName;
     }
 
@@ -289,6 +290,7 @@ public class MultiFileHashTable implements Table, AutoCloseable {
         if (isClosed) {
             return;
         }
+        myTableProvider.closedTable(this);
 
         rollback();
         isClosed = true;
