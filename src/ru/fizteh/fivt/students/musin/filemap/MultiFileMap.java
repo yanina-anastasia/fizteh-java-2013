@@ -9,7 +9,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class MultiFileMap implements Table {
+public class MultiFileMap implements Table, AutoCloseable {
     File location;
     FileMap[][] map;
     ThreadLocal<HashMap<String, Storeable>> diff;
@@ -17,6 +17,7 @@ public class MultiFileMap implements Table {
     FileMapProvider tableProvider;
     final int arraySize;
     ReentrantReadWriteLock lock;
+    boolean valid;
 
     public MultiFileMap(File location, int arraySize, FileMapProvider tableProvider) {
         if (location == null) {
@@ -28,6 +29,7 @@ public class MultiFileMap implements Table {
         this.tableProvider = tableProvider;
         this.location = location;
         this.arraySize = arraySize;
+        valid = true;
         lock = new ReentrantReadWriteLock();
         columnTypes = new ArrayList<>();
         map = new FileMap[arraySize][arraySize];
@@ -52,10 +54,12 @@ public class MultiFileMap implements Table {
     }
 
     public void setColumnTypes(List<Class<?>> columnTypes) {
+        checkState();
         this.columnTypes = new ArrayList<>(columnTypes);
     }
 
     public boolean checkColumnTypes(Storeable list) {
+        checkState();
         try {
             for (int i = 0; i < columnTypes.size(); i++) {
                 if (list.getColumnAt(i) != null && columnTypes.get(i) != list.getColumnAt(i).getClass()) {
@@ -92,6 +96,7 @@ public class MultiFileMap implements Table {
     }
 
     public String getName() {
+        checkState();
         return location.getName();
     }
 
@@ -108,6 +113,7 @@ public class MultiFileMap implements Table {
     }
 
     public int size() {
+        checkState();
         int size = 0;
         lock.readLock().lock();
         try {
@@ -151,6 +157,7 @@ public class MultiFileMap implements Table {
     }
 
     public void validateDirectory() {
+        checkState();
         File[] files = location.listFiles();
         if (files == null) {
             throw new RuntimeException("Path specifies invalid location");
@@ -186,6 +193,7 @@ public class MultiFileMap implements Table {
      * Method is not synchronized, use methods of TableFactory instead
      */
     public void loadFromDisk() throws IOException, ParseException {
+        checkState();
         columnTypes.clear();
         clear();
         if (!location.getParentFile().exists() || !location.getParentFile().isDirectory()) {
@@ -253,6 +261,7 @@ public class MultiFileMap implements Table {
      * Method not synchronized use commit instead
      */
     public void writeToDisk() throws IOException {
+        checkState();
         if (location.exists() && !location.isDirectory()) {
             throw new RuntimeException("Database can't be written to the specified location");
         }
@@ -338,6 +347,7 @@ public class MultiFileMap implements Table {
     }
 
     public boolean storeableEqual(Storeable first, Storeable second) {
+        checkState();
         if (first == null && second == null) {
             return true;
         }
@@ -357,6 +367,7 @@ public class MultiFileMap implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        checkState();
         if (key == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
         }
@@ -393,6 +404,7 @@ public class MultiFileMap implements Table {
     }
 
     public Storeable get(String key) {
+        checkState();
         if (key == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
         }
@@ -416,6 +428,7 @@ public class MultiFileMap implements Table {
     }
 
     public Storeable remove(String key) {
+        checkState();
         if (key == null) {
             throw new IllegalArgumentException("Null pointer instead of string");
         }
@@ -442,6 +455,7 @@ public class MultiFileMap implements Table {
     }
 
     public int uncommittedChanges() {
+        checkState();
         int result = 0;
         lock.readLock().lock();
         try {
@@ -464,6 +478,7 @@ public class MultiFileMap implements Table {
     }
 
     public int commit() throws IOException {
+        checkState();
         int changes = 0;
         lock.writeLock().lock();
         try {
@@ -487,20 +502,56 @@ public class MultiFileMap implements Table {
     }
 
     public int rollback() {
+        checkState();
         int changes = uncommittedChanges();
         diff.get().clear();
         return changes;
     }
 
     public int getColumnsCount() {
+        checkState();
         return columnTypes.size();
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        checkState();
         if (columnIndex >= getColumnsCount() || columnIndex < 0) {
             throw new IndexOutOfBoundsException(String.format("Index out of bounds: array size %d, found %d",
                     columnTypes.size(), columnIndex));
         }
         return columnTypes.get(columnIndex);
+    }
+
+    @Override
+    public String toString() {
+        checkState();
+        try {
+            return String.format("%s[%s]", this.getClass().getName(), location.getCanonicalPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void checkState() {
+        if (!valid) {
+            if (diff.get().size() != 0) {
+                diff.get().clear();
+            }
+            throw new IllegalStateException("Table is closed");
+        }
+    }
+
+    public boolean isClosed() {
+        return !valid;
+    }
+
+    public void close() {
+        lock.writeLock().lock();
+        try {
+            diff.get().clear();
+            valid = false;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 }

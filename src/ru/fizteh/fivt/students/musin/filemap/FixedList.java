@@ -141,8 +141,18 @@ public class FixedList implements Storeable {
     }
 
     public String toString() {
-        JSONArray array = new JSONArray(objects);
-        return array.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < objects.length; i++) {
+            if (objects[i] != null) {
+                sb.append(objects[i].toString());
+            }
+            if (i != objects.length - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append("]");
+        return String.format("%s%s", this.getClass().toString(), sb.toString());
     }
 
     public void fromString(String serialized) {

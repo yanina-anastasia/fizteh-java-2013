@@ -4,10 +4,22 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-public class FileMapProviderFactory implements TableProviderFactory {
+public class FileMapProviderFactory implements TableProviderFactory, AutoCloseable {
+    ArrayList<FileMapProvider> providers;
+    boolean valid;
+
+    public FileMapProviderFactory() {
+        providers = new ArrayList<>();
+        valid = true;
+    }
+
 
     public FileMapProvider create(String location) throws IOException {
+        if (!valid) {
+            throw new IllegalStateException("TableProvider is closed");
+        }
         if (location == null) {
             throw new IllegalArgumentException("Null location");
         }
@@ -28,5 +40,13 @@ public class FileMapProviderFactory implements TableProviderFactory {
             throw new RuntimeException("Database folder contains files");
         }
         return newProvider;
+    }
+
+    public void close() {
+        valid = false;
+        for (FileMapProvider provider : providers) {
+            provider.close();
+        }
+        providers.clear();
     }
 }
