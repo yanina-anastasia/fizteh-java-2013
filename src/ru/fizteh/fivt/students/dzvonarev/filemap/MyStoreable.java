@@ -137,7 +137,7 @@ public class MyStoreable implements Storeable {
     @Override
     public String toString() {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(Storeable.class.getSimpleName()).append("[");
+        strBuilder.append(MyStoreable.class.getSimpleName()).append("[");
         for (int i = 0; i < column.size(); ++i) {
             if (column.get(i) == null) {
                 strBuilder.append("");
