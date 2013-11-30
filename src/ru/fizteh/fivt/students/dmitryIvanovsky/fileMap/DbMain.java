@@ -47,7 +47,7 @@ public class DbMain {
 //
 //        System.out.println(record);
 
-        System.exit(0);
+        //System.exit(0);
 
         try {
             String path = System.getProperty("fizteh.db.dir");
