@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.nlevashov.factory;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.nlevashov.shell.Shell;
 
 import java.io.BufferedInputStream;
@@ -31,7 +30,7 @@ public class MyTable implements Table, AutoCloseable {
     HashMap<String, Storeable> map;
     String tableName;
     List<Class<?>> types;
-    TableProvider provider;
+    MyTableProvider provider;
     boolean isClosed;
 
     ThreadLocal<HashMap<String, Storeable>> rewritings;
@@ -51,7 +50,7 @@ public class MyTable implements Table, AutoCloseable {
      * @throws ru.fizteh.fivt.storage.structured.ColumnFormatException -
      *                                                          В файле "signature.tsv" встречается неразрешенный тип.
      */
-    public MyTable(Path address, TableProvider selfProvider) throws ColumnFormatException, IOException {
+    public MyTable(Path address, MyTableProvider selfProvider) throws ColumnFormatException, IOException {
         addr = address;
         tableName = addr.getFileName().toString();
         provider = selfProvider;
@@ -462,6 +461,7 @@ public class MyTable implements Table, AutoCloseable {
         if (!isClosed) {
             rollback();
             isClosed = true;
+            provider.isTableClosed.put(tableName, true);
         }
     }
 

@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.nlevashov.factory;
 
+import com.sun.xml.internal.bind.v2.model.core.MaybeElement;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -31,6 +32,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private final ReentrantLock locker = new ReentrantLock(true);
 
     HashMap<String, MyTable> tables;
+    public HashMap<String, Boolean> isTableClosed;
     Path dbPath;
     boolean isClosed;
 
@@ -58,6 +60,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         DirectoryStream<Path> stream = Files.newDirectoryStream(path);
         for (Path f : stream) {
             tables.put(f.getFileName().toString(), (new MyTable(f, this)));
+            isTableClosed.put(f.getFileName().toString(), false);
         }
     }
 
@@ -80,6 +83,15 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         locker.lock();
         try {
+            if (isTableClosed.get(name)) {
+                try {
+                    tables.put(name, new MyTable(dbPath.resolve(name), this));
+                } catch (IOException e) {
+                    // костыль: теперь getTable может кидать IOException, ибо создает новый экземпляр MyTable,
+                    // но нельзя, т.к. @Override ломается
+                }
+                isTableClosed.put(name, false);
+            }
             return tables.get(name);
         } finally {
             locker.unlock();
