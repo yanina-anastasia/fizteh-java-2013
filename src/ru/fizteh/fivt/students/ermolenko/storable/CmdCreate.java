@@ -21,10 +21,6 @@ public class CmdCreate implements Command<StoreableState> {
             throw new IOException("incorrect number of arguments");
         }
 
-        if (args[1].equals("")) {
-            throw new IOException("there are not types");
-        }
-
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
 
         String[] types = args[1].trim().split("\\s+");
