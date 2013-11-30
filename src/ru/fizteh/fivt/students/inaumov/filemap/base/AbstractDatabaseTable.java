@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static ru.fizteh.fivt.students.inaumov.filemap.FileMapUtils.isEqual;
+
 public abstract class AbstractDatabaseTable<Key, Value> {
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     public final Lock transactionLock = new ReentrantLock(true);
@@ -25,7 +27,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             int recordsChangedCount = 0;
             for (final Key key: modifiedKeyValueHashMap.keySet()) {
                 Value newValue = modifiedKeyValueHashMap.get(key);
-                if (!FileMapUtils.isEqual(keyValueHashMap.get(key), newValue)) {
+                if (!isEqual(keyValueHashMap.get(key), newValue)) {
                     if (newValue == null) {
                         keyValueHashMap.remove(key);
                     } else {
@@ -42,7 +44,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             int recordsChangedCount = 0;
             for (final Key key: modifiedKeyValueHashMap.keySet()) {
                 Value newValue = modifiedKeyValueHashMap.get(key);
-                if (!FileMapUtils.isEqual(keyValueHashMap.get(key), newValue)) {
+                if (!isEqual(keyValueHashMap.get(key), newValue)) {
                     recordsChangedCount += 1;
                 }
             }
@@ -150,7 +152,9 @@ public abstract class AbstractDatabaseTable<Key, Value> {
 
         Value oldValue = diff.get().getValue(key);
         diff.get().change(key, value);
-        diff.get().incUnsavedChangesNumber();
+        if (!isEqual(value, oldValue)) {
+            diff.get().incUnsavedChangesNumber();
+        }
 
         return oldValue;
     }
