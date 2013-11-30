@@ -1060,13 +1060,57 @@ public class FileMapUnitTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void callingMethodAfterCloseThrowsException() throws IOException {
+    public void callingTableMethodAfterCloseThrowsException() throws IOException {
         File testFolder = new File(folder.getRoot(), "test");
         testFolder.mkdir();
         FileMapProviderFactory factory = new FileMapProviderFactory();
         FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
         MultiFileMap table = provider.createTable("new", getColumnTypeList());
         table.close();
+        table.commit();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void callingProviderMethodAfterCloseThrowsException() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        provider.close();
+        provider.createFor(table);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void callingFactoryMethodAfterCloseThrowsException() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        factory.close();
+        factory.create("hello");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void callingTableMethodAfterCloseProviderThrowsException() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        provider.close();
+        table.commit();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void callingProviderMethodAfterCloseFactoryThrowsException() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        factory.close();
         provider.createFor(table);
     }
 }

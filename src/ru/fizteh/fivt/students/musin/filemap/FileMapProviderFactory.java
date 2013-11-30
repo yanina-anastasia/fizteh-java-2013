@@ -39,6 +39,7 @@ public class FileMapProviderFactory implements TableProviderFactory, AutoCloseab
         if (!newProvider.isValidContent()) {
             throw new RuntimeException("Database folder contains files");
         }
+        providers.add(newProvider);
         return newProvider;
     }
 
