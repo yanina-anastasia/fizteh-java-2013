@@ -103,16 +103,16 @@ public class MyInvocationHandler implements InvocationHandler {
                     xmlStreamWriter.writeStartElement("thrown");
                     xmlStreamWriter.writeCharacters(throwable.toString());
                     xmlStreamWriter.writeEndElement();
-                }
-
-                if (!method.getReturnType().equals(void.class)) {
-                    xmlStreamWriter.writeStartElement("return");
-                    if (result != null) {
-                        xmlStreamWriter.writeCharacters(result.toString());
-                    } else {
-                        xmlStreamWriter.writeEmptyElement("null");
+                } else {
+                    if (!method.getReturnType().equals(void.class)) {
+                        xmlStreamWriter.writeStartElement("return");
+                        if (result != null) {
+                            xmlStreamWriter.writeCharacters(result.toString());
+                        } else {
+                            xmlStreamWriter.writeEmptyElement("null");
+                        }
+                        xmlStreamWriter.writeEndElement();
                     }
-                    xmlStreamWriter.writeEndElement();
                 }
                 xmlStreamWriter.writeEndElement();
                 xmlStreamWriter.flush();
