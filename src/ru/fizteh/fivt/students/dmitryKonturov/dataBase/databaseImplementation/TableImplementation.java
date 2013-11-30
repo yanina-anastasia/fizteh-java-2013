@@ -181,14 +181,12 @@ public class TableImplementation implements Table {
         checkTableState();
         StoreableUtils.checkStoreableBelongsToTable(this, value);
 
+
+
         Storeable toReturn = get(key);
-        readLock.lock();
-        try {
-            currentChangesMap.get().put(key, value);
-            return toReturn;
-        } finally {
-            readLock.unlock();
-        }
+        currentChangesMap.get().put(key, value);
+        return toReturn;
+
     }
 
     @Override
@@ -197,14 +195,11 @@ public class TableImplementation implements Table {
             throw new IllegalArgumentException("Empty key");
         }
         checkTableState();
+
+
         Storeable toReturn = get(key);
-        readLock.lock();
-        try {
-            currentChangesMap.get().put(key, null);
-            return toReturn;
-        } finally {
-            readLock.unlock();
-        }
+        currentChangesMap.get().put(key, null);
+        return toReturn;
     }
 
     @Override
