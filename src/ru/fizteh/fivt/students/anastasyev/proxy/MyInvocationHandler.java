@@ -75,39 +75,51 @@ public class MyInvocationHandler implements InvocationHandler {
             return method.invoke(implementation, args);
         }
         Object result = null;
+        StringWriter stringWriter = null;
+        try {
+            XMLOutputFactory factory = XMLOutputFactory.newInstance();
+            stringWriter = new StringWriter();
+            xmlStreamWriter = factory.createXMLStreamWriter(stringWriter);
 
-        XMLOutputFactory factory = XMLOutputFactory.newInstance();
-        StringWriter stringWriter = new StringWriter();
-        xmlStreamWriter = factory.createXMLStreamWriter(stringWriter);
+            xmlStreamWriter.writeStartElement("invoke");
+            xmlStreamWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
+            xmlStreamWriter.writeAttribute("class", implementation.getClass().getName());
+            xmlStreamWriter.writeAttribute("name", method.getName());
 
-        xmlStreamWriter.writeStartElement("invoke");
-        xmlStreamWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
-        xmlStreamWriter.writeAttribute("class", implementation.getClass().getName());
-        xmlStreamWriter.writeAttribute("name", method.getName());
-
-        writeLog(args);
+            writeLog(args);
+        } catch (Exception e) {
+            //Do nothing
+        }
 
         try {
             result = method.invoke(implementation, args);
         } catch (InvocationTargetException e) {
             Throwable throwable = e.getTargetException();
-            xmlStreamWriter.writeStartElement("thrown");
-            xmlStreamWriter.writeCharacters(throwable.toString());
-            xmlStreamWriter.writeEndElement();
+            try {
+                xmlStreamWriter.writeStartElement("thrown");
+                xmlStreamWriter.writeCharacters(throwable.toString());
+                xmlStreamWriter.writeEndElement();
+            } catch (Exception e1) {
+                // Do nothing
+            }
             throw throwable;
         } finally {
-            if (!method.getReturnType().equals(void.class)) {
-                xmlStreamWriter.writeStartElement("return");
-                if (result != null) {
-                    xmlStreamWriter.writeCharacters(result.toString());
-                } else {
-                    xmlStreamWriter.writeEmptyElement("null");
+            try {
+                if (!method.getReturnType().equals(void.class)) {
+                    xmlStreamWriter.writeStartElement("return");
+                    if (result != null) {
+                        xmlStreamWriter.writeCharacters(result.toString());
+                    } else {
+                        xmlStreamWriter.writeEmptyElement("null");
+                    }
+                    xmlStreamWriter.writeEndElement();
                 }
                 xmlStreamWriter.writeEndElement();
+                xmlStreamWriter.flush();
+                writer.write(stringWriter + System.lineSeparator());
+            } catch (Exception e) {
+                //Do nothing
             }
-            xmlStreamWriter.writeEndElement();
-            xmlStreamWriter.flush();
-            writer.write(stringWriter.toString() + System.getProperty("line.separator"));
         }
         return result;
     }
