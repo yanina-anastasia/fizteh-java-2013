@@ -141,11 +141,11 @@ public class XMLFormatter {
             if (object == null) {
                 writeNull();
             } else if (object instanceof Iterable) {
-                if (identityHashMap.containsKey(object)) {
+                if (identityHashMap.put(object, true) != null) {
                     xmlWriter.writeCharacters("cyclic");
                 } else {
-                    identityHashMap.put(object, true);
                     writeItereable((Iterable) object);
+                    identityHashMap.remove(object);
                 }
             } else {
                 identityHashMap.put(object, true);

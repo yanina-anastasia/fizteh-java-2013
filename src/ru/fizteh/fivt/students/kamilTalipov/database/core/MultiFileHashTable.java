@@ -175,9 +175,13 @@ public class MultiFileHashTable implements Table, AutoCloseable {
             throw new IllegalArgumentException("Key must be not empty");
         }
 
+        Storeable oldValue;
         readLock.lock();
-        Storeable oldValue = get(key);
-        readLock.unlock();
+        try {
+            oldValue = get(key);
+        } finally {
+            readLock.unlock();
+        }
         newValues.get().put(key, null);
 
         return oldValue;
