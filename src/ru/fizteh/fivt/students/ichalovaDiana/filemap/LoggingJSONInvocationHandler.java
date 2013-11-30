@@ -68,9 +68,8 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
                 log.put("thrown", targetException.toString());
                 writer.write(log.toString() + System.lineSeparator());
             } catch (Exception e1) {
-            } finally {
-                throw targetException;
             }
+            throw targetException;
         } catch (Exception e) {
         }
         
