@@ -35,32 +35,50 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
             }
         }
         
-        JSONObject log = new JSONObject();
-        log.put("timestamp", System.currentTimeMillis());
-        log.put("class", target.getClass().getName());
-        log.put("method", method.getName());
-        
-        JSONArray arguments = new JSONArray();
-        
-        if (args != null) {
-            for (int i = 0; i < args.length; ++i) {
-                logArgument(args[i], arguments, new IdentityHashMap<Object, Object>());
+        JSONObject log;
+        try {
+            log = new JSONObject();
+            log.put("timestamp", System.currentTimeMillis());
+            log.put("class", target.getClass().getName());
+            log.put("method", method.getName());
+            
+            JSONArray arguments = new JSONArray();
+       
+            if (args != null) {
+                for (int i = 0; i < args.length; ++i) {
+                    logArgument(args[i], arguments, new IdentityHashMap<Object, Object>());
+                }
+            }
+            log.put("arguments", arguments);
+        } catch (Exception e) {
+            try {
+                result = method.invoke(target, args);
+                return result;
+            } catch (InvocationTargetException e1) {
+                Throwable targetException = e1.getTargetException();
+                throw targetException;
             }
         }
-        log.put("arguments", arguments);
         
         try {
             result = method.invoke(target, args);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
-            log.put("thrown", targetException.toString());
-            writer.write(log.toString() + System.lineSeparator());
-            throw targetException;
+            try {
+                log.put("thrown", targetException.toString());
+                writer.write(log.toString() + System.lineSeparator());
+            } catch (Exception e1) {
+            } finally {
+                throw targetException;
+            }
         } catch (Exception e) {
         }
         
-        if (method.getReturnType() != void.class) {
-            log.put("returnValue", (result != null) ? result : JSONObject.NULL);
+        try {
+            if (method.getReturnType() != void.class) {
+                log.put("returnValue", (result != null) ? result : JSONObject.NULL);
+            }
+        } catch (Exception e) {
         }
         
         try {
