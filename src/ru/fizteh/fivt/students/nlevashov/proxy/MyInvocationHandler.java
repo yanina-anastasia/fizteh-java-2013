@@ -43,9 +43,7 @@ public class MyInvocationHandler implements InvocationHandler {
             log.put("method", method.getName());
             log.put("arguments", getJSONArrayFromArray(args, new IdentityHashMap<>()));
             if (exception == null) {
-                if (method.getReturnType().equals(void.class)) {
-                    log.put("returnValue", "");
-                } else {
+                if (!method.getReturnType().equals(void.class)) {
                     if (result == null) {
                         log.put("returnValue", result);
                     } else if (result.getClass().isArray()) {
@@ -73,7 +71,6 @@ public class MyInvocationHandler implements InvocationHandler {
             // Немного странно, что try без catch или finally это неправильно, в то же врямя как и пустой catch или
             // finally. Но комментарий, который никак не влияет на исполнение кода, все изменят к лучшему. Java тащит.
         }
-
         if (exception != null) {
             throw exception;
         }
