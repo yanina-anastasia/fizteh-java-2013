@@ -13,8 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class MyTableTests {
 
@@ -204,4 +203,18 @@ public class MyTableTests {
         table.rollback();
     }
 
+    @Test
+    public void testGetClosedTable() throws IOException {
+        Storeable st = new MyStoreable(table);
+        st.setColumnAt(0, 1);
+        st.setColumnAt(1, "string");
+        st.setColumnAt(2, 2.5);
+        table.put("succes", st);
+        table.commit();
+        MyTable oldTable = (MyTable) table;
+        oldTable.close();
+        Table newTable = provider.getTable("testTable");
+        assertNotEquals(oldTable, newTable);
+        assertNotEquals(newTable.get("succes"), null);
+    }
 }

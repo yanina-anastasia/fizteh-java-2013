@@ -153,13 +153,30 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
-        if (!tableNameIsValid(tableName)) {
-            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
-        }
-        readLock.lock();
         checkProviderClosed();
+        readLock.lock();
         try {
-            return multiFileMap.get(tableName);
+            if (multiFileMap.get(tableName) != null) {
+                return multiFileMap.get(tableName);
+            } else {
+                File dirTable = new File(workingDirectory + File.separator + tableName);
+                if (!(dirTable.exists() && dirTable.isDirectory())) {
+                    return null;
+                }
+                MyTable newTable;
+                try {
+                    newTable = new MyTable(dirTable, this);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    newTable.readFileMap();
+                } catch (IOException | ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                multiFileMap.put(tableName, newTable);
+                return newTable;
+            }
         } finally {
             readLock.unlock();
         }
@@ -252,10 +269,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         return new MyStoreable(table, values);
     }
 
-    public void removeClosedTable(String tableName) {
-        multiFileMap.remove(tableName);
-    }
-
     @Override
     public String toString() {
         checkProviderClosed();
@@ -269,6 +282,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         writeLock.lock();
         try {
+            if (isProviderClosed) {
+                return;
+            }
             Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
             for (Map.Entry<String, MyTable> currItem : fileSet) {
                 MyTable value = currItem.getValue();
@@ -284,5 +300,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         if (isProviderClosed) {
             throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
+    }
+
+    public void removeClosedTable(String tableName) {
+        multiFileMap.remove(tableName);
     }
 }
