@@ -22,8 +22,18 @@ public class FileMapLogging implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object returnedValue = null;
         JSONObject record = new JSONObject();
-        //if (!method.getDeclaringClass().equals(Object.class)) {
-
+        if (method.getDeclaringClass().equals(Object.class)) {
+            try {
+                writer.write("");
+            } catch (IOException e) {
+                //pass
+            }
+            try {
+                returnedValue = method.invoke(object, args);
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
+        } else {
             record.put("timestamp", System.currentTimeMillis());
             record.put("class", object.getClass().getName());
             record.put("method", method.getName());
@@ -38,18 +48,6 @@ public class FileMapLogging implements InvocationHandler {
 
             try {
                 returnedValue = method.invoke(object, args);
-                if (!method.getReturnType().equals(void.class)) {
-                    if (returnedValue == null) {
-                        record.put("returnValue", JSONObject.NULL);
-                    } else {
-                        JSONObject copy = new JSONObject(record, JSONObject.getNames(record));
-                        record.put("returnValue", returnedValue);
-                        if (record.toString() == null) {
-                            record = copy;
-                            record.put("returnValue", returnedValue.toString());
-                        }
-                    }
-                }
             } catch (InvocationTargetException e) {
                 record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
@@ -60,19 +58,22 @@ public class FileMapLogging implements InvocationHandler {
                     //pass
                 }
             }
-        //}
-//        } else {
-//            try {
-//                writer.write("");
-//            } catch (IOException e) {
-//                //pass
-//            }
-//            try {
-//                returnedValue = method.invoke(object, args);
-//            } catch (InvocationTargetException e) {
-//                throw e.getTargetException();
-//            }
-//        }
+
+            if (!method.getReturnType().equals(void.class)) {
+                if (returnedValue == null) {
+                    record.put("returnValue", JSONObject.NULL);
+                } else {
+                    JSONObject copy = new JSONObject(record, JSONObject.getNames(record));
+                    record.put("returnValue", returnedValue);
+                    if (record.toString() == null) {
+                        record = copy;
+                        record.put("returnValue", returnedValue.toString());
+                    }
+                }
+            }
+            writer.write(record.toString() + System.lineSeparator());
+
+        }
         return returnedValue;
     }
 }
