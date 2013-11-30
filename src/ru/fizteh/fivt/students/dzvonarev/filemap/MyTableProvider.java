@@ -153,30 +153,13 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
-        checkProviderClosed();
+        if (!tableNameIsValid(tableName)) {
+            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
+        }
         readLock.lock();
         try {
-            if (multiFileMap.get(tableName) != null) {
-                return multiFileMap.get(tableName);
-            } else {
-                File dirTable = new File(workingDirectory + File.separator + tableName);
-                if (!(dirTable.exists() && dirTable.isDirectory())) {
-                    return null;
-                }
-                MyTable newTable;
-                try {
-                    newTable = new MyTable(dirTable, this);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
-                    newTable.readFileMap();
-                } catch (IOException | ParseException e) {
-                    throw new RuntimeException(e);
-                }
-                multiFileMap.put(tableName, newTable);
-                return newTable;
-            }
+            checkProviderClosed();
+            return multiFileMap.get(tableName);
         } finally {
             readLock.unlock();
         }
@@ -269,6 +252,10 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         return new MyStoreable(table, values);
     }
 
+    public void removeClosedTable(String tableName) {
+        multiFileMap.remove(tableName);
+    }
+
     @Override
     public String toString() {
         checkProviderClosed();
@@ -297,9 +284,5 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         if (isProviderClosed) {
             throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
-    }
-
-    public void removeClosedTable(String tableName) {
-        multiFileMap.remove(tableName);
     }
 }
