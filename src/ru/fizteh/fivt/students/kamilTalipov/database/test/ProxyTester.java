@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 
 import ru.fizteh.fivt.students.kamilTalipov.database.proxy.XMLProxyLoggerFactory;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +45,10 @@ public class ProxyTester {
 
         List<Object> proxyList = (List<Object>) loggerFactory.wrap(writer, new ArrayList<>(), List.class);
         Assert.assertEquals(-1, proxyList.indexOf(cyclicList));
-        Assert.assertEquals("name=\"indexOf\" class=\"java.util.ArrayList\"><arguments><argument><list><value><list><value>cyclic</value></list></value></list></argument></arguments><return>-1</return>", getMessageFromLog(writer.toString()));
+        Assert.assertEquals("name=\"indexOf\" class=\"java.util.ArrayList\">"
+                + "<arguments><argument><list><value><list><value>cyclic</value>"
+                + "</list></value></list></argument></arguments><return>-1</return>",
+                getMessageFromLog(writer.toString()));
 
     }
 
@@ -57,8 +59,13 @@ public class ProxyTester {
 
         List<List<Integer>> arguments = Arrays.asList(sameObject, sameObject, sameObject);
         List<Object> proxyList = (List<Object>) loggerFactory.wrap(writer, new ArrayList<>(), List.class);
-        Assert.assertEquals (-1, proxyList.indexOf(arguments));
-        Assert.assertEquals("name=\"indexOf\" class=\"java.util.ArrayList\"><arguments><argument><list><value><list><value>5</value><value>10</value></list></value><value><list><value>5</value><value>10</value></list></value><value><list><value>5</value><value>10</value></list></value></list></argument></arguments><return>-1</return>", getMessageFromLog(writer.toString()));
+        Assert.assertEquals(-1, proxyList.indexOf(arguments));
+        Assert.assertEquals("name=\"indexOf\" class=\"java.util.ArrayList\"><arguments><argument>"
+                + "<list><value><list><value>5</value><value>10</value></list></value>"
+                + "<value><list><value>5</value><value>10</value></list></value><value>"
+                + "<list><value>5</value><value>10</value></list></value></list></argument>"
+                + "</arguments><return>-1</return>",
+                getMessageFromLog(writer.toString()));
     }
 
     @Test
@@ -72,14 +79,19 @@ public class ProxyTester {
         } catch (IllegalArgumentException e) {
             //normal way
         }
-        Assert.assertEquals("name=\"throwIllegalArgumentException\" class=\"ru.fizteh.fivt.students.kamilTalipov.database.test.ProxyTester$ExceptionGeneratorImpl\"><arguments></arguments><thrown>java.lang.IllegalArgumentException</thrown>", getMessageFromLog(writer.toString()));
+        Assert.assertEquals("name=\"throwIllegalArgumentException\" class=\"ru.fizteh.fivt.students"
+                + ".kamilTalipov.database.test"
+                + ".ProxyTester$ExceptionGeneratorImpl\"><arguments>"
+                + "</arguments><thrown>java.lang.IllegalArgumentException</thrown>",
+                getMessageFromLog(writer.toString()));
     }
 
     @Test
     public void listIntegerAddLogTest() {
         List<Integer> list = (List<Integer>) loggerFactory.wrap(writer, new ArrayList(), List.class);
         list.add(1);
-        Assert.assertEquals("name=\"add\" class=\"java.util.ArrayList\"><arguments><argument>1</argument></arguments><return>true</return>",
+        Assert.assertEquals("name=\"add\" class=\"java.util.ArrayList\">"
+                + "<arguments><argument>1</argument></arguments><return>true</return>",
                 getMessageFromLog(writer.toString()));
     }
 
@@ -87,7 +99,8 @@ public class ProxyTester {
     public void nullLogTest() {
         List<Integer> list = (List<Integer>) loggerFactory.wrap(writer, new ArrayList(), List.class);
         list.add(null);
-        Assert.assertEquals("name=\"add\" class=\"java.util.ArrayList\"><arguments><argument><null></null></argument></arguments><return>true</return>",
+        Assert.assertEquals("name=\"add\" class=\"java.util.ArrayList\">"
+                + "<arguments><argument><null></null></argument></arguments><return>true</return>",
                 getMessageFromLog(writer.toString()));
     }
 
@@ -95,7 +108,8 @@ public class ProxyTester {
     public void emptyArgsMethodLogTest() {
         List<Integer> list = (List<Integer>) loggerFactory.wrap(writer, new ArrayList(), List.class);
         Assert.assertEquals(list.size(), 0);
-        Assert.assertEquals("name=\"size\" class=\"java.util.ArrayList\"><arguments></arguments><return>0</return>",
+        Assert.assertEquals("name=\"size\" class=\"java.util.ArrayList\">"
+                + "<arguments></arguments><return>0</return>",
                 getMessageFromLog(writer.toString()));
     }
 
