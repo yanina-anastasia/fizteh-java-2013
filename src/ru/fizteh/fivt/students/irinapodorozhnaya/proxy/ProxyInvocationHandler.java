@@ -17,7 +17,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = null;
+        Object result;
         if (!method.getDeclaringClass().equals(Object.class)) {
             try (JSONLogWriter logWriter = new JSONLogWriter(writer))  {
                 logWriter.writeTimeStamp();

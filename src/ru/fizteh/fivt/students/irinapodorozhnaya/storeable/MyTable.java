@@ -23,7 +23,7 @@ public class MyTable extends GenericTable<Storeable> implements ExtendTable {
     
     private final List<Class<?>> columnType;
     private final ExtendProvider provider;
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
 
     public MyTable(String name, File rootDir, ExtendProvider provider) throws IOException {
         super(name, rootDir);

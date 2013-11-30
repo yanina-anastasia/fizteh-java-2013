@@ -12,7 +12,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     public static final String LEGAL_NAME = "[^*?\"<>|]+";
     private Set<ExtendProvider> providers = new HashSet<>();
-    private boolean isClosed = false;
+    private volatile boolean isClosed = false;
 
     @Override
     public ExtendProvider create(String dataBaseDir) throws IOException {

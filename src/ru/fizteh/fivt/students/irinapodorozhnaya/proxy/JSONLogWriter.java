@@ -14,28 +14,36 @@ import java.util.Set;
 public class JSONLogWriter implements AutoCloseable {
 
     private final Writer writer;
-    private final JSONObject jsonObject = new JSONObject();
-    private final Set<Object> containedArguments = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
+    private final ThreadLocal<JSONObject> jsonObject = new ThreadLocal<JSONObject>() {
+        public JSONObject initialValue() {
+            return new JSONObject();
+        }
+    };
+    private final ThreadLocal<Set<Object>> containedArguments = new ThreadLocal<Set<Object>>() {
+        public Set<Object> initialValue() {
+            return Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
+        }
+    };
 
     public JSONLogWriter(Writer writer) {
         this.writer = writer;
     }
 
     public void writeTimeStamp() {
-        jsonObject.put("timestamp", System.currentTimeMillis());
+        jsonObject.get().put("timestamp", System.currentTimeMillis());
 
     }
 
     public void writeClass(Class<?> classObject) {
-        jsonObject.put("class", classObject.getName());
+        jsonObject.get().put("class", classObject.getName());
     }
 
     public void writeThrown(Throwable throwable) {
-        jsonObject.put("thrown", throwable.toString());
+        jsonObject.get().put("thrown", throwable.toString());
     }
 
     public void writeMethod(Method method) {
-        jsonObject.put("method", method.getName());
+        jsonObject.get().put("method", method.getName());
     }
 
     public void writeReturnValue(Object value) {
@@ -46,31 +54,35 @@ public class JSONLogWriter implements AutoCloseable {
             } else if (value.getClass().isArray()) {
                 writeIterable(Arrays.asList((Object[]) value), jsonArray);
             } else {
-                jsonObject.put("returnValue", value);
+                jsonObject.get().put("returnValue", value);
                 return;
             }
         } else {
-            jsonObject.put("returnValue", JSONObject.NULL);
+            jsonObject.get().put("returnValue", JSONObject.NULL);
             return;
         }
-        jsonObject.put("returnValue", jsonArray);
+        jsonObject.get().put("returnValue", jsonArray);
     }
 
     public void writeArguments(Object[] arguments) {
-        JSONArray jsonArray = new JSONArray();
+        ThreadLocal<JSONArray> jsonArray = new ThreadLocal<JSONArray>() {
+            public JSONArray initialValue() {
+                return new JSONArray();
+            }
+        };
         if (arguments != null) {
-            writeIterable(Arrays.asList(arguments), jsonArray);
+            writeIterable(Arrays.asList(arguments), jsonArray.get());
         }
-        jsonObject.put("arguments", jsonArray);
+        jsonObject.get().put("arguments", jsonArray.get());
     }
 
     private void writeIterable(Iterable args, JSONArray jsonArray) {
-        containedArguments.add(args);
+        containedArguments.get().add(args);
         for (Object argument: args) {
             if (argument == null) {
                 jsonArray.put(argument);
             } else if (argument instanceof Iterable) {
-                if (containedArguments.contains(argument)) {
+                if (containedArguments.get().contains(argument)) {
                     jsonArray.put("cyclic");
                 } else {
                     JSONArray array = new JSONArray();
@@ -88,7 +100,9 @@ public class JSONLogWriter implements AutoCloseable {
     @Override
     public void close() {
         try {
-            writer.write(jsonObject.toString(2) + '\n');
+            synchronized (writer) {
+                writer.write(jsonObject.get().toString(2) + '\n');
+            }
         } catch (IOException e) {
             //do nothing
         }
