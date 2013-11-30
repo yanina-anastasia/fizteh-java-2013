@@ -5,7 +5,8 @@ import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.students.inaumov.filemap.FileMapStringShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
-public class MultiFileMapStringShellState extends FileMapStringShellState implements MultiFileMapShellState<Table, String, String> {
+public class MultiFileMapStringShellState extends FileMapStringShellState
+        implements MultiFileMapShellState<Table, String, String> {
     public TableProvider tableProvider;
 
     @Override

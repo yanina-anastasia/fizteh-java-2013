@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class SizeCommand<State extends FileMapShellState> extends AbstractCommand<State> {
     public SizeCommand() {
-		super("size", 0);
+        super("size", 0);
 	}
 
 	public void execute(String argumentsLine, State state) {

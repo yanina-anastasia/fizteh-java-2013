@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 public class PutCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>>
         extends AbstractCommand<State> {
     public PutCommand() {
-		super("put", 2);
+        super("put", 2);
 	}
 
 	public void execute(String argumentsLine, State state) {
