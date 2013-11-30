@@ -55,8 +55,8 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         if (!CheckOnCorrect.goodName(tableName)) {
             throw new IllegalArgumentException("get table: name is bad");
         }
+        lock.lock();
         try {
-            lock.lock();
             Table getRes = allTablesMap.get(tableName);
             if (getRes == null) {
                 return null;
@@ -65,11 +65,8 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
                 return getRes;
             } else {
                 File tableFile = new File(allTablesDirectory, tableName);
-                //List<Class<?>> temp = ((StoreableTable) getRes).getColumnTypes();
                 Table newTable = null;
                 try {
-                    //DeleteDirectory.rm(tableFile);
-                    //tableFile.mkdir();
                     newTable = new StoreableTable(tableFile, this);
                 } catch (IOException exc) {
                     System.err.println(exc.getMessage());
@@ -77,8 +74,6 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
                 allTablesMap.put(tableName, newTable);
                 return newTable;
             }
-
-            //return allTablesMap.get(tableName);
         } finally {
             lock.unlock();
         }
@@ -91,8 +86,8 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("create table: name or column types is bad");
         }
         File tableFile = new File(allTablesDirectory, tableName);
+        lock.lock();
         try {
-            lock.lock();
             if (!tableFile.mkdir()) {
                 if (((StoreableTable) allTablesMap.get(tableName)).isOkForOperations()) {
                     return null;
@@ -114,8 +109,8 @@ public class StoreableTableProvider implements TableProvider, AutoCloseable {
         if (!CheckOnCorrect.goodName(tableName)) {
             throw new IllegalArgumentException("remove table: name is bad");
         }
+        lock.lock();
         try {
-            lock.lock();
             if (allTablesMap.get(tableName) == null) {
                 throw new IllegalStateException(tableName + " not exists");
             }

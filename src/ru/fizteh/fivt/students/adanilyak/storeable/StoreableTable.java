@@ -137,8 +137,8 @@ public class StoreableTable implements Table, AutoCloseable {
             if (removedKeys.get().contains(key)) {
                 return null;
             }
+            transactionLock.lock();
             try {
-                transactionLock.lock();
                 resultOfGet = data.get(key);
             } finally {
                 transactionLock.unlock();
@@ -157,8 +157,8 @@ public class StoreableTable implements Table, AutoCloseable {
             throw new ColumnFormatException("put: value not suitable for this table");
         }
         Storeable valueInData;
+        transactionLock.lock();
         try {
-            transactionLock.lock();
             valueInData = data.get(key);
         } finally {
             transactionLock.unlock();
@@ -185,8 +185,8 @@ public class StoreableTable implements Table, AutoCloseable {
         }
         Storeable resultOfRemove = changes.get().get(key);
         if (resultOfRemove == null && !removedKeys.get().contains(key)) {
+            transactionLock.lock();
             try {
-                transactionLock.lock();
                 resultOfRemove = data.get(key);
             } finally {
                 transactionLock.unlock();
@@ -195,8 +195,8 @@ public class StoreableTable implements Table, AutoCloseable {
         if (changes.get().containsKey(key)) {
             amountOfChanges.set(amountOfChanges.get() - 1);
             changes.get().remove(key);
+            transactionLock.lock();
             try {
-                transactionLock.lock();
                 if (data.containsKey(key)) {
                     removedKeys.get().add(key);
                 }
@@ -204,8 +204,8 @@ public class StoreableTable implements Table, AutoCloseable {
                 transactionLock.unlock();
             }
         } else {
+            transactionLock.lock();
             try {
-                transactionLock.lock();
                 if (data.containsKey(key) && !removedKeys.get().contains(key)) {
                     removedKeys.get().add(key);
                     amountOfChanges.set(amountOfChanges.get() + 1);
@@ -220,8 +220,8 @@ public class StoreableTable implements Table, AutoCloseable {
     @Override
     public int size() {
         status.get().isOkForOperations();
+        transactionLock.lock();
         try {
-            transactionLock.lock();
             return CountingTools.correctCountingOfSize(data, changes.get(), removedKeys.get());
         } finally {
             transactionLock.unlock();
@@ -232,8 +232,8 @@ public class StoreableTable implements Table, AutoCloseable {
     public int commit() {
         status.get().isOkForOperations();
         int result = -1;
+        transactionLock.lock();
         try {
-            transactionLock.lock();
             result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
             for (String key : removedKeys.get()) {
                 data.remove(key);
@@ -255,8 +255,8 @@ public class StoreableTable implements Table, AutoCloseable {
     public int rollback() {
         status.get().isOkForOperations();
         int result = -1;
+        transactionLock.lock();
         try {
-            transactionLock.lock();
             result = CountingTools.correctCountingOfChangesInStoreable(this, data, changes.get(), removedKeys.get());
         } finally {
             transactionLock.unlock();

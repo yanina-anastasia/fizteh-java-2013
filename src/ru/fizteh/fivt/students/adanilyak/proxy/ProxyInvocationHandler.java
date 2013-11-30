@@ -8,6 +8,8 @@ import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * User: Alexander
@@ -17,6 +19,7 @@ import java.lang.reflect.Method;
 public class ProxyInvocationHandler implements InvocationHandler {
     private final Writer writer;
     private final Object implementation;
+    private final Lock lock = new ReentrantLock(true);
 
     public ProxyInvocationHandler(Writer givenWriter, Object object) {
         writer = givenWriter;
@@ -29,33 +32,38 @@ public class ProxyInvocationHandler implements InvocationHandler {
             return method.invoke(implementation, args);
         }
         Object result = null;
-        XMLformatter formatter = new XMLformatter();
-
-        formatter.writeTimeStamp();
-        formatter.writeClass(implementation.getClass());
-        formatter.writeMethod(method);
-        formatter.writeArguments(args);
+        lock.lock();
         try {
-            result = method.invoke(implementation, args);
-            if (!method.getReturnType().equals(void.class)) {
-                formatter.writeReturnValue(result);
-            }
-        } catch (InvocationTargetException exc) {
-            Throwable targetException = exc.getTargetException();
-            formatter.writeThrown(targetException);
-            throw targetException;
-        } catch (Exception exc) {
-            // Something went wrong
-        } finally {
+            XMLformatter formatter = new XMLformatter();
+
+            formatter.writeTimeStamp();
+            formatter.writeClass(implementation.getClass());
+            formatter.writeMethod(method);
+            formatter.writeArguments(args);
             try {
-                if (method.getDeclaringClass() != Object.class) {
-                    formatter.close();
-                    writer.write(formatter.toString() + "\n");
+                result = method.invoke(implementation, args);
+                if (!method.getReturnType().equals(void.class)) {
+                    formatter.writeReturnValue(result);
                 }
-            } catch (IOException ignored) {
-                // Ignore exceptions
+            } catch (InvocationTargetException exc) {
+                Throwable targetException = exc.getTargetException();
+                formatter.writeThrown(targetException);
+                throw targetException;
+            } catch (Exception exc) {
+                // Something went wrong
+            } finally {
+                try {
+                    if (method.getDeclaringClass() != Object.class) {
+                        formatter.close();
+                        writer.write(formatter.toString() + "\n");
+                    }
+                } catch (IOException ignored) {
+                    // Ignore exceptions
+                }
             }
+            return result;
+        } finally {
+            lock.unlock();
         }
-        return result;
     }
 }
