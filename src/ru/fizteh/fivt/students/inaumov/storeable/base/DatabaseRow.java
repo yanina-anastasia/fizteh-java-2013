@@ -108,7 +108,13 @@ public class DatabaseRow implements Storeable {
         if (otherStoreable == null) {
             return false;
         }
+
         return otherStoreable.columns.equals(columns) && otherStoreable.classes.equals(classes);
+    }
+
+    @Override
+    public int hashCode() {
+        return columns == null? 0: columns.hashCode();
     }
 
     public void addColumn(Class<?> columnType) {
