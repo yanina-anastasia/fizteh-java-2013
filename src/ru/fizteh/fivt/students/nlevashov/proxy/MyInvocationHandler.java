@@ -85,7 +85,7 @@ public class MyInvocationHandler implements InvocationHandler {
 
     private JSONArray getJSONArrayFromArray(Object[] args, IdentityHashMap<Object, Object> map) {
         JSONArray a = new JSONArray();
-        if (args == null) {
+        if (args != null) {
             map.put(args, null);
             for (Object arg : args) {
                 if (arg == null) {
@@ -115,7 +115,7 @@ public class MyInvocationHandler implements InvocationHandler {
 
     private JSONArray getJSONArrayFromIterable(Iterable<?> args, IdentityHashMap<Object, Object> map) {
         JSONArray a = new JSONArray();
-        if (args == null) {
+        if (args != null) {
             map.put(args, null);
             for (Object arg : args) {
                 if (arg == null) {
