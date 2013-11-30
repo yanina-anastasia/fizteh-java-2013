@@ -8,9 +8,9 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 public class CommitCommand<State extends FileMapShellState> extends AbstractCommand<State> {
     public CommitCommand() {
         super("commit", 0);
-	}
+    }
 
-	public void execute(String argumentsLine, FileMapShellState state) {
+    public void execute(String argumentsLine, FileMapShellState state) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
@@ -19,6 +19,6 @@ public class CommitCommand<State extends FileMapShellState> extends AbstractComm
             return;
         }
 
-		System.out.println(state.commit());
-	}
+        System.out.println(state.commit());
+    }
 }

@@ -146,7 +146,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         }
         if (value == null) {
             throw new IllegalArgumentException("error: selected value is null");
-		}
+        }
 
         Value oldValue = diff.get().getValue(key);
         diff.get().change(key, value);
