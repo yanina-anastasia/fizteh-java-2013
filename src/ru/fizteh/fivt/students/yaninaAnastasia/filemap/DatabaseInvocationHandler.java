@@ -30,7 +30,7 @@ public class DatabaseInvocationHandler implements InvocationHandler {
         }
         try {
             result = method.invoke(innerObject, args);
-            if (!method.getReturnType().getName().equals("void")) {
+            if (!method.getReturnType().equals(void.class)) {
                 logWriter.logReturnValue(result);
             }
         } catch (InvocationTargetException e) {
