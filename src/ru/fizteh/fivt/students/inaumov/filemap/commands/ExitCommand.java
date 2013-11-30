@@ -16,7 +16,8 @@ public class ExitCommand<State extends FileMapShellState> extends AbstractComman
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
         if (state.getTable() != null) {
-            state.rollback();
+            //state.rollback();
+            state.commit();
         }
 
         throw new UserInterruptionException();
