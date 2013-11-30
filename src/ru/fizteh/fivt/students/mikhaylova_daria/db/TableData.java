@@ -308,13 +308,8 @@ public class TableData implements Table, AutoCloseable {
                 throw new  IllegalStateException("Table is closed");
             }
             int numberOfChanges = 0;
-            myReadLock.lock();
-            try {
-                for (int i = 0; i < 16; ++i) {
-                    numberOfChanges += dirArray[i].countChanges();
-                }
-            } finally {
-                myReadLock.unlock();
+            for (int i = 0; i < 16; ++i) {
+                numberOfChanges += dirArray[i].countChanges();
             }
             return numberOfChanges;
         } finally {
