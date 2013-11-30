@@ -36,7 +36,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     boolean isClosed;
 
     public void closeTable(String name) {
-        isTableClosed.put(name, true);
+        isTableClosed.put(name, Boolean.TRUE);
     }
 
     /**
