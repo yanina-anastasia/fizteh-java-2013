@@ -49,7 +49,6 @@ public class FileMapProviderFactory implements TableProviderFactory, AutoCloseab
 
     public void close() {
         if (!isFactoryClose) {
-            isFactoryClose = true;
             for (FileMapProvider provider: setFileMapProvider) {
                 try {
                     provider.close();
@@ -57,6 +56,7 @@ public class FileMapProviderFactory implements TableProviderFactory, AutoCloseab
                     //pass
                 }
             }
+            isFactoryClose = true;
         }
     }
 

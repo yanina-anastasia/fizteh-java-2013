@@ -495,11 +495,11 @@ public class FileMapProvider implements CommandAbstract, TableProvider, AutoClos
 
     public void close() {
         if (!isProviderClose) {
-            isProviderClose = true;
             for (FileMap table: mapFileMap.values()) {
                 table.close();
             }
             mapFileMap.clear();
+            isProviderClose = true;
         }
     }
 
