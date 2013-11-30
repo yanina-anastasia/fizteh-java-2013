@@ -21,7 +21,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
     private ReadWriteLock transactionLock = new ReentrantReadWriteLock(true);
-    boolean isClosed;
+    volatile boolean isClosed;
 
 
     public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
@@ -94,9 +94,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public String getName() {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (tableName == null) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
@@ -104,9 +102,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
@@ -126,9 +122,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
         }
@@ -169,9 +163,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
         }
@@ -203,9 +195,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public int size() {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         transactionLock.readLock().lock();
         try {
             return oldData.size() + diffSize();
@@ -215,9 +205,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public int commit() {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         int recordsCommitted = 0;
         transactionLock.writeLock().lock();
         try {
@@ -242,9 +230,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public int rollback() {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         int recordsDeleted = Math.abs(changesCount());
 
         deletedKeys.get().clear();
@@ -256,9 +242,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
             throw new IndexOutOfBoundsException("wrong index");
         }
@@ -445,9 +429,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public int getColumnsCount() {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         return columnTypes.size();
     }
 
@@ -471,6 +453,12 @@ public class DatabaseTable implements Table, AutoCloseable {
             return;
         }
         throw new ColumnFormatException("Alien storeable with more columns");
+    }
+
+    public void isCloseChecker() {
+        if (isClosed) {
+            throw new IllegalStateException("It is closed");
+        }
     }
 
     @Override

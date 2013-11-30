@@ -19,7 +19,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     String curDir;
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
-    boolean isClosed;
+    volatile boolean isClosed;
 
     public DatabaseTableProvider(String directory) {
         isClosed = false;
@@ -38,9 +38,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     }
 
     public DatabaseTable getTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
 
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
@@ -79,9 +77,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public Table createTable(String name, List<Class<?>> columnTypes)
             throws IllegalArgumentException, IllegalStateException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
@@ -156,9 +152,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     }
 
     public void removeTable(String name) throws IllegalArgumentException, IllegalStateException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (name == null || (name.isEmpty() || name.trim().isEmpty())) {
             throw new IllegalArgumentException("table's name cannot be null");
         }
@@ -192,9 +186,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     }
 
     public Storeable deserialize(Table table, String value) throws ParseException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (value == null || value.isEmpty()) {
             throw new IllegalArgumentException("value cannot be null or empty");
         }
@@ -239,9 +231,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     }
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (value == null) {
             throw new IllegalArgumentException("value cannot be null");
         }
@@ -261,9 +251,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     }
 
     public Storeable createFor(Table table) {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (table == null) {
             return null;
         }
@@ -276,9 +264,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     }
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
         }
@@ -464,6 +450,12 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             tableBuilder.put(nextKey, putValue);
         } else {
             throw new IllegalArgumentException("File has incorrect format");
+        }
+    }
+
+    public void isCloseChecker() {
+        if (isClosed) {
+            throw new IllegalStateException("It is closed");
         }
     }
 

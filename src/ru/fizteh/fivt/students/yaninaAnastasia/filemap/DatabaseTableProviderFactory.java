@@ -8,13 +8,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DatabaseTableProviderFactory implements TableProviderFactory, AutoCloseable {
-    boolean isClosed = false;
+    volatile boolean isClosed = false;
     public Set<DatabaseTableProvider> providers = new HashSet<>();
 
     public DatabaseTableProvider create(String directory) throws IOException {
-        if (isClosed) {
-            throw new IllegalStateException("It is closed");
-        }
+        isCloseChecker();
         if (directory == null || directory.isEmpty()) {
             throw new IllegalArgumentException("Error while getting property");
         }
@@ -30,6 +28,12 @@ public class DatabaseTableProviderFactory implements TableProviderFactory, AutoC
         DatabaseTableProvider provider = new DatabaseTableProvider(databaseDirectory.getAbsolutePath());
         providers.add(provider);
         return provider;
+    }
+
+    public void isCloseChecker() {
+        if (isClosed) {
+            throw new IllegalStateException("It is closed");
+        }
     }
 
     @Override

@@ -455,26 +455,6 @@ public class TestsDatabaseTable {
         }
     }
 
-    /*@Test
-    public void multiThreadPerfomanceTest() throws Exception {
-        List<Future<Storeable>> futures = new ArrayList<>(10);
-        for (int i = 0; i < 1000; i++) {
-            final String newKey = String.format("key%d", i);
-            Future<Storeable> future = executor.submit(new Callable<Storeable>() {
-                @Override
-                public Storeable call() throws Exception {
-                    Storeable result = table.put(newKey, makeStoreable((int) (Math.random())));
-                    table.commit();
-                    return result;
-                }
-            });
-            futures.add(future);
-        }
-        for (int i = 0; i < 1000; i++) {
-            Assert.assertNull(futures.get(i).get());
-        }
-    } */
-
     @Test(expected = IllegalStateException.class)
     public void testClosePutGet() throws Exception {
         DatabaseTable testTable = (DatabaseTable) table;

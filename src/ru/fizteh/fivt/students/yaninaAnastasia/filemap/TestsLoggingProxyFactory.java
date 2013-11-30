@@ -14,6 +14,7 @@ import java.util.List;
 import org.json.*;
 
 public class TestsLoggingProxyFactory {
+    static JUnitTestInterface implementation;
     static List<Class<?>> columnTypes;
     static List<Class<?>> columnMultiTypes;
     Table table;
@@ -67,6 +68,156 @@ public class TestsLoggingProxyFactory {
         } catch (ParseException e) {
             return null;
         }
+    }
+
+    @Test
+    public void interfaceExecLogTest() {
+        implementation = new JUnitTestInterface() {
+            @Override
+            public void exec() {
+            }
+
+            @Override
+            public void supportFunc() throws Exception {
+            }
+
+            @Override
+            public int getAmount() {
+                return 0;
+            }
+        };
+        JUnitTestInterface proxy = (JUnitTestInterface)
+                testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
+
+        long timestampBefore = System.currentTimeMillis();
+        proxy.exec();
+        long timestampAfter = System.currentTimeMillis();
+        String result = stringWriter.toString();
+        JSONObject parser = new JSONObject(result);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertEquals(parser.getString("class"), implementation.getClass().getName());
+        Assert.assertEquals(parser.getString("method"), "exec");
+        JSONArray args = parser.getJSONArray("arguments");
+        Assert.assertTrue(args instanceof JSONArray);
+        Assert.assertTrue(args.isNull(0));
+        stringWriter.flush();
+    }
+
+    @Test
+    public void interfaceSupportFuncLogTest() throws  Exception{
+        implementation = new JUnitTestInterface() {
+            @Override
+            public void exec() {
+            }
+
+            @Override
+            public void supportFunc() throws Exception {
+            }
+
+            @Override
+            public int getAmount() {
+                return 0;
+            }
+        };
+        JUnitTestInterface proxy = (JUnitTestInterface)
+                testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
+
+        long timestampBefore = System.currentTimeMillis();
+        proxy.supportFunc();
+        long timestampAfter = System.currentTimeMillis();
+        String result = stringWriter.toString();
+        JSONObject parser = new JSONObject(result);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertEquals(parser.getString("class"), implementation.getClass().getName());
+        Assert.assertEquals(parser.getString("method"), "supportFunc");
+        JSONArray args = parser.getJSONArray("arguments");
+        Assert.assertTrue(args instanceof JSONArray);
+        Assert.assertTrue(args.isNull(0));
+        stringWriter.flush();
+    }
+
+    @Test
+    public void interfaceGetAmountLogTest() {
+        implementation = new JUnitTestInterface() {
+            @Override
+            public void exec() {
+            }
+
+            @Override
+            public void supportFunc() throws Exception {
+            }
+
+            @Override
+            public int getAmount() {
+                table.put("key1", makeStoreable(1));
+                table.put("key2", makeStoreable(1));
+                table.put("key3", makeStoreable(1));
+                return table.size();
+            }
+        };
+        JUnitTestInterface proxy = (JUnitTestInterface)
+                testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
+
+        long timestampBefore = System.currentTimeMillis();
+        proxy.getAmount();
+        long timestampAfter = System.currentTimeMillis();
+        String result = stringWriter.toString();
+        JSONObject parser = new JSONObject(result);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertEquals(parser.getString("class"), implementation.getClass().getName());
+        Assert.assertEquals(parser.getString("method"), "getAmount");
+        JSONArray args = parser.getJSONArray("arguments");
+        Assert.assertTrue(args instanceof JSONArray);
+        Assert.assertTrue(args.isNull(0));
+        Assert.assertEquals(parser.getInt("returnValue"), 3);
+        table.remove("key1");
+        table.remove("key2");
+        table.remove("key3");
+        stringWriter.flush();
+    }
+
+    @Test
+    public void interfaceGetAmountOneMoreLogTest() {
+        implementation = new JUnitTestInterface() {
+            @Override
+            public void exec() {
+            }
+
+            @Override
+            public void supportFunc() throws Exception {
+            }
+
+            @Override
+            public int getAmount() {
+                table.put("key1", makeStoreable(1));
+                table.put("key2", makeStoreable(1));
+                table.put("key3", makeStoreable(1));
+                table.remove("key1");
+                table.remove("key2");
+                table.remove("key3");
+                return table.rollback();
+            }
+        };
+        JUnitTestInterface proxy = (JUnitTestInterface)
+                testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
+
+        long timestampBefore = System.currentTimeMillis();
+        proxy.getAmount();
+        long timestampAfter = System.currentTimeMillis();
+        String result = stringWriter.toString();
+        JSONObject parser = new JSONObject(result);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertEquals(parser.getString("class"), implementation.getClass().getName());
+        Assert.assertEquals(parser.getString("method"), "getAmount");
+        JSONArray args = parser.getJSONArray("arguments");
+        Assert.assertTrue(args instanceof JSONArray);
+        Assert.assertTrue(args.isNull(0));
+        Assert.assertEquals(parser.getInt("returnValue"), 0);
+        stringWriter.flush();
     }
 
     @Test
