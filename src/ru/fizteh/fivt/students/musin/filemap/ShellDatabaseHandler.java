@@ -135,6 +135,7 @@ public class ShellDatabaseHandler {
                         System.err.println("drop: Too few arguments");
                         return -1;
                     }
+                    boolean inUse = args.get(0).equals(current.getName());
                     try {
                         database.removeTable(args.get(0));
                     } catch (IllegalStateException e) {
@@ -147,7 +148,7 @@ public class ShellDatabaseHandler {
                         printException(e);
                         return  -1;
                     }
-                    if (current != null && args.get(0).equals(current.getName())) {
+                    if (current != null && inUse) {
                         current = null;
                     }
                     System.out.println("dropped");
