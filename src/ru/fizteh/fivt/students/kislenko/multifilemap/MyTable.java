@@ -85,10 +85,6 @@ public class MyTable implements Table {
         return storage;
     }
 
-    public void setMap(Map<String, String> newMap) {
-        storage = newMap;
-    }
-
     public Path getPath() {
         File f = new File(name);
         return f.toPath();

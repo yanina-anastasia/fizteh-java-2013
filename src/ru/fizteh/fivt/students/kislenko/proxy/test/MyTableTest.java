@@ -1,11 +1,11 @@
-package ru.fizteh.fivt.students.kislenko.storeable.test;
+package ru.fizteh.fivt.students.kislenko.proxy.test;
 
 import org.junit.*;
 import ru.fizteh.fivt.students.kislenko.junit.test.Cleaner;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTable;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTableProvider;
-import ru.fizteh.fivt.students.kislenko.storeable.MyTableProviderFactory;
-import ru.fizteh.fivt.students.kislenko.storeable.Value;
+import ru.fizteh.fivt.students.kislenko.proxy.MyTable;
+import ru.fizteh.fivt.students.kislenko.proxy.MyTableProvider;
+import ru.fizteh.fivt.students.kislenko.proxy.MyTableProviderFactory;
+import ru.fizteh.fivt.students.kislenko.proxy.Value;
 
 import java.io.File;
 import java.text.ParseException;
@@ -230,5 +230,60 @@ public class MyTableTest {
         Assert.assertEquals(0, table.size());
         Assert.assertEquals(2, table.rollback());
         Assert.assertEquals(2, table.size());
+    }
+
+    @Test
+    public void testCloseGet() throws Exception {
+        MyTable table2 = provider.createTable("tableForClose", typeList);
+        table2.put("closingTableKey", provider.deserialize(table2, "[\"key\",512]"));
+        table2.commit();
+        table2.close();
+        MyTable newTable = provider.getTable("tableForClose");
+        newTable.put("closingTableKey2", provider.deserialize(newTable, "[\"key\",1024]"));
+        Assert.assertEquals("[\"key\",512]", provider.serialize(newTable, newTable.get("closingTableKey")));
+        Assert.assertEquals("[\"key\",1024]", provider.serialize(newTable, newTable.get("closingTableKey2")));
+    }
+
+    @Test
+    public void testToString() throws Exception {
+        Assert.assertEquals("MyTable[" + provider.getPath().toAbsolutePath().resolve(table.getName()).toString() + "]",
+                table.toString());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCommitAfterClose() throws Exception {
+        table.close();
+        table.commit();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testRollbackAfterClose() throws Exception {
+        table.close();
+        table.rollback();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testSizeAfterClose() throws Exception {
+        table.close();
+        table.size();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetAfterClose() throws Exception {
+        table.put("lonelyKeyInClosedTable", provider.deserialize(table, "[\"\",924]"));
+        table.close();
+        table.get("lonelyKeyInClosedTable");
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testPutAfterClose() throws Exception {
+        table.close();
+        table.put("nothing", provider.deserialize(table, "[\"reallyNothing\",0]"));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowingExceptionInPut() throws Exception {
+        table.close();
+        table.put("sumkin", provider.deserialize(table, "[\"molodets\",\"aga\",0,1,2,3,4,5,\"ololopwnz100500\"]"));
     }
 }

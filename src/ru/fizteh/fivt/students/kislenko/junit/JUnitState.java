@@ -1,20 +1,18 @@
-package ru.fizteh.fivt.students.kislenko.storeable;
+package ru.fizteh.fivt.students.kislenko.junit;
+
 
 import ru.fizteh.fivt.students.kislenko.filemap.CommandUtils;
-import ru.fizteh.fivt.students.kislenko.junit.TransactionalFatherState;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.text.ParseException;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class StoreableState extends TransactionalFatherState {
+public class JUnitState extends TransactionalFatherState {
     private Path databasePath;
     private MyTable currentTable;
     private MyTableProvider tables;
 
-    public StoreableState(Path p) throws IOException {
+    public JUnitState(Path p) {
         databasePath = p;
         MyTableProviderFactory factory = new MyTableProviderFactory();
         tables = factory.create(p.toString());
@@ -24,8 +22,15 @@ public class StoreableState extends TransactionalFatherState {
         return databasePath;
     }
 
-    @Override
-    public void deleteTable(String tableName) throws Exception {
+    public Path getWorkingPath() {
+        if (currentTable != null) {
+            return databasePath.resolve(currentTable.getName());
+        } else {
+            return databasePath;
+        }
+    }
+
+    public void deleteTable(String tableName) {
         if (currentTable != null && databasePath.resolve(tableName).toString().equals(currentTable.getName())) {
             currentTable.clear();
             setCurrentTable(null);
@@ -70,21 +75,8 @@ public class StoreableState extends TransactionalFatherState {
         return currentTable.getChangeCount();
     }
 
-    public void createTable(String tableName) throws Exception {
-        String temp = databasePath.resolve(tableName).toString();
-        tables.createTable(temp, Utils.readColumnTypes(temp));
-    }
-
     public MyTable getCurrentTable() {
         return currentTable;
-    }
-
-    public Path getWorkingPath() {
-        if (currentTable != null) {
-            return databasePath.resolve(currentTable.getName());
-        } else {
-            return databasePath;
-        }
     }
 
     public void setCurrentTable(String name) {
@@ -101,61 +93,28 @@ public class StoreableState extends TransactionalFatherState {
     }
 
     @Override
-    public boolean alrightCreate(String tableName, AtomicReference<Exception> checkingException,
-                                 AtomicReference<String> message) {
-        if (tableName.contains(".")) {
-            message.set("Dots in table name.");
-            checkingException.set(new RuntimeException("Dots in table name."));
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void createTable(String[] tableParameters) throws Exception {
-        String[] types = new String[tableParameters.length - 1];
-        System.arraycopy(tableParameters, 1, types, 0, tableParameters.length - 1);
-        if (types.length == 0) {
-            System.out.println("wrong type (signature expected)");
-            throw new IllegalArgumentException("Signature expected.");
-        }
-        types[0] = types[0].substring(1);
-        types[types.length - 1] = types[types.length - 1].substring(0, types[types.length - 1].length() - 1);
-        if (types[0].isEmpty()) {
-            System.out.println("wrong type (signature is empty)");
-            throw new IllegalArgumentException("Empty signature.");
-        }
-        try {
-            Utils.writeColumnTypes(databasePath.resolve(tableParameters[0]).toString(), types);
-        } catch (Exception e) {
-            System.out.println("wrong type (signature is so bad that I can't create new table with it)");
-            new File(databasePath.resolve(tableParameters[0]).toString(), "signature.tsv").delete();
-            throw e;
-        }
-        tables.createTable(databasePath.resolve(tableParameters[0]).toString(),
-                Utils.readColumnTypes(databasePath.resolve(tableParameters[0]).toString()));
-    }
-
-    @Override
     public String get(String key, AtomicReference<Exception> exception) {
-        if (currentTable.get(key) == null) {
-            return null;
-        }
-        return currentTable.getProvider().serialize(currentTable, currentTable.get(key));
+        return currentTable.get(key);
     }
 
     @Override
     public void put(String key, String value, AtomicReference<Exception> exception) {
-        try {
-            currentTable.put(key, tables.deserialize(currentTable, value));
-        } catch (ParseException e) {
-            exception.set(e);
-        }
+        currentTable.put(key, value);
     }
 
     @Override
     public void remove(String key, AtomicReference<Exception> exception) {
         currentTable.remove(key);
+    }
+
+    @Override
+    public boolean alrightCreate(String empty, AtomicReference<Exception> useless1, AtomicReference<String> useless2) {
+        return true;
+    }
+
+    @Override
+    public void createTable(String[] tableParameters) {
+        tables.createTable(databasePath.resolve(tableParameters[0]).toString());
     }
 
     @Override
@@ -172,7 +131,7 @@ public class StoreableState extends TransactionalFatherState {
     }
 
     @Override
-    public int commitCurrentTable() throws IOException {
+    public int commitCurrentTable() {
         if (currentTable == null) {
             return 0;
         }
