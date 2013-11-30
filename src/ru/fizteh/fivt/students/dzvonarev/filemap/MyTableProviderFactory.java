@@ -10,7 +10,7 @@ import java.util.List;
 public class MyTableProviderFactory implements TableProviderFactory, AutoCloseable {
 
     private List<MyTableProvider> tableProvidersList;
-    private boolean isTableProviderFactoryClosed;
+    private volatile boolean isTableProviderFactoryClosed;
 
     public MyTableProviderFactory() {
         tableProvidersList = new ArrayList<>();
@@ -19,9 +19,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     @Override
     public MyTableProvider create(String dir) throws IOException, RuntimeException {
-        if (isTableProviderFactoryClosed) {
-            throw new IllegalStateException("table provider factory " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkIfFactoryClosed();
         if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong type (invalid name of table provider)");
         }
@@ -42,9 +40,6 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     @Override
     public void close() {
-        if (isTableProviderFactoryClosed) {
-            return;
-        }
         for (MyTableProvider tableProvider : tableProvidersList) {
             tableProvider.close();
         }
@@ -52,4 +47,9 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
         isTableProviderFactoryClosed = true;
     }
 
+    private void checkIfFactoryClosed() {
+        if (isTableProviderFactoryClosed) {
+            throw new IllegalStateException("table provider factory " + this.getClass().getSimpleName() + " is closed");
+        }
+    }
 }
