@@ -54,10 +54,10 @@ public class LoggingProxyFactoryTest {
         @Override
         public boolean beHappy() {
             if (happyChilden.isEmpty()) {
-                System.out.println("I'm useless");
+               // System.out.println("I'm useless");
                 return false;
             } else {
-            System.out.println("I'm so glad I can please children");
+            //System.out.println("I'm so glad I can please children");
                 return true;
             }
         }
@@ -76,8 +76,8 @@ public class LoggingProxyFactoryTest {
 
     @After
     public void inFile () throws IOException {
-        System.out.println("In file:");
-        System.out.println(writer.toString());
+       // System.out.println("In file:");
+       // System.out.println(writer.toString());
         writer.close();
     }
 
@@ -183,7 +183,7 @@ public class LoggingProxyFactoryTest {
         }
         void getPresent (Object present) {
             String reaction = present == null? "There is nothing there..." : "That a lovely " + present + "!";
-            System.out.println(name + ": "+ reaction);
+           // System.out.println(name + ": "+ reaction);
         };
 
         @Override
