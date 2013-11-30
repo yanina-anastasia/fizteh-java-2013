@@ -20,16 +20,16 @@ public class FileMapLogging implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object returnedValue = null;
+        Object returnValue = null;
         JSONObject record = new JSONObject();
         if (method.getDeclaringClass().equals(Object.class)) {
+//            try {
+//                writer.write("");
+//            } catch (IOException e) {
+//                //pass
+//            }
             try {
-                writer.write("");
-            } catch (IOException e) {
-                //pass
-            }
-            try {
-                returnedValue = method.invoke(object, args);
+                returnValue = method.invoke(object, args);
             } catch (InvocationTargetException e) {
                 throw e.getTargetException();
             }
@@ -47,7 +47,7 @@ public class FileMapLogging implements InvocationHandler {
             }
 
             try {
-                returnedValue = method.invoke(object, args);
+                returnValue = method.invoke(object, args);
             } catch (InvocationTargetException e) {
                 record.put("thrown", e.getTargetException().toString());
                 try {
@@ -59,14 +59,14 @@ public class FileMapLogging implements InvocationHandler {
             }
 
             if (!method.getReturnType().equals(void.class)) {
-                if (returnedValue == null) {
+                if (returnValue == null) {
                     record.put("returnValue", JSONObject.NULL);
                 } else {
                     JSONObject copy = new JSONObject(record, JSONObject.getNames(record));
-                    record.put("returnValue", returnedValue);
+                    record.put("returnValue", returnValue);
                     if (record.toString() == null) {
                         record = copy;
-                        record.put("returnValue", returnedValue.toString());
+                        record.put("returnValue", returnValue.toString());
                     }
                 }
             }
@@ -77,6 +77,6 @@ public class FileMapLogging implements InvocationHandler {
             }
 
         }
-        return returnedValue;
+        return returnValue;
     }
 }
