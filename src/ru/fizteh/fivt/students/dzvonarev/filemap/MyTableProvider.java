@@ -35,7 +35,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private HashMap<Class<?>, String> typeToString;
     private Lock readLock;
     private Lock writeLock;
-    private boolean isProviderClosed;
+    private volatile boolean isProviderClosed;
 
     public void initTypeToString() {
         typeToString = new HashMap<>();
@@ -157,9 +157,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         readLock.lock();
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkProviderClosed();
         try {
             return multiFileMap.get(tableName);
         } finally {
@@ -174,9 +172,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         writeLock.lock();
         try {
-            if (isProviderClosed) {
-                throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-            }
+            checkProviderClosed();
             if (multiFileMap.containsKey(tableName)) {
                 return null;
             }
@@ -200,10 +196,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         writeLock.lock();
         try {
-            if (isProviderClosed) {
-                throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-            }
-
+            checkProviderClosed();
             if (!multiFileMap.containsKey(tableName)) {
                 throw new IllegalStateException(tableName + " not exists");
             }
@@ -225,9 +218,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkProviderClosed();
         Parser myParser = new Parser();
         ArrayList<Object> values = myParser.parseValueToList(value);
         try {
@@ -239,9 +230,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkProviderClosed();
         multiFileMap.get(table.getName()).checkingValueForValid(value);
         ArrayList<Object> temp = new ArrayList<>();
         for (int i = 0; i < multiFileMap.get(table.getName()).getColumnsCount(); ++i) {
@@ -253,17 +242,13 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Storeable createFor(Table table) {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkProviderClosed();
         return new MyStoreable(table);
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkProviderClosed();
         return new MyStoreable(table, values);
     }
 
@@ -273,9 +258,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public String toString() {
-        if (isProviderClosed) {
-            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkProviderClosed();
         return MyTableProvider.class.getSimpleName() + "[" + workingDirectory + "]";
     }
 
@@ -294,6 +277,12 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             isProviderClosed = true;
         } finally {
             writeLock.unlock();
+        }
+    }
+
+    private void checkProviderClosed() {
+        if (isProviderClosed) {
+            throw new IllegalStateException("provider " + this.getClass().getSimpleName() + " is closed");
         }
     }
 }
