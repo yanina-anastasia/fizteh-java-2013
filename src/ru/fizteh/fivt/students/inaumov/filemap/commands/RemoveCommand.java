@@ -8,7 +8,7 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 public class RemoveCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>>
         extends AbstractCommand<State> {
     public RemoveCommand() {
-		super("remove", 1);
+        super("remove", 1);
 	}
 
 	public void execute(String argumentsLine, State state) {

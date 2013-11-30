@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class CommitCommand<State extends FileMapShellState> extends AbstractCommand<State> {
     public CommitCommand() {
-		super("commit", 0);
+        super("commit", 0);
 	}
 
 	public void execute(String argumentsLine, FileMapShellState state) {
