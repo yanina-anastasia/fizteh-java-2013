@@ -19,9 +19,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     @Override
     public MyTableProvider create(String dir) throws IOException, RuntimeException {
-        if (isTableProviderFactoryClosed) {
-            throw new IllegalStateException("table provider factory " + this.getClass().getSimpleName() + " is closed");
-        }
+        checkFactoryIsClosed();
         if (dir == null || dir.trim().isEmpty()) {
             throw new IllegalArgumentException("wrong type (invalid name of table provider)");
         }
@@ -50,6 +48,13 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
         }
         tableProvidersList.clear();         // here is clearing!
         isTableProviderFactoryClosed = true;
+    }
+
+    private void checkFactoryIsClosed() {
+        if (isTableProviderFactoryClosed) {
+            throw new IllegalStateException("table provider factory " +
+                    this.getClass().getSimpleName() + " is closed");
+        }
     }
 
 }
