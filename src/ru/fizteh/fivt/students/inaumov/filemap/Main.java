@@ -5,7 +5,7 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
 
 public class Main {
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         Shell<FileMapStringShellState> shell = new Shell<FileMapStringShellState>();
 		FileMapStringShellState shellState = new FileMapStringShellState();
 

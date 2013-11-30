@@ -16,7 +16,7 @@ public class SaveHandler {
 
     public static void saveTable(TableBuilder builder) throws IOException {
         File tableDir = builder.getTableDir();
-        ArrayList< Set<String> > keysToSave = new ArrayList< Set<String> >();
+        ArrayList<Set<String>> keysToSave = new ArrayList<Set<String>>();
         boolean bucketIsEmpty;
 
         for (int bucketNumber = 0; bucketNumber < BUCKET_NUM; ++bucketNumber) {

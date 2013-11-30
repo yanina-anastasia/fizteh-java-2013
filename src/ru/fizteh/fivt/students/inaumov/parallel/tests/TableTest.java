@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TableTest {
     private static final int THREADS_NUMBER = 10;
     private static final int KEYS_COUNT = 5;
-    private static String DATABASE_DIRECTORY = "./parallel_test";
+    private static final String DATABASE_DIRECTORY = "./parallel_test";
 
     private TableProvider tableProvider;
     private Table currentTable;
@@ -46,7 +46,7 @@ public class TableTest {
         for (int i = 0; i < THREADS_NUMBER; ++i) {
             threads.add(new Thread(new Runnable() {
                 @Override
-                public void run(){
+                public void run() {
                     try {
                         checkThreadOnlyDiff();
                     } catch (Exception e) {

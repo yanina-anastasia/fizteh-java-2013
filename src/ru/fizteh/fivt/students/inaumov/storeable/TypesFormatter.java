@@ -44,8 +44,8 @@ public enum TypesFormatter {
     private final String name;
     private final Class<?> type;
 
-    private static final Map<String, TypesFormatter> typesByName;
-    private static final Map<Class<?>, TypesFormatter> typesByClass;
+    private static Map<String, TypesFormatter> typesByName;
+    private static Map<Class<?>, TypesFormatter> typesByClass;
 
     private TypesFormatter(String name, Class<?> type) {
         this.name = name;

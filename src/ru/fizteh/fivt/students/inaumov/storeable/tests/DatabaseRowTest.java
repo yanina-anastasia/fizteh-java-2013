@@ -29,24 +29,24 @@ public class DatabaseRowTest {
     }
 
     @Test(expected = ColumnFormatException.class)
-    public void PutIncorrectTypeFirstTestShouldFail() {
+    public void putIncorrectTypeFirstTestShouldFail() {
         storeable.setColumnAt(2, "joke");
     }
 
     @Test(expected = ColumnFormatException.class)
-    public void PutIncorrectTypeSecondTestShouldFail() {
+    public void putIncorrectTypeSecondTestShouldFail() {
         storeable.setColumnAt(1, 666);
     }
 
     @Test
-    public void PutCorrectTypesShouldNotFail() {
+    public void putCorrectTypesShouldNotFail() {
         storeable.setColumnAt(0, "string1");
         storeable.setColumnAt(1, "string2");
         storeable.setColumnAt(2, 3);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void PutValueIndexOutOfBoundShouldFail() {
+    public void putValueIndexOutOfBoundShouldFail() {
         storeable.setColumnAt(666, 6666);
     }
 }

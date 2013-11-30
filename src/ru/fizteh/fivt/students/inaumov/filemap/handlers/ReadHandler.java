@@ -13,7 +13,7 @@ public class ReadHandler implements Closeable {
         try {
             inputFile = new RandomAccessFile(fileName, "r");
         } catch (FileNotFoundException exception) {
-
+            //
         }
 
         if (inputFile.length() == 0) {

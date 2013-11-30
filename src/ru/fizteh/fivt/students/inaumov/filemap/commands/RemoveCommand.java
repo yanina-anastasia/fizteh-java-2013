@@ -5,8 +5,9 @@ import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
 import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
-public class RemoveCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>> extends AbstractCommand<State> {
-	public RemoveCommand() {
+public class RemoveCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>>
+        extends AbstractCommand<State> {
+    public RemoveCommand() {
 		super("remove", 1);
 	}
 

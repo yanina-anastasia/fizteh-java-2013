@@ -29,7 +29,8 @@ public class DatabaseTableProvider implements TableProvider {
             if (tableFile.isFile()) {
                 continue;
             }
-            MultiFileStringDatabaseTable table = new MultiFileStringDatabaseTable(dataBaseDirectoryPath, tableFile.getName());
+            MultiFileStringDatabaseTable table;
+            table = new MultiFileStringDatabaseTable(dataBaseDirectoryPath, tableFile.getName());
 
             tables.put(table.getName(), table);
         }

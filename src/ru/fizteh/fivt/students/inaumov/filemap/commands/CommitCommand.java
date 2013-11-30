@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class CommitCommand<State extends FileMapShellState> extends AbstractCommand<State> {
-	public CommitCommand() {
+    public CommitCommand() {
 		super("commit", 0);
 	}
 
