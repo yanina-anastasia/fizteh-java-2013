@@ -910,6 +910,159 @@ public class FileMapUnitTest {
         String result = writer.toString();
         Assert.assertTrue(result.contains("<value>cyclic</value>"));
     }
+
+    @Test(expected = IOException.class)
+    public void thrownExceptionShouldBeOfOriginalType() throws XMLStreamException, IOException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                object,
+                InterfaceToProxy.class
+        );
+        proxy.exceptionThrower(new Double(3.1));
+    }
+
+    @Test
+    public void exceptionLogging() throws XMLStreamException, IOException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                object,
+                InterfaceToProxy.class
+        );
+        boolean exception = false;
+        try {
+            proxy.exceptionThrower(new Double(3.1));
+        } catch (IOException e) {
+            Assert.assertTrue(writer.toString().contains("<thrown>java.io.IOException: hello</thrown>"));
+            Assert.assertFalse(writer.toString().contains("<return>"));
+            exception = true;
+        }
+        if (!exception) {
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void primitiveTypesLogging() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                object,
+                InterfaceToProxy.class
+        );
+        proxy.argumentReceiver(3, 2.5, true);
+        Assert.assertTrue(writer.toString().contains("<argument>3</argument><argument>2.5</argument><argument>true</argument>"));
+        proxy.argumentReceiver("hello", 1000000000000l, (float) 123.4);
+        Assert.assertTrue(writer.toString().contains("<argument>hello</argument><argument>1000000000000</argument><argument>123.4</argument>"));
+    }
+
+    @Test
+    public void newlineSeparatesInvocations() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                object,
+                InterfaceToProxy.class
+        );
+        proxy.voidResultMethod("hello");
+        proxy.voidResultMethod("hi");
+        Assert.assertTrue(writer.toString().contains("</invoke>\n<invoke"));
+    }
+
+    @Test
+    public void loggingIterable() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                object,
+                InterfaceToProxy.class
+        );
+        ArrayList<Integer> a = new ArrayList<>();
+        a.add(1);
+        a.add(2);
+        a.add(3);
+        proxy.voidResultMethod(a);
+        Assert.assertTrue(writer.toString().contains("<argument><list><value>1</value><value>2</value><value>3</value></list></argument>"));
+    }
+
+    @Test
+    public void nestedCyclicLists() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                object,
+                InterfaceToProxy.class
+        );
+        ArrayList a = new ArrayList();
+        ArrayList b = new ArrayList();
+        a.add("hello");
+        a.add(b);
+        b.add("goodbye");
+        b.add(a);
+        proxy.voidResultMethod(a);
+        Assert.assertTrue(writer.toString().contains("<list><value>hello</value><value><list><value>goodbye</value>" +
+                "<value>cyclic</value></list></value></list>"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void proxyFactoryNullWriterShouldFail() throws XMLStreamException {
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                null,
+                object,
+                InterfaceToProxy.class
+        );
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void proxyFactoryNullImplementationShouldFail() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                null,
+                InterfaceToProxy.class
+        );
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void proxyFactoryNullInterfaceShouldFail() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                object,
+                null
+        );
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void proxyFactoryNotAnInterfaceShouldFail() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                new ArrayList(),
+                ArrayList.class
+        );
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void proxyFactoryImplementationOfWrongInterfaceShouldFail() throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        ImplementToProxy object = new ImplementToProxy();
+        InterfaceToProxy proxy = (InterfaceToProxy) (new XMLLoggingProxyFactory()).wrap(
+                writer,
+                new ArrayList(),
+                InterfaceToProxy.class
+        );
+    }
 }
 
 interface InterfaceToProxy {
