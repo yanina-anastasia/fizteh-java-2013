@@ -89,6 +89,13 @@ public class MyInvocationHandler implements InvocationHandler {
 
         try {
             result = method.invoke(implementation, args);
+        } catch (InvocationTargetException e) {
+            Throwable throwable = e.getTargetException();
+            xmlStreamWriter.writeStartElement("thrown");
+            xmlStreamWriter.writeCharacters(throwable.toString());
+            xmlStreamWriter.writeEndElement();
+            throw throwable;
+        } finally {
             if (!method.getReturnType().equals(void.class)) {
                 xmlStreamWriter.writeStartElement("return");
                 if (result != null) {
@@ -98,15 +105,6 @@ public class MyInvocationHandler implements InvocationHandler {
                 }
                 xmlStreamWriter.writeEndElement();
             }
-        } catch (InvocationTargetException e) {
-            Throwable throwable = e.getTargetException();
-            xmlStreamWriter.writeStartElement("thrown");
-            xmlStreamWriter.writeCharacters(throwable.toString());
-            xmlStreamWriter.writeEndElement();
-            throw throwable;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.flush();
             writer.write(stringWriter.toString() + System.getProperty("line.separator"));
