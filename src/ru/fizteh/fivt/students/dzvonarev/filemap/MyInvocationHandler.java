@@ -8,16 +8,21 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyInvocationHandler implements InvocationHandler {
 
     private Writer currentWriter;
     private Object currentImplementation;
     private XMLStreamWriter xmlWriter;
+    private Lock writeLock;
 
     public MyInvocationHandler(Writer writer, Object implementation) {
         currentWriter = writer;
         currentImplementation = implementation;
+        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+        writeLock = readWriteLock.writeLock();
     }
 
     @Override
@@ -38,11 +43,16 @@ public class MyInvocationHandler implements InvocationHandler {
             throw e.getTargetException();
         } finally {
             try {
-                XMLOutputFactory factory = XMLOutputFactory.newInstance();
-                StringWriter strWriter = new StringWriter();
-                xmlWriter = factory.createXMLStreamWriter(strWriter);
-                writeLog(method, args, result, exception);
-                currentWriter.write(strWriter.toString() + System.lineSeparator());
+                writeLock.lock();
+                try {
+                    XMLOutputFactory factory = XMLOutputFactory.newInstance();
+                    StringWriter strWriter = new StringWriter();
+                    xmlWriter = factory.createXMLStreamWriter(strWriter);
+                    writeLog(method, args, result, exception);
+                    currentWriter.write(strWriter.toString() + System.lineSeparator());
+                } finally {
+                    writeLock.unlock();
+                }
             } catch (Throwable ignored) {
                 // okay
             }
