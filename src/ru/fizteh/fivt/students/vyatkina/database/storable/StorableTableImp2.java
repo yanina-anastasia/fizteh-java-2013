@@ -253,6 +253,9 @@ public class StorableTableImp2 implements StorableTable {
 
     @Override
     public void close() throws IOException {
+        if (closeState.isAlreadyClosed()) {
+            return;
+        }
         rollback();
         tableProvider.removeOldReference(this);
         closeState.close();

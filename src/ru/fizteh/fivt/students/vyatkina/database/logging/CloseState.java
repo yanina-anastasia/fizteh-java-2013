@@ -20,6 +20,10 @@ public class CloseState {
         isClosed.set(true);
     }
 
+    public boolean isAlreadyClosed () {
+       return isClosed.get();
+    }
+
     public void isClosedCheck() {
         if (isClosed.get()) {
             throw new IllegalStateException(StandardCloseMessage);

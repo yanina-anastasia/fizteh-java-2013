@@ -272,6 +272,9 @@ public class StorableTableProviderImp implements StorableTableProvider {
 
     @Override
     public void close() throws IOException {
+        if (closeState.isAlreadyClosed()) {
+            return;
+        }
         try {
             databaseKeeper.writeLock().lock();
             for (StorableTable table : tables.values()) {

@@ -14,30 +14,33 @@ import static ru.fizteh.fivt.students.vyatkina.database.superior.SuperTableProvi
 public class StorableTableProviderFactory implements TableProviderFactory, Closeable {
 
     private final CloseState closeState;
-    private final HashSet <Closeable> derivatives = new HashSet();
+    private final HashSet<Closeable> derivatives = new HashSet();
 
-    public StorableTableProviderFactory () {
+    public StorableTableProviderFactory() {
         closeState = new CloseState(this + " is closed");
     }
 
     @Override
     public TableProvider create(String path) throws IOException {
         closeState.isClosedCheck();
-        StorableTableProviderImp tableProvider =  new StorableTableProviderImp(directoryCheck(path));
+        StorableTableProviderImp tableProvider = new StorableTableProviderImp(directoryCheck(path));
         derivatives.add(tableProvider);
         return tableProvider;
     }
 
     @Override
     public void close() throws IOException {
-       for (Closeable o: derivatives) {
-           o.close();
-       }
-       closeState.close();
+        if (closeState.isAlreadyClosed()) {
+            return;
+        }
+        for (Closeable o : derivatives) {
+            o.close();
+        }
+        closeState.close();
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return this.getClass().getSimpleName();
     }
 }

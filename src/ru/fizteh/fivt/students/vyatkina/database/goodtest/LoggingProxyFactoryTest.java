@@ -166,6 +166,16 @@ public class LoggingProxyFactoryTest {
         proxy.deliverPresent(Sally,unpackedPresent);
     }
 
+    @Test
+    public void presentConsistItself () {
+        Child Alina = new Child ("Alina");
+        ArrayList <Object> present = new ArrayList<>();
+        present.add(null);
+        present.add(present);
+        XmasWizard proxy = (XmasWizard) factory.wrap(writer,xmasWizard,interfaceClass);
+        proxy.deliverPresent(Alina,present);
+    }
+
     private class Child {
         String name;
         public Child (String name) {
