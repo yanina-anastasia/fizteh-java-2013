@@ -395,7 +395,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     protected void removeTableFromMap(String key) {
         write.lock();
         try {
-            tables.put(key, null);
+            if (!isClosed) {
+                tables.remove(key);
+            }
         } finally {
             write.unlock();
         }
@@ -405,13 +407,13 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     public void close() throws Exception {
         write.lock();
         try {
+            isClosed = true;
             for (MyTable table : tables.values()) {
                 if (table != null) {
                     table.close();
                 }
             }
             tables.clear();
-            isClosed = true;
         } finally {
             write.unlock();
         }
