@@ -105,7 +105,7 @@ public class TestsLoggingProxyFactory {
     }
 
     @Test
-    public void interfaceSupportFuncLogTest() throws  Exception{
+    public void interfaceSupportFuncLogTest() throws  Exception {
         implementation = new JUnitTestInterface() {
             @Override
             public void exec() {
