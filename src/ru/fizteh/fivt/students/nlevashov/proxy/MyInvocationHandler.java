@@ -36,8 +36,8 @@ public class MyInvocationHandler implements InvocationHandler {
             exception = e.getTargetException();
         }
 
+        JSONObject log = new JSONObject();
         try {
-            JSONObject log = new JSONObject();
             log.put("timestamp", System.currentTimeMillis());
             log.put("class", implementation.getClass().getName());
             log.put("method", method.getName());
@@ -66,12 +66,17 @@ public class MyInvocationHandler implements InvocationHandler {
             } else {
                 log.put("thrown", exception.toString());
             }
-            writer.write(log.toString());
-            writer.write(System.lineSeparator());
         } catch (Throwable exc) {
-            // Немного странно, что try без catch или finally это неправильно, в то же врямя как и пустой catch или
+            // Немного странно, что try без catch или finally это неправильно, в то же время как и пустой catch или
             // finally. Но комментарий, который никак не влияет на исполнение кода, все изменят к лучшему. Java тащит.
         }
+
+        try {
+            writer.write(log.toString() + System.lineSeparator());
+        } catch (Throwable exc) {
+            // снова ненужный комментарий
+        }
+
         if (exception != null) {
             throw exception;
         }
