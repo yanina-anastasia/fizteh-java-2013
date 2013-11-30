@@ -60,18 +60,19 @@ public class FileMapLogging implements InvocationHandler {
                     //pass
                 }
             }
-        } else {
-            try {
-                writer.write("");
-            } catch (IOException e) {
-                //pass
-            }
-            try {
-                returnedValue = method.invoke(object, args);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
         }
+//        } else {
+//            try {
+//                writer.write("");
+//            } catch (IOException e) {
+//                //pass
+//            }
+//            try {
+//                returnedValue = method.invoke(object, args);
+//            } catch (InvocationTargetException e) {
+//                throw e.getTargetException();
+//            }
+//        }
         return returnedValue;
     }
 }
