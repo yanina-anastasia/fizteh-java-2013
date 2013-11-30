@@ -2,10 +2,10 @@ package ru.fizteh.fivt.students.paulinMatavina.proxy;
 
 import java.util.List;
 
-public class ClassImplementingInterface implements TestInterface {
+public class ClassImplementingTestInterface implements TestInterface {
     String name;
     
-    public ClassImplementingInterface() {
+    public ClassImplementingTestInterface() {
         name = "right testing class implementing TestInterface";
     }
 
