@@ -45,7 +45,7 @@ public class MyInvocationHandler implements InvocationHandler {
             if (exception == null) {
                 if (!method.getReturnType().equals(void.class)) {
                     if (result == null) {
-                        log.put("returnValue", result);
+                        log.put("returnValue", JSONObject.NULL);
                     } else if (result.getClass().isArray()) {
                         try {
                             log.put("returnValue", getJSONArrayFromArray((Object[]) result, new IdentityHashMap<>()));
@@ -66,15 +66,10 @@ public class MyInvocationHandler implements InvocationHandler {
             } else {
                 log.put("thrown", exception.toString());
             }
+            writer.write(log.toString() + System.lineSeparator());
         } catch (Throwable exc) {
             // Немного странно, что try без catch или finally это неправильно, в то же время как и пустой catch или
             // finally. Но комментарий, который никак не влияет на исполнение кода, все изменят к лучшему. Java тащит.
-        }
-
-        try {
-            writer.write(log.toString() + System.lineSeparator());
-        } catch (Throwable exc) {
-            // снова ненужный комментарий
         }
 
         if (exception != null) {
@@ -89,7 +84,7 @@ public class MyInvocationHandler implements InvocationHandler {
             map.put(args, null);
             for (Object arg : args) {
                 if (arg == null) {
-                    a.put(arg);
+                    a.put(JSONObject.NULL);
                 } else if (map.containsKey(arg)) {
                     a.put("cyclic");
                 } else if (arg.getClass().isArray()) {
@@ -119,7 +114,7 @@ public class MyInvocationHandler implements InvocationHandler {
             map.put(args, null);
             for (Object arg : args) {
                 if (arg == null) {
-                    a.put(arg);
+                    a.put(JSONObject.NULL);
                 } else if (map.containsKey(arg)) {
                     a.put("cyclic");
                 } else if (arg.getClass().isArray()) {
