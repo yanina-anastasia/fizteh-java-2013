@@ -89,16 +89,20 @@ public class LogInvocationHandler implements InvocationHandler {
         Object returnedValue = null;
         JSONObject record = new JSONObject();
         if (!method.getDeclaringClass().equals(Object.class)) {
-            record.put("timestamp", System.currentTimeMillis());
-            record.put("class", proxied.getClass().getName());
-            record.put("method", method.getName());
-            if (args == null) {
-                record.put("arguments", new JSONArray());
-            } else if (args.length == 0) {
-                record.put("arguments", new JSONArray());
-            } else {
-                ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
-                record.put("arguments", creatorJSONArray.getJSONArray().get(0));
+            try {
+                record.put("timestamp", System.currentTimeMillis());
+                record.put("class", proxied.getClass().getName());
+                record.put("method", method.getName());
+                if (args == null) {
+                    record.put("arguments", new JSONArray());
+                } else if (args.length == 0) {
+                    record.put("arguments", new JSONArray());
+                } else {
+                    ProviderArrayJSON creatorJSONArray = new ProviderArrayJSON(args);
+                    record.put("arguments", creatorJSONArray.getJSONArray().get(0));
+                }
+            } catch (Exception e) {
+
             }
             try {
                 returnedValue = method.invoke(proxied, args);
