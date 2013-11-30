@@ -35,6 +35,10 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     Path dbPath;
     boolean isClosed;
 
+    public void closeTable(String name) {
+        isTableClosed.put(name, true);
+    }
+
     /**
      * Конструктор. Составляет список таблиц в базе
      *
