@@ -68,7 +68,8 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
         
         try {
             Utils.remover(tablePath, "drop", false);
-            this.mapOfTables.remove(name);
+            ChangesCountingTable removed = this.mapOfTables.remove(name);
+            removed.close();
         } catch (IOException e) {
             throw e;
         } finally {
@@ -115,7 +116,6 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
         }
         return row;
     }
-
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
@@ -210,4 +210,9 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
         return newTable;
     }
 
+    public void deleteTableFromProvider(String name) {
+    	this.lock.writeLock().lock();
+    	this.mapOfTables.remove(name);
+    	this.lock.writeLock().unlock();
+    }
 }

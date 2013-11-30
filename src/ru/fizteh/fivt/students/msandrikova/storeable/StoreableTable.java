@@ -22,12 +22,12 @@ import java.util.regex.Pattern;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
 public class StoreableTable implements ChangesCountingTable {
+	private boolean isClosed;
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
-    private TableProvider tableProvider;
+    private StoreableTableProvider tableProvider;
     private String name;
     private File tablePath;
     private List<Class<?>> columnTypes = new ArrayList<Class<?>>();
@@ -163,9 +163,7 @@ public class StoreableTable implements ChangesCountingTable {
         }
        
         public Storeable get(String key) throws IllegalArgumentException, IllegalStateException {
-            if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-                throw new IllegalStateException("Table was removed.");
-            }
+            StoreableTable.this.checkIsClosed();
             if (Utils.isEmpty(key)) {
                 throw new IllegalArgumentException("Key can not be null");
             }
@@ -183,9 +181,7 @@ public class StoreableTable implements ChangesCountingTable {
             
         public Storeable put(String key, Storeable value) 
                 throws IllegalArgumentException, IllegalStateException {
-            if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-                throw new IllegalStateException("Table was removed.");
-            }
+        	StoreableTable.this.checkIsClosed();
             if (Utils.isEmpty(key) || value == null || P.matcher(key).find()) {
                 throw new IllegalArgumentException("Key and name can not be null or "
                         + "newline and key can not contain whitespace");
@@ -200,9 +196,7 @@ public class StoreableTable implements ChangesCountingTable {
         }
         
         public Storeable remove(String key) throws IllegalArgumentException, IllegalStateException {
-            if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-                throw new IllegalStateException("Table was removed.");
-            }
+        	StoreableTable.this.checkIsClosed();
             if (Utils.isEmpty(key)) {
                 throw new IllegalArgumentException("Key can not be null");
             }
@@ -215,9 +209,7 @@ public class StoreableTable implements ChangesCountingTable {
         }
         
         public int size() throws IllegalStateException {
-            if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-                throw new IllegalStateException("Table was removed.");
-            }
+        	StoreableTable.this.checkIsClosed();
             
             int size = StoreableTable.this.originalDatabase.size();
             
@@ -237,9 +229,8 @@ public class StoreableTable implements ChangesCountingTable {
         }
         
         public int commit() throws IOException, IllegalStateException {
-            if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-                throw new IllegalStateException("Table was removed.");
-            }
+        	StoreableTable.this.checkIsClosed();
+        	
             int changesCount = this.unsavedChangesCount();
             for (String key : this.updates.keySet()) {
                 StoreableTable.this.originalDatabase.put(key, this.updates.get(key));
@@ -255,9 +246,8 @@ public class StoreableTable implements ChangesCountingTable {
         }
         
         public int rollback() throws IllegalStateException {
-            if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-                throw new IllegalStateException("Table was removed.");
-            }
+        	StoreableTable.this.checkIsClosed();
+        	
             int changesCount = this.unsavedChangesCount();
             this.removed.clear();
             this.updates.clear();
@@ -384,8 +374,9 @@ public class StoreableTable implements ChangesCountingTable {
     }
     
     public StoreableTable(File dir, String name, List<Class<?>> columnTypes, 
-            TableProvider tableProvider) throws IOException {
+            StoreableTableProvider tableProvider) throws IOException {
         this.name = name;
+        this.isClosed = false;
         this.tableProvider = tableProvider;
         this.columnTypes = columnTypes;
         this.tablePath = new File(dir, name);
@@ -520,7 +511,8 @@ public class StoreableTable implements ChangesCountingTable {
     }
 
     @Override
-    public int getColumnsCount() {
+    public int getColumnsCount() throws IllegalStateException {
+    	StoreableTable.this.checkIsClosed();
         lock.readLock().lock();
         int answer = 0;
         answer = this.columnTypes.size();
@@ -529,7 +521,8 @@ public class StoreableTable implements ChangesCountingTable {
     }
 
     @Override
-    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException, IllegalStateException {
+    	StoreableTable.this.checkIsClosed();
         lock.readLock().lock();
         Class<?> answer = null;
         
@@ -547,4 +540,25 @@ public class StoreableTable implements ChangesCountingTable {
     public int unsavedChangesCount() {
         return this.transaction.get().unsavedChangesCount();
     }
+    
+    public void checkIsClosed() throws IllegalStateException {
+    	this.lock.readLock().lock();
+    	if(this.isClosed) {
+    		this.lock.readLock().unlock();
+    		throw new IllegalStateException("Table was closed.");    		
+    	}
+    	this.lock.readLock().unlock();
+    }
+    
+    public void close() throws IllegalStateException {
+    	this.checkIsClosed();
+    	
+    	this.rollback();
+    	
+    	this.lock.writeLock().lock();
+    	this.isClosed = true;
+    	this.tableProvider.deleteTableFromProvider(this.name);
+    	this.lock.writeLock().unlock();	
+    }
+    
 }
