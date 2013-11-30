@@ -26,6 +26,7 @@ public class LoggingProxyFactoryTest {
       void deliverAllPresents (Collection<Child> children,Collection <Object> presents);
       void deliverPresent (Child child, Object present);
       boolean beHappy ();
+      Collection <Child> alreadyHappyChildren ();
     }
 
     private class DedMoroz implements XmasWizard {
@@ -59,6 +60,11 @@ public class LoggingProxyFactoryTest {
             System.out.println("I'm so glad I can please children");
                 return true;
             }
+        }
+
+        @Override
+        public Collection<Child> alreadyHappyChildren() {
+            return happyChilden;
         }
     }
 
@@ -121,6 +127,43 @@ public class LoggingProxyFactoryTest {
         presents.add(children);
         XmasWizard proxy = (XmasWizard) factory.wrap(writer,xmasWizard,interfaceClass);
         proxy.deliverAllPresents(children,presents);
+    }
+
+    @Test
+    public void happyChildrenCollectionReturn () {
+        ArrayList <Child> children = new ArrayList();
+        children.add(new Child ("Mary"));
+        children.add(new Child ("David"));
+        ArrayList <Object> presents = new ArrayList<>();
+        presents.add(new Present("Butterfly"));
+        presents.add(new Present("Tardis"));
+        XmasWizard proxy = (XmasWizard) factory.wrap(writer,xmasWizard,interfaceClass);
+        proxy.deliverAllPresents(children,presents);
+        proxy.alreadyHappyChildren();
+    }
+
+    @Test
+    public void presentInPresentssimpleCycle () {
+        ArrayList <Child> children = new ArrayList();
+        children.add(new Child ("Andrew"));
+        children.add(new Child ("Gadya"));
+        ArrayList <Object> presents = new ArrayList<>();
+        presents.add(new Present());
+        presents.add(presents);
+        XmasWizard proxy = (XmasWizard) factory.wrap(writer,xmasWizard,interfaceClass);
+        proxy.deliverAllPresents(children,presents);
+    }
+
+    @Test
+    public void presentConsistObjectThatConsistPresent () {
+        Child Sally = new Child ("Sally");
+        ArrayList <Object> unpackedPresent = new ArrayList<>();
+        ArrayList <Object> inside = new ArrayList<>();
+        inside.add(unpackedPresent);
+        unpackedPresent.add(inside);
+        XmasWizard proxy = (XmasWizard) factory.wrap(writer,xmasWizard,interfaceClass);
+        thrown.expect(StackOverflowError.class);
+        proxy.deliverPresent(Sally,unpackedPresent);
     }
 
     private class Child {

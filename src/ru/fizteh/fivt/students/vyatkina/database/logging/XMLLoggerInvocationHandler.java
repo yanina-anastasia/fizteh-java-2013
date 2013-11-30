@@ -27,8 +27,7 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
     private static final String LIST = "list";
     private static final String VALUE = "value";
     private static final String CYCLIC = "cyclic";
-    private final Set<Object> argsIdentitySet = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
-    private final Set<Object> returnIdentitySet = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
+    private final Set<Object> identitySet = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
 
     public XMLLoggerInvocationHandler(XMLStreamWriter writer, Object implementation) {
         this.implementation = implementation;
@@ -57,8 +56,8 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
             } else {
                 Object returnValue = method.invoke(implementation, args);
                 writer.writeStartElement(RETURN);
-                returnIdentitySet.clear();
-                writeValue(returnValue, returnIdentitySet);
+                identitySet.clear();
+                writeValue(returnValue, identitySet);
                 writer.writeEndElement();
                 return returnValue;
             }
@@ -81,7 +80,6 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
         }
     }
 
-
     private void writeArgs(Object[] args) throws XMLStreamException {
         if (args == null || args.length == 0) {
             writer.writeEmptyElement(ARGUMENTS);
@@ -90,11 +88,22 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
         writer.writeStartElement(ARGUMENTS);
         for (int i = 0; i < args.length; ++i) {
             writer.writeStartElement(ARGUMENT);
-            argsIdentitySet.clear();
-            writeValue(args[i], argsIdentitySet);
+            writeArg(args[i]);
             writer.writeEndElement();
         }
         writer.writeEndElement();
+    }
+
+    private void writeArg (Object arg) throws XMLStreamException {
+        if (arg == null) {
+            writer.writeEmptyElement(NULL);
+        } else if (Iterable.class.isAssignableFrom(arg.getClass())) {
+                identitySet.clear();
+                identitySet.add(arg);
+                writeIterable((Iterable) arg, identitySet);
+        } else {
+            writer.writeCharacters(arg.toString());
+        }
     }
 
     private void writeValue(Object value, Set<Object> identitySet) throws XMLStreamException {
@@ -104,7 +113,6 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
             if (identitySet.contains(value)) {
                 writer.writeCharacters(CYCLIC);
             } else {
-                identitySet.add(value);
                 writeIterable((Iterable) value, identitySet);
             }
         } else {
@@ -114,6 +122,7 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
 
     private void writeIterable(Iterable<?> iterable, Set<Object> identitySet) throws XMLStreamException {
         Iterator<?> it = iterable.iterator();
+        identitySet.add(this);
         if (!it.hasNext()) {
             writer.writeEmptyElement(LIST);
             return;
@@ -123,8 +132,6 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
             Object value = it.next();
             writer.writeStartElement(VALUE);
             writeValue(value, identitySet);
-            identitySet.clear();
-            identitySet.add(this);
             writer.writeEndElement();
             if (!it.hasNext()) {
                 writer.writeEndElement();
