@@ -31,13 +31,8 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private final ReentrantLock locker = new ReentrantLock(true);
 
     HashMap<String, MyTable> tables;
-    HashMap<String, Boolean> isTableClosed;
     Path dbPath;
     boolean isClosed;
-
-    public void closeTable(String name) {
-        isTableClosed.put(name, Boolean.TRUE);
-    }
 
     /**
      * Конструктор. Составляет список таблиц в базе
@@ -63,7 +58,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         DirectoryStream<Path> stream = Files.newDirectoryStream(path);
         for (Path f : stream) {
             tables.put(f.getFileName().toString(), (new MyTable(f, this)));
-            isTableClosed.put(f.getFileName().toString(), false);
         }
     }
 
@@ -86,14 +80,14 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         locker.lock();
         try {
-            if (isTableClosed.get(name)) {
+            MyTable table = tables.get(name);
+            if ((table != null) && (table.isClosed)) {
                 try {
                     tables.put(name, new MyTable(dbPath.resolve(name), this));
                 } catch (IOException e) {
                     // костыль: теперь getTable может кидать IOException, ибо создает новый экземпляр MyTable,
                     // но нельзя, т.к. @Override ломается
                 }
-                isTableClosed.put(name, false);
             }
             return tables.get(name);
         } finally {
