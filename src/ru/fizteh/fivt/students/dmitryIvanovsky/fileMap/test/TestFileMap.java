@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
 import org.junit.*;
 import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMap;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;

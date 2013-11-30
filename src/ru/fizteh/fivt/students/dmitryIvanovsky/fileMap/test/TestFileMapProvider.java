@@ -1,12 +1,10 @@
 package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
-import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProvider;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapProviderFactory;
 import ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils;

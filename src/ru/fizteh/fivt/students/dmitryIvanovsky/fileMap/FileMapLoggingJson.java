@@ -5,21 +5,28 @@ import org.json.JSONObject;
 import java.util.IdentityHashMap;
 
 public class FileMapLoggingJson {
-    private Object argument;
-    private IdentityHashMap<Object, Object> identifyAttended = new IdentityHashMap<>();
+    Object argument;
+    IdentityHashMap<Object, Object> identifyMap = new IdentityHashMap<>();
 
     FileMapLoggingJson(Object argument) {
         this.argument = argument;
     }
 
+    JSONArray getJSONArray() {
+        JSONArray creatingArray = new JSONArray();
+        return recursiveLog(argument, creatingArray);
+    }
+
     private JSONArray recursiveLog(Object arg, JSONArray creatingArray) {
         JSONArray newCreatingArray = new JSONArray();
-        if (arg != null) {
+        if (arg == null) {
+            creatingArray.put(JSONObject.NULL);
+        } else {
             if (Iterable.class.isAssignableFrom(arg.getClass())) {
-                if (identifyAttended.containsKey(arg)) {
+                if (identifyMap.containsKey(arg)) {
                     creatingArray.put("cyclic");
                 } else {
-                    identifyAttended.put(arg, arg);
+                    identifyMap.put(arg, arg);
                     for (Object obj: (Iterable) arg) {
                         try {
                             newCreatingArray = recursiveLog(obj, newCreatingArray);
@@ -27,14 +34,14 @@ public class FileMapLoggingJson {
                             newCreatingArray.put(arg.toString());
                         }
                     }
-                    identifyAttended.remove(arg);
+                    identifyMap.remove(arg);
                     creatingArray.put(newCreatingArray);
                 }
             } else if (arg.getClass().isArray()) {
-                if (identifyAttended.containsKey(arg)) {
+                if (identifyMap.containsKey(arg)) {
                     creatingArray.put("cyclic");
                 } else {
-                    identifyAttended.put(arg, arg);
+                    identifyMap.put(arg, arg);
                     for (Object obj: (Object[]) arg) {
                         try {
                             newCreatingArray = recursiveLog(obj, newCreatingArray);
@@ -42,7 +49,7 @@ public class FileMapLoggingJson {
                             newCreatingArray.put(obj.toString());
                         }
                     }
-                    identifyAttended.remove(arg);
+                    identifyMap.remove(arg);
                     creatingArray.put(newCreatingArray);
                 }
             } else {
@@ -60,15 +67,7 @@ public class FileMapLoggingJson {
                     creatingArray.put(arg.toString());
                 }
             }
-        } else {
-            creatingArray.put(JSONObject.NULL);
         }
         return creatingArray;
     }
-
-    JSONArray getJSONArray() {
-        JSONArray creatingArray = new JSONArray();
-        return recursiveLog(argument, creatingArray);
-    }
-
 }

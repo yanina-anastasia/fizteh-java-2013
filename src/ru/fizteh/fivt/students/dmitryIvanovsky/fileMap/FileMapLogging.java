@@ -2,12 +2,10 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class FileMapLogging implements InvocationHandler {
     Object object;
@@ -23,11 +21,6 @@ public class FileMapLogging implements InvocationHandler {
         Object returnValue = null;
         JSONObject record = new JSONObject();
         if (method.getDeclaringClass().equals(Object.class)) {
-//            try {
-//                writer.write("");
-//            } catch (IOException e) {
-//                //pass
-//            }
             try {
                 returnValue = method.invoke(object, args);
             } catch (InvocationTargetException e) {
