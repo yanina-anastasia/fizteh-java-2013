@@ -18,10 +18,9 @@ public class Main {
         shellState.table = new SingleFileStringDatabaseTable(databaseDir, "database");
         shell.setState(shellState);
         shell.setArgs(args);
-
-		shell.addCommand(new PutCommand<Table, String, String, FileMapStringShellState>());
-		shell.addCommand(new GetCommand<Table, String, String, FileMapStringShellState>());
-		shell.addCommand(new RemoveCommand<Table, String, String, FileMapStringShellState>());
+        shell.addCommand(new PutCommand<Table, String, String, FileMapStringShellState>());
+        shell.addCommand(new GetCommand<Table, String, String, FileMapStringShellState>());
+        shell.addCommand(new RemoveCommand<Table, String, String, FileMapStringShellState>());
         shell.addCommand(new CommitCommand<FileMapStringShellState>());
         shell.addCommand(new RollbackCommand<FileMapStringShellState>());
         shell.addCommand(new ExitCommand());
