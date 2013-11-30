@@ -8,11 +8,11 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import java.io.IOException;
 
 public class CpCommand extends AbstractCommand<ShellState> {
-	public CpCommand() {
-		super("cp", 2);
-	}
-	
-	public void execute(String argumentsLine, ShellState shellState) {
+    public CpCommand() {
+        super("cp", 2);
+    }
+
+    public void execute(String argumentsLine, ShellState shellState) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
@@ -21,5 +21,5 @@ public class CpCommand extends AbstractCommand<ShellState> {
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
         }
-	}
+    }
 }

@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.inaumov.filemap.base;
 
 import ru.fizteh.fivt.students.inaumov.filemap.FileMapUtils;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.nio.charset.Charset;
@@ -107,59 +106,59 @@ public abstract class AbstractDatabaseTable<Key, Value> {
 
     protected abstract void saveTable() throws IOException;
 
-	public AbstractDatabaseTable(String tableDir, String tableName) {
-		if (FileMapUtils.isStringNullOrEmpty(tableDir)) {
-			throw new IllegalArgumentException("error: selected directory is null (or empty)");
-		}
-		if (FileMapUtils.isStringNullOrEmpty(tableName)) {
-			throw new IllegalArgumentException("error: selected database name is null (or empty)");
-		}
-		
-		this.tableName = tableName;
-		this.tableDir = tableDir;
+    public AbstractDatabaseTable(String tableDir, String tableName) {
+        if (FileMapUtils.isStringNullOrEmpty(tableDir)) {
+            throw new IllegalArgumentException("error: selected directory is null (or empty)");
+        }
+        if (FileMapUtils.isStringNullOrEmpty(tableName)) {
+            throw new IllegalArgumentException("error: selected database name is null (or empty)");
+        }
+
+        this.tableName = tableName;
+        this.tableDir = tableDir;
 
         try {
-		    loadTable();
+            loadTable();
         } catch (IOException e) {
             throw new IllegalArgumentException("error: can't load table, incorrect file format");
         }
-	}
-	
-	public String getName() {
-		return tableName;
-	}
+    }
 
-	public String getDir() {
-		return tableDir;
-	}
-	
-	public Value tableGet(Key key) {
-		if (key == null) {
-			throw new IllegalArgumentException("error: selected key is null");
-		}
-		
-		return diff.get().getValue(key);
-	}
+    public String getName() {
+        return tableName;
+    }
 
-	public Value tablePut(Key key, Value value) {
-		if (key == null) {
-			throw new IllegalArgumentException("error: selected key is null");
+    public String getDir() {
+        return tableDir;
+    }
+
+    public Value tableGet(Key key) {
+        if (key == null) {
+            throw new IllegalArgumentException("error: selected key is null");
+        }
+
+        return diff.get().getValue(key);
+    }
+
+    public Value tablePut(Key key, Value value) {
+        if (key == null) {
+            throw new IllegalArgumentException("error: selected key is null");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("error: selected value is null");
 		}
-		if (value == null) {
-			throw new IllegalArgumentException("error: selected value is null");
-		}
-		
-		Value oldValue = diff.get().getValue(key);
+
+        Value oldValue = diff.get().getValue(key);
         diff.get().change(key, value);
 
-		return oldValue;
-	}
+        return oldValue;
+    }
 
-	public Value tableRemove(Key key) throws IllegalArgumentException {
-		if (key == null) {
-			throw new IllegalArgumentException("error: selected key is null");
+    public Value tableRemove(Key key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("error: selected key is null");
         }
-		if (tableGet(key) == null) {
+        if (tableGet(key) == null) {
             return null;
         }
 
@@ -167,8 +166,8 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         diff.get().change(key, null);
         diff.get().incUnsavedChangesNumber();
 
-		return oldValue;
-	}
+        return oldValue;
+    }
 
     public int tableCommit() {
         try {
@@ -189,19 +188,19 @@ public abstract class AbstractDatabaseTable<Key, Value> {
     }
 
     public int tableRollback() {
-       int rollbackedChangesCount = diff.get().getChangesCount();
-       diff.get().clear();
+        int rollbackedChangesCount = diff.get().getChangesCount();
+        diff.get().clear();
 
         return rollbackedChangesCount;
     }
 
-	public int tableSize() {
-		return diff.get().getSize();
-	}
+    public int tableSize() {
+        return diff.get().getSize();
+    }
 
-	public int getUnsavedChangesNumber() {
-		return diff.get().getUnsavedChangesNumber();
-	}
+    public int getUnsavedChangesNumber() {
+        return diff.get().getUnsavedChangesNumber();
+    }
 
     public void rawPut(Key key, Value value) {
         keyValueHashMap.put(key, value);

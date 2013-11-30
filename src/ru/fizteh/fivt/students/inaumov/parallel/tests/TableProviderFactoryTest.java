@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class TableProviderFactoryTest {
     private static final int THREADS_NUMBER = 10;
-    private static String DATABASE_DIRECTORY = "./parallel_test";
+    private static final String DATABASE_DIRECTORY = "./parallel_test";
 
     @Test
     public void testCreateProvider() {

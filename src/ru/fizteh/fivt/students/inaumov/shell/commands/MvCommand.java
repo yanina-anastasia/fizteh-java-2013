@@ -8,9 +8,9 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 import java.io.IOException;
 
 public class MvCommand extends AbstractCommand<ShellState> {
-	public MvCommand() {
-		super("mv", 2);
-	}
+    public MvCommand() {
+        super("mv", 2);
+    }
 
 	public void execute(String argumentsLine, ShellState shellState) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
