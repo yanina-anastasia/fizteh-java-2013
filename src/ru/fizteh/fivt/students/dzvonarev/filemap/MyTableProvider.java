@@ -280,7 +280,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         } finally {
             writeLock.unlock();
         }
-        factory.removeProvider(this);
+        //factory.removeProvider(this);
     }
 
     private void checkIfProviderClosed() {
