@@ -11,14 +11,11 @@ import java.io.BufferedOutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 /**
  * Управляющий класс для работы с {@link ru.fizteh.fivt.storage.structured.Table таблицами}
@@ -29,12 +26,13 @@ import java.util.List;
  *
  * Данный интерфейс не является потокобезопасным.
  */
-public class MyTableProvider implements TableProvider {
+public class MyTableProvider implements TableProvider, AutoCloseable {
 
     private final ReentrantLock locker = new ReentrantLock(true);
 
-    HashMap<String, Table> tables;
+    HashMap<String, MyTable> tables;
     Path dbPath;
+    boolean isClosed;
 
     /**
      * Конструктор. Составляет список таблиц в базе
@@ -44,6 +42,7 @@ public class MyTableProvider implements TableProvider {
     public MyTableProvider(Path path) throws IOException {
         tables = new HashMap<>();
         dbPath = path;
+        isClosed = false;
         String name = path.getFileName().toString();
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
             throw new IllegalArgumentException("TableProvider.constructor: bad table name \"" + name + "\"");
@@ -75,6 +74,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table getTable(String name) {
+        checkClose();
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
             throw new IllegalArgumentException("TableProvider.getTable: bad table name \"" + name + "\"");
         }
@@ -100,6 +100,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+        checkClose();
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
             throw new IllegalArgumentException("TableProvider.createTable: bad table name \"" + name + "\"");
         }
@@ -157,7 +158,7 @@ public class MyTableProvider implements TableProvider {
                     throw new IOException("TableProvider.createTable: making of \"signature.tsv\" error with message \""
                             + e.getMessage() + "\"", e);
                 }
-                Table newTable = new MyTable(dbPath.resolve(name), this);
+                MyTable newTable = new MyTable(dbPath.resolve(name), this);
                 tables.put(name, newTable);
                 return newTable;
             }
@@ -180,6 +181,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public void removeTable(String name) throws IOException {
+        checkClose();
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
             throw new IllegalArgumentException("TableProvider.removeTable: bad table name \"" + name + "\"");
         }
@@ -214,6 +216,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        checkClose();
         if (table == null) {
             throw new IllegalArgumentException("TableProvider.deserialize: table is null");
         }
@@ -325,6 +328,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        checkClose();
         try {
             value.getColumnAt(table.getColumnsCount());
             throw new ColumnFormatException("TableProvider.serialize: value has other number of columns");
@@ -398,6 +402,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Storeable createFor(Table table) {
+        checkClose();
         List<Class<?>> columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
@@ -420,6 +425,7 @@ public class MyTableProvider implements TableProvider {
      */
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        checkClose();
         List<Class<?>> columnTypes = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
@@ -427,12 +433,34 @@ public class MyTableProvider implements TableProvider {
         return (new Storable(columnTypes, (new ArrayList<>(values))));
     }
 
+    @Override
+    public void close() {
+        if (!isClosed) {
+            for (Map.Entry<String, MyTable> entry : tables.entrySet()) {
+                entry.getValue().close();
+            }
+            isClosed = true;
+        }
+    }
+
+    private void checkClose() {
+        if (isClosed) {
+            throw new IllegalStateException("TableProvider: provider closed");
+        }
+    }
+
+    @Override
+    public String toString() {
+        checkClose();
+        return getClass().getSimpleName() + "[" + dbPath.toAbsolutePath().toString() + "]";
+    }
+
     /**
      * Проверяет базу данных на правильность ее структуры, т.е. правильность расположения и названий файлов и папок
      *
      * @throws IOException При нахождении ошибок в структуре базы данных
      */
-    void checkDataBaseDirectory() throws IOException {
+    private void checkDataBaseDirectory() throws IOException {
         if (!Files.exists(dbPath)) {
             throw new IllegalStateException("Directory \"" + dbPath.toString() + "\" doesn't exists");
         }
