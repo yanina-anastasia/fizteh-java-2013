@@ -12,7 +12,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class FileMapLogging implements InvocationHandler {
     Object object;
     Writer writer;
-    ReentrantLock write = new ReentrantLock(true);
 
     FileMapLogging(Object implementation, Writer writer) {
         this.object = implementation;
@@ -55,23 +54,17 @@ public class FileMapLogging implements InvocationHandler {
                 record.put("thrown", e.getTargetException().toString());
                 throw e.getTargetException();
             } finally {
-                write.lock();
                 try {
-                    writer.write(record.toString()+"\n");
+                    writer.write(record.toString() + System.lineSeparator());
                 } catch (IOException e) {
                     //pass
-                } finally {
-                    write.unlock();
                 }
             }
         } else {
-            write.lock();
             try {
                 writer.write("");
             } catch (IOException e) {
                 //pass
-            } finally {
-                write.unlock();
             }
             try {
                 returnedValue = method.invoke(object, args);
