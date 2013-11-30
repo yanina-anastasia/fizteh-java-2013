@@ -100,7 +100,7 @@ public class StorableTableProviderImp implements StorableTableProvider {
             table.putValuesFromDisk(new HashMap<String, Storeable>());
 
             tables.put(name, table);
-            Files.createDirectory(location.resolve(name));
+            Files.createDirectories(location.resolve(name));
             writeTableSignature(tableDirectory(name), columnTypes);
             return table;
         }
