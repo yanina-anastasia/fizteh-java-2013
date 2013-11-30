@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 
-public class FileMapProviderFactory implements TableProviderFactory {
+public class FileMapProviderFactory implements TableProviderFactory, AutoCloseable {
 
     HashSet<FileMapProvider> setFileMapProvider = new HashSet<FileMapProvider>();
     volatile boolean isFactoryClose = false;
