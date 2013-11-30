@@ -17,17 +17,14 @@ public class ClassState {
         parent = newParent;
     }
 
-    public ClassState() {
-    }
-
     public void check() {
         if (state == CLOSED) {
-            throw new IllegalStateException("Some object is closed already!");
+            throw new IllegalStateException("Some object " + parent.getClass().toString() + " is closed already!");
         }
     }
 
     public void close() {
-        synchronized (this) {
+        synchronized (lock) {
             state = CLOSED;
         }
     }
