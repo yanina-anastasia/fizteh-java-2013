@@ -61,10 +61,10 @@ public class StorableMain {
             shell.startWork(args);
         }
         catch (TimeToFinishException e) {
-            if (e.getMessage().equals(TimeToFinishException.DEATH_MESSAGE)) {
-                System.exit(-1);
-            } else {
+            if (e == null) {
                 System.exit(0);
+            } else {
+                System.exit(-1);
             }
         }
 
