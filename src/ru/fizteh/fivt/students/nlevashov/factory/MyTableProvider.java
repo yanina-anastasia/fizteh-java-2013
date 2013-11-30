@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.nlevashov.factory;
 
-import com.sun.xml.internal.bind.v2.model.core.MaybeElement;
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
