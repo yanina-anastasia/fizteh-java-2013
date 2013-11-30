@@ -52,7 +52,7 @@ public class MyTable implements Table, AutoCloseable {
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
-    private volatile boolean tableIsClosed;
+    private boolean tableIsClosed;
 
     public List<Class<?>> getTypeArray() {
         return type;
@@ -299,7 +299,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public String getName() {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         return tableName.substring(tableName.lastIndexOf(File.separator) + 1, tableName.length());
     }
 
@@ -314,7 +316,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public Storeable get(String key) throws IllegalArgumentException {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
@@ -341,7 +345,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
@@ -358,7 +364,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
@@ -376,7 +384,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int size() throws IndexOutOfBoundsException {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         readLock.lock();
         try {
             return countSize() + fileMap.size();
@@ -410,7 +420,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int commit() throws IndexOutOfBoundsException, IOException {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         writeLock.lock();
         int count;
         try {
@@ -466,7 +478,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int rollback() throws IndexOutOfBoundsException {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         readLock.lock();
         int count;
         try {
@@ -480,13 +494,17 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int getColumnsCount() {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         return type.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index at " + columnIndex + ")");
         }
@@ -495,7 +513,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public String toString() {
-        checkIfTableClosed();
+        if (tableIsClosed) {
+            throw new IllegalStateException("table " + tableName + " is closed");
+        }
         return MyTable.class.getSimpleName() + "[" + tableFile.getAbsolutePath() + "]";
     }
 
@@ -511,12 +531,6 @@ public class MyTable implements Table, AutoCloseable {
             tableProvider.removeClosedTable(tableName);
         } finally {
             writeLock.unlock();
-        }
-    }
-
-    private void checkIfTableClosed() {
-        if (tableIsClosed) {
-            throw new IllegalStateException("table " + tableName + " is closed");
         }
     }
 
