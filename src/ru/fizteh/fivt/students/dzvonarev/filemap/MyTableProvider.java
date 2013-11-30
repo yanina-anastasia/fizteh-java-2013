@@ -264,6 +264,9 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void close() {
+        if (isProviderClosed) {
+            return;
+        }
         writeLock.lock();
         try {
             Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();

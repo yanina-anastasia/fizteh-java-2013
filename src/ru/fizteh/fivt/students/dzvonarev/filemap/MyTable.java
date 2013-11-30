@@ -501,6 +501,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public void close() throws IndexOutOfBoundsException {
+        if (tableIsClosed) {
+            return;
+        }
         rollback();
         tableIsClosed = true;
         writeLock.lock();

@@ -40,6 +40,9 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
 
     @Override
     public void close() {
+        if (isTableProviderFactoryClosed) {
+            return;
+        }
         for (MyTableProvider tableProvider : tableProvidersList) {
             tableProvider.close();
         }
