@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.inaumov.filemap.commands.*;
 public class Main {
     public static void main(String[] args) {
         Shell<FileMapStringShellState> shell = new Shell<FileMapStringShellState>();
-		FileMapStringShellState shellState = new FileMapStringShellState();
+        FileMapStringShellState shellState = new FileMapStringShellState();
 
         String databaseDir = System.getProperty("fizteh.db.dir");
         if (databaseDir == null || databaseDir.isEmpty()) {
@@ -16,8 +16,10 @@ public class Main {
         }
 
         shellState.table = new SingleFileStringDatabaseTable(databaseDir, "database");
+
         shell.setState(shellState);
         shell.setArgs(args);
+
         shell.addCommand(new PutCommand<Table, String, String, FileMapStringShellState>());
         shell.addCommand(new GetCommand<Table, String, String, FileMapStringShellState>());
         shell.addCommand(new RemoveCommand<Table, String, String, FileMapStringShellState>());
@@ -26,5 +28,5 @@ public class Main {
         shell.addCommand(new ExitCommand());
 
         shell.run();
-	}
+    }
 }
