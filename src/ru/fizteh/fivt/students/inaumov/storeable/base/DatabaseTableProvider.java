@@ -25,11 +25,11 @@ public class DatabaseTableProvider implements TableProvider {
     private static final String CHECK_EXPRESSION_STRING = "[0-9A-Za-zА-Яа-я]+";
     private final Lock tableLock = new ReentrantLock(true);
 
-    HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
+    private HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     private String databaseDirectoryPath;
     private DatabaseTable currentTable = null;
 
-    public DatabaseTableProvider(String databaseDirectoryPath) {
+    public DatabaseTableProvider(final String databaseDirectoryPath) {
         if (databaseDirectoryPath == null) {
             throw new IllegalArgumentException("error: database directory can't be null");
         }
@@ -57,7 +57,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     @Override
-    public Table getTable(String name) {
+    public Table getTable(final String name) {
         try {
             tableLock.lock();
             if (name == null || name.isEmpty()) {
@@ -84,7 +84,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     @Override
-    public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
+    public Table createTable(final String name, List<Class<?>> columnTypes) throws IOException {
         try {
             tableLock.lock();
             if (name == null || name.isEmpty()) {
@@ -112,7 +112,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     @Override
-    public void removeTable(String name) throws IOException {
+    public void removeTable(final String name) throws IOException {
         try {
             tableLock.lock();
             if (name == null || name.isEmpty()) {
@@ -135,7 +135,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     @Override
-    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+    public String serialize(final Table table, final Storeable value) throws ColumnFormatException {
         Object[] values = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             values[i] = value.getColumnAt(i);
@@ -146,7 +146,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     @Override
-    public Storeable deserialize(Table table, String value) throws ParseException {
+    public Storeable deserialize(final Table table, final String value) throws ParseException {
         JSONArray array;
         try {
             array = new JSONArray(value);
@@ -164,8 +164,8 @@ public class DatabaseTableProvider implements TableProvider {
                 values.add(null);
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
                 values.add(array.getInt(i));
-            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class) &&
-                    table.getColumnType(i) == Long.class) {
+            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class)
+                    && table.getColumnType(i) == Long.class) {
                 values.add(array.getLong(i));
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
                 Integer a = array.getInt(i);
@@ -188,12 +188,12 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     @Override
-    public Storeable createFor(Table table) {
+    public Storeable createFor(final Table table) {
         return rawCreateFor(table);
     }
 
     @Override
-    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Storeable createFor(final Table table, final List<?> values) {
         if (values == null) {
             throw new IllegalArgumentException("error: values can't be null");
         }
@@ -204,7 +204,7 @@ public class DatabaseTableProvider implements TableProvider {
         return row;
     }
 
-    private List<Class<?>> readTableSignature(String tableName) {
+    private List<Class<?>> readTableSignature(final String tableName) {
         File tableDirectory = new File(databaseDirectoryPath, tableName);
         File signatureFile = new File(tableDirectory, SIGNATURE_FILE);
 
@@ -238,12 +238,12 @@ public class DatabaseTableProvider implements TableProvider {
         return columnTypes;
     }
 
-    private boolean checkCorrectTable(File tableDirectory) {
+    private boolean checkCorrectTable(final File tableDirectory) {
         File signatureFile = new File(tableDirectory, SIGNATURE_FILE);
         return signatureFile.exists();
     }
 
-    private DatabaseRow rawCreateFor(Table table) {
+    private DatabaseRow rawCreateFor(final Table table) {
         DatabaseRow row = new DatabaseRow();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             row.addColumn(table.getColumnType(i));
@@ -252,7 +252,7 @@ public class DatabaseTableProvider implements TableProvider {
         return row;
     }
 
-    private void checkColumnTypes(List<Class<?>> columnTypes) {
+    private void checkColumnTypes(final List<Class<?>> columnTypes) {
         for (final Class<?> columnType: columnTypes) {
             if (columnType == null) {
                 throw new IllegalArgumentException("unknown column type");
@@ -262,7 +262,7 @@ public class DatabaseTableProvider implements TableProvider {
         }
     }
 
-    private void checkTableName(String name) {
+    private void checkTableName(final String name) {
         if (!name.matches(CHECK_EXPRESSION_STRING)) {
             throw new IllegalArgumentException("error: bad table name");
         }

@@ -1,7 +1,6 @@
 package ru.fizteh.fivt.students.inaumov.storeable.tests;
 
 import org.junit.Test;
-import org.json.JSONArray;
 import org.junit.After;
 import org.junit.Before;
 import ru.fizteh.fivt.storage.structured.Table;
@@ -10,7 +9,6 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.students.inaumov.storeable.base.DatabaseTableProviderFactory;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
