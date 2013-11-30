@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 
 public class PutCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>>
         extends AbstractCommand<State> {
-	public PutCommand() {
+    public PutCommand() {
 		super("put", 2);
 	}
 
@@ -22,7 +22,7 @@ public class PutCommand<Table, Key, Value, State extends FileMapShellState<Table
         Key key = state.parseKey(arguments[0]);
         Value value = state.parseValue(arguments[1]);
         Value oldValue = state.put(key, value);
-		
+
 		if (oldValue == null) {
 			System.out.println("new");
 		} else {

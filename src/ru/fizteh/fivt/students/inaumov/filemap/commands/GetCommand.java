@@ -7,7 +7,7 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class GetCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>>
         extends AbstractCommand<State> {
-	public GetCommand() {
+    public GetCommand() {
 		super("get", 1);
 	}
 

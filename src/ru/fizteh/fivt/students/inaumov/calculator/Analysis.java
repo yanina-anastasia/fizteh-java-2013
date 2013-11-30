@@ -59,7 +59,8 @@ public class Analysis  {
 
     public int calculateExpression() throws IOException {
         char nextOperation = getOperationFromStack();
-        int secondOperand = getIntegerFromStack(), firstOperand = getIntegerFromStack();
+        int secondOperand = getIntegerFromStack();
+        int firstOperand = getIntegerFromStack();
         int result = 0;
         if (nextOperation == '+') {
             if (secondOperand <= 0 && firstOperand >= 0

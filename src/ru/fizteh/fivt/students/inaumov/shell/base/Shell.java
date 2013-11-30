@@ -156,7 +156,7 @@ public class Shell<State> {
             }
 		}
 	}
-	
+
     public void run() {
         if (args.length == 0) {
             interactiveMode();

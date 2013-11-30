@@ -6,7 +6,7 @@ import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class SizeCommand<State extends FileMapShellState> extends AbstractCommand<State> {
-	public SizeCommand() {
+    public SizeCommand() {
 		super("size", 0);
 	}
 
