@@ -175,8 +175,8 @@ public class TesterOfTableProviderFactoryAndTableProvider {
             TableProvider provider = factory.create(mainDir.toString());
             provider.createTable("a/b", goodTypeList);
         } catch (IOException e) {
-                fail();
-                e.printStackTrace();
+            fail();
+            e.printStackTrace();
         }
     }
 
@@ -417,10 +417,10 @@ public class TesterOfTableProviderFactoryAndTableProvider {
 
     @Test(expected = ParseException.class)
     public void deserializeIncorrectStringEmptyElement() throws Exception {
-            TableProvider provider = factory.create(mainDir.toString());
-            Table table = provider.getTable(goodTable.getName());
-            assertNotNull("не работает getTable для существующей таблицы", table);
-            provider.deserialize(table, "<row></row>");
+        TableProvider provider = factory.create(mainDir.toString());
+        Table table = provider.getTable(goodTable.getName());
+        assertNotNull("не работает getTable для существующей таблицы", table);
+        provider.deserialize(table, "<row></row>");
     }
 
     @Test(expected = ParseException.class)
@@ -577,5 +577,4 @@ public class TesterOfTableProviderFactoryAndTableProvider {
     }
 
 }
-
 

@@ -13,10 +13,16 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MultiFileHashTableProvider implements TableProvider {
     private final File databaseDirectory;
     private final ArrayList<MultiFileHashTable> tables;
+
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
 
     public MultiFileHashTableProvider(String databaseDirectory) throws IOException,
             DatabaseException {
@@ -46,9 +52,14 @@ public class MultiFileHashTableProvider implements TableProvider {
             throw new IllegalArgumentException("Table name must be correct file name");
         }
 
-        int tableIndex = indexOfTable(name);
-        if (tableIndex != -1) {
-            return tables.get(tableIndex);
+        readLock.lock();
+        try {
+            int tableIndex = indexOfTable(name);
+            if (tableIndex != -1) {
+                return tables.get(tableIndex);
+            }
+        } finally {
+            readLock.unlock();
         }
 
         return null;
@@ -58,21 +69,27 @@ public class MultiFileHashTableProvider implements TableProvider {
     @Override
     public MultiFileHashTable createTable(String name, List<Class<?>> columnTypes) throws
                                                                         IllegalArgumentException, IOException {
-        if (getTable(name) != null) {
-            return null;
-        }
-
-        MultiFileHashTable newTable;
+        writeLock.lock();
         try {
-            newTable = new MultiFileHashTable(databaseDirectory.getAbsolutePath(), name, this, columnTypes);
-            tables.add(newTable);
-        } catch (FileNotFoundException e) {
-            throw new IOException("File not found", e);
-        } catch (DatabaseException e) {
-            throw new IllegalArgumentException("Database error", e);
-        }
+            if (getTable(name) != null) {
+                return null;
+            }
 
-        return newTable;
+            MultiFileHashTable newTable;
+            try {
+                newTable = new MultiFileHashTable(databaseDirectory.getAbsolutePath(),
+                                                    name, this, columnTypes);
+                tables.add(newTable);
+            } catch (FileNotFoundException e) {
+                throw new IOException("File not found", e);
+            } catch (DatabaseException e) {
+                throw new IllegalArgumentException("Database error", e);
+            }
+
+            return newTable;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
@@ -84,49 +101,64 @@ public class MultiFileHashTableProvider implements TableProvider {
             throw new IllegalArgumentException("Table name must be not empty");
         }
 
-        int tableIndex = indexOfTable(name);
-        if (tableIndex == -1) {
-            throw new IllegalStateException("Table '" + name + "' not exist");
-        }
-
+        writeLock.lock();
         try {
-            tables.get(tableIndex).removeTable();
-        } catch (DatabaseException e) {
-            throw new IllegalArgumentException("Database error", e);
-        }
+            int tableIndex = indexOfTable(name);
+            if (tableIndex == -1) {
+                throw new IllegalStateException("Table '" + name + "' not exist");
+            }
 
-        tables.remove(tableIndex);
+            try {
+                tables.get(tableIndex).removeTable();
+            } catch (DatabaseException e) {
+                throw new IllegalArgumentException("Database error", e);
+            }
+
+            tables.remove(tableIndex);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
-        return JsonUtils.deserialize(value, this, table);
+        readLock.lock();
+        try {
+            return JsonUtils.deserialize(value, this, table);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        return JsonUtils.serialize(value, table);
+        readLock.lock();
+        try {
+            return JsonUtils.serialize(value, table);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Storeable createFor(Table table) {
-        return new TableRow(table);
+        readLock.lock();
+        try {
+            return new TableRow(table);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException,
                                                                     IndexOutOfBoundsException {
-        return new TableRow(table, values);
-    }
-
-    public void exit() throws DatabaseException {
-        for (MultiFileHashTable table : tables) {
-            table.exit();
+        readLock.lock();
+        try {
+            return new TableRow(table, values);
+        } finally {
+            readLock.unlock();
         }
-    }
-
-    public void remove() {
-        FileUtils.remove(databaseDirectory);
     }
 
     private int indexOfTable(String tableName) {
@@ -148,7 +180,7 @@ public class MultiFileHashTableProvider implements TableProvider {
         }
     }
 
-    private boolean isContainIncorrectSymbols(String tableName) {
+    private static boolean isContainIncorrectSymbols(String tableName) {
         return tableName.contains("\\") || tableName.contains("/")
                 || tableName.contains(":") || tableName.contains("*")
                 || tableName.contains("?") || tableName.contains("\"")

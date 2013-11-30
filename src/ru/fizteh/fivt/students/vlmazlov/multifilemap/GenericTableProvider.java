@@ -8,6 +8,8 @@ import java.text.ParseException;
 import ru.fizteh.fivt.students.vlmazlov.shell.FileUtils;
 import ru.fizteh.fivt.students.vlmazlov.filemap.GenericTable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
     private Map<String, T> tables;
@@ -29,27 +31,30 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
     protected abstract T instantiateTable(String name, Object[] args);
 
     public T getTable(String name) {
-    	try {
+        try {
             ValidityChecker.checkMultiTableName(name);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-    	return tables.get(name);
+
+        return tables.get(name);
     }
 
-    public T createTable(String name, Object[] args) {
+    public synchronized T createTable(String name, Object[] args) {
     	try {
             ValidityChecker.checkMultiTableName(name);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-    	if (tables.get(name) != null) {
+        T newTable = null;
+
+        if (tables.get(name) != null) {
             return null;
         }
 
-        T newTable = instantiateTable(name, args);
+        newTable = instantiateTable(name, args);
 
         tables.put(name, newTable);
 
@@ -58,14 +63,14 @@ public abstract class GenericTableProvider<V, T extends GenericTable<V>> {
         return newTable;
     }
 
-    public void removeTable(String name) {
+    public synchronized void removeTable(String name) {
     	try {
             ValidityChecker.checkMultiTableName(name);
         } catch (ValidityCheckFailedException ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-    	T oldTable = tables.remove(name);
+        T oldTable = tables.remove(name);
 
         if (oldTable == null) {
             throw new IllegalStateException("Table " + name + " doesn't exist");

@@ -26,7 +26,7 @@ public class MyStoreableTest {
         File rootDir;
         try {
             rootDir = folder.newFolder("myroot");
-            FileMapMain factory = new FileMapMain();
+            MyTableProviderFactory factory = new MyTableProviderFactory();
             MyTableProvider prov = (MyTableProvider) factory.create(rootDir.getAbsolutePath());
             List<Class<?>> types = new ArrayList<Class<?>>(7);
             types.add(0, Integer.class);
@@ -37,7 +37,7 @@ public class MyStoreableTest {
             types.add(5, Boolean.class);
             types.add(6, Long.class);
             
-            Filemap table = (Filemap) prov.createTable("newTable", types);
+            MyTable table = (MyTable) prov.createTable("newTable", types);
             stor = new MyStoreable(table);
         } catch (IOException e) {
             System.err.println("can't make tests");

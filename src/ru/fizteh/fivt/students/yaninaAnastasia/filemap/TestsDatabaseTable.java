@@ -11,43 +11,64 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestsDatabaseTable {
+    private static final String SINGLE_COLUMN_TABLE_NAME = "testTable";
+    private static final String MULTI_COLUMN_TABLE_NAME = "MultiColumnTable";
+    private static final int CORE_COUNT = Runtime.getRuntime().availableProcessors();
+
+    static List<Class<?>> columnTypes;
+    static List<Class<?>> columnMultiTypes;
     Table table;
     Table multiColumnTable;
-    TableProviderFactory factory;
+    static TableProviderFactory factory;
     TableProvider provider;
+    private static Storeable value1;
+    private static Storeable value2;
+    private AtomicInteger counter;
+    ExecutorService executor;
+
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    @Before
-    public void beforeTest() {
-        List<Class<?>> columnTypes = new ArrayList<Class<?>>() { {
-            add(Integer.class);
-        } };
-        List<Class<?>> columnMultiTypes = new ArrayList<Class<?>>() { {
-            add(Integer.class);
-            add(String.class);
-            add(Double.class);
-        } };
+    @BeforeClass
+    public static void beforeClass() throws IOException {
+        columnTypes = new ArrayList<Class<?>>() {
+            {
+                add(Integer.class);
+            }
+        };
+        columnMultiTypes = new ArrayList<Class<?>>() {
+            {
+                add(Integer.class);
+                add(String.class);
+                add(Double.class);
+            }
+        };
         factory = new DatabaseTableProviderFactory();
-        try {
-            provider = factory.create(folder.getRoot().getPath());
-            table = provider.createTable("testTable", columnTypes);
-            multiColumnTable = provider.createTable("MultiColumnTable", columnMultiTypes);
-        } catch (IOException e) {
-            //
-        }
+
+    }
+
+    @Before
+    public void beforeTest() throws IOException {
+        provider = factory.create(folder.getRoot().getPath());
+        table = provider.createTable(SINGLE_COLUMN_TABLE_NAME, columnTypes);
+        multiColumnTable = provider.createTable(MULTI_COLUMN_TABLE_NAME, columnMultiTypes);
+        executor = Executors.newFixedThreadPool(CORE_COUNT);
     }
 
     @After
-    public void afterTest() {
-        try {
-            provider.removeTable("testTable");
-            provider.removeTable("MultiColumnTable");
-        } catch (IOException e) {
-            //
+    public void afterTest() throws IOException {
+        provider.removeTable(SINGLE_COLUMN_TABLE_NAME);
+        provider.removeTable(MULTI_COLUMN_TABLE_NAME);
+        if (!executor.shutdownNow().isEmpty()) {
+            Assert.fail("Task queue is not empty");
         }
     }
 
@@ -71,7 +92,11 @@ public class TestsDatabaseTable {
     @Test
     public void testPutWithNulls() throws Exception {
         table.put("brandnewrandomkey", provider.deserialize(table, "<row><null></null></row>"));
-        List<Object> values = new ArrayList<Object>() { { add(null); } };
+        List<Object> values = new ArrayList<Object>() {
+            {
+                add(null);
+            }
+        };
         Storeable st = provider.createFor(table, values);
         table.put("SADASDASD", st);
     }
@@ -256,7 +281,7 @@ public class TestsDatabaseTable {
     }
 
     @Test
-    public void testShortNull()  throws Exception {
+    public void testShortNull() throws Exception {
         table.put("key", provider.deserialize(table, "<row><null/></row>"));
     }
 
@@ -286,5 +311,166 @@ public class TestsDatabaseTable {
         Assert.assertNull(table.put("111", makeStoreable(1)));
         table.remove("111");
         Assert.assertEquals(table.rollback(), 0);
+    }
+
+    //Threads
+    @Test
+    public void testThreadPutSizeOne() throws Exception {
+        Thread onePutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Assert.assertNull(table.put("1", provider.deserialize(table, "<row><col>5</col></row>")));
+                } catch (ParseException e) {
+                    //
+                }
+            }
+        });
+        Thread secondPutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Assert.assertNull(table.put("2", provider.deserialize(table, "<row><col>5</col></row>")));
+                } catch (ParseException e) {
+                    //
+                }
+            }
+        });
+        onePutThread.start();
+        secondPutThread.start();
+        onePutThread.join();
+        secondPutThread.join();
+        Assert.assertEquals(0, table.size());
+    }
+
+    @Test
+    public void testThreadPutSizeTwo() throws Exception {
+        Thread onePutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value1 = table.put("1", provider.deserialize(table, "<row><col>5</col></row>"));
+                    Assert.assertEquals(table.commit(), 1);
+                } catch (ParseException e) {
+                    //
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+        Thread secondPutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    value2 = table.put("2", provider.deserialize(table, "<row><col>15</col></row>"));
+                    Assert.assertEquals(table.commit(), 1);
+                } catch (ParseException e) {
+                    //
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+        onePutThread.start();
+        secondPutThread.start();
+        onePutThread.join();
+        secondPutThread.join();
+        Assert.assertNull(value1);
+        Assert.assertNull(value2);
+        Assert.assertEquals(2, table.size());
+    }
+
+    @Test
+    public void testThreadSamePut() throws Exception {
+        counter = new AtomicInteger(0);
+        Thread onePutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("3", provider.deserialize(table, "<row><col>5</col></row>"));
+                    counter.getAndAdd(table.commit());
+                } catch (ParseException e) {
+                    //
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+        Thread secondPutThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    table.put("3", provider.deserialize(table, "<row><col>5</col></row>"));
+                    counter.getAndAdd(table.commit());
+                } catch (ParseException e) {
+                    //
+                } catch (IOException e) {
+                    //
+                }
+            }
+        });
+        onePutThread.start();
+        secondPutThread.start();
+        onePutThread.join();
+        secondPutThread.join();
+        Assert.assertEquals(1, counter.get());
+    }
+
+    @Test
+    public void multiThreadPutTest() throws Exception {
+        List<Future<Storeable>> futures = new ArrayList<>(10);
+        for (int i = 0; i < 10; i++) {
+            Future<Storeable> future = executor.submit(new Callable<Storeable>() {
+                @Override
+                public Storeable call() throws Exception {
+                    table.put("key", makeStoreable(0));
+                    return table.put("key", makeStoreable((int) (Math.random())));
+                }
+            });
+            futures.add(future);
+        }
+        for (int i = 0; i < 10; i++) {
+            Assert.assertNotNull(futures.get(i).get());
+        }
+    }
+
+    @Test
+    public void multiThreadPutGetTest() throws Exception {
+        List<Future<Storeable>> futures = new ArrayList<>(10);
+        for (int i = 0; i < 10; i++) {
+            Future<Storeable> future = executor.submit(new Callable<Storeable>() {
+                @Override
+                public Storeable call() throws Exception {
+                    table.put("key", makeStoreable((int) (Math.random())));
+                    Storeable result = table.get("key");
+                    table.remove("key");
+                    return result;
+                }
+            });
+            futures.add(future);
+        }
+        for (int i = 0; i < 10; i++) {
+            Assert.assertNotNull(futures.get(i).get());
+        }
+    }
+
+    @Test
+    public void multiThreadPerfomanceTest() throws Exception {
+        List<Future<Storeable>> futures = new ArrayList<>(10);
+        for (int i = 0; i < 1000; i++) {
+            final String newKey = String.format("key%d", i);
+            Future<Storeable> future = executor.submit(new Callable<Storeable>() {
+                @Override
+                public Storeable call() throws Exception {
+                    Storeable result = table.put(newKey, makeStoreable((int) (Math.random())));
+                    table.commit();
+                    return result;
+                }
+            });
+            futures.add(future);
+        }
+        for (int i = 0; i < 1000; i++) {
+            Assert.assertNull(futures.get(i).get());
+        }
     }
 }

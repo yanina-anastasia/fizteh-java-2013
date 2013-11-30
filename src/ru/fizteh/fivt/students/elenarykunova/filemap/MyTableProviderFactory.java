@@ -7,7 +7,7 @@ import ru.fizteh.fivt.storage.structured.TableProviderFactory;
 import ru.fizteh.fivt.storage.structured.TableProvider;
 
 
-public class FileMapMain implements TableProviderFactory {
+public class MyTableProviderFactory implements TableProviderFactory {
         
     public TableProvider create(String dir) throws IllegalArgumentException, IOException {
         if (dir == null || dir.isEmpty() || dir.trim().isEmpty()) {

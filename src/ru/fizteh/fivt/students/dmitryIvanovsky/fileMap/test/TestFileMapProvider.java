@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.test;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;

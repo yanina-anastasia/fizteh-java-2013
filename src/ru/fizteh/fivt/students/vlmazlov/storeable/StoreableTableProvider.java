@@ -30,7 +30,7 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     protected StoreableTable instantiateTable(String name, Object args[]) {
-        return new StoreableTable(name, autoCommit, (List)args[0]);
+        return new StoreableTable(this, name, autoCommit, (List)args[0]);
     }
 
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
@@ -65,8 +65,8 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
         return table;
     }
-
-   @Override
+    
+    @Override
 	public Storeable deserialize(StoreableTable table, String value) throws ParseException {
 		return this.deserialize((Table)table, value);
 	}
@@ -171,7 +171,6 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
         } finally {
             scanner.close();
         }  
-
     }
 
     @Override
@@ -186,11 +185,6 @@ public class StoreableTableProvider extends GenericTableProvider<Storeable, Stor
 
     @Override
     public void write() throws IOException, ValidityCheckFailedException {
-      for (Map.Entry<StoreableTable, File> entry : ProviderWriter.getTableDirMap(this).entrySet()) {
-
-        ValidityChecker.checkMultiStoreableTableRoot(entry.getValue());
-
-        ProviderWriter.writeMultiTable(entry.getKey(), entry.getValue(), this);
-      }
+        ProviderWriter.writeProvider(this);
     }
 }

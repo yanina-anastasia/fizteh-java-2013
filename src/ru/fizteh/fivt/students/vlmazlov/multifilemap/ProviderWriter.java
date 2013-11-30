@@ -23,10 +23,15 @@ public class ProviderWriter {
             (entry.getKey(), entry.getValue());
         }
 
-        //only commited changes will be written to the disc
+        /*
+        Only pushed changes will be written to the disc.
+        The parts are created in writeMultiTable exclusively for each thread;
+        therefore, synchronization is unnecessary
+        */
+
         for (int i = 0;i < tableParts.size();++i) {
             for (int j = 0;j < tableParts.get(i).size();++j) {
-                tableParts.get(i).get(j).commit();
+                tableParts.get(i).get(j).pushChanges();
             }
         }
 
@@ -85,7 +90,7 @@ public class ProviderWriter {
         }
     }
 
-    public static <V, T extends GenericTable<V>> Map<T, File> getTableDirMap(GenericTableProvider<V, T> provider)
+    public static <V, T extends GenericTable<V>> Map<T, File> writeProvider(GenericTableProvider<V, T> provider)
      throws IOException, ValidityCheckFailedException {
         ValidityChecker.checkMultiTableDataBaseRoot(provider.getRoot());
 
@@ -100,10 +105,10 @@ public class ProviderWriter {
                 throw new IOException(entry.getName() + " doesn't match any database");
             }
 
+            curTable.checkRoot(entry);
+
             //Autocommit is performed before writing
             curTable.commit();
-
-            tableDirMap.put(curTable, entry);
         }
 
         return tableDirMap;

@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static ru.fizteh.fivt.students.dmitryIvanovsky.fileMap.FileMapUtils.*;
 
@@ -33,11 +36,14 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     private final Path pathDb;
     private final CommandShell mySystem;
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock read  = readWriteLock.readLock();
+    private final Lock write = readWriteLock.writeLock();
     String useNameTable;
     Set<String> setDirTable;
     FileMap dbData;
     boolean out;
-    HashMap<String, FileMap> mapFileMap;
+    Map<String, FileMap> mapFileMap = new HashMap<>();
 
     final HashSet allowType = new HashSet(){ {
         add(String.class);
@@ -66,13 +72,11 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
 
     public FileMapProvider(String pathDb) throws Exception {
         this.out = true;
-
         this.useNameTable = "";
         this.pathDb = Paths.get(pathDb);
         this.mySystem = new CommandShell(pathDb, false, false);
         this.dbData = null;
         this.setDirTable = new HashSet<>();
-        this.mapFileMap = new HashMap<>();
 
         try {
             checkBdDir(this.pathDb);
@@ -178,9 +182,9 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
             outPrint(String.format("%d unsaved changes", changeKey));
         } else {
             if (!nameTable.equals(useNameTable)) {
-                if (dbData != null) {
-                    dbData.unloadTable();
-                }
+//                if (dbData != null) {
+//                    //dbData.unloadTable();
+//                }
                 dbData = (FileMap) getTable(nameTable);
                 useNameTable = nameTable;
             }
@@ -239,21 +243,28 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
                 throw new IllegalArgumentException("name is clear");
             }
         }
-        if (setDirTable.contains(name)) {
-            return null;
-        } else {
-            setDirTable.add(name);
-            try {
-                FileMap fileMap = new FileMap(pathDb, name, this, columnType);
-                mapFileMap.put(name, fileMap);
-                return fileMap;
-            } catch (Exception e) {
-                RuntimeException error = new RuntimeException();
-                error.addSuppressed(e);
-                throw error;
-            }
 
+        Table resTable = null;
+        write.lock();
+        try {
+            if (setDirTable.contains(name)) {
+                resTable = null;
+            } else {
+                setDirTable.add(name);
+                try {
+                    FileMap fileMap = new FileMap(pathDb, name, this, columnType);
+                    mapFileMap.put(name, fileMap);
+                    resTable = fileMap;
+                } catch (Exception e) {
+                    RuntimeException error = new RuntimeException();
+                    error.addSuppressed(e);
+                    throw error;
+                }
+            }
+        } finally {
+            write.unlock();
         }
+        return resTable;
     }
 
     public Table getTable(String name) {
@@ -267,45 +278,61 @@ public class FileMapProvider implements CommandAbstract, TableProvider {
         if (!currentFileMap.isDirectory()) {
             return null;
         }
-        if (mapFileMap.containsKey(name)) {
-            return mapFileMap.get(name);
-        }
-        if (setDirTable.contains(name)) {
-            try {
-                FileMap fileMap = new FileMap(pathDb, name, this);
-                mapFileMap.put(name, fileMap);
-                return fileMap;
-            } catch (Exception e) {
-                RuntimeException error = new RuntimeException();
-                error.addSuppressed(e);
-                throw error;
+
+        Table resTable = null;
+        write.lock();
+        try {
+            if (mapFileMap.containsKey(name)) {
+                resTable = mapFileMap.get(name);
+            } else {
+                if (setDirTable.contains(name)) {
+                    try {
+                        FileMap fileMap = new FileMap(pathDb, name, this);
+                        mapFileMap.put(name, fileMap);
+                        resTable = fileMap;
+                    } catch (Exception e) {
+                        RuntimeException error = new RuntimeException();
+                        error.addSuppressed(e);
+                        throw error;
+                    }
+                } else {
+                    resTable = null;
+                }
             }
-        } else {
-            return null;
+        } finally {
+            write.unlock();
         }
+        return resTable;
     }
 
     public void removeTable(String name) {
         if (name == null || name.equals("")) {
             throw new IllegalArgumentException("name is clear");
         }
-        if (setDirTable.contains(name)) {
-            setDirTable.remove(name);
-            mapFileMap.remove(name);
-            if (dbData != null) {
-                dbData.setDrop();
+
+        write.lock();
+        try {
+            if (setDirTable.contains(name)) {
+                setDirTable.remove(name);
+                mapFileMap.remove(name);
+                if (dbData != null) {
+                    dbData.setDrop();
+                }
+                dbData = null;
+                try {
+                    mySystem.rm(new String[]{pathDb.resolve(name).toString()});
+                } catch (Exception e) {
+                    IllegalArgumentException ex = new IllegalArgumentException();
+                    ex.addSuppressed(e);
+                    throw ex;
+                }
+            } else {
+                throw new IllegalStateException();
             }
-            dbData = null;
-            try {
-                mySystem.rm(new String[]{pathDb.resolve(name).toString()});
-            } catch (Exception e) {
-                IllegalArgumentException ex = new IllegalArgumentException();
-                ex.addSuppressed(e);
-                throw ex;
-            }
-        } else {
-            throw new IllegalStateException();
+        } finally {
+            write.unlock();
         }
+
     }
 
     @Override

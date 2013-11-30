@@ -167,7 +167,7 @@ public class TestStoreable {
 
     @Test(expected = ColumnFormatException.class)
     public void incorrectValueByteButFoundStr() {
-         st.setColumnAt(1, "string");
+        st.setColumnAt(1, "string");
     }
 
 
@@ -256,3 +256,4 @@ public class TestStoreable {
         assertNull("Значение null в String", st.getStringAt(6));
     }
 }
+

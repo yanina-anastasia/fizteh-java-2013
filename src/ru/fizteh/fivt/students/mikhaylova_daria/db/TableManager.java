@@ -11,6 +11,9 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.DataFormatException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -25,8 +28,11 @@ import javax.xml.transform.stream.StreamResult;
 import ru.fizteh.fivt.storage.structured.*;
 
 public class TableManager implements TableProvider {
-    private HashMap<String, TableData> bidDataBase = new HashMap<String, TableData>();
+    private ConcurrentHashMap<String, TableData> bidDataBase = new ConcurrentHashMap<>();
     private File mainDir;
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private final Lock myWriteLock = readWriteLock.writeLock();
+    private final Lock myReadLock = readWriteLock.readLock();
 
     TableManager(String nameMainDir) throws IllegalArgumentException, IOException {
         if (nameMainDir == null) {
@@ -61,7 +67,7 @@ public class TableManager implements TableProvider {
         File[] tables = mainDir.listFiles();
         File sign = new File(mainDir, "signature.tsv");
         if (tables == null) {
-             throw new IOException("Unknown error");
+            throw new IOException("Unknown error");
         }
         for (short i = 0; i < tables.length; ++i) {
             if (tables[i].isFile()) {
@@ -81,7 +87,7 @@ public class TableManager implements TableProvider {
                 sign = new File(tables[i], "signature.tsv");
                 if (!directories[j].equals(sign)) {
                     if (directories[j].isFile() || !dirNames.containsKey(directories[j].getName())) {
-                            throw new IllegalStateException(directories[j].toString() + " is not directory of table");
+                        throw new IllegalStateException(directories[j].toString() + " is not directory of table");
                     }
                     idFile[0] = dirNames.get(directories[j].getName());
                     File[] files = directories[j].listFiles();
@@ -103,7 +109,7 @@ public class TableManager implements TableProvider {
                         FileMap currentFileMap = new FileMap(files[g].getCanonicalFile(), idFile);
                         try {
                             TableData tableDat = new TableData(tables[i], this);
-                            currentFileMap.readeFile(tableDat);
+                            currentFileMap.readFile(tableDat);
                             currentFileMap.setAside();
                         } catch (DataFormatException e) {
                             throw new IllegalArgumentException(e.getMessage(), e);
@@ -114,7 +120,7 @@ public class TableManager implements TableProvider {
                     File[] checkOnEmpty = directories[j].listFiles();
                     if (checkOnEmpty != null) {
                         if (checkOnEmpty.length == 0) {
-                                throw new IllegalArgumentException("Empty directory: " + directories[j].toString());
+                            throw new IllegalArgumentException("Empty directory: " + directories[j].toString());
                         }
                     }
                 }
@@ -143,14 +149,19 @@ public class TableManager implements TableProvider {
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
         TableData creatingTable = null;
-        if (!creatingTableFile.exists()) {
-            creatingTable = new TableData(creatingTableFile, columnTypes, this);
-            if (!creatingTableFile.isDirectory()) {
-                throw new IllegalArgumentException("wrong type (" + correctName + "is not directory)");
+        myWriteLock.lock();
+        try {
+            if (!creatingTableFile.exists()) {
+                creatingTable = new TableData(creatingTableFile, columnTypes, this);
+                if (!creatingTableFile.isDirectory()) {
+                    throw new IllegalArgumentException("wrong type (" + correctName + "is not directory)");
+                }
+                if (!bidDataBase.containsKey(nameTable)) {
+                    bidDataBase.put(nameTable, creatingTable);
+                }
             }
-            if (!bidDataBase.containsKey(nameTable)) {
-                bidDataBase.put(nameTable, creatingTable);
-            }
+        } finally {
+            myWriteLock.unlock();
         }
         return creatingTable;
     }
@@ -169,27 +180,32 @@ public class TableManager implements TableProvider {
         TableData table = null;
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
-        if (!creatingTableFile.exists()) {
+        myWriteLock.lock();
+        try {
+            if (!creatingTableFile.exists()) {
+                if (bidDataBase.containsKey(nameTable)) {
+                    bidDataBase.remove(nameTable);
+                }
+                return null;
+            }
             if (bidDataBase.containsKey(nameTable)) {
-                bidDataBase.remove(nameTable);
-            }
-            return null;
-        }
-        if (bidDataBase.containsKey(nameTable)) {
-            table = bidDataBase.get(nameTable);
-        } else {
-            if (creatingTableFile.exists()) {
-                try {
-                    table = new TableData(creatingTableFile, this);
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
-                } catch (IOException e) {
-                    throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
-                }
-                if (!bidDataBase.containsKey(nameTable)) {
-                    bidDataBase.put(nameTable, table);
+                table = bidDataBase.get(nameTable);
+            } else {
+                if (creatingTableFile.exists()) {
+                    try {
+                        table = new TableData(creatingTableFile, this);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                    } catch (IOException e) {
+                        throw new IllegalArgumentException("wrong type (" + e.getMessage() + ")", e);
+                    }
+                    if (!bidDataBase.containsKey(nameTable)) {
+                        bidDataBase.put(nameTable, table);
+                    }
                 }
             }
+        } finally {
+            myWriteLock.unlock();
         }
         return table;
     }
@@ -208,15 +224,20 @@ public class TableManager implements TableProvider {
         }
         String correctName = mainDir.toPath().toAbsolutePath().normalize().resolve(nameTable).toString();
         File creatingTableFile = new File(correctName);
-        if (!creatingTableFile.exists()) {
-            throw new IllegalStateException("wrong type (Table " + nameTable + "does not exist)");
-        } else {
-            String[] argShell = new String[] {
-                    "rm",
-                    creatingTableFile.toPath().toString()
-            };
-            Shell.main(argShell);
-            bidDataBase.remove(nameTable);
+        myWriteLock.lock();
+        try {
+            if (!creatingTableFile.exists()) {
+                throw new IllegalStateException("wrong type (Table " + nameTable + "does not exist)");
+            } else {
+                String[] argShell = new String[] {
+                        "rm",
+                        creatingTableFile.toPath().toString()
+                };
+                Shell.main(argShell);
+                bidDataBase.remove(nameTable);
+            }
+        } finally {
+            myWriteLock.unlock();
         }
     }
 
@@ -290,7 +311,6 @@ public class TableManager implements TableProvider {
         return xmlString;
     }
 
-
     public Storeable deserialize(Table table, String value) throws ParseException {
         if (table == null) {
             throw new IllegalArgumentException("wrong type (table is null)");
@@ -301,8 +321,8 @@ public class TableManager implements TableProvider {
         if (value.isEmpty()) {
             throw new IllegalArgumentException("wrong type (value is empty)");
         }
-        Storeable storeableVal = new Value(table);
         int numberColumn = 0;
+        Storeable storeableVal = new Value(table);
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder xmlDocBuilder = docFactory.newDocumentBuilder();
@@ -368,18 +388,18 @@ public class TableManager implements TableProvider {
         } catch (SAXException e) {
             throw new ParseException(e.getMessage(), 0);
         } catch (ParserConfigurationException e) {
-             throw new ParseException(e.getMessage(), 0);
+            throw new ParseException(e.getMessage(), 0);
         } catch (IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
         if (numberColumn != table.getColumnsCount()) {
-            throw new ParseException("wrong type (Wrong number of columns)", 0);
+            throw new ParseException("wrong type (Wrong number of columns:" + numberColumn + "but expected "
+                    + table.getColumnsCount() + ")", 0);
         }
         return storeableVal;
     }
-    
 
-    public Storeable createFor(Table table) {
+    public Storeable  createFor(Table table) {
         if (table == null) {
             throw new IllegalArgumentException("wrong type (table is null)");
         }
@@ -413,4 +433,3 @@ public class TableManager implements TableProvider {
         return created;
     }
 }
-

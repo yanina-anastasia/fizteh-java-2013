@@ -12,6 +12,4 @@ public interface Database {
     Storeable remove(String key);
 
     int size();
-
-    void exit() throws DatabaseException;
 }

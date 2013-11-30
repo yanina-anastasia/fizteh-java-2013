@@ -5,6 +5,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.storage.structured.*;
 
@@ -14,6 +16,9 @@ public class TableData implements Table {
     DirDataBase[] dirArray = new DirDataBase[16];
     private ArrayList<Class<?>> columnTypes;
     TableManager manager;
+    private  ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private final Lock myWriteLock = readWriteLock.writeLock();
+    private final Lock myReadLock = readWriteLock.readLock();
 
     private static ArrayList<Class<?>> normList(List<Class<?>> arg) {
         HashMap<String, Class<?>> types = new HashMap<>();
@@ -137,6 +142,7 @@ public class TableData implements Table {
         if (signatures.length == 0) {
             throw new IllegalArgumentException(sign.toString() + " Empty type list");
         }
+
         for (int i = 0; i < signatures.length; ++i) {
             if (signatures[i].equals("int")) {
                 columnTypes.add(Integer.class);
@@ -237,9 +243,7 @@ public class TableData implements Table {
         int nFile = b / 16 % 16;
         Storeable removedValue;
         try {
-            dirArray[nDirectory].startWorking();
             removedValue = dirArray[nDirectory].fileArray[nFile].remove(key, this);
-            dirArray[nDirectory].deleteEmptyDir();
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
@@ -256,9 +260,7 @@ public class TableData implements Table {
         int nFile = (b / 16) % 16;
         Storeable getValue;
         try {
-            dirArray[nDirectory].startWorking();
             getValue = dirArray[nDirectory].fileArray[nFile].get(key, this);
-            dirArray[nDirectory].deleteEmptyDir();
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
@@ -267,24 +269,39 @@ public class TableData implements Table {
 
     int countChanges() {
         int numberOfChanges = 0;
-        for (int i = 0; i < 16; ++i) {
-            numberOfChanges += dirArray[i].countChanges();
+        myReadLock.lock();
+        try {
+            for (int i = 0; i < 16; ++i) {
+                numberOfChanges += dirArray[i].countChanges();
+            }
+        } finally {
+            myReadLock.unlock();
         }
         return numberOfChanges;
     }
 
     public int size() {
         int numberOfKeys = 0;
-        for (int i = 0; i < 16; ++i) {
-            numberOfKeys += dirArray[i].size();
+        myWriteLock.lock();
+        try {
+            for (int i = 0; i < 16; ++i) {
+                numberOfKeys += dirArray[i].size();
+            }
+        } finally {
+            myWriteLock.unlock();
         }
         return numberOfKeys;
     }
 
     public int commit() {
         int numberOfChanges = 0;
-        for (int i = 0; i < 16; ++i) {
-            numberOfChanges += dirArray[i].commit();
+        myWriteLock.lock();
+        try {
+            for (int i = 0; i < 16; ++i) {
+                numberOfChanges += dirArray[i].commit();
+            }
+        } finally {
+            myWriteLock.unlock();
         }
         return numberOfChanges;
     }
@@ -310,4 +327,3 @@ public class TableData implements Table {
     }
 
 }
-

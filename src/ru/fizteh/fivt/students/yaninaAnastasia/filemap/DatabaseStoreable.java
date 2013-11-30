@@ -24,6 +24,9 @@ public class DatabaseStoreable implements Storeable {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         Storeable st = (Storeable) obj;
         for (int i = 0; i < columns.size(); i++) {
             Object value1 = this.getColumnAt(i);
@@ -50,6 +53,7 @@ public class DatabaseStoreable implements Storeable {
     public void setColumnAt(int columnNum, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         indexOfBounds(columnNum);
         if (value != null) {
+            isColumnTypeValid(columnNum, value.getClass());
             if ((value.getClass().getName().equals("java.lang.String"))
                     && ((String) value).trim().isEmpty()) {
                 columns.set(columnNum, value);
@@ -126,7 +130,7 @@ public class DatabaseStoreable implements Storeable {
     private void isColumnTypeValid(int columnIndex, Class<?> value) throws ColumnFormatException {
         if (!value.isAssignableFrom(classes.get(columnIndex))) {
             throw new ColumnFormatException(String.format("Incorrect type: expected %s, but is %s",
-                    classes.get(columnIndex).getName(), value.getClass().getName()));
+                    classes.get(columnIndex).getName(), value.getName()));
         }
     }
 
