@@ -19,6 +19,7 @@ public class FileMapTableTest {
     TableProvider tableProvider;
     Table currTable;
     String currTableName;
+    String path;
     List<Class<?>> classes;
     String value = "[0,1,2,3,4,5.4,false,\"string1\",\"string2\"]";
 
@@ -75,7 +76,8 @@ public class FileMapTableTest {
         classes.add(Boolean.class);
         classes.add(String.class);
         classes.add(String.class);
-        tableProvider = factory.create(folder.newFolder().toString());
+        path = folder.newFolder().toString();
+        tableProvider = factory.create(path);
         assertNotNull(tableProvider);
         currTable = tableProvider.createTable("TestTable", classes);
         currTableName = "TestTable";
@@ -651,7 +653,7 @@ public class FileMapTableTest {
     @Test
     public void testToString() {
         String str = table.toString();
-        assertTrue(str.startsWith("FileMapTable"));
+        assertEquals(str, "FileMapTable[" + path + "\\table]");
     }
 
     @Test

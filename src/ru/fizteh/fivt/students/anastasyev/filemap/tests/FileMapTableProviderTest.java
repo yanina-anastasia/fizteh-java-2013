@@ -20,6 +20,7 @@ import static junit.framework.Assert.*;
 
 public class FileMapTableProviderTest {
     TableProviderFactory tableProviderFactory;
+    String path;
     TableProvider tableProvider;
     List<Class<?>> types;
     List<Class<?>> classes;
@@ -34,7 +35,8 @@ public class FileMapTableProviderTest {
     @Before
     public void setTableProvider() throws IOException {
         tableProviderFactory = new FileMapTableProviderFactory();
-        tableProvider = tableProviderFactory.create(folder.newFolder().toString());
+        path = folder.newFolder().toString();
+        tableProvider = tableProviderFactory.create(path);
         assertNotNull(tableProvider);
         classes = new ArrayList<Class<?>>();
         classes.add(Integer.class);
@@ -339,32 +341,15 @@ public class FileMapTableProviderTest {
     @Test
     public void testToString() {
         String str = tableProvider.toString();
-        assertTrue(str.startsWith("FileMapTableProvider"));
+        assertEquals(str, "FileMapTableProvider[" + path + "]");
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testClosingOfTablesInProvider() throws IOException {
         FileMapTableProvider fileMapTableProvider = (FileMapTableProvider) tableProvider;
         FileMapTable table1 = (FileMapTable) fileMapTableProvider.createTable("newTable1", types);
-        FileMapTable table2 = (FileMapTable) fileMapTableProvider.createTable("newTable2", types);
-        FileMapTable table3 = (FileMapTable) fileMapTableProvider.createTable("newTable3", types);
         fileMapTableProvider.close();
-
-        try {
-            table1.get("key");
-        } catch (IllegalStateException e) {
-            // IllegalStateException expected
-        }
-        try {
-            table2.get("key");
-        } catch (IllegalStateException e) {
-            // IllegalStateException expected
-        }
-        try {
-            table3.get("key");
-        } catch (IllegalStateException e) {
-            // IllegalStateException expected
-        }
+        table1.get("key");
     }
 }
 
