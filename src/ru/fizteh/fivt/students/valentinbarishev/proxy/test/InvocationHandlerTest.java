@@ -51,7 +51,6 @@ public class InvocationHandlerTest {
 
         table = provider.createTable("simple", types);
         writer.flush();
-        System.out.println(writer.toString());
     }
 
     @Test
@@ -71,7 +70,6 @@ public class InvocationHandlerTest {
         proxyProvider.createFor(table);
 
         writer.flush();
-        System.out.println(writer.toString());
     }
 
     @Test
@@ -91,7 +89,6 @@ public class InvocationHandlerTest {
             //silent
         }
         writer.flush();
-        System.out.println(writer.toString());
     }
 
 
@@ -117,7 +114,6 @@ public class InvocationHandlerTest {
         test.arrayParameter(list2);
 
         writer.flush();
-        System.out.println(writer.toString());
     }
 
     @Test
@@ -133,7 +129,6 @@ public class InvocationHandlerTest {
         test.arrayParameter(array);
 
         writer.flush();
-        System.out.println(writer.toString());
     }
 
 
@@ -159,6 +154,5 @@ public class InvocationHandlerTest {
         proxyTable.put("123", storeable);
 
         writer.flush();
-        System.out.println(writer.toString());
     }
 }
