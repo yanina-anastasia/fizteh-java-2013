@@ -89,7 +89,7 @@ public class StoreableTable implements ChangesCountingTable {
                 }
             }
             Map<Integer, Map<Integer, Set<String>>> 
-                keysDueTheirHash = new HashMap<Integer,Map<Integer, Set<String>>>();
+                keysDueTheirHash = new HashMap<Integer, Map<Integer, Set<String>>>();
             for (int i = 0; i < StoreableTable.MAX_DIRECTORIES_AMOUNT; ++i) {
                 keysDueTheirHash.put(i, new HashMap<Integer, Set<String>>());
                 for (int j = 0; j < StoreableTable.MAX_DATABASES_IN_DIRECTORY_AMOUNT; ++j) {
@@ -147,6 +147,8 @@ public class StoreableTable implements ChangesCountingTable {
                     case "java.lang.Double":
                         value.getDoubleAt(i);
                         break;
+                    default:
+                    	break;
                     }
                 } catch (ColumnFormatException| IndexOutOfBoundsException e) {
                     return false;
@@ -168,11 +170,11 @@ public class StoreableTable implements ChangesCountingTable {
                 throw new IllegalArgumentException("Key can not be null");
             }
             
-            if(this.updates.get(key) != null) {
+            if (this.updates.get(key) != null) {
                 return this.updates.get(key);
             }
             
-            if(this.removed.contains(key)) {
+            if (this.removed.contains(key)) {
                 return null;
             }
             
@@ -219,14 +221,14 @@ public class StoreableTable implements ChangesCountingTable {
             
             int size = StoreableTable.this.originalDatabase.size();
             
-            for(String key : this.updates.keySet()) {
-                if(StoreableTable.this.originalDatabase.get(key) == null) {
+            for (String key : this.updates.keySet()) {
+                if (StoreableTable.this.originalDatabase.get(key) == null) {
                     ++size;
                 }
             }
             
-            for(String key : this.removed) {
-                if(StoreableTable.this.originalDatabase.get(key) != null ) {
+            for (String key : this.removed) {
+                if (StoreableTable.this.originalDatabase.get(key) != null) {
                     --size;
                 }
             }
@@ -239,11 +241,11 @@ public class StoreableTable implements ChangesCountingTable {
                 throw new IllegalStateException("Table was removed.");
             }
             int changesCount = this.unsavedChangesCount();
-            for(String key : this.updates.keySet()) {
+            for (String key : this.updates.keySet()) {
                 StoreableTable.this.originalDatabase.put(key, this.updates.get(key));
             }
             
-            for(String key : this.removed) {
+            for (String key : this.removed) {
                 StoreableTable.this.originalDatabase.remove(key);
             }
             this.removed.clear();
@@ -264,16 +266,16 @@ public class StoreableTable implements ChangesCountingTable {
         
         public int unsavedChangesCount() {
             int changesCount  = 0;
-            for(String key : this.updates.keySet()) {
-                if(StoreableTable.this.originalDatabase.get(key) == null 
+            for (String key : this.updates.keySet()) {
+                if (StoreableTable.this.originalDatabase.get(key) == null 
                         || !this.equalsStoreable(this.updates.get(key), 
                                 StoreableTable.this.originalDatabase.get(key))) {
                     ++changesCount;
                 }
             }
             
-            for(String key : this.removed) {
-                if(StoreableTable.this.originalDatabase.get(key) != null ) {
+            for (String key : this.removed) {
+                if (StoreableTable.this.originalDatabase.get(key) != null) {
                     ++changesCount;
                 }
             }

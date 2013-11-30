@@ -23,7 +23,7 @@ public class StoreableTableTest {
 
     @After
     public void clear() {
-        if(path.exists()) {
+        if (path.exists()) {
             try {
                 Utils.remover(path, "test", false);
             } catch (Exception e) {
