@@ -541,9 +541,9 @@ public class StoreableTable implements ChangesCountingTable {
         return this.transaction.get().unsavedChangesCount();
     }
     
-    public void checkIsClosed() throws IllegalStateException {
+    private void checkIsClosed() throws IllegalStateException {
     	this.lock.readLock().lock();
-    	if(this.isClosed) {
+    	if (this.isClosed) {
     		this.lock.readLock().unlock();
     		throw new IllegalStateException("Table was closed.");    		
     	}

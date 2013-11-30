@@ -112,5 +112,11 @@ public class StoreableTableTest {
         assertEquals(table.getColumnType(1), Boolean.class);
         assertEquals(table.getColumnType(2), String.class);
     }
+    
+    @Test(expected = IllegalStateException.class)
+    public void testClose() throws IllegalStateException, IllegalArgumentException, IOException {
+    	this.table.close();
+    	this.table.size();
+    }
 
 }
