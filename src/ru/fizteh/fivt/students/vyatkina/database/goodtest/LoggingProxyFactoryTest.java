@@ -9,8 +9,6 @@ import org.junit.rules.ExpectedException;
 import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 import ru.fizteh.fivt.students.vyatkina.database.logging.LoggingProxyFactoryImp;
 
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.util.StreamReaderDelegate;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -23,8 +21,6 @@ public class LoggingProxyFactoryTest {
     private XmasWizard xmasWizard;
     private StringWriter writer;
     private Class <XmasWizard> interfaceClass = XmasWizard.class;
-    private XMLStreamReader reader;
-
 
     public interface XmasWizard {
       void deliverAllPresents (Collection<Child> children,Collection <Object> presents);
@@ -70,7 +66,6 @@ public class LoggingProxyFactoryTest {
     public void init () throws Exception {
         this.xmasWizard = new DedMoroz();
         this.writer = new StringWriter();
-        this.reader = new StreamReaderDelegate();
     }
 
     @After
@@ -99,7 +94,7 @@ public class LoggingProxyFactoryTest {
     public void deliverPresentShouldWriteGoodThings () {
        Child Anny = new Child("Anny");
         XmasWizard proxy = (XmasWizard) factory.wrap(writer,xmasWizard,interfaceClass);
-        proxy.deliverPresent(Anny,null);
+        proxy.deliverPresent(Anny,Present.class);
         Assert.assertEquals("He should be happy", true, proxy.beHappy());
         proxy.deliverPresent(Anny, new Present ("Cat"));
     }

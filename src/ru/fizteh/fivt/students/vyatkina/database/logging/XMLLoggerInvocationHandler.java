@@ -47,7 +47,7 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
         }
         writer.writeStartElement(INVOKE);
         writer.writeAttribute(TIMESTAMP, String.valueOf(System.currentTimeMillis()));
-        writer.writeAttribute(CLASS, implementation.getClass().toString());
+        writer.writeAttribute(CLASS, implementation.getClass().getName());
         writer.writeAttribute(METHOD_NAME, method.getName());
         writeArgs(args);
         try {
