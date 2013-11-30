@@ -14,15 +14,17 @@ import ru.fizteh.fivt.students.paulinMatavina.shell.ShellState;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import java.text.ParseException;
 
-public class MultiDbState extends State implements Table {
+public class MyTable extends State implements Table, AutoCloseable {
     public MyTableProvider provider;
     static final int FOLDER_NUM = 16;
     static final int FILE_IN_FOLD_NUM = 16;
     private String tableName;
-    DbState[][] data;
+    FileState[][] data;
     public ShellState shell;
     private String rootPath;
-    public volatile boolean isDropped;
+    private volatile boolean isDropped;
+    private volatile boolean isClosed;
+    
     private List<Class<?>> objList;
     private final String signatureName = "signature.tsv";
     public HashMap<Class<?>, String> possibleTypes;
@@ -31,20 +33,22 @@ public class MultiDbState extends State implements Table {
     private void init(String dbName) throws IOException, ParseException {   
         diskOperationLock = new ReentrantReadWriteLock(true);
         isDropped = false;
-        data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
+        isClosed = false;
+        data = new FileState[FOLDER_NUM][FILE_IN_FOLD_NUM];
         shell = new ShellState();
         currentDir = new File(rootPath);
         if (!currentDir.exists() || !currentDir.isDirectory()) {
             throw new IOException("wrong root directory " + rootPath);
         }
+        tableName = dbName;
+        
         shell.cd(rootPath);
         shell.cd(dbName);
         
-        tableName = dbName;
         loadData();
     }
     
-    public MultiDbState(String property, String dbName, MyTableProvider prov, List<Class<?>> columnTypes) 
+    public MyTable(String property, String dbName, MyTableProvider prov, List<Class<?>> columnTypes) 
                                                 throws ParseException, IOException {
         validate(property);
         validate(dbName);
@@ -52,11 +56,13 @@ public class MultiDbState extends State implements Table {
         if (property == null || property.trim().isEmpty()) {
             throw new IOException("no root directory");
         }
+        
         tableName = dbName;
         provider = prov;
         rootPath = property;  
         objList = columnTypes;
         init(dbName);
+        
         writeObjList(objList, signatureName);
     }
     
@@ -80,7 +86,7 @@ public class MultiDbState extends State implements Table {
         }
     }
     
-    public MultiDbState(String property, String dbName, MyTableProvider prov) 
+    public MyTable(String property, String dbName, MyTableProvider prov) 
             throws ParseException, IOException {
         validate(property);
         validate(dbName);
@@ -133,14 +139,15 @@ public class MultiDbState extends State implements Table {
     
     private void loadData() throws IOException, ParseException {
         checkDbDir(shell.currentDir.getAbsolutePath());
-        data = new DbState[FOLDER_NUM][FILE_IN_FOLD_NUM];
+        
+        data = new FileState[FOLDER_NUM][FILE_IN_FOLD_NUM];
         for (int i = 0; i < FOLDER_NUM; i++) {
             String fold = Integer.toString(i) + ".dir";
             if (!fileExist(fold)) {
                 for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                     String file = Integer.toString(j) + ".dat";
                     String filePath = shell.makeNewSource(fold, file);
-                    data[i][j] = new DbState(filePath, i, j, provider, this);
+                    data[i][j] = new FileState(filePath, i, j, provider, this);
                 }
                 continue;
             }
@@ -148,7 +155,7 @@ public class MultiDbState extends State implements Table {
             for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 String file = Integer.toString(j) + ".dat";
                 String filePath = shell.makeNewSource(fold, file);
-                data[i][j] = new DbState(filePath, i, j, provider, this);
+                data[i][j] = new FileState(filePath, i, j, provider, this);
             }
         }
     }
@@ -157,12 +164,21 @@ public class MultiDbState extends State implements Table {
         isDropped = true;
     }
     
-    @Override   
-    public int commit() throws IOException {
+    private void checkCurrentTableState() {
+        if (isClosed) {
+            throw new IllegalStateException("table was closed");
+        }  
         if (isDropped) {
             throw new IllegalStateException("table was removed");
-        }   
+        }  
+    }
+    
+    @Override   
+    public int commit() throws IOException {
+        checkCurrentTableState();
+        
         int chNum = 0;
+        
         diskOperationLock.writeLock().lock();
         try {
             chNum = changesNum();
@@ -223,13 +239,13 @@ public class MultiDbState extends State implements Table {
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException { 
         validate(key);
-        if (isDropped) {
-            throw new IllegalStateException("table was removed");
-        }
+        checkCurrentTableState();
         checkStoreable(value);
+        
         int folder = getFolderNum(key);
         int file = getFileNum(key);
         Storeable result;
+        
         result = data[folder][file].put(key, value);
         return result;  
     }
@@ -237,32 +253,32 @@ public class MultiDbState extends State implements Table {
     @Override
     public Storeable get(String key) {
         validate(key);
-        
-        if (isDropped) {
-            throw new IllegalStateException("table was removed");
-        }
+        checkCurrentTableState();
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
+        
         return data[folder][file].get(key);  
     }   
     
     @Override
     public Storeable remove(String key) {
         validate(key);
-        if (isDropped) {
-            throw new IllegalStateException("table was removed");
-        }
+        checkCurrentTableState();
         
         int folder = getFolderNum(key);
         int file = getFileNum(key);
+        
         Storeable result = data[folder][file].remove(key);
         return result;  
     }
     
     @Override
     public int size() {
+        checkCurrentTableState();
+        
         int result = 0;
+        
         for (int i = 0; i < FOLDER_NUM; i++) {
             for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 result += data[i][j].size();
@@ -273,8 +289,11 @@ public class MultiDbState extends State implements Table {
     
     @Override
     public int rollback() {
-        diskOperationLock.readLock().lock();
+        checkCurrentTableState();
+        
         int chNum = 0;
+        
+        diskOperationLock.readLock().lock();
         try {
             chNum = changesNum();
             for (int i = 0; i < FOLDER_NUM; i++) {
@@ -290,6 +309,7 @@ public class MultiDbState extends State implements Table {
     
     @Override
     public String getName() {
+        checkCurrentTableState();
         return tableName;
     }
     
@@ -304,6 +324,7 @@ public class MultiDbState extends State implements Table {
     
     public int changesNum() {
         int result = 0;
+        
         for (int i = 0; i < FOLDER_NUM; i++) {
             for (int j = 0; j < FILE_IN_FOLD_NUM; j++) {
                 result += data[i][j].getChangeNum();
@@ -314,11 +335,15 @@ public class MultiDbState extends State implements Table {
 
     @Override
     public int getColumnsCount() {
+        checkCurrentTableState();
+        
         return objList.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        checkCurrentTableState();
+        
         if (columnIndex < 0 || columnIndex >= objList.size()) {
             throw new IndexOutOfBoundsException("wrong column index passed: " + columnIndex);
         } else {
@@ -329,6 +354,7 @@ public class MultiDbState extends State implements Table {
     private void getObjList(String name) {
         File signature = new File(shell.makeNewSource(name));
         Scanner reader = null;
+       
         try {
             reader = new Scanner(signature);    
             String signLine;
@@ -349,6 +375,7 @@ public class MultiDbState extends State implements Table {
     
     private void writeObjList(List<Class<?>> list, String name) throws IOException {
         FileWriter writer = null;
+        
         try {
             writer = new FileWriter(new File(shell.makeNewSource(signatureName)));
             for (int i = 0; i < objList.size() - 1; i++) {
@@ -370,5 +397,23 @@ public class MultiDbState extends State implements Table {
     
     public boolean fileExist(String name) {
         return new File(shell.makeNewSource(name)).exists();
+    }
+    
+    @Override
+    public String toString() {        
+        String result = getClass().getSimpleName() + "[" + shell.currentDir.getAbsolutePath() + "]";
+        return result;
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (!isClosed) {
+            rollback();  
+            isClosed = true;
+        }      
+    }
+    
+    public boolean wasClosed() {
+        return isClosed;
     }
 }

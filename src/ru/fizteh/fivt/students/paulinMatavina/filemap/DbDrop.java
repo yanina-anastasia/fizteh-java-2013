@@ -2,7 +2,7 @@ package ru.fizteh.fivt.students.paulinMatavina.filemap;
 
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 
-public class MultiDbDrop implements Command {
+public class DbDrop implements Command {
     @Override
     public int execute(String[] args, State state) {
         String name = args[0];

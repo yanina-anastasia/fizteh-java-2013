@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import ru.fizteh.fivt.students.paulinMatavina.utils.*;
 import ru.fizteh.fivt.storage.structured.*;
 
-public class DbState extends State {
+public class FileState extends State {
     private HashMap<String, Storeable> initial;
     private ThreadLocal<HashMap<String, Storeable>> changes;
     public RandomAccessFile dbFile;
@@ -25,7 +25,7 @@ public class DbState extends State {
     private int fileNum;
     private ReentrantReadWriteLock initialChangeLock;
     
-    public DbState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
+    public FileState(String dbPath, int folder, int file, TableProvider prov, Table newTable)
                                                       throws ParseException, IOException {
         initial = new HashMap<String, Storeable>();
         foldNum = folder;
@@ -215,9 +215,6 @@ public class DbState extends State {
     public void commit() throws IOException {
         dbFile = null;
         assignInitial();
-        if (getChangeNum() == 0) {
-            return;
-        }
         initialChangeLock.readLock().lock();
         try {
             fileCheck();
