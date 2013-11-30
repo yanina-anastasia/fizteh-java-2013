@@ -16,7 +16,6 @@ public class LogInvocationHandler implements InvocationHandler {
 
     private Object proxied;
     private Writer writer;
-    private ReentrantLock  writeLock = new ReentrantLock(true);
 
     class ProviderArrayJSON {
         private Object argument;
