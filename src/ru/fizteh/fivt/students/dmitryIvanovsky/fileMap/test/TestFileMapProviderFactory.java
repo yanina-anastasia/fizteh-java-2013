@@ -60,12 +60,6 @@ public class TestFileMapProviderFactory {
         multiMapFactory.create("213");
     }
 
-    @Test()
-    public void correctToString() throws IOException {
-        assertEquals(multiMapFactory.toString(),
-                String.format("%s[%s]", "FileMap", pathTables.resolve("table").toAbsolutePath().toString()));
-    }
-
     @After
     public void tearDown() {
         multiMapFactory.close();
