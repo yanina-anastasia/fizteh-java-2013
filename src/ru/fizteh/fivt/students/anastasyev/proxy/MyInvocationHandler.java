@@ -72,39 +72,39 @@ public class MyInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass() == Object.class) {
-            return method.invoke(implementation, args);
+            try {
+                return method.invoke(implementation, args);
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
         }
         Object result = null;
-        StringWriter stringWriter = null;
-        try {
-            XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            stringWriter = new StringWriter();
-            xmlStreamWriter = factory.createXMLStreamWriter(stringWriter);
-
-            xmlStreamWriter.writeStartElement("invoke");
-            xmlStreamWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
-            xmlStreamWriter.writeAttribute("class", implementation.getClass().getName());
-            xmlStreamWriter.writeAttribute("name", method.getName());
-
-            writeLog(args);
-        } catch (Exception e) {
-            //Do nothing
-        }
+        Throwable throwable = null;
 
         try {
             result = method.invoke(implementation, args);
         } catch (InvocationTargetException e) {
-            Throwable throwable = e.getTargetException();
-            try {
-                xmlStreamWriter.writeStartElement("thrown");
-                xmlStreamWriter.writeCharacters(throwable.toString());
-                xmlStreamWriter.writeEndElement();
-            } catch (Exception e1) {
-                // Do nothing
-            }
+            throwable = e.getTargetException();
             throw throwable;
         } finally {
             try {
+                XMLOutputFactory factory = XMLOutputFactory.newInstance();
+                StringWriter stringWriter = new StringWriter();
+                xmlStreamWriter = factory.createXMLStreamWriter(stringWriter);
+
+                xmlStreamWriter.writeStartElement("invoke");
+                xmlStreamWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
+                xmlStreamWriter.writeAttribute("class", implementation.getClass().getName());
+                xmlStreamWriter.writeAttribute("name", method.getName());
+
+                writeLog(args);
+
+                if (throwable != null) {
+                    xmlStreamWriter.writeStartElement("thrown");
+                    xmlStreamWriter.writeCharacters(throwable.toString());
+                    xmlStreamWriter.writeEndElement();
+                }
+
                 if (!method.getReturnType().equals(void.class)) {
                     xmlStreamWriter.writeStartElement("return");
                     if (result != null) {
@@ -117,7 +117,7 @@ public class MyInvocationHandler implements InvocationHandler {
                 xmlStreamWriter.writeEndElement();
                 xmlStreamWriter.flush();
                 writer.write(stringWriter + System.lineSeparator());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 //Do nothing
             }
         }
