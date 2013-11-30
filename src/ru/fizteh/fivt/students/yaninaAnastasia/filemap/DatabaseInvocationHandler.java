@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;

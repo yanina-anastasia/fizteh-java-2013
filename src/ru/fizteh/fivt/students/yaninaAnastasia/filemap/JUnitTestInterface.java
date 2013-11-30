@@ -9,5 +9,5 @@ public interface JUnitTestInterface {
 
     int getAmount();
 
-    String arrayGetter (List<String> types, int number);
+    String arrayGetter(List<String> types, int number);
 }

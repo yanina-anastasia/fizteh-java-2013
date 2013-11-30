@@ -5,6 +5,7 @@ import org.junit.rules.TemporaryFolder;
 import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 import ru.fizteh.fivt.storage.structured.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.ParseException;
@@ -533,7 +534,8 @@ public class TestsLoggingProxyFactory {
         Assert.assertEquals("[\"class java.lang.Integer\"]", args.getJSONArray(1).toString());
         Assert.assertTrue(!parser.isNull("returnValue"));
         String fold = folder.getRoot().getPath();
-        Assert.assertEquals(String.format("DatabaseTable[%s\\new]", fold), parser.get("returnValue").toString());
+        String dir = new File(fold, "new").toString();
+        Assert.assertEquals(String.format("DatabaseTable[%s]", dir), parser.get("returnValue").toString());
         try {
             provider.removeTable("new");
         } catch (IOException e) {
@@ -568,7 +570,8 @@ public class TestsLoggingProxyFactory {
         Assert.assertEquals("new", args.getString(0));
         Assert.assertTrue(!parser.isNull("returnValue"));
         String fold = folder.getRoot().getPath();
-        Assert.assertEquals(String.format("DatabaseTable[%s\\new]", fold), parser.get("returnValue").toString());
+        String dir = new File(fold, "new").toString();
+        Assert.assertEquals(String.format("DatabaseTable[%s]", dir), parser.get("returnValue").toString());
         try {
             provider.removeTable("new");
         } catch (IOException e) {
@@ -626,7 +629,8 @@ public class TestsLoggingProxyFactory {
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
-        Assert.assertEquals(String.format("DatabaseTable[%s\\testTable]", fold), args.getString(0));
+        String dir = new File(fold, "testTable").toString();
+        Assert.assertEquals(String.format("DatabaseTable[%s]", dir), args.getString(0));
         Assert.assertEquals(makeStoreable(5).toString(), args.getString(1));
         Assert.assertTrue(!parser.isNull("returnValue"));
         Assert.assertEquals("<row><col>5</col></row>", parser.getString("returnValue"));
@@ -654,7 +658,8 @@ public class TestsLoggingProxyFactory {
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
-        Assert.assertEquals(String.format("DatabaseTable[%s\\testTable]", fold), args.getString(0));
+        String dir = new File(fold, "testTable").toString();
+        Assert.assertEquals(String.format("DatabaseTable[%s]", dir), args.getString(0));
         Assert.assertEquals("<row><col>5</col></row>", args.getString(1));
         Assert.assertTrue(!parser.isNull("returnValue"));
         Assert.assertEquals("DatabaseStoreable[5]", parser.getString("returnValue"));
@@ -678,7 +683,8 @@ public class TestsLoggingProxyFactory {
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
-        Assert.assertEquals(String.format("DatabaseTable[%s\\testTable]", fold), args.getString(0));
+        String dir = new File(fold, "testTable").toString();
+        Assert.assertEquals(String.format("DatabaseTable[%s]", dir), args.getString(0));
         List<Class<?>> list = new ArrayList<Class<?>>();
         Assert.assertTrue(!parser.isNull("returnValue"));
         Assert.assertEquals("DatabaseStoreable" + list.toString(), parser.get("returnValue"));
@@ -704,7 +710,8 @@ public class TestsLoggingProxyFactory {
         JSONArray args = parser.getJSONArray("arguments");
         Assert.assertTrue(args instanceof JSONArray);
         String fold = folder.getRoot().getPath();
-        Assert.assertEquals(String.format("DatabaseTable[%s\\testTable]", fold), args.getString(0));
+        String dir = new File(fold, "testTable").toString();
+        Assert.assertEquals(String.format("DatabaseTable[%s]", dir), args.getString(0));
         Assert.assertEquals(list.get(0).toString(), args.getJSONArray(1).get(0));
         Assert.assertTrue(!parser.isNull("returnValue"));
         Assert.assertEquals("DatabaseStoreable" + list.toString(), parser.get("returnValue"));
