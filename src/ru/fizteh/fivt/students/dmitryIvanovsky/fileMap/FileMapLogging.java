@@ -22,7 +22,7 @@ public class FileMapLogging implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object returnedValue = null;
         JSONObject record = new JSONObject();
-        if (!method.getDeclaringClass().equals(Object.class)) {
+        //if (!method.getDeclaringClass().equals(Object.class)) {
 
             record.put("timestamp", System.currentTimeMillis());
             record.put("class", object.getClass().getName());
@@ -60,7 +60,7 @@ public class FileMapLogging implements InvocationHandler {
                     //pass
                 }
             }
-        }
+        //}
 //        } else {
 //            try {
 //                writer.write("");
