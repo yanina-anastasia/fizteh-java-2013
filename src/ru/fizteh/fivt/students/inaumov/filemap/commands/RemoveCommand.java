@@ -9,7 +9,7 @@ public class RemoveCommand<Table, Key, Value, State extends FileMapShellState<Ta
         extends AbstractCommand<State> {
     public RemoveCommand() {
         super("remove", 1);
-	}
+    }
 
     public void execute(String argumentsLine, State state) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);

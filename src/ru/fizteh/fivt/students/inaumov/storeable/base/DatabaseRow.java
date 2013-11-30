@@ -40,14 +40,14 @@ public class DatabaseRow implements Storeable {
     }
 
     @Override
-    public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
+    public Object getColumnAt(int columnIndex) {
         checkBounds(columnIndex);
 
         return columns.get(columnIndex);
     }
 
     @Override
-    public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Integer getIntAt(int columnIndex) {
         checkBounds(columnIndex);
         checkColumnType(columnIndex, Integer.class);
 
@@ -55,7 +55,7 @@ public class DatabaseRow implements Storeable {
     }
 
     @Override
-    public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Long getLongAt(int columnIndex) {
         checkBounds(columnIndex);
         checkColumnType(columnIndex, Long.class);
 

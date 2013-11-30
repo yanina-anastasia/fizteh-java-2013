@@ -13,9 +13,9 @@ public class FileCommander {
     public FileCommander() {
         File file = new File(".");
         setCurrentDirectory(file.getAbsolutePath());
-	}
+    }
 
-	public Path getFilePathFromString(String fileName) {
+    public Path getFilePathFromString(String fileName) {
         Path filePath = Paths.get(fileName);
         if (!filePath.isAbsolute()) {
             filePath = currentDirectory.resolve(filePath);
@@ -24,9 +24,9 @@ public class FileCommander {
         filePath = filePath.normalize();
 
         return filePath;
-	}
+    }
 
-	public void setCurrentDirectory(String newDirectory) {
+    public void setCurrentDirectory(String newDirectory) {
         Path newCurrentDirectory = getFilePathFromString(newDirectory);
 
         if (!newCurrentDirectory.toFile().isDirectory()) {
@@ -34,17 +34,17 @@ public class FileCommander {
         }
 
         currentDirectory = newCurrentDirectory;
-	}
+    }
 
     public String getCurrentDirectory() {
         return currentDirectory.toString();
-	}
+    }
 
     public String[] getCurrentDirectoryContent() {
-		return currentDirectory.toFile().list();
-	}
+        return currentDirectory.toFile().list();
+    }
 
-	private void removeDir(File dirToRemove) {
+    private void removeDir(File dirToRemove) {
         File[] content = dirToRemove.listFiles();
 
         for (File nextEntry: content) {
@@ -55,7 +55,7 @@ public class FileCommander {
         }
 
         dirToRemove.delete();
-	}
+    }
 
     public void remove(String fileName) {
         File fileToRemove = getFilePathFromString(fileName).toFile();

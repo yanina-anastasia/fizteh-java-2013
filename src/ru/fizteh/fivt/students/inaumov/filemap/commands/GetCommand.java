@@ -9,9 +9,9 @@ public class GetCommand<Table, Key, Value, State extends FileMapShellState<Table
         extends AbstractCommand<State> {
     public GetCommand() {
         super("get", 1);
-	}
+    }
 
-	public void execute(String argumentsLine, State state) {
+    public void execute(String argumentsLine, State state) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
@@ -23,11 +23,11 @@ public class GetCommand<Table, Key, Value, State extends FileMapShellState<Table
         Key key = state.parseKey(arguments[0]);
         Value value = state.get(key);
 
-		if (value == null) {
-			System.out.println("not found");
-		} else {
-			System.out.println("found");
-			System.out.println(state.valueToString(value));
-		}
-	}
+        if (value == null) {
+            System.out.println("not found");
+        } else {
+            System.out.println("found");
+            System.out.println(state.valueToString(value));
+        }
+    }
 }

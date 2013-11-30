@@ -10,11 +10,11 @@ public class PwdCommand extends AbstractCommand<ShellState> {
         super("pwd", 0);
     }
 
-	public void execute(String argumentsLine, ShellState shellState) {
+    public void execute(String argumentsLine, ShellState shellState) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
         String workingDir = shellState.fileCommander.getCurrentDirectory();
         System.out.println(workingDir);
-	}
+    }
 }

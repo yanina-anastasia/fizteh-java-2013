@@ -10,10 +10,10 @@ public class MkdirCommand extends AbstractCommand<ShellState> {
         super("mkdir", 1);
     }
 
-	public void execute(String argumentsLine, ShellState shellState) {
+    public void execute(String argumentsLine, ShellState shellState) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
-		shellState.fileCommander.createNewDirectory(arguments[0]);
-	}
+        shellState.fileCommander.createNewDirectory(arguments[0]);
+    }
 }
