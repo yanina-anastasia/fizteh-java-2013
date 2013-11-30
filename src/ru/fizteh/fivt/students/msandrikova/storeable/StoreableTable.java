@@ -148,7 +148,7 @@ public class StoreableTable implements ChangesCountingTable {
                         value.getDoubleAt(i);
                         break;
                     default:
-                    	break;
+                        break;
                     }
                 } catch (ColumnFormatException| IndexOutOfBoundsException e) {
                     return false;
