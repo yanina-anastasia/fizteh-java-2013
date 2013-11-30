@@ -61,7 +61,7 @@ public class StorableMain {
             shell.startWork(args);
         }
         catch (TimeToFinishException e) {
-            if (e == null) {
+            if (e.getMessage() == null) {
                 System.exit(0);
             } else {
                 System.exit(-1);
