@@ -35,7 +35,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private HashMap<Class<?>, String> typeToString;
     private Lock readLock;
     private Lock writeLock;
-    private boolean isProviderClosed;
+    private volatile boolean isProviderClosed;
 
     public void initTypeToString() {
         typeToString = new HashMap<>();

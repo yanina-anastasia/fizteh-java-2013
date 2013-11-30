@@ -10,7 +10,7 @@ import java.util.List;
 public class MyTableProviderFactory implements TableProviderFactory, AutoCloseable {
 
     private List<MyTableProvider> tableProvidersList;
-    private boolean isTableProviderFactoryClosed;
+    private volatile boolean isTableProviderFactoryClosed;
 
     public MyTableProviderFactory() {
         tableProvidersList = new ArrayList<>();

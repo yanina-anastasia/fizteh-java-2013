@@ -52,7 +52,7 @@ public class MyTable implements Table, AutoCloseable {
     private List<Class<?>> type;                   // types in this table
     private Lock readLock;
     private Lock writeLock;
-    private boolean tableIsClosed;
+    private volatile boolean tableIsClosed;
 
     public List<Class<?>> getTypeArray() {
         return type;
