@@ -103,6 +103,12 @@ public class LogInvocationHandler implements InvocationHandler {
                 }
             } catch (Exception e) {
 
+            } finally {
+                try {
+                    writer.write(record.toString() + System.lineSeparator());
+                } catch (IOException e) {
+
+                }
             }
             try {
                 returnedValue = method.invoke(proxied, args);
