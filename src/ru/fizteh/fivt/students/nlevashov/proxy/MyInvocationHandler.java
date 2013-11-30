@@ -66,7 +66,8 @@ public class MyInvocationHandler implements InvocationHandler {
             } else {
                 log.put("thrown", exception.toString());
             }
-            writer.write(log.toString() + System.lineSeparator());
+            writer.write(log.toString());
+            writer.write(System.lineSeparator());
         } catch (Throwable exc) {
             // Немного странно, что try без catch или finally это неправильно, в то же врямя как и пустой catch или
             // finally. Но комментарий, который никак не влияет на исполнение кода, все изменят к лучшему. Java тащит.
