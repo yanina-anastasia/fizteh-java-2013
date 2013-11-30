@@ -109,6 +109,7 @@ public class MultiFileMap implements Table, AutoCloseable {
     }
 
     public File getFile() {
+        checkState();
         return location;
     }
 

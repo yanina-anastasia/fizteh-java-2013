@@ -1058,6 +1058,17 @@ public class FileMapUnitTest {
                 InterfaceToProxy.class
         );
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void callingMethodAfterCloseThrowsException() throws IOException {
+        File testFolder = new File(folder.getRoot(), "test");
+        testFolder.mkdir();
+        FileMapProviderFactory factory = new FileMapProviderFactory();
+        FileMapProvider provider = factory.create(testFolder.getCanonicalPath());
+        MultiFileMap table = provider.createTable("new", getColumnTypeList());
+        table.close();
+        provider.createFor(table);
+    }
 }
 
 interface InterfaceToProxy {
