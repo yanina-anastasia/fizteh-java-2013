@@ -47,7 +47,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         if ((name == null) || name.trim().isEmpty() || name.matches(".*[/:\\*\\?\"\\\\><\\|\\s\\t\\n].*")) {
             throw new IllegalArgumentException("TableProvider.constructor: bad table name \"" + name + "\"");
         }
-        if (!Files.exists(dbPath)) {   System.out.println(dbPath.toString());
+        if (!Files.exists(dbPath)) {
             if (!path.toFile().getCanonicalFile().mkdir()) {
                 throw new IOException("Directory \"" + path.getFileName() + "\" wasn't created");
             }
