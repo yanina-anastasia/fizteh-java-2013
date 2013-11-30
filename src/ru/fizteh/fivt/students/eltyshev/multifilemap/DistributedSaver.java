@@ -20,19 +20,10 @@ public class DistributedSaver {
             String bucketName = String.format("%d.dir", descriptor.bucket);
             String fileName = String.format("%d.dat", descriptor.file);
             File bucketDirectory = new File(tableDirectory, bucketName);
-
-            if (isBucketEmpty) {
-                MultifileMapUtils.deleteFile(bucketDirectory);
-                continue;
-            }
-
-            for (int fileNumber = 0; fileNumber < FILES_PER_DIR; ++fileNumber) {
-                String fileName = String.format("%d.dat", fileNumber);
-                File file = new File(bucketDirectory, fileName);
-                if (keysToSave.get(fileNumber).isEmpty()) {
-                    MultifileMapUtils.deleteFile(file);
-                    continue;
-                }
+            File file = new File(bucketDirectory, fileName);
+            if (keysToSave.isEmpty()) {
+                MultifileMapUtils.deleteFile(file);
+            } else {
                 if (!bucketDirectory.exists()) {
                     bucketDirectory.mkdir();
                 }
@@ -40,5 +31,34 @@ public class DistributedSaver {
             }
         }
         cleanTableDirectory(builder);
+    }
+
+    private static Set<String> getKeysToSave(TableBuilder builder, DatabaseFileDescriptor descriptor) {
+        HashSet<String> result = new HashSet<>();
+        for (final String key : builder.getKeys()) {
+            DatabaseFileDescriptor tempDescriptor = MultifileMapUtils.makeDescriptor(key);
+            if (descriptor.equals(tempDescriptor)) {
+                result.add(key);
+            }
+        }
+        return result;
+    }
+
+    private static void cleanTableDirectory(TableBuilder builder) {
+        File tableDirectory = builder.getTableDirectory();
+        File[] buckets = tableDirectory.listFiles();
+        if (buckets.length == 0) {
+            return;
+        }
+        for (File bucket : buckets) {
+            if (bucket.isFile()) {
+                continue;
+            }
+            File[] files = bucket.listFiles();
+            if (files == null || files.length == 0) {
+
+                MultifileMapUtils.deleteFile(bucket);
+            }
+        }
     }
 }
