@@ -24,9 +24,6 @@ public class Main {
         }
         File dbDirectory = new File(dbPath);
         if (dbDirectory.exists() || !dbDirectory.isDirectory()) {
-            /*
-            System.err.println("it's not a directory");
-            System.exit(1);*/
             dbDirectory.delete();
         }
         if (!dbDirectory.exists()) {
@@ -51,15 +48,33 @@ public class Main {
         commandMap.put("rollback", new CommandRollback());
 
         if (args.length == 0) { // Interactive mode
-            interactiveMode(commandMap, storeableState);
-        } else { // Batch mode
-            StringBuilder stringBuilder = new StringBuilder();
-            for (String string : args) {
-                stringBuilder.append(string);
-                stringBuilder.append(" ");
+            try {
+                Mods.interactiveMode(commandMap, storeableState);
+            } catch (ExitException ex) {
+                if (storeableState.getCurrentTable() != null) {
+                    try {
+                        StoreableUtils.writeTable(storeableState.getCurrentTable(), storeableState.getCurrentTableProvider());
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
+                }
+                System.exit(0);
             }
-            String commands = stringBuilder.toString();
-            batchMode(commands, commandMap, storeableState);
+        } else { // Batch mode
+            try {
+                Mods.batchMode(args, commandMap, storeableState);
+            } catch (ExitException ex) {
+                if (storeableState.getCurrentTable() != null) {
+                    try {
+                        StoreableUtils.writeTable(storeableState.getCurrentTable(), storeableState.getCurrentTableProvider());
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
+                }
+                System.exit(0);
+            }
         }
 
         try {
@@ -71,7 +86,7 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, StoreableState storeableState) {
+    /*private static void interactiveMode(Map<String, Command> commandMap, StoreableState storeableState) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
@@ -120,7 +135,7 @@ public class Main {
             Command command = commandMap.get(commandArguments[0]);
 
             if (command == null) {
-                throw new IOException("Wrong command name");
+                throw new9+1 IOException("Wrong command name");
             }
             if (commandArguments.length != command.getArgumentsCount() + 1) {
                 throw new IOException("Wrong argument count");
@@ -130,5 +145,5 @@ public class Main {
         }
 
     }
-
+    */
 }

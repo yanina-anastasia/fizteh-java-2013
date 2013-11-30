@@ -41,15 +41,33 @@ public class Main {
         commandMap.put("rollback", new CommandRollback());
 
         if (args.length == 0) { // Interactive mode
-            interactiveMode(commandMap, fileMapState);
-        } else { // Batch mode
-            StringBuilder stringBuilder = new StringBuilder();
-            for (String string : args) {
-                stringBuilder.append(string);
-                stringBuilder.append(" ");
+            try {
+                Mods.interactiveMode(commandMap, fileMapState);
+            } catch (ExitException ex) {
+                if (fileMapState.getCurrentTable() != null) {
+                    try {
+                        MultiFileHashMapUtils.writeTable(fileMapState);
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
+                }
+                System.exit(0);
             }
-            String commands = stringBuilder.toString();
-            batchMode(commands, commandMap, fileMapState);
+        } else { // Batch mode
+            try {
+                Mods.batchMode(args, commandMap, fileMapState);
+            } catch (ExitException ex) {
+                if (fileMapState.getCurrentTable() != null) {
+                    try {
+                        MultiFileHashMapUtils.writeTable(fileMapState);
+                    } catch (IOException exc) {
+                        System.err.println(exc.getMessage());
+                        System.exit(1);
+                    }
+                }
+                System.exit(0);
+            }
         }
 
         try {
@@ -61,7 +79,7 @@ public class Main {
 
     }
 
-    private static void interactiveMode(Map<String, Command> commandMap, FileMapState fileMapState) {
+    /*private static void interactiveMode(Map<String, Command> commandMap, FileMapState fileMapState) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("$ ");
         while (scanner.hasNextLine()){
@@ -118,6 +136,6 @@ public class Main {
             }
         }
 
-    }
+    }*/
 
 }

@@ -15,6 +15,7 @@ public abstract class AbstractTable<ValueType> {
     private ReadWriteLock tableLock;
     private boolean autoCommit;
     private String tableName;
+    private final Pattern pattern = Pattern.compile("\\s");
 
     public Set<Map.Entry<String, ValueType>> getEntrySet() {
         return hashMap.entrySet();
@@ -46,26 +47,21 @@ public abstract class AbstractTable<ValueType> {
     public int getDiffCount() {
         int diffCount = 0;
 
-        for (String string : changedEntries.get().keySet()) {
-            try {
-                tableLock.readLock().lock();
+        try {
+            tableLock.readLock().lock();
+            for (String string : changedEntries.get().keySet()) {
                 if (hashMap.get(string) == null || !valuesEqual(hashMap.get(string), changedEntries.get().get(string))) {
                     ++diffCount;
                 }
-            } finally {
-                tableLock.readLock().unlock();
             }
-        }
 
-        for (String string : removedEntries.get().keySet()) {
-            try {
-                tableLock.readLock().lock();
+            for (String string : removedEntries.get().keySet()) {
                 if (hashMap.get(string) != null) {
                     ++diffCount;
                 }
-            } finally {
-                tableLock.readLock().unlock();
             }
+        } finally {
+            tableLock.readLock().unlock();
         }
 
         return diffCount;
@@ -83,7 +79,6 @@ public abstract class AbstractTable<ValueType> {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        Pattern pattern = Pattern.compile("\\s");
         Matcher matcher = pattern.matcher(key);
         if (key.isEmpty() || matcher.find()) {
             throw new IllegalArgumentException("key is wrong");
@@ -138,13 +133,12 @@ public abstract class AbstractTable<ValueType> {
         if (key == null) {
             throw new IllegalArgumentException("key is null");
         }
-        Pattern pattern = Pattern.compile("\\s");
         Matcher matcher = pattern.matcher(key);
         if (key.isEmpty() || matcher.find()) {
             throw new IllegalArgumentException("key is wrong");
         }
 
-        if (value == null) { // maybe need to check: value.trim().isEmpty()
+        if (value == null) {
             throw new IllegalArgumentException("value is null");
         }
 
@@ -204,30 +198,20 @@ public abstract class AbstractTable<ValueType> {
         try {
             tableLock.readLock().lock();
             size = hashMap.size();
-        } finally {
-            tableLock.readLock().unlock();
-        }
 
-        for (String string : changedEntries.get().keySet()) {
-            try {
-                tableLock.readLock().lock();
+            for (String string : changedEntries.get().keySet()) {
                 if (hashMap.get(string) == null) {
                     ++size;
                 }
-            } finally {
-                tableLock.readLock().unlock();
             }
-        }
 
-        for (String string : removedEntries.get().keySet()) {
-            try {
-                tableLock.readLock().lock();
+            for (String string : removedEntries.get().keySet()) {
                 if (hashMap.get(string) != null) {
                     --size;
                 }
-            } finally {
-                tableLock.readLock().unlock();
             }
+        } finally {
+            tableLock.readLock().unlock();
         }
 
         return size;
@@ -246,19 +230,15 @@ public abstract class AbstractTable<ValueType> {
             for (Map.Entry<String, ValueType> entry : changedEntries.get().entrySet()) {
                 hashMap.put(entry.getKey(), entry.getValue());
             }
-        } finally {
-            tableLock.writeLock().unlock();
-        }
-        changedEntries.get().clear();
 
-        try {
-            tableLock.writeLock().lock();
             for (Map.Entry<String, ValueType> entry : removedEntries.get().entrySet()) {
                 hashMap.remove(entry.getKey());
             }
         } finally {
             tableLock.writeLock().unlock();
         }
+
+        changedEntries.get().clear();
         removedEntries.get().clear();
 
         return changed;
