@@ -1,8 +1,10 @@
 package ru.fizteh.fivt.students.musin.filemap;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +20,6 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
 
     public XMLLoggingProxyInvocationHandler(Object target, Writer writer) throws XMLStreamException {
         this.target = target;
-        this.writer = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
         this.initialWriter = writer;
         this.identityHashMap = new IdentityHashMap<>();
     }
@@ -61,42 +62,42 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
             //Proxy not allowed to throw exception
         }
         if (method.getDeclaringClass() != Object.class) {
-            synchronized (writer) {
-                try {
-                    writer.writeStartElement("invoke");
-                    writer.writeAttribute("timestamp", Long.valueOf(System.currentTimeMillis()).toString());
-                    writer.writeAttribute("class", target.getClass().getName());
-                    writer.writeAttribute("name", method.getName());
-                    if (args != null && args.length != 0) {
-                        writer.writeStartElement("arguments");
-                        for (int i = 0; i < args.length; i++) {
-                            writer.writeStartElement("argument");
-                            writeObject(args[i]);
-                            writer.writeEndElement();
-                        }
-                        writer.writeEndElement();
-                    } else {
-                        writer.writeEmptyElement("arguments");
-                    }
-                    if (method.getReturnType() != void.class && error == null) {
-                        writer.writeStartElement("return");
-                        writeObject(result);
-                        writer.writeEndElement();
-                    } else if (error != null) {
-                        writer.writeStartElement("thrown");
-                        writer.writeCharacters(error.toString());
+            try {
+                StringWriter stringWriter = new StringWriter();
+                this.writer = XMLOutputFactory.newInstance().createXMLStreamWriter(stringWriter);
+                writer.writeStartElement("invoke");
+                writer.writeAttribute("timestamp", Long.valueOf(System.currentTimeMillis()).toString());
+                writer.writeAttribute("class", target.getClass().getName());
+                writer.writeAttribute("name", method.getName());
+                if (args != null && args.length != 0) {
+                    writer.writeStartElement("arguments");
+                    for (int i = 0; i < args.length; i++) {
+                        writer.writeStartElement("argument");
+                        writeObject(args[i]);
                         writer.writeEndElement();
                     }
                     writer.writeEndElement();
-                    writer.flush();
-                    initialWriter.write("\n");
-                    if (error != null) {
-                        throw error;
-                    }
-                } catch (XMLStreamException e) {
-                    //Proxy not allowed to throw exceptions
+                } else {
+                    writer.writeEmptyElement("arguments");
                 }
+                if (method.getReturnType() != void.class && error == null) {
+                    writer.writeStartElement("return");
+                    writeObject(result);
+                    writer.writeEndElement();
+                } else if (error != null) {
+                    writer.writeStartElement("thrown");
+                    writer.writeCharacters(error.toString());
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+                writer.flush();
+                initialWriter.write(stringWriter.toString() + Character.LINE_SEPARATOR);
+            } catch (Exception e) {
+                //Proxy not allowed to throw exceptions
             }
+        }
+        if (error != null) {
+            throw error;
         }
         return result;
     }

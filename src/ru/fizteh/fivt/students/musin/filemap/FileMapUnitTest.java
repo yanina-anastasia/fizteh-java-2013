@@ -973,7 +973,7 @@ public class FileMapUnitTest {
         );
         proxy.voidResultMethod("hello");
         proxy.voidResultMethod("hi");
-        Assert.assertTrue(writer.toString().contains("</invoke>\n<invoke"));
+        Assert.assertTrue(writer.toString().contains("</invoke>"+ Character.LINE_SEPARATOR + "<invoke"));
     }
 
     @Test
