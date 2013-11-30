@@ -39,7 +39,7 @@ public class DatabaseInvocationHandler implements InvocationHandler {
                 if (!method.getDeclaringClass().equals(Object.class)) {
                     writer.write(logWriter.getStringRepresentation() + "\n");
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 //
             }
         }

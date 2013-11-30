@@ -85,6 +85,11 @@ public class TestsLoggingProxyFactory {
             public int getAmount() {
                 return 0;
             }
+
+            @Override
+            public String arrayGetter(List<String> names, int number) {
+                return "";
+            }
         };
         JUnitTestInterface proxy = (JUnitTestInterface)
                 testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
@@ -105,7 +110,7 @@ public class TestsLoggingProxyFactory {
     }
 
     @Test
-    public void interfaceSupportFuncLogTest() throws  Exception {
+    public void interfaceSupportFuncLogTest() throws Exception {
         implementation = new JUnitTestInterface() {
             @Override
             public void exec() {
@@ -113,23 +118,34 @@ public class TestsLoggingProxyFactory {
 
             @Override
             public void supportFunc() throws Exception {
+                throw new Exception("Testing exceptions");
             }
 
             @Override
             public int getAmount() {
                 return 0;
             }
+
+            @Override
+            public String arrayGetter(List<String> names, int number) {
+                return "";
+            }
         };
         JUnitTestInterface proxy = (JUnitTestInterface)
                 testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
 
         long timestampBefore = System.currentTimeMillis();
-        proxy.supportFunc();
+        try {
+            proxy.supportFunc();
+        } catch (Exception e) {
+            //Exception has been thrown
+        }
         long timestampAfter = System.currentTimeMillis();
         String result = stringWriter.toString();
         JSONObject parser = new JSONObject(result);
         Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
                 && parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertEquals(parser.getString("thrown"), "java.lang.Exception: Testing exceptions");
         Assert.assertEquals(parser.getString("class"), implementation.getClass().getName());
         Assert.assertEquals(parser.getString("method"), "supportFunc");
         JSONArray args = parser.getJSONArray("arguments");
@@ -156,6 +172,12 @@ public class TestsLoggingProxyFactory {
                 table.put("key3", makeStoreable(1));
                 return table.size();
             }
+
+            @Override
+            public String arrayGetter(List<String> names, int number) {
+                return "";
+            }
+
         };
         JUnitTestInterface proxy = (JUnitTestInterface)
                 testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
@@ -200,6 +222,11 @@ public class TestsLoggingProxyFactory {
                 table.remove("key3");
                 return table.rollback();
             }
+
+            @Override
+            public String arrayGetter(List<String> names, int number) {
+                return "";
+            }
         };
         JUnitTestInterface proxy = (JUnitTestInterface)
                 testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
@@ -217,6 +244,50 @@ public class TestsLoggingProxyFactory {
         Assert.assertTrue(args instanceof JSONArray);
         Assert.assertTrue(args.isNull(0));
         Assert.assertEquals(parser.getInt("returnValue"), 0);
+        stringWriter.flush();
+    }
+
+    @Test
+    public void interfaceArrayLogTest() {
+        implementation = new JUnitTestInterface() {
+            @Override
+            public void exec() {
+            }
+
+            @Override
+            public void supportFunc() throws Exception {
+            }
+
+            @Override
+            public int getAmount() {
+                return 0;
+            }
+
+            @Override
+            public String arrayGetter(List<String> names, int number) {
+                return names.get(number).toString();
+            }
+        };
+        List<String> testTableNames = new ArrayList<>();
+        testTableNames.add(SINGLE_COLUMN_TABLE_NAME);
+        testTableNames.add(MULTI_COLUMN_TABLE_NAME);
+        JUnitTestInterface proxy = (JUnitTestInterface)
+                testLoggingFactory.wrap(stringWriter, implementation, JUnitTestInterface.class);
+
+        long timestampBefore = System.currentTimeMillis();
+        proxy.arrayGetter(testTableNames, 0);
+        long timestampAfter = System.currentTimeMillis();
+        String result = stringWriter.toString();
+        JSONObject parser = new JSONObject(result);
+        Assert.assertTrue(parser.getLong("timestamp") >= timestampBefore
+                && parser.getLong("timestamp") <= timestampAfter);
+        Assert.assertEquals(parser.getString("class"), implementation.getClass().getName());
+        Assert.assertEquals(parser.getString("method"), "arrayGetter");
+        JSONArray args = parser.getJSONArray("arguments");
+        Assert.assertTrue(args instanceof JSONArray);
+        Assert.assertEquals("[\"testTable\",\"MultiColumnTable\"]", args.getJSONArray(0).toString());
+        Assert.assertEquals(0, args.getInt(1));
+        Assert.assertEquals(parser.getString("returnValue"), "testTable");
         stringWriter.flush();
     }
 
@@ -671,7 +742,7 @@ public class TestsLoggingProxyFactory {
         Table wrappedTable = (Table) testLoggingFactory.wrap(stringWriter, table, Table.class);
         long timestampBefore = System.currentTimeMillis();
         try {
-        wrappedTable.getColumnType(1);
+            wrappedTable.getColumnType(1);
         } catch (IndexOutOfBoundsException e) {
             //
         }
@@ -706,7 +777,7 @@ public class TestsLoggingProxyFactory {
             wrappedProvider.removeTable("newTable");
         } catch (IOException e) {
             //
-        }  catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             //
         }
         long timestampAfter = System.currentTimeMillis();

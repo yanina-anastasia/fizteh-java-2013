@@ -463,6 +463,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     @Override
     public String toString() {
+        isCloseChecker();
         return String.format("%s[%s]", getClass().getSimpleName(), new File(provider.curDir, tableName).toString());
     }
 

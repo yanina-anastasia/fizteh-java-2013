@@ -461,6 +461,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public String toString() {
+        isCloseChecker();
         return String.format("%s[%s]", getClass().getSimpleName(), curDir);
     }
 
