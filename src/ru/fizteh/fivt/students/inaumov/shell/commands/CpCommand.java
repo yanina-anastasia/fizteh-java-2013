@@ -17,7 +17,7 @@ public class CpCommand extends AbstractCommand<ShellState> {
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
         try {
-	        shellState.fileCommander.copyFiles(arguments[0], arguments[1]);
+            shellState.fileCommander.copyFiles(arguments[0], arguments[1]);
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage());
         }

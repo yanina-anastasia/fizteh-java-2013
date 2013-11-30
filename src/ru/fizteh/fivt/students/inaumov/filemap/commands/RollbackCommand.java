@@ -8,7 +8,7 @@ import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 public class RollbackCommand<State extends FileMapShellState> extends AbstractCommand<State> {
     public RollbackCommand() {
         super("rollback", 0);
-	}
+    }
 
     public void execute(String argumentsLine, State state) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);

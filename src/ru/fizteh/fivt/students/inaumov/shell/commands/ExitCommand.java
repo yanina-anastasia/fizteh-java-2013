@@ -10,10 +10,10 @@ public class ExitCommand<State> extends AbstractCommand<State> {
         super("exit", 0);
     }
 
-	public void execute(String argumentsLine, State shellState) throws UserInterruptionException {
+    public void execute(String argumentsLine, State shellState) throws UserInterruptionException {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
-		throw new UserInterruptionException();
-	}
+        throw new UserInterruptionException();
+    }
 }

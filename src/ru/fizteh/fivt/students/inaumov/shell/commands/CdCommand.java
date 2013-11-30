@@ -16,5 +16,5 @@ public class CdCommand extends AbstractCommand<ShellState> {
 
         String newPath = arguments[0];
         shellState.fileCommander.setCurrentDirectory(newPath);
-	}
+    }
 }
