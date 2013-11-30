@@ -7,6 +7,7 @@ import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTable;
 import ru.fizteh.fivt.students.anastasyev.filemap.FileMapTableProviderFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -653,7 +654,7 @@ public class FileMapTableTest {
     @Test
     public void testToString() {
         String str = table.toString();
-        assertEquals(str, "FileMapTable[" + path + "\\table]");
+        assertEquals(str, "FileMapTable[" + path + File.separator + "table]");
     }
 
     @Test
