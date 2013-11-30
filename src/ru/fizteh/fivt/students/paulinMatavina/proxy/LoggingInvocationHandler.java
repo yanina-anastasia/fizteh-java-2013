@@ -31,10 +31,13 @@ public class LoggingInvocationHandler implements InvocationHandler {
             //do nothing
         } 
         
-        if (method.getDeclaringClass() != Object.class) {
-            writer.write(composeLogString(method, args, exception, returnValue) + "\n");
+        try {
+            if (method.getDeclaringClass() != Object.class) {
+                writer.write(composeLogString(method, args, exception, returnValue) + "\n");
+            }
+        } catch (Throwable e) {
+            //keep silence
         }
-        
         if (exception != null) {
             throw exception;
         }
