@@ -12,10 +12,10 @@ public class FileMapLoggingFactory implements LoggingProxyFactory {
             Class<?> interfaceClass
     ) {
         if (writer == null || implementation == null || interfaceClass == null) {
-            throw new IllegalArgumentException("Argument is null");
+            throw new IllegalArgumentException("arguments can't be null");
         }
         if (!interfaceClass.isAssignableFrom(implementation.getClass())) {
-            throw new IllegalArgumentException("This implementation does not implement this interface");
+            throw new IllegalArgumentException("implementation doesn't implement this interface");
         }
         return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(),
                 new Class[]{interfaceClass},

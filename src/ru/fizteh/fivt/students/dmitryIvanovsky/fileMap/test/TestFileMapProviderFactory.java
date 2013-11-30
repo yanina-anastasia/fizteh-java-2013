@@ -11,9 +11,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertEquals;
+
 public class TestFileMapProviderFactory {
 
-    private TableProviderFactory multiMapFactory;
+    private FileMapProviderFactory multiMapFactory;
     private CommandShell mySystem;
     private Path pathTables;
 
@@ -53,8 +55,21 @@ public class TestFileMapProviderFactory {
         multiMapFactory.create(pathTables.toString());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void closeTableProviderCallCreate() throws IOException {
+        multiMapFactory.close();
+        multiMapFactory.create("213");
+    }
+
+    @Test()
+    public void correctToString() throws IOException {
+        assertEquals(multiMapFactory.toString(),
+                String.format("%s[%s]", "FileMap", pathTables.resolve("table").toAbsolutePath().toString()));
+    }
+
     @After
     public void tearDown() {
+        multiMapFactory.close();
         try {
             mySystem.rm(new String[]{pathTables.toString()});
         } catch (Exception e) {
