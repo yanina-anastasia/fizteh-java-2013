@@ -17,7 +17,7 @@ public class MultiFileMap implements Table, AutoCloseable {
     FileMapProvider tableProvider;
     final int arraySize;
     ReentrantReadWriteLock lock;
-    boolean valid;
+    volatile boolean valid;
 
     public MultiFileMap(File location, int arraySize, FileMapProvider tableProvider) {
         if (location == null) {
@@ -546,12 +546,7 @@ public class MultiFileMap implements Table, AutoCloseable {
     }
 
     public void close() {
-        lock.writeLock().lock();
-        try {
-            diff.get().clear();
-            valid = false;
-        } finally {
-            lock.writeLock().unlock();
-        }
+        diff.get().clear();
+        valid = false;
     }
 }

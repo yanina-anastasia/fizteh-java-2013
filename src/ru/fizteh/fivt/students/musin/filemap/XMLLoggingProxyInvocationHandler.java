@@ -91,7 +91,7 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
                 }
                 writer.writeEndElement();
                 writer.flush();
-                initialWriter.write(stringWriter.toString() + Character.LINE_SEPARATOR);
+                initialWriter.write(stringWriter.toString() + System.lineSeparator());
             } catch (Exception e) {
                 //Proxy not allowed to throw exceptions
             }

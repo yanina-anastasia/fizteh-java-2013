@@ -18,7 +18,7 @@ import java.util.List;
 public class FileMapProvider implements TableProvider, AutoCloseable {
     File location;
     HashMap<String, MultiFileMap> used;
-    boolean valid;
+    volatile boolean valid;
 
     public FileMapProvider(File location) {
         if (location == null) {
@@ -354,10 +354,10 @@ public class FileMapProvider implements TableProvider, AutoCloseable {
     }
 
     public synchronized void close() {
+        valid = false;
         for (MultiFileMap entry : used.values()) {
             entry.close();
         }
-        valid = false;
         used.clear();
     }
 }

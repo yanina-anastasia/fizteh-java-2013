@@ -58,14 +58,6 @@ public class FileMapUnitTest {
         factory.close();
     }
 
-    @Test(expected = IOException.class)
-    public void notExistingDirectoryPassedShouldFail() throws IOException {
-        File file = new File(folder.getRoot(), "test/hello");
-        FileMapProviderFactory factory = new FileMapProviderFactory();
-        factory.create(file.getCanonicalPath());
-        factory.close();
-    }
-
     @Test(expected = RuntimeException.class)
     public void filesInsideDirectoryShouldFail() throws IOException {
         File testFolder = new File(folder.getRoot(), "test");
@@ -973,7 +965,7 @@ public class FileMapUnitTest {
         );
         proxy.voidResultMethod("hello");
         proxy.voidResultMethod("hi");
-        Assert.assertTrue(writer.toString().contains("</invoke>"+ Character.LINE_SEPARATOR + "<invoke"));
+        Assert.assertTrue(writer.toString().contains("</invoke>" + System.lineSeparator() + "<invoke"));
     }
 
     @Test

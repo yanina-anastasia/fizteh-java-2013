@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class FileMapProviderFactory implements TableProviderFactory, AutoCloseable {
     ArrayList<FileMapProvider> providers;
-    boolean valid;
+    volatile boolean valid;
 
     public FileMapProviderFactory() {
         providers = new ArrayList<>();
@@ -32,7 +32,7 @@ public class FileMapProviderFactory implements TableProviderFactory, AutoCloseab
             throw new IllegalArgumentException("File is located at specified location");
         }
         if (!newProvider.isValidLocation()) {
-            if (!path.mkdir()) {
+            if (!path.mkdirs()) {
                 throw new IOException("Database location is invalid");
             }
         }
