@@ -17,10 +17,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTableProvider implements TableProvider, AutoCloseable {
 
-    public MyTableProvider(String dir, MyTableProviderFactory currFactory) throws RuntimeException, IOException {
+    public MyTableProvider(String dir) throws RuntimeException, IOException {
         isProviderClosed = false;
         workingDirectory = dir;
-        factory = currFactory;
         currTable = null;
         multiFileMap = new HashMap<>();
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
@@ -37,7 +36,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private Lock readLock;
     private Lock writeLock;
     private volatile boolean isProviderClosed;
-    private MyTableProviderFactory factory;
 
     public void initTypeToString() {
         typeToString = new HashMap<>();
@@ -155,12 +153,12 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
-        checkIfProviderClosed();
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         readLock.lock();
         try {
+            checkIfProviderClosed();
             return multiFileMap.get(tableName);
         } finally {
             readLock.unlock();
@@ -169,12 +167,12 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table createTable(String tableName, List<Class<?>> types) throws IllegalArgumentException, IOException {
-        checkIfProviderClosed();
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
         writeLock.lock();
         try {
+            checkIfProviderClosed();
             if (multiFileMap.containsKey(tableName)) {
                 return null;
             }
@@ -193,12 +191,12 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
-        checkIfProviderClosed();
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         writeLock.lock();
         try {
+            checkIfProviderClosed();
             if (!multiFileMap.containsKey(tableName)) {
                 throw new IllegalStateException(tableName + " not exists");
             }
@@ -280,7 +278,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         } finally {
             writeLock.unlock();
         }
-        //factory.removeProvider(this);
     }
 
     private void checkIfProviderClosed() {

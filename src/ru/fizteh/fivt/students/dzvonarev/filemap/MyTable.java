@@ -341,13 +341,13 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException, IndexOutOfBoundsException {
-        checkIfTableClosed();
         if (key == null || key.trim().isEmpty() || containsWhitespace(key) || value == null) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid or value)");
         }
         checkingValueForValid(value);
         writeLock.lock();
         try {
+            checkIfTableClosed();
             Storeable oldValue = get(key);
             addChanges(key, value);
             return oldValue;
@@ -358,12 +358,12 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
-        checkIfTableClosed();
         if (key == null || key.trim().isEmpty() || containsWhitespace(key)) {
             throw new IllegalArgumentException("wrong type (key " + key + " is not valid)");
         }
         writeLock.lock();
         try {
+            checkIfTableClosed();
             Storeable oldValue = get(key);
             if (oldValue != null) {
                 addChanges(key, null);
@@ -376,9 +376,9 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int size() throws IndexOutOfBoundsException {
-        checkIfTableClosed();
         readLock.lock();
         try {
+            checkIfTableClosed();
             return countSize() + fileMap.size();
         } finally {
             readLock.unlock();
@@ -410,10 +410,10 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int commit() throws IndexOutOfBoundsException, IOException {
-        checkIfTableClosed();
         writeLock.lock();
         int count;
         try {
+            checkIfTableClosed();
             count = getCountOfChanges();
             if (count == 0) {
                 changesMap.get().clear();
@@ -466,10 +466,10 @@ public class MyTable implements Table, AutoCloseable {
 
     @Override
     public int rollback() throws IndexOutOfBoundsException {
-        checkIfTableClosed();
         readLock.lock();
         int count;
         try {
+            checkIfTableClosed();
             count = getCountOfChanges();
         } finally {
             readLock.unlock();

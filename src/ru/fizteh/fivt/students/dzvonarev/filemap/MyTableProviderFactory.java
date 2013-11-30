@@ -33,7 +33,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
                 throw new IllegalArgumentException("wrong type (table provider is not a directory)");
             }
         }
-        MyTableProvider newTableProvider = new MyTableProvider(dir, this);
+        MyTableProvider newTableProvider = new MyTableProvider(dir);
         tableProvidersList.add(newTableProvider);
         return newTableProvider;  // will read data in here
     }
@@ -46,12 +46,8 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
         for (MyTableProvider tableProvider : tableProvidersList) {
             tableProvider.close();
         }
-        tableProvidersList.clear();
+        tableProvidersList.clear();         // here is clearing!
         isTableProviderFactoryClosed = true;
-    }
-
-    public void removeProvider(MyTableProvider provider) {
-        tableProvidersList.remove(provider);
     }
 
     private void checkIfFactoryClosed() {
