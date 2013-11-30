@@ -20,26 +20,21 @@ public class DatabaseInvocationHandler implements InvocationHandler {
         JSONWriter logWriter = null;
         Throwable targetException = null;
         try {
-            logWriter = new JSONWriter();
-            logWriter.logTimestamp();
-            logWriter.logClass(innerObject.getClass());
-            logWriter.logMethod(method);
-            logWriter.logArguments(args);
-        } catch (Exception e) {
-            //
-        }
-        try {
             result = method.invoke(innerObject, args);
-            if (!method.getReturnType().equals(void.class)) {
-                logWriter.logReturnValue(result);
-            }
         } catch (InvocationTargetException e) {
             targetException = e.getTargetException();
             throw targetException;
         } finally {
             try {
+                logWriter = new JSONWriter();
+                logWriter.logTimestamp();
+                logWriter.logClass(innerObject.getClass());
+                logWriter.logMethod(method);
+                logWriter.logArguments(args);
                 if (targetException != null) {
                     logWriter.logThrown(targetException);
+                } else if (!method.getReturnType().equals(void.class)) {
+                    logWriter.logReturnValue(result);
                 }
                 if (!method.getDeclaringClass().equals(Object.class)) {
                     writer.write(logWriter.getStringRepresentation() + "\n");
