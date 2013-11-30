@@ -25,11 +25,7 @@ public class XMLLoggingProxyInvocationHandler implements InvocationHandler {
 
     void writeIterable(Iterable object) throws XMLStreamException {
         if (identityHashMap.get(object) != null) {
-            writer.writeStartElement("list");
-            writer.writeStartElement("value");
             writer.writeCharacters("cyclic");
-            writer.writeEndElement();
-            writer.writeEndElement();
         } else {
             identityHashMap.put(object, true);
             writer.writeStartElement("list");
