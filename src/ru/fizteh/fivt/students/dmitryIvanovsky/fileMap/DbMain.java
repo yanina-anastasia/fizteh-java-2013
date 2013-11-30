@@ -17,38 +17,6 @@ public class DbMain {
         //args = new String[]{"get ключ; get key; get 123"};
         //String path = "/home/deamoon/Music/deamoonSql";
 
-//        FileMapLoggingFactory f = new FileMapLoggingFactory();
-//
-//        Writer a = new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"));
-//        //Writer a = new OutputStreamWriter(new FileOutputStream("/home/deamoon/Videos/4.txt"));
-//        //Writer w = new PrintWriter();
-//        //a.write("!23");
-//        //a.flush();
-//
-//        FileMapProviderFactory factory = new FileMapProviderFactory();
-//        TableProviderFactory b = (TableProviderFactory) f.wrap(a, factory, TableProviderFactory.class);
-//        b.create("table");
-//        a.flush();
-//        System.exit(1);
-
-//        JSONObject record = new JSONObject();
-//        FileMapProviderFactory factory = new FileMapProviderFactory();
-//        FileMapProvider v = (FileMapProvider) factory.create("/home/deamoon/Music/deamoonSql/table");
-//        List<Class<?>> list2 = new ArrayList<>();
-//        list2.add(Integer.class);
-//        list2.add(Long.class);
-//        list2.add(Byte.class);
-//        FileMap q = (FileMap) v.createTable("table", list2);
-//        record.put("key", "key");
-//        System.out.println(record);
-//        String r = v.createFor(q).toString();
-//        record.put("key2", r);
-//        //record.put("key2", "Gwuefyg[,,]");
-//
-//        System.out.println(record);
-
-        //System.exit(0);
-
         try {
             String path = System.getProperty("fizteh.db.dir");
             if (path == null) {

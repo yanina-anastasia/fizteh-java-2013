@@ -34,7 +34,7 @@ public class FileMapProviderFactory implements TableProviderFactory, AutoCloseab
                 }
             }
         } catch (Exception e) {
-            throw new IOException(dir + " not exists");
+            throw new IOException(dir + " not exists (exception) " + e.getMessage());
         }
         if (!file.isDirectory()) {
             throw new IllegalArgumentException(dir + " isn't directory");
