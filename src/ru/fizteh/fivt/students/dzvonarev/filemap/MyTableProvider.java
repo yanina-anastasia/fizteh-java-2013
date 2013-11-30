@@ -17,9 +17,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyTableProvider implements TableProvider, AutoCloseable {
 
-    public MyTableProvider(String dir) throws RuntimeException, IOException {
+    public MyTableProvider(String dir, MyTableProviderFactory currFactory) throws RuntimeException, IOException {
         isProviderClosed = false;
         workingDirectory = dir;
+        factory = currFactory;
         currTable = null;
         multiFileMap = new HashMap<>();
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
@@ -36,6 +37,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private Lock readLock;
     private Lock writeLock;
     private volatile boolean isProviderClosed;
+    private MyTableProviderFactory factory;
 
     public void initTypeToString() {
         typeToString = new HashMap<>();
@@ -274,6 +276,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                 MyTable value = currItem.getValue();
                 value.close();
             }
+            factory.removeProvider(this);
             isProviderClosed = true;
         } finally {
             writeLock.unlock();
