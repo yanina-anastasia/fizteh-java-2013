@@ -150,6 +150,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
 
         Value oldValue = diff.get().getValue(key);
         diff.get().change(key, value);
+        diff.get().incUnsavedChangesNumber();
 
         return oldValue;
     }
