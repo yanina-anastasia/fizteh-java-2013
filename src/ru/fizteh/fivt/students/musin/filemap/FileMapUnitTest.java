@@ -955,9 +955,11 @@ public class FileMapUnitTest {
                 InterfaceToProxy.class
         );
         proxy.argumentReceiver(3, 2.5, true);
-        Assert.assertTrue(writer.toString().contains("<argument>3</argument><argument>2.5</argument><argument>true</argument>"));
-        proxy.argumentReceiver("hello", 1000000000000l, (float) 123.4);
-        Assert.assertTrue(writer.toString().contains("<argument>hello</argument><argument>1000000000000</argument><argument>123.4</argument>"));
+        Assert.assertTrue(writer.toString().contains("<argument>3</argument><argument>2.5</argument>"
+                + "<argument>true</argument>"));
+        proxy.argumentReceiver("hello", 1000000000000L, (float) 123.4);
+        Assert.assertTrue(writer.toString().contains("<argument>hello</argument><argument>1000000000000</argument>"
+                + "<argument>123.4</argument>"));
     }
 
     @Test
@@ -988,7 +990,8 @@ public class FileMapUnitTest {
         a.add(2);
         a.add(3);
         proxy.voidResultMethod(a);
-        Assert.assertTrue(writer.toString().contains("<argument><list><value>1</value><value>2</value><value>3</value></list></argument>"));
+        Assert.assertTrue(writer.toString().contains("<argument><list><value>1</value><value>2</value>"
+                + "<value>3</value></list></argument>"));
     }
 
     @Test
@@ -1007,8 +1010,8 @@ public class FileMapUnitTest {
         b.add("goodbye");
         b.add(a);
         proxy.voidResultMethod(a);
-        Assert.assertTrue(writer.toString().contains("<list><value>hello</value><value><list><value>goodbye</value>" +
-                "<value>cyclic</value></list></value></list>"));
+        Assert.assertTrue(writer.toString().contains("<list><value>hello</value><value><list><value>goodbye</value>"
+                + "<value>cyclic</value></list></value></list>"));
     }
 
     @Test(expected = IllegalArgumentException.class)
