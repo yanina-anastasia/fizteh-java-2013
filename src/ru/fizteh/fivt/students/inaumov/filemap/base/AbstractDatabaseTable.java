@@ -100,12 +100,12 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         }
     };
 
-	private final String tableName;
-	private final String tableDir;
+    private final String tableName;
+    private final String tableDir;
 
-	protected abstract void loadTable() throws IOException;
+    protected abstract void loadTable() throws IOException;
 
-	protected abstract void saveTable() throws IOException;
+    protected abstract void saveTable() throws IOException;
 
 	public AbstractDatabaseTable(String tableDir, String tableName) {
 		if (FileMapUtils.isStringNullOrEmpty(tableDir)) {
