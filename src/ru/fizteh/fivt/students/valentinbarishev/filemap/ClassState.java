@@ -4,8 +4,9 @@ public class ClassState {
     static final int CLOSED = 1;
     static final int OPEND = 0;
 
-    private int state = OPEND;
+    private volatile int state = OPEND;
     private Object parent = null;
+    private Object lock = new Object();
 
     public ClassState(Object newParent, int newState) {
         state = newState;
@@ -34,4 +35,5 @@ public class ClassState {
     public boolean isClosed() {
         return (state == CLOSED);
     }
+
 }
