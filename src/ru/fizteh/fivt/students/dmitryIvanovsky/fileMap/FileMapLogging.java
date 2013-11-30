@@ -50,13 +50,12 @@ public class FileMapLogging implements InvocationHandler {
                 returnedValue = method.invoke(object, args);
             } catch (InvocationTargetException e) {
                 record.put("thrown", e.getTargetException().toString());
-                throw e.getTargetException();
-            } finally {
                 try {
                     writer.write(record.toString() + System.lineSeparator());
-                } catch (IOException e) {
+                } finally {
                     //pass
                 }
+                throw e.getTargetException();
             }
 
             if (!method.getReturnType().equals(void.class)) {
@@ -71,7 +70,11 @@ public class FileMapLogging implements InvocationHandler {
                     }
                 }
             }
-            writer.write(record.toString() + System.lineSeparator());
+            try {
+                writer.write(record.toString() + System.lineSeparator());
+            } finally {
+                //pass
+            }
 
         }
         return returnedValue;
