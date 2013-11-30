@@ -22,18 +22,18 @@ public class MyInvocationHandler implements InvocationHandler {
         }
 
         Object result = null;
-        MyLogWriter log = new MyLogWriter(implementation, method, args);
+        Throwable exception = null;
         try {
             result = method.invoke(implementation, args);
-            log.setReturnValue(result);
         } catch (InvocationTargetException e) {
-            Throwable exception = e.getTargetException();
-            log.setException(exception);
+            exception = e.getTargetException();
             throw exception;
         } finally {
             try {
-                writer.write(log.write());
-                writer.write(System.lineSeparator());
+                MyLogWriter log = new MyLogWriter(implementation, method, args);
+                log.setException(exception);
+                log.setReturnValue(result);
+                writer.write(log.write() + System.lineSeparator());
                 writer.flush();
             } catch (Exception e) {
                 //silent

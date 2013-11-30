@@ -24,9 +24,7 @@ public class ClassState {
     }
 
     public void close() {
-        synchronized (lock) {
-            state = CLOSED;
-        }
+        state = CLOSED;
     }
 
     public boolean isClosed() {

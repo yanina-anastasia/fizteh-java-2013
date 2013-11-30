@@ -19,6 +19,7 @@ public class InvocationHandlerTest {
     static TableProvider provider;
     static List<Class<?>> types;
     static MyLoggingProxyFactory logFactory;
+    public StringWriter writer;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -30,28 +31,31 @@ public class InvocationHandlerTest {
         logFactory = new MyLoggingProxyFactory();
     }
 
+    @Before
+    public void before() {
+        writer = new StringWriter();
+    }
+
     @Test
     public void testFactory() throws IOException {
-        Writer writer = new StringWriter();
         TableProviderFactory proxyFactory = (TableProviderFactory) logFactory.wrap(writer,
                 factory, TableProviderFactory.class);
+        Assert.assertNotNull(proxyFactory);
 
         provider = proxyFactory.create(folder.newFolder("folder").getCanonicalPath());
+        Assert.assertNotNull(provider);
 
         types = new ArrayList<>();
         types.add(String.class);
         types.add(Integer.class);
 
         table = provider.createTable("simple", types);
-
-
         writer.flush();
         System.out.println(writer.toString());
     }
 
     @Test
     public void testProvider() throws IOException {
-        Writer writer = new StringWriter();
         TableProviderFactory factory = new MyTableProviderFactory();
         provider = factory.create(folder.newFolder("folder").getCanonicalPath());
 
@@ -72,7 +76,6 @@ public class InvocationHandlerTest {
 
     @Test
     public void testProviderError() throws IOException {
-        Writer writer = new StringWriter();
         TableProviderFactory factory = new MyTableProviderFactory();
         provider = factory.create(folder.newFolder("folder").getCanonicalPath());
 
@@ -94,7 +97,6 @@ public class InvocationHandlerTest {
 
     @Test
     public void testTestInterface() throws IOException {
-        Writer writer = new StringWriter();
         List<Object> list = new ArrayList<>();
         list.add(list);
         list.add(new Integer(123));
@@ -120,8 +122,6 @@ public class InvocationHandlerTest {
 
     @Test
     public void testNested() throws IOException {
-        Writer writer = new StringWriter();
-
         List<Object> array = new ArrayList<>();
         array.add(null);
         ArrayList<Object> nestedList = new ArrayList<>();
@@ -139,7 +139,6 @@ public class InvocationHandlerTest {
 
     @Test
     public void proxyOfDbTypes() throws IOException {
-        Writer writer = new StringWriter();
         TableProviderFactory factory = new MyTableProviderFactory();
         provider = factory.create(folder.newFolder("folder").getCanonicalPath());
 
@@ -162,5 +161,4 @@ public class InvocationHandlerTest {
         writer.flush();
         System.out.println(writer.toString());
     }
-
 }
