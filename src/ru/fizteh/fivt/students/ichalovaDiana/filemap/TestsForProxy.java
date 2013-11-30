@@ -97,7 +97,7 @@ public class TestsForProxy {
         wrappedList.add(a);
         wrappedList.add(a);
 
-        Assert.assertTrue(writer.toString().matches(".*\n.*\n"));
+        Assert.assertTrue(writer.toString().matches(".*" + System.lineSeparator() + ".*" + System.lineSeparator()));
     }
     
     @Test

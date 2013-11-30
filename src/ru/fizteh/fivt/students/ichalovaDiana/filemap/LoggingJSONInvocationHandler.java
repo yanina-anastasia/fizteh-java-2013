@@ -54,7 +54,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             log.put("thrown", targetException.toString());
-            writer.write(log.toString() + '\n');
+            writer.write(log.toString() + System.lineSeparator());
             throw targetException;
         } catch (Exception e) {
         }
@@ -64,7 +64,7 @@ public class LoggingJSONInvocationHandler implements InvocationHandler {
         }
         
         try {
-            writer.write(log.toString() + '\n');
+            writer.write(log.toString() + System.lineSeparator());
         } catch (Exception e) {
         }
         
