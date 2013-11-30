@@ -282,9 +282,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         }
         writeLock.lock();
         try {
-            if (isProviderClosed) {
-                return;
-            }
             Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
             for (Map.Entry<String, MyTable> currItem : fileSet) {
                 MyTable value = currItem.getValue();
