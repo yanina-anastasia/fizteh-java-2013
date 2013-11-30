@@ -31,7 +31,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private final ReentrantLock locker = new ReentrantLock(true);
 
     HashMap<String, MyTable> tables;
-    public HashMap<String, Boolean> isTableClosed;
+    HashMap<String, Boolean> isTableClosed;
     Path dbPath;
     boolean isClosed;
 

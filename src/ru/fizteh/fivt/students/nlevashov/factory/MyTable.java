@@ -460,8 +460,8 @@ public class MyTable implements Table, AutoCloseable {
     public void close() {
         if (!isClosed) {
             rollback();
-            isClosed = true;
             provider.isTableClosed.put(tableName, true);
+            isClosed = true;
         }
     }
 
