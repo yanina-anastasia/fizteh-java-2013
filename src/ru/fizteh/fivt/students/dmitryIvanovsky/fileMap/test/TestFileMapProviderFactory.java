@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-
 public class TestFileMapProviderFactory {
 
     private FileMapProviderFactory multiMapFactory;
