@@ -48,7 +48,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("TableProvider.constructor: bad table name \"" + name + "\"");
         }
         if (!Files.exists(dbPath)) {
-            if (!path.toFile().getCanonicalFile().mkdir()) {
+            if (!path.toFile().getCanonicalFile().mkdirs()) {
                 throw new IOException("Directory \"" + path.getFileName() + "\" wasn't created");
             }
         } else if (!Files.isDirectory(dbPath)) {
