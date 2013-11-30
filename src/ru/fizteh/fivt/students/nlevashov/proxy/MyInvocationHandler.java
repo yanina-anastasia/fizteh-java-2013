@@ -85,57 +85,61 @@ public class MyInvocationHandler implements InvocationHandler {
 
     private JSONArray getJSONArrayFromArray(Object[] args, IdentityHashMap<Object, Object> map) {
         JSONArray a = new JSONArray();
-        map.put(args, null);
-        for (Object arg : args) {
-            if (arg == null) {
-                a.put(arg);
-            } else if (map.containsKey(arg)) {
-                a.put("cyclic");
-            } else if (arg.getClass().isArray()) {
-                try {
-                    a.put(getJSONArrayFromArray((Object[]) arg, map));
-                } catch (ClassCastException e) {
-                    a.put(arg.toString());
+        if (args == null) {
+            map.put(args, null);
+            for (Object arg : args) {
+                if (arg == null) {
+                    a.put(arg);
+                } else if (map.containsKey(arg)) {
+                    a.put("cyclic");
+                } else if (arg.getClass().isArray()) {
+                    try {
+                        a.put(getJSONArrayFromArray((Object[]) arg, map));
+                    } catch (ClassCastException e) {
+                        a.put(arg.toString());
+                    }
+                } else if (Iterable.class.isAssignableFrom(arg.getClass())) {
+                    try {
+                        a.put(getJSONArrayFromIterable((Iterable<?>) arg, map));
+                    } catch (ClassCastException e) {
+                        a.put(arg.toString());
+                    }
+                } else {
+                    a.put(arg);
                 }
-            } else if (Iterable.class.isAssignableFrom(arg.getClass())) {
-                try {
-                    a.put(getJSONArrayFromIterable((Iterable<?>) arg, map));
-                } catch (ClassCastException e) {
-                    a.put(arg.toString());
-                }
-            } else {
-                a.put(arg);
             }
+            map.remove(args);
         }
-        map.remove(args);
         return a;
     }
 
     private JSONArray getJSONArrayFromIterable(Iterable<?> args, IdentityHashMap<Object, Object> map) {
         JSONArray a = new JSONArray();
-        map.put(args, null);
-        for (Object arg : args) {
-            if (arg == null) {
-                a.put(arg);
-            } else if (map.containsKey(arg)) {
-                a.put("cyclic");
-            } else if (arg.getClass().isArray()) {
-                try {
-                    a.put(getJSONArrayFromArray((Object[]) arg, map));
-                } catch (ClassCastException e) {
-                    a.put(arg.toString());
+        if (args == null) {
+            map.put(args, null);
+            for (Object arg : args) {
+                if (arg == null) {
+                    a.put(arg);
+                } else if (map.containsKey(arg)) {
+                    a.put("cyclic");
+                } else if (arg.getClass().isArray()) {
+                    try {
+                        a.put(getJSONArrayFromArray((Object[]) arg, map));
+                    } catch (ClassCastException e) {
+                        a.put(arg.toString());
+                    }
+                } else if (Iterable.class.isAssignableFrom(arg.getClass())) {
+                    try {
+                        a.put(getJSONArrayFromIterable((Iterable<?>) arg, map));
+                    } catch (ClassCastException e) {
+                        a.put(arg.toString());
+                    }
+                } else {
+                    a.put(arg);
                 }
-            } else if (Iterable.class.isAssignableFrom(arg.getClass())) {
-                try {
-                    a.put(getJSONArrayFromIterable((Iterable<?>) arg, map));
-                } catch (ClassCastException e) {
-                    a.put(arg.toString());
-                }
-            } else {
-                a.put(arg);
             }
+            map.remove(args);
         }
-        map.remove(args);
         return a;
     }
 }
