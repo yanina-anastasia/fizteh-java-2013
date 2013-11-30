@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.elenarykunova.filemap;
+package ru.fizteh.fivt.students.elenarykunova.filemap.tests;
 
 import static org.junit.Assert.*;
 
@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.students.elenarykunova.filemap.*;
 
 public class MyStoreableTest {
 
@@ -252,5 +253,17 @@ public class MyStoreableTest {
     public void testSetStringInegerShouldFail() {
         int i = 42;
         stor.setColumnAt(2, i);
+    }
+    
+    @Test
+    public void toStringTest() {
+        stor.setColumnAt(0, 10);
+        stor.setColumnAt(1, 1.5);
+        stor.setColumnAt(2, "string");
+        stor.setColumnAt(3, null);
+        stor.setColumnAt(4, null);
+        stor.setColumnAt(5, true);
+        stor.setColumnAt(6, 10L);
+        assertEquals("MyStoreable[10,1.5,string,,,true,10]", stor.toString());
     }
 }

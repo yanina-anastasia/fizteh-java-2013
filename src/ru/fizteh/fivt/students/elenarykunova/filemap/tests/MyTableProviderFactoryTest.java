@@ -1,4 +1,4 @@
-package ru.fizteh.fivt.students.elenarykunova.filemap;
+package ru.fizteh.fivt.students.elenarykunova.filemap.tests;
 
 import static org.junit.Assert.*;
 
@@ -11,6 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.junit.rules.TemporaryFolder;
+import ru.fizteh.fivt.students.elenarykunova.filemap.*;
 
 public class MyTableProviderFactoryTest {
 
@@ -91,5 +92,48 @@ public class MyTableProviderFactoryTest {
             }
         }
     }
+    
+    @Test (expected = IllegalStateException.class)
+    public void closeCreate() throws Exception {
+        MyTableProviderFactory factory = new MyTableProviderFactory();
+        factory.close();
+        factory.create(existingDir.getAbsolutePath());
+    }
+
+    @Test
+    public void close() throws Exception {
+        MyTableProviderFactory factory = new MyTableProviderFactory();
+        factory.close();
+        factory.close();
+    }
+    
+    @Test
+    public void closeAll() throws Exception {
+        MyTableProviderFactory factory = new MyTableProviderFactory();
+        MyTableProvider prov1 = (MyTableProvider) factory.create(existingDir.getParent());
+        MyTableProvider prov2 = (MyTableProvider) factory.create(existingDir.getParent());
+        MyTableProvider prov3 = (MyTableProvider) factory.create(existingDir.getParent());
+        factory.close();
+        try {
+            prov1.getTable("table1");
+            fail("expected IllegalStateException in provider.getTable() after closing provider");
+        } catch (IllegalStateException e1) {
+            // ok;
+        }
+        try {
+            prov2.getTable("table2");
+            fail("expected IllegalStateException in provider.getTable() after closing provider");
+        } catch (IllegalStateException e1) {
+            // ok;
+        }
+        try {
+            prov3.getTable("table3");
+            fail("expected IllegalStateException in provider.getTable() after closing provider");
+        } catch (IllegalStateException e1) {
+            // ok;
+        }
+
+    }
+
 }
 
