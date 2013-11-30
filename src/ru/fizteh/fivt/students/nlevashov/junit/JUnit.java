@@ -18,7 +18,7 @@ public class JUnit {
     TableProvider provider;
     Table table;
 
-/*    @Rule
+    @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Before
@@ -705,5 +705,5 @@ public class JUnit {
         values.add(777);
         Storeable s = new Storable(types, values);
         s.getStringAt(1);
-    }                                         */
+    }
 }
