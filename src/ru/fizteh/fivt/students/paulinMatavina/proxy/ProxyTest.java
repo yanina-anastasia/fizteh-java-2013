@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 import javax.xml.stream.XMLStreamException;
 
+import ru.fizteh.fivt.students.paulinMatavina.filemap.*;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +50,17 @@ public class ProxyTest {
         wrapped.justThrowException();
         checkXMLLog("justThrowException", "<arguments></arguments>" 
         + "<thrown>java.lang.Exception: what if i throw it?</thrown>");
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testNotImplementingClass() {
+        factory.wrap(writer, new MyTableProviderFactory(), TestInterface.class);
+    }
+    
+    @Test
+    public void testNewLineSymbol() throws XMLStreamException {
+        wrapped.takeStringDoNothing("\n");
+        checkXMLLog("takeStringDoNothing", "<arguments><argument>\n</argument></arguments>");
     }
     
     @Test
