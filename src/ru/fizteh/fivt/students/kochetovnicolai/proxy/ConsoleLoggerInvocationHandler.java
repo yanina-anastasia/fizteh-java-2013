@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -68,20 +67,17 @@ class ConsoleLoggerInvocationHandler implements InvocationHandler {
     }
 
     private void writeJSONObject(JSONObject object, Object returned) {
-        String toWrite;
         if (returned == null) {
-            StringWriter stringWriter = new StringWriter();
-            stringWriter.write(object.toString());
-            toWrite = stringWriter.toString().replaceFirst("\\{", "{\"returnValue\":null,");
+            Object jsonNull = JSONObject.NULL;
+            object.put("returnValue", jsonNull);
         } else {
             if (!returned.equals(Void.class)) {
                 object.put("returnValue", returned);
             }
-            toWrite = object.toString();
         }
         lock.lock();
         try {
-            writer.write(toWrite);
+            object.write(writer);
             writer.write(System.lineSeparator());
         } catch (IOException e) {
             ioException = ioException == null ? e : ioException;
