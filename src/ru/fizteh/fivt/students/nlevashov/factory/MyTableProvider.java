@@ -32,7 +32,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     HashMap<String, MyTable> tables;
     Path dbPath;
-    boolean isClosed;
+    volatile boolean isClosed;
 
     /**
      * Конструктор. Составляет список таблиц в базе

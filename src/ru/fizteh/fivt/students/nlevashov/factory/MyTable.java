@@ -31,7 +31,7 @@ public class MyTable implements Table, AutoCloseable {
     String tableName;
     List<Class<?>> types;
     MyTableProvider provider;
-    boolean isClosed;
+    volatile boolean isClosed;
 
     ThreadLocal<HashMap<String, Storeable>> rewritings;
     ThreadLocal<HashSet<String>> removings;

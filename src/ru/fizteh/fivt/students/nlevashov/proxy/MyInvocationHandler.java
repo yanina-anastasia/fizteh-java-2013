@@ -36,8 +36,8 @@ public class MyInvocationHandler implements InvocationHandler {
             exception = e.getTargetException();
         }
 
-        JSONObject log = new JSONObject();
         try {
+            JSONObject log = new JSONObject();
             log.put("timestamp", System.currentTimeMillis());
             log.put("class", implementation.getClass().getName());
             log.put("method", method.getName());

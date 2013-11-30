@@ -20,7 +20,7 @@ public class MyTableProviderFactory implements TableProviderFactory, AutoCloseab
     private final ReentrantLock locker = new ReentrantLock(true);
 
     HashMap<String, MyTableProvider> providers;
-    boolean isClosed;
+    volatile boolean isClosed;
 
     public MyTableProviderFactory() {
         providers = new HashMap<>();
