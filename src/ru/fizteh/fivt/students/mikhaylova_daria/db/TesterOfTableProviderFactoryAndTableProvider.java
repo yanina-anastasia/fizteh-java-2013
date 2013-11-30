@@ -393,6 +393,8 @@ public class TesterOfTableProviderFactoryAndTableProvider {
         }
     }
 
+
+
     @Test
     public void doubleGetTableEquals() {
         TableManager provider = null;
