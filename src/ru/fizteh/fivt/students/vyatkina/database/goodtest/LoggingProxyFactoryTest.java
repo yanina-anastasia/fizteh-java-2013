@@ -101,6 +101,7 @@ public class LoggingProxyFactoryTest {
         XmasWizard proxy = (XmasWizard) factory.wrap(writer,xmasWizard,interfaceClass);
         proxy.deliverPresent(Anny,null);
         Assert.assertEquals("He should be happy", true, proxy.beHappy());
+        proxy.deliverPresent(Anny, new Present ("Cat"));
     }
 
     @Test

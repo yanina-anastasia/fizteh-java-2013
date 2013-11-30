@@ -76,6 +76,7 @@ public class XMLLoggerInvocationHandler implements InvocationHandler {
 
         finally {
             writer.writeEndElement();
+            writer.writeCharacters(System.lineSeparator());
             writer.flush();
         }
     }
