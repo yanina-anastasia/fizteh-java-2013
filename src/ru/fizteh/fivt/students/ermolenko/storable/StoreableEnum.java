@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +78,7 @@ public enum StoreableEnum {
         dataBaseCorrectNamesOfClasses = Collections.unmodifiableMap(tmp);
     }
 
-    public static Class<?> getClassByName(String name) throws IOException {
+    public static Class<?> getClassByName(String name) {
 
         name = name.toLowerCase();
         if (name.equals("integer")) {
@@ -90,7 +89,7 @@ public enum StoreableEnum {
         }
         StoreableEnum types = dataBaseNamesToType.get(name);
         if (types == null) {
-            throw new IOException("I don't know this type name");
+            throw new IllegalArgumentException("I don't know this type name");
         }
         return types.theClass;
     }
