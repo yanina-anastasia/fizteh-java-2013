@@ -53,9 +53,14 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     if (result == null) {
                         jsonLog.put("returnValue", result);
                     } else {
-                        JSONArray array = new JSONArray();
-                        writeArgument(array, result);
-                        jsonLog.put("returnValue", array);
+                        if (result.getClass().isArray() || result instanceof Iterable) {
+                            JSONArray array = new JSONArray();
+                            writeArgument(array, result);
+                            jsonLog.put("returnValue", array);
+                        } else {
+                            jsonLog.put("returnValue", result);
+                        }
+
 
                     }
                 } else {
