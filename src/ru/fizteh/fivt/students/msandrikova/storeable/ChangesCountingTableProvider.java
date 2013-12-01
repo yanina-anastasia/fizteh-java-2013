@@ -10,6 +10,6 @@ public interface ChangesCountingTableProvider extends TableProvider {
     
     ChangesCountingTable getTable(String name) throws IllegalArgumentException;
 
-	void close() throws IllegalStateException;
+	void close();
 
 }

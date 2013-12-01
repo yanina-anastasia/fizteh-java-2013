@@ -8,13 +8,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class StoreableTableProviderFactory implements ChangesCountingTableProviderFactory {
+public class StoreableTableProviderFactory implements ChangesCountingTableProviderFactory, AutoCloseable {
 	private boolean isClosed = false;
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 	private Set<ChangesCountingTableProvider> providers = new HashSet<ChangesCountingTableProvider>();
 
     @Override
-    public ChangesCountingTableProvider create(String dir) throws IllegalArgumentException, IOException, IllegalStateException {
+    public ChangesCountingTableProvider create(String dir) 
+    		throws IllegalArgumentException, IOException, IllegalStateException {
     	this.checkIsClosed();
         if (Utils.isEmpty(dir)) {
             throw new IllegalArgumentException("Directory can not be null.");

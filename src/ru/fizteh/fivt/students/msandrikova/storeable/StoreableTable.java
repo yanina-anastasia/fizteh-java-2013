@@ -24,7 +24,7 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class StoreableTable implements ChangesCountingTable {
+public class StoreableTable implements ChangesCountingTable, AutoCloseable {
 	private boolean isClosed;
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private StoreableTableProvider tableProvider;
@@ -550,6 +550,7 @@ public class StoreableTable implements ChangesCountingTable {
     	this.lock.readLock().unlock();
     }
     
+    @Override
     public void close() throws IllegalStateException {
     	this.checkIsClosed();
     	
@@ -559,6 +560,16 @@ public class StoreableTable implements ChangesCountingTable {
     	this.isClosed = true;
     	this.tableProvider.deleteTableFromProvider(this.name);
     	this.lock.writeLock().unlock();	
+    }
+    
+    @Override
+    public String toString() throws IllegalStateException {
+    	this.checkIsClosed();
+    	
+    	String className = this.getClass().getSimpleName();
+    	String tablePath = this.tablePath.getAbsolutePath();
+    	
+    	return className + "[" + tablePath + "]";
     }
     
 }

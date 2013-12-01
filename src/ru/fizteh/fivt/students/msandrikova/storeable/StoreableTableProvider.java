@@ -18,7 +18,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
-public class StoreableTableProvider implements ChangesCountingTableProvider {
+public class StoreableTableProvider implements ChangesCountingTableProvider, AutoCloseable {
 	private boolean isClosed;
     private File currentDirectory;
     private Map<String, ChangesCountingTable> mapOfTables = new HashMap<String, ChangesCountingTable>(); 
@@ -187,7 +187,8 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
     }
 
     @Override
-    public ChangesCountingTable createTable(String name, List<Class<?>> columnTypes) throws IOException, IllegalStateException {
+    public ChangesCountingTable createTable(String name, List<Class<?>> columnTypes) 
+    		throws IOException, IllegalStateException {
     	this.checkIsClosed();
         if (Utils.isEmpty(name) || !Utils.testBadSymbols(name)) {
             throw new IllegalArgumentException("Table name can not be null "
@@ -234,6 +235,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
     	this.lock.readLock().unlock();
     }
     
+    @Override
     public void close() throws IllegalStateException {
     	this.checkIsClosed();
     	
@@ -244,5 +246,15 @@ public class StoreableTableProvider implements ChangesCountingTableProvider {
     	
     	this.isClosed = true;
     	this.lock.writeLock().unlock();
+    }
+    
+    @Override
+    public String toString() throws IllegalStateException {
+    	this.checkIsClosed();
+    	
+    	String className = this.getClass().getSimpleName();
+    	String providerPath = this.currentDirectory.getAbsolutePath();
+    	
+    	return className + "[" + providerPath + "]";
     }
 }

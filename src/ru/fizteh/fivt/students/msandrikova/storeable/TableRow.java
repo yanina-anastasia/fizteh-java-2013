@@ -112,5 +112,22 @@ public class TableRow implements Storeable {
         }
         return o.toString();
     }
+    
+    @Override
+    public String toString() {
+    	String className = this.getClass().getSimpleName();
+    	String answer = className + "[";
+    	boolean first = true;
+    	for(Object o : this.row) {
+    		if(!first) {
+    			answer += ",";
+    		}
+    		if(o != null) {
+    			answer += o.toString();
+    		}
+    	}
+    	answer += "]";
+    	return answer;
+    }
 
 }
