@@ -38,7 +38,7 @@ public class JSONHandler implements InvocationHandler {
         Object result = null;
         if (m.getDeclaringClass().equals(Object.class)) {
             try {
-                return m.invoke(obj, args);
+                result = m.invoke(obj, args);
             } catch (InvocationTargetException e) {
                 throw e.getTargetException();
             }
