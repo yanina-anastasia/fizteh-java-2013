@@ -23,7 +23,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         currTable = null;
         multiFileMap = new HashMap<>();
         ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-        readLock = readWriteLock.readLock();
         writeLock = readWriteLock.writeLock();
         initTypeToString();
         readData();
@@ -33,7 +32,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private String currTable;
     private HashMap<String, MyTable> multiFileMap;
     private HashMap<Class<?>, String> typeToString;
-    private Lock readLock;
     private Lock writeLock;
     private volatile boolean isProviderClosed;
 
@@ -157,7 +155,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         checkProviderClosed();
-        readLock.lock();
+        writeLock.lock();
         try {
             if (multiFileMap.get(tableName) != null) {
                 return multiFileMap.get(tableName);
@@ -169,10 +167,6 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                 MyTable newTable;
                 try {
                     newTable = new MyTable(dirTable, this);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                try {
                     newTable.readFileMap();
                 } catch (IOException | ParseException e) {
                     throw new RuntimeException(e);
@@ -181,7 +175,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                 return newTable;
             }
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
 
