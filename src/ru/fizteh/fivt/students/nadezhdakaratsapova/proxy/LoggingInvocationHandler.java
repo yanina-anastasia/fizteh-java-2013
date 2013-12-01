@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -85,11 +86,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     }
                 }
             } else {
-                /*if (arg.getClass().isArray()) {
-                    cmdArgs.put(arg.toString());
-                } else {   */
-                cmdArgs.put(arg);
-                //}
+                if (arg.getClass().isArray()) {
+                    writeArgument(new JSONArray(), Arrays.asList(arg));
+                } else {
+                    cmdArgs.put(arg);
+                }
             }
         }
     }
