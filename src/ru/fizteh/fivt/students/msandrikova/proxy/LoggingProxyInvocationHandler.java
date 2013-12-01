@@ -54,7 +54,7 @@ public class LoggingProxyInvocationHandler implements InvocationHandler {
 			throw thrown;
 		} finally {
 			builder.endXML();
-			writer.write(builder.toString() + "/n");
+			writer.write(builder.toString() + "\n");
 		}
 		return res;
 	}

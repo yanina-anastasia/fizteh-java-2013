@@ -24,8 +24,8 @@ public class XMLBuilder {
 		this.writer = factory.createXMLStreamWriter(stringWriter);
 		this.writer.writeStartElement("invoke");
 		this.writer.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
-		this.writer.writeNamespace("class", givenClass.getName());
-		this.writer.writeNamespace("name", givenMethod.getName());
+		this.writer.writeAttribute("class", givenClass.getName());
+		this.writer.writeAttribute("name", givenMethod.getName());
 		this.writeArgs(args);
 
 	}
@@ -49,19 +49,21 @@ public class XMLBuilder {
 	
 	private void writeArgs(Object[] args) throws XMLStreamException {
 		this.writer.writeStartElement("arguments");
-		for(Object o : args) {
-			this.writer.writeStartElement("argument");
-			if(o == null) {
-				this.writer.writeStartElement("null");
+		if (args != null) {
+			for (Object o : args) {
+				this.writer.writeStartElement("argument");
+				if (o == null) {
+					this.writer.writeStartElement("null");
+					this.writer.writeEndElement();
+				} else if(o instanceof List<?>) {
+					this.checkCyclic.clear();
+					this.checkCyclic.put(o, true);
+					this.writeList((List<?>) o);
+				} else {
+					this.writer.writeCharacters(o.toString());
+				}
 				this.writer.writeEndElement();
-			} else if(o instanceof List<?>) {
-				this.checkCyclic.clear();
-				this.checkCyclic.put(o, true);
-				this.writeList((List<?>) o);
-			} else {
-				this.writer.writeCharacters(o.toString());
 			}
-			this.writer.writeEndElement();
 		}
 		this.writer.writeEndElement();
 	}
