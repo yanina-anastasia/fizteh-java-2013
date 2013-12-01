@@ -7,7 +7,6 @@ import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             JSONArray methodArgs = new JSONArray();
             if (args != null) {
                 for (Object arg : args) {
-                    writeArgument(methodArgs, Arrays.asList(arg));
+                    writeArgument(methodArgs, arg);
                 }
             }
             jsonLog.put("arguments", methodArgs);
@@ -51,7 +50,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     }
                     if (result instanceof Iterable || result.getClass().isArray()) {
                         JSONArray array = new JSONArray();
-                        writeArgument(array, Arrays.asList(result));
+                        writeArgument(array, result);
                         jsonLog.put("returnValue", array);
                     }
                 }
@@ -65,17 +64,17 @@ public class LoggingInvocationHandler implements InvocationHandler {
         return result;
     }
 
-    public void writeArgument(JSONArray cmdArgs, Iterable arg) {
+    public void writeArgument(JSONArray cmdArgs, Object arg) {
         if (arg == null) {
             cmdArgs.put(arg);
         } else {
             if (arg instanceof Iterable) {
-                for (Object inArg : arg) {
+                for (Object inArg : (Iterable) arg) {
                     if (prevArgs.get().containsKey(arg)) {
                         cmdArgs.put("cyclic");
                     } else {
                         prevArgs.get().put(arg, true);
-                        writeArgument(new JSONArray(), Arrays.asList(inArg));
+                        writeArgument(new JSONArray(), inArg);
                     }
                 }
             } else {
