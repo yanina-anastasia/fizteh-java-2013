@@ -146,8 +146,7 @@ public class MyStoreable implements Storeable {
                 column.add(number.intValue());
             }
             if (type.equals(Long.class)) {
-                Long number = (Long) obj;
-                column.add(number.longValue());
+                column.add(Integer.class.cast(obj).longValue());
             }
             if (type.equals(Double.class)) {
                 Double number = (Double) obj;
