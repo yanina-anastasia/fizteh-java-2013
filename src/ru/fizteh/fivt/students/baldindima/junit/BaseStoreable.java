@@ -39,7 +39,8 @@ public class BaseStoreable implements Storeable {
     }
     
     public static Object parseObject(String string, String expectedClassName) throws ColumnFormatException {
-        try {
+        
+    	try {
                 switch (expectedClassName) {
                 case "Boolean":
                         return Boolean.parseBoolean(string);
@@ -106,15 +107,17 @@ public class BaseStoreable implements Storeable {
             throw new IndexOutOfBoundsException("wrong index");
         }
     }
+   
+
 
     public void setColumnAt(int columnIndex, Object value)
             throws ColumnFormatException, IndexOutOfBoundsException {
         checkIndex(columnIndex);
         if (value == null || value == JSONObject.NULL) {
             value = null;
+        } else {
+        	value  = parseObject(value.toString(), types.get(columnIndex).getSimpleName());
         }
-        value  = parseObject(value.toString(), types.get(columnIndex).getSimpleName());
-        
         
         values.set(columnIndex, value);
     }
