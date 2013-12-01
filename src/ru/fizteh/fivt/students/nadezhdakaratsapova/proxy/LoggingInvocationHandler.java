@@ -53,6 +53,8 @@ public class LoggingInvocationHandler implements InvocationHandler {
                         writeArgument(array, result);
                         jsonLog.put("returnValue", array);
                     }
+                } else {
+                    jsonLog.put("returnValue", JSONObject.NULL);
                 }
                 writer.get().write(jsonLog.toString(2));
                 writer.get().write(System.lineSeparator());
