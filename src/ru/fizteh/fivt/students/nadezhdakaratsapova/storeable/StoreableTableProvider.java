@@ -19,13 +19,15 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class StoreableTableProvider implements TableProvider, UniversalTableProvider {
+public class StoreableTableProvider implements TableProvider, UniversalTableProvider, AutoCloseable {
     public static final String TABLE_NAME = "[a-zA-Zа-яА-Я0-9]+";
     private File workingDirectory;
     public StoreableTable curDataBaseStorage = null;
+    private boolean closed = false;
     private Map<String, StoreableTable> dataBaseTables = new HashMap<String, StoreableTable>();
     private SignatureController signatureController = new SignatureController();
     private final ReadWriteLock tableWorkController = new ReentrantReadWriteLock();
@@ -55,12 +57,14 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
 
     public StoreableTable setCurTable(String newTable) throws IOException {
         try {
+            isClosed();
             StoreableTable dataTable = null;
             if (!dataBaseTables.isEmpty()) {
                 dataTable = dataBaseTables.get(newTable);
                 if (dataTable != null) {
                     tableWorkController.readLock().lock();
                     try {
+                        isClosed();
                         dataTable.load();
                     } finally {
                         tableWorkController.readLock().unlock();
@@ -68,6 +72,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
                     if (curDataBaseStorage != null) {
                         tableWorkController.writeLock().lock();
                         try {
+                            isClosed();
                             curDataBaseStorage.writeToDataBase();
                         } finally {
                             tableWorkController.writeLock().unlock();
@@ -83,6 +88,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
     }
 
     public StoreableTable getTable(String name) throws IllegalArgumentException {
+        isClosed();
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
@@ -91,6 +97,12 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         }
         tableWorkController.readLock().lock();
         try {
+            isClosed();
+            StoreableTable dataTable = dataBaseTables.get(name);
+            if (dataTable.isTableClosed()) {
+                StoreableTable newDataTable = new StoreableTable(dataTable);
+                return newDataTable;
+            }
             return dataBaseTables.get(name);
         } finally {
             tableWorkController.readLock().unlock();
@@ -98,6 +110,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
     }
 
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException, IllegalArgumentException {
+        isClosed();
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("create: the table has not allowed name");
         }
@@ -113,6 +126,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         signatureController.checkSignatureValidity(columnTypes);
         tableWorkController.writeLock().lock();
         try {
+            isClosed();
             if (dataBaseTables.get(name) != null) {
                 return null;
             } else {
@@ -137,6 +151,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
     }
 
     public void removeTable(String name) throws IOException, IllegalArgumentException {
+        isClosed();
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The table has not allowed name");
         }
@@ -146,12 +161,14 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         if (dataBaseTables.get(name) != null) {
             File table = new File(workingDirectory, name);
             try {
+                isClosed();
                 table = table.getCanonicalFile();
             } catch (IOException e) {
                 throw new IllegalArgumentException("Programme's mistake in getting canonical file");
             }
             tableWorkController.writeLock().lock();
             try {
+                isClosed();
                 CommandUtils.recDeletion(table);
                 dataBaseTables.remove(name);
             } catch (IOException e) {
@@ -166,6 +183,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
 
     public Storeable deserialize(Table table, String value) throws ParseException {
         try {
+            isClosed();
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(value));
             Storeable ret = createFor(table);
             int columnCounter = 0;
@@ -244,6 +262,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
 
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
         try {
+            isClosed();
             if (value == null) {
                 throw new IllegalArgumentException("Null value is not allowed");
             }
@@ -278,10 +297,12 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
     }
 
     public Storeable createFor(Table table) {
+        isClosed();
         return new StoreableDataValue(SignatureController.getColumnTypes(table));
     }
 
     public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+        isClosed();
         if (values == null) {
             throw new IllegalArgumentException("It's impossible to create storeable from null list");
         }
@@ -298,6 +319,34 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
 
     public UniversalDataTable getCurTable() {
         return curDataBaseStorage;
+    }
+
+    public String toString() {
+        isClosed();
+        return new String(this.getClass().getSimpleName() + "[" + workingDirectory.toString() + "]");
+    }
+
+    public void close() throws IOException {
+        if (!closed) {
+            Set<String> tableNames = dataBaseTables.keySet();
+            for (String name : tableNames) {
+                if (!dataBaseTables.get(name).isTableClosed()) {
+                    dataBaseTables.get(name).close();
+                }
+            }
+            closed = true;
+        }
+    }
+
+    public boolean isClosed() {
+        if (closed) {
+            throw new IllegalStateException("TableProvider is closed");
+        }
+        return closed;
+    }
+
+    public boolean isTableProviderClosed() {
+        return closed;
     }
 }
 
