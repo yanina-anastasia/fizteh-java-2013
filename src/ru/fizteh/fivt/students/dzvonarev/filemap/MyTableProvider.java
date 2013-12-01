@@ -149,7 +149,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     }
 
     @Override
-    public MyTable getTable(String tableName) throws IllegalArgumentException {
+    public Table getTable(String tableName) throws IllegalArgumentException {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
