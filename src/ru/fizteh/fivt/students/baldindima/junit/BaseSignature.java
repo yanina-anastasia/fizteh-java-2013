@@ -38,7 +38,7 @@ public class BaseSignature {
     	aTYPES.put(Float.class, "float");
     	aTYPES.put(Double.class, "double");
     	aTYPES.put(Boolean.class, "boolean");
-    	aTYPES.put(String.class, "string");
+    	aTYPES.put(String.class, "String");
     	CLASSES_TYPES = Collections.unmodifiableMap(aTYPES);
     	
     }
