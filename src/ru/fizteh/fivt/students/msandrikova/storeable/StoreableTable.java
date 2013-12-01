@@ -416,11 +416,9 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
 
     @Override
     public String getName() throws IllegalStateException { 
+    	this.checkIsClosed();
+    	
         lock.readLock().lock();
-        if (StoreableTable.this.tableProvider.getTable(StoreableTable.this.name) == null) {
-            lock.readLock().unlock();
-            throw new IllegalStateException("Table was removed.");
-        }
         String answer = StoreableTable.this.name;
         lock.readLock().unlock();
         return answer;
@@ -513,6 +511,7 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
     @Override
     public int getColumnsCount() throws IllegalStateException {
     	StoreableTable.this.checkIsClosed();
+    	
         lock.readLock().lock();
         int answer = 0;
         answer = this.columnTypes.size();
@@ -523,6 +522,7 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException, IllegalStateException {
     	StoreableTable.this.checkIsClosed();
+    	
         lock.readLock().lock();
         Class<?> answer = null;
         
