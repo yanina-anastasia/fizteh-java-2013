@@ -37,9 +37,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             jsonLog.put("method", method.getName());
             JSONArray methodArgs = new JSONArray();
             if (args != null) {
-                for (Object arg : args) {
-                    writeArgument(methodArgs, arg);
-                }
+                writeArgument(methodArgs, args);
             }
             jsonLog.put("arguments", methodArgs);
             try {
