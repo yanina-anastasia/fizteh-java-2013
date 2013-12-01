@@ -146,7 +146,55 @@ public class MyLoggingProxyFactoryTest {
         xmlStreamWriter.writeStartElement("arguments");
 
         xmlStreamWriter.writeStartElement("argument");
+
         xmlStreamWriter.writeStartElement("list");
+        xmlStreamWriter.writeStartElement("value");
+        xmlStreamWriter.writeCharacters("cyclic");
+        xmlStreamWriter.writeEndElement();
+        xmlStreamWriter.writeEndElement();
+
+        xmlStreamWriter.writeEndElement();
+
+        xmlStreamWriter.writeEndElement();
+
+        xmlStreamWriter.writeStartElement("return");
+        xmlStreamWriter.writeEmptyElement("null");
+        xmlStreamWriter.writeEndElement();
+
+        xmlStreamWriter.writeEndElement();
+        xmlStreamWriter.flush();
+
+        assertEquals(expectedWriter.toString() + System.getProperty("line.separator"), logWriter.toString());
+    }
+
+    @Test
+    public void testRunWithCycleNested() throws XMLStreamException {
+        MyInterface proxy = (MyInterface) proxyFactory.wrap(logWriter, impl, MyInterface.class);
+        List<Object> list = new ArrayList<>();
+        list.add(null);
+        ArrayList<Object> list2 = new ArrayList<>();
+        list.add(list2);
+        list2.add(list);
+        proxy.runCycle(list);
+
+        xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(expectedWriter);
+
+        xmlStreamWriter.writeStartElement("invoke");
+        xmlStreamWriter.writeAttribute("timestamp", timeStamp(logWriter.toString()));
+        xmlStreamWriter.writeAttribute("class", impl.getClass().getName());
+        xmlStreamWriter.writeAttribute("name", "runCycle");
+
+        xmlStreamWriter.writeStartElement("arguments");
+
+
+        xmlStreamWriter.writeStartElement("argument");
+
+        xmlStreamWriter.writeStartElement("list");
+
+        xmlStreamWriter.writeStartElement("value");
+        xmlStreamWriter.writeEmptyElement("null");
+        xmlStreamWriter.writeEndElement();
+
         xmlStreamWriter.writeStartElement("value");
         xmlStreamWriter.writeStartElement("list");
         xmlStreamWriter.writeStartElement("value");
@@ -154,8 +202,11 @@ public class MyLoggingProxyFactoryTest {
         xmlStreamWriter.writeEndElement();
         xmlStreamWriter.writeEndElement();
         xmlStreamWriter.writeEndElement();
+
         xmlStreamWriter.writeEndElement();
+
         xmlStreamWriter.writeEndElement();
+
 
         xmlStreamWriter.writeEndElement();
 
