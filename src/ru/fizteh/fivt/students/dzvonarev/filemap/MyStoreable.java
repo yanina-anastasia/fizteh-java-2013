@@ -11,6 +11,7 @@ public class MyStoreable implements Storeable {
 
     public MyStoreable(Table table, List<?> args) throws IndexOutOfBoundsException, ColumnFormatException {
         columnTypes = new ArrayList<>();
+        column = new ArrayList<>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
         }
@@ -22,12 +23,8 @@ public class MyStoreable implements Storeable {
             if (!myParser.canBeCastedTo(columnTypes.get(i), args.get(i))) {
                 throw new ColumnFormatException("wrong type (" + i + " column got wrong type - " + args.get(i) + ")");
             }
+            column.add(args.get(i));
         }
-        ArrayList<Object> temp = new ArrayList<>();      // if all OK we init column array
-        for (Object arg : args) {
-            temp.add(arg);
-        }
-        column = temp;
     }
 
     public MyStoreable(Table table) {
