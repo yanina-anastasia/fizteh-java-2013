@@ -94,6 +94,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             unsavedChangesNumber = 0;
         }
     }
+
     public final ThreadLocal<Diff> diff = new ThreadLocal<Diff>() {
         @Override
         public Diff initialValue() {
@@ -139,7 +140,14 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             throw new IllegalArgumentException("error: selected key is null");
         }
 
-        return diff.get().getValue(key);
+        try {
+            transactionLock.lock();
+
+            return diff.get().getValue(key);
+        } finally {
+            transactionLock.unlock();
+        }
+
     }
 
     public Value tablePut(Key key, Value value) {
@@ -150,13 +158,18 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             throw new IllegalArgumentException("error: selected value is null");
         }
 
-        Value oldValue = diff.get().getValue(key);
-        diff.get().change(key, value);
-        if (!isEqual(value, oldValue)) {
-            diff.get().incUnsavedChangesNumber();
-        }
+        try {
+            transactionLock.lock();
+            Value oldValue = diff.get().getValue(key);
+            diff.get().change(key, value);
+            if (!isEqual(value, oldValue)) {
+                diff.get().incUnsavedChangesNumber();
+            }
 
-        return oldValue;
+            return oldValue;
+        } finally {
+            transactionLock.unlock();
+        }
     }
 
     public Value tableRemove(Key key) throws IllegalArgumentException {
@@ -167,11 +180,16 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             return null;
         }
 
-        Value oldValue = diff.get().getValue(key);
-        diff.get().change(key, null);
-        diff.get().incUnsavedChangesNumber();
+        try {
+            transactionLock.lock();
+            Value oldValue = diff.get().getValue(key);
+            diff.get().change(key, null);
+            diff.get().incUnsavedChangesNumber();
 
-        return oldValue;
+            return oldValue;
+        } finally {
+            transactionLock.unlock();
+        }
     }
 
     public int tableCommit() {
