@@ -28,7 +28,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result;
-        if (!method.getDeclaringClass().equals(Object.class)) {
+        if (method.getDeclaringClass().equals(Object.class)) {
             result = method.invoke(implementation.get(), args);
         } else {
             JSONObject jsonLog = new JSONObject();
