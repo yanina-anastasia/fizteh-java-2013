@@ -24,6 +24,7 @@ public class LoggingProxyFactoryForDataBase implements LoggingProxyFactory {
         if (!interfaceClass.isAssignableFrom(implementation.getClass())) {
             throw new IllegalArgumentException("interfaceClass and implementation aren't connected");
         }
-        return Proxy.newProxyInstance(implementation.getClass().getClassLoader(), new Class[]{interfaceClass}, new LoggingInvocationHandler(writer, implementation));
+        return Proxy.newProxyInstance(implementation.getClass().getClassLoader(), new Class[]{interfaceClass},
+                new LoggingInvocationHandler(writer, implementation));
     }
 }
