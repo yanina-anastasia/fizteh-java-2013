@@ -70,10 +70,10 @@ public class LoggingInvocationHandler implements InvocationHandler {
         } else {
             if (arg instanceof Iterable) {
                 for (Object inArg : (Iterable) arg) {
-                    if (prevArgs.get().containsKey(arg)) {
+                    if (prevArgs.get().containsKey(inArg)) {
                         cmdArgs.put("cyclic");
                     } else {
-                        prevArgs.get().put(arg, true);
+                        prevArgs.get().put(inArg, true);
                         writeArgument(new JSONArray(), inArg);
                     }
                 }
