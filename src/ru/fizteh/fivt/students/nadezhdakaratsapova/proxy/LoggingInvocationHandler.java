@@ -82,9 +82,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
                         cmdArgs.put("cyclic");
                     } else {
                         prevArgs.get().put(inArg, true);
-                        JSONArray array = new JSONArray();
-                        writeArgument(array, inArg);
-                        cmdArgs.put(array);
+                        //JSONArray array = new JSONArray();
+                        writeArgument(cmdArgs, inArg);
+                        //cmdArgs.put(array);
                     }
                 }
             } else {
