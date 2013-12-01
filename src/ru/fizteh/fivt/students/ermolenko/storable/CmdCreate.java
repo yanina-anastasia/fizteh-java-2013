@@ -20,15 +20,17 @@ public class CmdCreate implements Command<StoreableState> {
         if (args.length != 2) {
             throw new IOException("incorrect number of arguments");
         }
-        if (!args[1].equals("[a-zA-Z0-9]+")) {
-            throw new IllegalArgumentException("wrong type (" + args[1] + ")");
-        }
+
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
 
         String[] types = args[1].trim().split("\\s+");
+        try {
+            for (String type : types) {
 
-        for (String type : types) {
-            columnTypes.add(StoreableUtils.convertStringToClass(type));
+                columnTypes.add(StoreableUtils.convertStringToClass(type));
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("wrong type (" + args[1] + ")");
         }
         try {
             if (inState.createTable(args[0], columnTypes) != null) {
