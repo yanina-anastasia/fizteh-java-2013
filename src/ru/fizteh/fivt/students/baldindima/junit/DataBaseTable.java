@@ -10,6 +10,9 @@ import java.util.Map;
 
 
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -22,6 +25,12 @@ public class DataBaseTable implements TableProvider {
 
     private String tableDirectory;
     private Map<String, DataBase> tables;
+    
+    private ReentrantReadWriteLock readWriteLock = new 
+
+ReentrantReadWriteLock(true);
+    private Lock readLock = readWriteLock.readLock();
+    private Lock writeLock = readWriteLock.writeLock();
 
     public DataBaseTable(String nTableDirectory) {
         tableDirectory = nTableDirectory;
@@ -34,13 +43,17 @@ public class DataBaseTable implements TableProvider {
             throw new IllegalArgumentException("Cannot create table");
         }
 
-        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+") || name.contains(File.separator)
+        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+") 
+
+|| name.contains(File.separator)
                 || name.contains(".")) {
             throw new RuntimeException("Wrong symbols");
         }
     }
 
-    public Table createTable(String name, List<Class<?>> types) throws IOException {
+    public Table createTable(String name, List<Class<?>> types) 
+
+throws IOException {
     	if (types == null || types.size() == 0) {
             throw new IllegalArgumentException("wrong list of types");
         }
@@ -48,22 +61,29 @@ public class DataBaseTable implements TableProvider {
         String path = tableDirectory + File.separator + name;
 
         File file = new File(path);
+        writeLock.lock();
+        try {
+        	if (file.exists()) {
+                return null;
+            }
 
-        if (file.exists()) {
-            return null;
-        }
+            if (!file.mkdir()) {
+                throw new RuntimeException("Cannot create table " 
 
-        if (!file.mkdir()) {
-            throw new RuntimeException("Cannot create table " + name);
-        }
++ name);
+            }
+
+            
+
+            DataBase table = new DataBase(path, this, types);
+
+            tables.put(name, table);
+            return table;
+         } finally {
+        	 writeLock.unlock();
+         }
 
         
-
-        DataBase table = new DataBase(path, this, types);
-
-        tables.put(name, table);
-        return table;
-
 
     }
 
@@ -75,21 +95,27 @@ public class DataBaseTable implements TableProvider {
         if ((!file.exists()) || (file.isFile())) {
             return null;
         }
-
-        if (tables.containsKey(name)) {
-            return tables.get(name);
-        } else {
-
-            try {
-               
-            	DataBase table = new DataBase(path, this);
-                tables.put(name, table);
-                return table;
-            } catch (IOException e) {
-                throw new DataBaseException(e.getMessage());
-            }
-
+        readLock.lock();
+        try {
+        	if (tables.containsKey(name)) {
+                return tables.get(name);
         }
+        
+        } finally {
+        	readLock.lock();
+        }
+        writeLock.lock();
+        try {
+        	DataBase table = new DataBase(path, this);
+            tables.put(name, table);
+            return table;
+        } catch (IOException e) {
+        	throw new DataBaseException(e.getMessage());
+        } finally {
+        	writeLock.unlock();
+        }
+
+        
     }
 
     public void removeTable(String name) throws IOException {
@@ -101,22 +127,26 @@ public class DataBaseTable implements TableProvider {
         if (!file.exists()) {
             throw new IllegalStateException("Table not exist");
         }
+        writeLock.lock();
+        try {
+        	if (tables.containsKey(name)) {
+                tables.get(name).drop();
+                tables.remove(name);
 
-        if (tables.containsKey(name)) {
-            tables.get(name).drop();
-            tables.remove(name);
+            } else {
+                DataBase base = new DataBase(name, this);
+                base.drop();
 
-        } else {
-            DataBase base = new DataBase(name, this);
-            base.drop();
+            }
 
+
+            if (!file.delete()) {
+                throw new RuntimeException("Cannot delete a table" + name);
+            }
+        } finally {
+        	writeLock.unlock();
         }
-
-
-        if (!file.delete()) {
-            throw new RuntimeException("Cannot delete a table " + name);
-        }
-
+        
     }
 
 
@@ -156,7 +186,9 @@ public class DataBaseTable implements TableProvider {
 
 
     public Storeable createFor(Table table, List<?> values)
-            throws ColumnFormatException, IndexOutOfBoundsException {
+            throws ColumnFormatException, 
+
+IndexOutOfBoundsException {
         BaseStoreable storeable = new BaseStoreable(table);
         storeable.setValues(values);
         return storeable;
