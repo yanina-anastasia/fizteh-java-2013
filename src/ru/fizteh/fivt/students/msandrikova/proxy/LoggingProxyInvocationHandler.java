@@ -19,8 +19,7 @@ public class LoggingProxyInvocationHandler implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (method.getName().equals("equals") || method.getName().equals("hashCode") 
-				|| method.getDeclaringClass().equals(Object.class)) {
+		if (method.getDeclaringClass().equals(Object.class)) {
 			try {
 				return method.invoke(this.implementation, args);
 			} catch (InvocationTargetException e) {
