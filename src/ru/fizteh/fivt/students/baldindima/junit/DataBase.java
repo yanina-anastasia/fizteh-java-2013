@@ -11,12 +11,21 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DataBase implements Table {
     private String dataBaseDirectory;
     private TableProvider provider;
     private List<Class<?>> types;
     private DataBaseFile[] files;
+    
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private Lock readLock = readWriteLock.readLock();
+    private Lock writeLock = readWriteLock.writeLock();
+
+    
+    
 
     private void checkNames(String[] fileList, String extension) throws IOException {
         for (String fileNumber : fileList) {
@@ -166,7 +175,7 @@ public class DataBase implements Table {
         }
     }
 
-    public void saveDataBase() throws IOException {
+   /* public void saveDataBase() throws IOException {
         for (int i = 0; i < 16; ++i) {
             for (int j = 0; j < 16; ++j) {
                 if (!(files[i * 16 + j].getCurrentTable().isEmpty())) {
@@ -181,14 +190,21 @@ public class DataBase implements Table {
             }
             deleteEmptyDirectory(Integer.toString(i) + ".dir");
         }
-    }
+    }*/
 
     public Storeable get(String keyString) {
         checkString(keyString);
         int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
-        return JSONClass.deserialize(this, file.get(keyString));
+        String result;
+        readLock.lock();
+        try {
+        	result = file.get(keyString); 
+        } finally {
+        	readLock.unlock();
+        }
+        return JSONClass.deserialize(this, result);
     }
 
     public Storeable put(String keyString, Storeable storeable) {
@@ -199,7 +215,15 @@ public class DataBase implements Table {
         int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
-        return JSONClass.deserialize(this, file.put(keyString, JSONClass.serialize(this, storeable)));
+        String JSONValue = JSONClass.serialize(this, storeable);
+        String result;
+        readLock.lock();
+        try {
+        	result = file.put(keyString, JSONValue); 
+        } finally {
+        	readLock.unlock();
+        }
+        return JSONClass.deserialize(this, result);
     }
 
     public Storeable remove(String keyString) {
@@ -207,7 +231,14 @@ public class DataBase implements Table {
         int nDir = Math.abs(keyString.getBytes()[0]) % 16;
         int nFile = Math.abs((keyString.getBytes()[0] / 16) % 16);
         DataBaseFile file = files[nDir * 16 + nFile];
-        return JSONClass.deserialize(this, file.remove(keyString));
+        String result;
+        readLock.lock();
+        try {
+        	result = file.remove(keyString);
+        } finally {
+        	readLock.unlock();
+        }
+        return JSONClass.deserialize(this, result);
     }
 
     public int countCommits() {
@@ -219,37 +250,53 @@ public class DataBase implements Table {
     }
 
     public int commit() {
-        int count = 0;
-        for (int i = 0; i < 256; ++i) {
-            count += files[i].countCommits();
-            try {
-                files[i].commit();
-            } catch (IOException e) {
-                throw new RuntimeException("cannot do commit");
+        writeLock.lock();
+        try {
+        	int count = 0;
+            for (int i = 0; i < 256; ++i) {
+                count += files[i].countCommits();
+                try {
+                    files[i].commit();
+                } catch (IOException e) {
+                    throw new RuntimeException("cannot do commit");
+                }
             }
+            return count;
+        	
+        } finally {
+        	writeLock.unlock();
         }
-        return count;
+    	
     }
 
     public int rollback() {
-        int count = 0;
-        for (int i = 0; i < 256; ++i) {
-            count += files[i].countCommits();
-            try {
+        writeLock.lock();
+        try {
+        	int count = 0;
+            for (int i = 0; i < 256; ++i) {
+                count += files[i].countCommits();
                 files[i].rollback();
-            } catch (IOException e) {
-                throw new RuntimeException("cannot do rollback");
             }
+            return count;
+        	
+        } finally {
+        	writeLock.unlock();
         }
-        return count;
+    	
     }
 
     public int size() {
-        int count = 0;
-        for (int i = 0; i < 256; ++i) {
-            count += files[i].countSize();
+        readLock.lock();
+        try {
+        	int count = 0;
+            for (int i = 0; i < 256; ++i) {
+                count += files[i].countSize();
+            }
+            return count;
+        } finally {
+        	readLock.unlock();
         }
-        return count;
+    	
     }
 
     public Storeable putStoreable(String keyStr, String valueStr) throws ParseException {
