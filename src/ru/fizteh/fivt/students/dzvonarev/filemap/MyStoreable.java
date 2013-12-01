@@ -142,8 +142,7 @@ public class MyStoreable implements Storeable {
                 return num >= -128 && num <= 127;
             }
             if (type.equals(Integer.class)) {
-                Long number = (Long) obj;
-                column.add(number.intValue());
+                column.add(obj);
             }
             if (type.equals(Long.class)) {
                 column.add(Integer.class.cast(obj).longValue());
