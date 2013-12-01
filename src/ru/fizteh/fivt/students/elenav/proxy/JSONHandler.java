@@ -77,7 +77,7 @@ public class JSONHandler implements InvocationHandler {
             if (arg instanceof Iterable) {
                 logIterable((Iterable) arg, array.get());
             } else if (arg.getClass().isArray()) {
-                logIterable(Arrays.asList((Iterable) arg), array.get());
+                logIterable(Arrays.asList((Object[]) arg), array.get());
             } else {
                 json.get().put("returnValue", arg);
                 return;
@@ -102,6 +102,7 @@ public class JSONHandler implements InvocationHandler {
     }
 
     private void logIterable(Iterable args, JSONArray array) {
+        map.get().put(args, true);
         for (Object arg : args) {
             if (arg == null) {
                 array.put(arg);
