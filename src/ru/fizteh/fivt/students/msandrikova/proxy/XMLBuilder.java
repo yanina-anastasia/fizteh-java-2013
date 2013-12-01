@@ -43,7 +43,7 @@ public class XMLBuilder {
 	
 	public void writeThrown(Throwable thrown) throws XMLStreamException {
 		this.writer.writeStartElement("thrown");
-		this.writer.writeStartElement(thrown.toString());
+		this.writer.writeCharacters(thrown.toString());
 		this.writer.writeEndElement();
 	}
 	
