@@ -8,21 +8,16 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MyInvocationHandler implements InvocationHandler {
 
     private Writer currentWriter;
     private Object currentImplementation;
     private XMLStreamWriter xmlWriter;
-    private Lock writeLock;
 
     public MyInvocationHandler(Writer writer, Object implementation) {
         currentWriter = writer;
         currentImplementation = implementation;
-        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-        writeLock = readWriteLock.writeLock();
     }
 
     @Override
@@ -43,16 +38,11 @@ public class MyInvocationHandler implements InvocationHandler {
             throw e.getTargetException();
         } finally {
             try {
-                writeLock.lock();
-                try {
-                    XMLOutputFactory factory = XMLOutputFactory.newInstance();
-                    StringWriter strWriter = new StringWriter();
-                    xmlWriter = factory.createXMLStreamWriter(strWriter);
-                    writeLog(method, args, result, exception);
-                    currentWriter.write(strWriter.toString() + System.lineSeparator());
-                } finally {
-                    writeLock.unlock();
-                }
+                XMLOutputFactory factory = XMLOutputFactory.newInstance();
+                StringWriter strWriter = new StringWriter();
+                xmlWriter = factory.createXMLStreamWriter(strWriter);
+                writeLog(method, args, result, exception);
+                currentWriter.write(strWriter.toString() + System.lineSeparator());
             } catch (Throwable ignored) {
                 // okay
             }
@@ -69,10 +59,10 @@ public class MyInvocationHandler implements InvocationHandler {
                 writeArguments(args);
             }
             if (exception != null) {
-                writeException(exception);             // exception part
+                writeException(exception);              // exception part
             } else {
-                if (!method.getReturnType().equals(void.class)) {    // method can return smth
-                    writeResult(result);               // return part
+                if (!method.getReturnType().equals(void.class)) {    // if method can return smth, not void
+                    writeResult(result);                // return part
                 }
             }
             xmlWriter.writeEndElement();                // will close head tag
