@@ -514,6 +514,14 @@ public class MyTable implements Table, AutoCloseable {
         }
     }
 
+    public void closeFromProvider() {
+        if (tableIsClosed) {
+            return;
+        }
+        rollback();
+        tableIsClosed = true;
+    }
+
     private void checkTableIsClosed() {
         if (tableIsClosed) {
             throw new IllegalStateException("table " + tableName + " is closed");
