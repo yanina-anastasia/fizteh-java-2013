@@ -85,11 +85,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     }
                 }
             } else {
-                if (arg.getClass().isArray()) {
+                /*if (arg.getClass().isArray()) {
                     cmdArgs.put(arg.toString());
-                } else {
-                    cmdArgs.put(arg);
-                }
+                } else {   */
+                cmdArgs.put(arg);
+                //}
             }
         }
     }
