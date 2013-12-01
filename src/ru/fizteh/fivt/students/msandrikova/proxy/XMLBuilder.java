@@ -32,7 +32,7 @@ public class XMLBuilder {
 	
 	public void writeResult(Object res) throws XMLStreamException {
 		this.writer.writeStartElement("return");
-		if(res == null) {
+		if (res == null) {
 			this.writer.writeStartElement("null");
 			this.writer.writeEndElement();
 		} else {
@@ -70,13 +70,13 @@ public class XMLBuilder {
 	
 	private void writeList(List<?> list) throws XMLStreamException {
 		this.writer.writeStartElement("list");
-		for(Object o : list) {
+		for (Object o : list) {
 			this.writer.writeStartElement("value");
-			if(o == null) {
+			if (o == null) {
 				this.writer.writeStartElement("null");
 				this.writer.writeEndElement();
 			} else if(o instanceof List<?>) {
-				if(this.checkCyclic.get(o)) {
+				if (this.checkCyclic.get(o) != null) {
 					this.writer.writeCharacters("cyclic");
 				} else {
 					this.checkCyclic.put(o, true);
