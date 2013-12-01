@@ -552,7 +552,9 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
     
     @Override
     public void close() throws IllegalStateException {
-    	this.checkIsClosed();
+    	if (this.isClosed) {
+    		return;
+    	}
     	
     	this.rollback();
     	

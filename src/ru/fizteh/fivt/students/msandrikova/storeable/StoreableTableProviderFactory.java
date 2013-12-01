@@ -41,7 +41,9 @@ public class StoreableTableProviderFactory implements ChangesCountingTableProvid
     }
     
     public void close() throws IllegalStateException {
-    	this.checkIsClosed();
+    	if (this.isClosed) {
+    		return;
+    	}
     	
     	this.lock.writeLock().lock();
     	for (ChangesCountingTableProvider tableProvider : this.providers) {

@@ -237,7 +237,9 @@ public class StoreableTableProvider implements ChangesCountingTableProvider, Aut
     
     @Override
     public void close() throws IllegalStateException {
-    	this.checkIsClosed();
+    	if (this.isClosed) {
+    		return;
+    	}
     	
     	this.lock.writeLock().lock();
     	for (ChangesCountingTable table : this.mapOfTables.values()) {
