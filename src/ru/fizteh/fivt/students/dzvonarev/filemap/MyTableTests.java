@@ -218,23 +218,4 @@ public class MyTableTests {
         assertNotEquals(newTable.get("succes"), null);
     }
 
-    /*@Test
-    public void testGetLongInt() throws IOException {
-        List<Class<?>> clas = new ArrayList<>();
-        clas.add(Long.class);
-        clas.add(String.class);
-        clas.add(Integer.class);
-        Table newTable = provider.createTable("newTable", clas);
-        Storeable st = new MyStoreable(newTable);
-        st.setColumnAt(0, 1);
-        st.setColumnAt(1, "1");
-        st.setColumnAt(2, 1);
-        newTable.put("win", st);
-        newTable.commit();
-        MyTable toClose = (MyTable) newTable;
-        toClose.close();
-        Table abc = provider.getTable("newTable");
-        assertEquals(abc.get("win"), st);
-    }                                       */
-
 }
