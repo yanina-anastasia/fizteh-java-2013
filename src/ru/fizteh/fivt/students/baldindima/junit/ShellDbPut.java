@@ -20,12 +20,7 @@ public class ShellDbPut extends ShellIsItCommand {
 			return;
 		}
 		Storeable storeable;
-		StringBuilder argsBuilder = new StringBuilder(); 
-    	for (int i = 2; i < arguments.length; ++i){
-    		argsBuilder.append(arguments[i]).append(" ");
-    	}
-    	argsBuilder.deleteCharAt(argsBuilder.length() - 1);
-    	String args = argsBuilder.toString();
+		String args = join(arguments);
 		try {
 			storeable = ((DataBase) context.table).putStoreable(arguments[1], args);
 			if (storeable == null){

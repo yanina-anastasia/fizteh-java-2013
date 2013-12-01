@@ -15,13 +15,8 @@ public class ShellDbCreateTable extends ShellIsItCommand {
     }
 
     public void run() throws IOException {
-    	StringBuilder argsBuilder = new StringBuilder(); 
-    	for (int i = 2; i < arguments.length; ++i){
-    		argsBuilder.append(arguments[i]).append(" ");
-    	}
-    	argsBuilder.deleteCharAt(argsBuilder.length() - 1);
-    	String args = argsBuilder.toString();
-    	args = args.trim();
+    	
+    	String args = join(arguments);
     	try{
         if (context.provider.createTable(arguments[1], BaseSignature.getTypes(args)) != null) {
             System.out.println("created");

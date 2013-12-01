@@ -4,14 +4,45 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+
 
 public class BaseSignature {
 
-    static final String[] TYPES = {"int", "long", "byte", "float", "double", "boolean", "String"};
+    static final String[] STYPES = {"int", "long", "byte", "float", "double", "boolean", "String"};
     static final Class<?>[] CLASSES = {Integer.class, Long.class, Byte.class, Float.class,
             Double.class, Boolean.class, String.class};
+    static final Map<String, Class<?>> TYPES_CLASSES;
+    static {
+    	Map<String, Class<?>> aTYPES = new HashMap<String, Class<?>>();
+    	aTYPES.put("int", Integer.class);
+    	aTYPES.put("long", Long.class);
+    	aTYPES.put("byte", Byte.class);
+    	aTYPES.put("float", Float.class);
+    	aTYPES.put("double", Double.class);
+    	aTYPES.put("boolean", Boolean.class);
+    	aTYPES.put("String", String.class);
+    	TYPES_CLASSES = Collections.unmodifiableMap(aTYPES);
+    	
+    }
+    static final Map<Class<?>, String> CLASSES_TYPES;
+    static {
+    	Map<Class<?>, String> aTYPES = new HashMap<Class<?>, String>();
+    	aTYPES.put(Integer.class, "int");
+    	aTYPES.put(Long.class, "long");
+    	aTYPES.put(Byte.class, "byte");
+    	aTYPES.put(Float.class, "float");
+    	aTYPES.put(Double.class, "double");
+    	aTYPES.put(Boolean.class, "boolean");
+    	aTYPES.put(String.class, "string");
+    	CLASSES_TYPES = Collections.unmodifiableMap(aTYPES);
+    	
+    }
+
 
 
     public static void setBaseSignature(String nameDirectory, List<Class<?>> types) throws IOException {
@@ -21,17 +52,14 @@ public class BaseSignature {
 
         try (PrintWriter output = new PrintWriter(fileForSignature)) {
             for (int i = 0; i < types.size(); ++i) {
-                boolean isTypeCorrect = false;
-                for (int j = 0; j < CLASSES.length; ++j) {
-                    if (CLASSES[j].equals(types.get(i))) {
-                        output.write(TYPES[j]);
-                        isTypeCorrect = true;
-                        break;
-                    }
-                }
-                if (!isTypeCorrect) {
-                    throw new IllegalArgumentException("There is no such types!");
-                }
+                
+            	String search = CLASSES_TYPES.get(types.get(i));
+            	if (search == null){
+            		throw new IllegalArgumentException("There is no such types!");
+            	}
+            	output.write(search);
+                
+                
                 if (i + 1 != types.size()) {
                     output.write(" ");
                 }
@@ -65,17 +93,13 @@ public class BaseSignature {
         }
 
         for (String type : signatureFromFile) {
-            boolean isTypeCorrect = false;
-            for (int j = 0; j < TYPES.length; ++j) {
-                if (type.equals(TYPES[j])) {
-                    signature.add(CLASSES[j]);
-                    isTypeCorrect = true;
-                    break;
-                }
+            Class <?> search = TYPES_CLASSES.get(type);
+            if (search == null){
+            	throw new IOException("There is no such type");
             }
-            if (!isTypeCorrect) {
-                throw new IOException("There is no such type");
-            }
+        	signature.add(search);
+            
+            
         }
         return signature;
     }
@@ -83,29 +107,20 @@ public class BaseSignature {
 
     public static List<Class<?>> getTypes(String str) throws IOException {
         List<Class<?>> result = new ArrayList<>();
-        byte[] s = str.trim().getBytes();
-        if (!(s[0] == '(' && s[str.length() - 1] == ')')) {
+        if (!(str.charAt(0) == '(' && str.charAt(str.length() - 1) == ')')) {
             throw new IOException("wrong type (no brackets)");
         }
-        for (int i = 1; i < str.length() - 1; ++i) {
-            if (s[i] == ' ') {
-                continue;
+        str = str.substring(1, str.length() - 1);
+        String[] s = str.split("[\\s]+");
+        for (String type: s){
+        	Class<?> search = TYPES_CLASSES.get(type);
+            if (search == null){
+            	throw new IOException("Cannot read type!");
             }
-
-            boolean flag = false;
-            for (int j = 0; j < TYPES.length; ++j) {
-                if (new String(s, i, Math.min(TYPES[j].length(), str.length() - i)).equals(TYPES[j])) {
-                    result.add(CLASSES[j]);
-                    i += TYPES[j].length();
-                    flag = true;
-                    break;
-                }
-            }
-
-            if (!flag) {
-                throw new IOException("Cannot read type!");
-            }
+            result.add(search);
         }
+       
+       
         return result;
     }
 }
