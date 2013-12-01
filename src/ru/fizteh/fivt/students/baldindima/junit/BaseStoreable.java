@@ -31,7 +31,14 @@ public class BaseStoreable implements Storeable {
         }
 
         for (int i = 0; i < nValues.size(); ++i) {
-            Object value  = parseObject(nValues.get(i).toString(), types.get(i).getSimpleName());
+        	Object value;
+        	if (nValues.get(i).getClass() == JSONObject.NULL.getClass() ||
+        			JSONObject.NULL == nValues.get(i)){
+        		value = null;
+        	} else {
+        		value  = parseObject(nValues.get(i).toString(), types.get(i).getSimpleName());
+        	}
+            
         	
             values.set(i,value);
         }
