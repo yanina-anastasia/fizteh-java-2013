@@ -142,7 +142,7 @@ public class MyStoreable implements Storeable {
                 return num >= -128 && num <= 127;
             }
             if (type.equals(Integer.class)) {
-                column.add(Integer.class.cast(obj).intValue());
+                column.add(Integer.class.cast(obj));
             }
             if (type.equals(Long.class)) {
                 column.add(Integer.class.cast(obj).longValue());
@@ -157,19 +157,54 @@ public class MyStoreable implements Storeable {
                     || type.equals(Float.class);
         }
         if (obj.getClass().equals(Long.class)) {
+            if (type.equals(Long.class)) {
+                column.add(Long.class.cast(obj));
+            }
+            if (type.equals(Double.class)) {
+                column.add(Long.class.cast(obj).doubleValue());
+            }
             return type.equals(Long.class) || type.equals(Double.class);
         }
         if (obj.getClass().equals(Boolean.class)) {
+            column.add(Boolean.class.cast(obj));
             return type.equals(Boolean.class);
         }
         if (obj.getClass().equals(String.class)) {
+            column.add(String.class.cast(obj));
             return type.equals(String.class);
         }
         if (obj.getClass().equals(Byte.class)) {
+            if (type.equals(Byte.class)) {
+                column.add(Byte.class.cast(obj));
+            }
+            if (type.equals(Integer.class)) {
+                column.add(Byte.class.cast(obj).intValue());
+            }
+            if (type.equals(Long.class)) {
+                column.add(Byte.class.cast(obj).longValue());
+            }
+            if (type.equals(Double.class)) {
+                column.add(Byte.class.cast(obj).doubleValue());
+            }
+            if (type.equals(Float.class)) {
+                column.add(Byte.class.cast(obj).floatValue());
+            }
             return !type.equals(String.class) && !type.equals(Boolean.class);
         }
         if (obj.getClass().equals(Float.class)) {
+            if (type.equals(Double.class)) {
+                column.add(Float.class.cast(obj).doubleValue());
+            }
+            if (type.equals(Float.class)) {
+                column.add(Float.class.cast(obj));
+            }
             return type.equals(Double.class) || type.equals(Float.class);
+        }
+        if (type.equals(Double.class)) {                                // for obj class double
+            column.add(Double.class.cast(obj));
+        }
+        if (type.equals(Float.class)) {
+            column.add(Double.class.cast(obj).floatValue());
         }
         return obj.getClass().equals(Double.class) && (type.equals(Double.class) || type.equals(Float.class));
     }

@@ -235,6 +235,6 @@ public class MyTableTests {
         toClose.close();
         Table abc = provider.getTable("newTable");
         assertEquals(abc.get("win"), st);
-    }                                    */
+    }                                       */
 
 }
