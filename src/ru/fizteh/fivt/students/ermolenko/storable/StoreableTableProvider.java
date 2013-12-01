@@ -65,7 +65,6 @@ public class StoreableTableProvider implements TableProvider {
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
 
         try {
-            tableProviderLock.lock();
             if (name == null) {
                 throw new IllegalArgumentException("null name to create");
             }
@@ -81,6 +80,8 @@ public class StoreableTableProvider implements TableProvider {
             if (columnTypes.isEmpty()) {
                 throw new IllegalArgumentException("empty columnTypes to create");
             }
+
+            tableProviderLock.lock();
 
             File tableFile = new File(currentDir, name);
 
@@ -111,7 +112,6 @@ public class StoreableTableProvider implements TableProvider {
     public void removeTable(String name) throws IOException {
 
         try {
-            tableProviderLock.lock();
             if (name == null) {
                 throw new IllegalArgumentException("null name to create");
             }
@@ -125,6 +125,8 @@ public class StoreableTableProvider implements TableProvider {
             if (mapOfTables.get(name) == null) {
                 throw new IllegalStateException("not existing table");
             }
+
+            tableProviderLock.lock();
 
             mapOfTables.remove(name);
         } finally {

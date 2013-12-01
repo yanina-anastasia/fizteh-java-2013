@@ -101,31 +101,35 @@ public class StoreableTable implements Table {
         if (!checkExtraColumns(value)) {
             throw new ColumnFormatException("extra columns found");
         }
-
+        tableLock.lock();
         try {
-            int size = columnOfTypes.size();
-            for (int i = 0; i < size; ++i) {
-                if (value.getColumnAt(i) != null && !columnOfTypes.get(i).equals(value.getColumnAt(i).getClass())) {
-                    throw new ColumnFormatException("angry storeable");
+            try {
+                int size = columnOfTypes.size();
+                for (int i = 0; i < size; ++i) {
+                    if (value.getColumnAt(i) != null && !columnOfTypes.get(i).equals(value.getColumnAt(i).getClass())) {
+                        throw new ColumnFormatException("angry storeable");
+                    }
                 }
+            } catch (Exception e) {
+                throw new ColumnFormatException("less number of columns");
             }
-        } catch (Exception e) {
-            throw new ColumnFormatException("less number of columns");
-        }
 
-        if ((!changesBase.get().containsKey(key) && !dataBase.get().containsKey(key))
-                || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
-            //исправлено
-            //эквивалент инкремента
-            sizeTable.set(Integer.valueOf(sizeTable.get().intValue() + 1));
-        }
-        Storeable result = get(key);
-        changesBase.get().put(key, value);
-        if (value.equals(dataBase.get().get(key))) {
-            changesBase.get().remove(key);
-        }
+            if ((!changesBase.get().containsKey(key) && !dataBase.get().containsKey(key))
+                    || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+                //исправлено
+                //эквивалент инкремента
+                sizeTable.set(Integer.valueOf(sizeTable.get().intValue() + 1));
+            }
+            Storeable result = get(key);
+            changesBase.get().put(key, value);
+            if (value.equals(dataBase.get().get(key))) {
+                changesBase.get().remove(key);
+            }
 
-        return result;
+            return result;
+        } finally {
+            tableLock.unlock();
+        }
     }
 
     @Override
@@ -140,24 +144,42 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key to remove");
         }
 
-
-        if (changesBase.get().get(newKey) != null
-                || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
-            //изменено
-            sizeTable.set(Integer.valueOf(sizeTable.get().intValue() - 1));
+        tableLock.lock();
+        try {
+            if (changesBase.get().get(newKey) != null
+                    || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
+                //изменено
+                sizeTable.set(Integer.valueOf(sizeTable.get().intValue() - 1));
+            }
+            Storeable result = get(newKey);
+            changesBase.get().put(newKey, null);
+            if (dataBase.get().get(newKey) == null) {
+                changesBase.get().remove(newKey);
+            }
+            return result;
+        } finally {
+            tableLock.unlock();
         }
-        Storeable result = get(newKey);
-        changesBase.get().put(newKey, null);
-        if (dataBase.get().get(newKey) == null) {
-            changesBase.get().remove(newKey);
-        }
-        return result;
     }
 
     @Override
     public int size() {
 
-        return sizeTable.get();
+        tableLock.lock();
+        try {
+            int size = dataBase.get().size();
+            Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+            for (Map.Entry<String, Storeable> pair : set) {
+                if (pair.getValue() == null) {
+                    --size;
+                } else {
+                    ++size;
+                }
+            }
+            return size;
+        } finally {
+            tableLock.unlock();
+        }
     }
 
     @Override
