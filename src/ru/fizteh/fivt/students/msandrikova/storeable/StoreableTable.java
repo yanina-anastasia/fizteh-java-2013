@@ -25,7 +25,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.msandrikova.shell.Utils;
 
 public class StoreableTable implements ChangesCountingTable, AutoCloseable {
-	private boolean isClosed;
+    private boolean isClosed;
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
     private StoreableTableProvider tableProvider;
     private String name;
@@ -181,7 +181,7 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
             
         public Storeable put(String key, Storeable value) 
                 throws IllegalArgumentException, IllegalStateException {
-        	StoreableTable.this.checkIsClosed();
+            StoreableTable.this.checkIsClosed();
             if (Utils.isEmpty(key) || value == null || P.matcher(key).find()) {
                 throw new IllegalArgumentException("Key and name can not be null or "
                         + "newline and key can not contain whitespace");
@@ -196,7 +196,7 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
         }
         
         public Storeable remove(String key) throws IllegalArgumentException, IllegalStateException {
-        	StoreableTable.this.checkIsClosed();
+            StoreableTable.this.checkIsClosed();
             if (Utils.isEmpty(key)) {
                 throw new IllegalArgumentException("Key can not be null");
             }
@@ -209,7 +209,7 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
         }
         
         public int size() throws IllegalStateException {
-        	StoreableTable.this.checkIsClosed();
+            StoreableTable.this.checkIsClosed();
             
             int size = StoreableTable.this.originalDatabase.size();
             
@@ -229,8 +229,8 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
         }
         
         public int commit() throws IOException, IllegalStateException {
-        	StoreableTable.this.checkIsClosed();
-        	
+            StoreableTable.this.checkIsClosed();
+            
             int changesCount = this.unsavedChangesCount();
             for (String key : this.updates.keySet()) {
                 StoreableTable.this.originalDatabase.put(key, this.updates.get(key));
@@ -246,8 +246,8 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
         }
         
         public int rollback() throws IllegalStateException {
-        	StoreableTable.this.checkIsClosed();
-        	
+            StoreableTable.this.checkIsClosed();
+            
             int changesCount = this.unsavedChangesCount();
             this.removed.clear();
             this.updates.clear();
@@ -416,8 +416,8 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
 
     @Override
     public String getName() throws IllegalStateException { 
-    	this.checkIsClosed();
-    	
+        this.checkIsClosed();
+        
         lock.readLock().lock();
         String answer = StoreableTable.this.name;
         lock.readLock().unlock();
@@ -510,8 +510,8 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
 
     @Override
     public int getColumnsCount() throws IllegalStateException {
-    	StoreableTable.this.checkIsClosed();
-    	
+        StoreableTable.this.checkIsClosed();
+        
         lock.readLock().lock();
         int answer = 0;
         answer = this.columnTypes.size();
@@ -521,8 +521,8 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException, IllegalStateException {
-    	StoreableTable.this.checkIsClosed();
-    	
+        StoreableTable.this.checkIsClosed();
+        
         lock.readLock().lock();
         Class<?> answer = null;
         
@@ -542,36 +542,36 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
     }
     
     private void checkIsClosed() throws IllegalStateException {
-    	this.lock.readLock().lock();
-    	if (this.isClosed) {
-    		this.lock.readLock().unlock();
-    		throw new IllegalStateException("Table was closed.");    		
-    	}
-    	this.lock.readLock().unlock();
+        this.lock.readLock().lock();
+        if (this.isClosed) {
+            this.lock.readLock().unlock();
+            throw new IllegalStateException("Table was closed.");            
+        }
+        this.lock.readLock().unlock();
     }
     
     @Override
     public void close() throws IllegalStateException {
-    	if (this.isClosed) {
-    		return;
-    	}
-    	
-    	this.rollback();
-    	
-    	this.lock.writeLock().lock();
-    	this.isClosed = true;
-    	this.tableProvider.deleteTableFromProvider(this.name);
-    	this.lock.writeLock().unlock();	
+        if (this.isClosed) {
+            return;
+        }
+        
+        this.rollback();
+        
+        this.lock.writeLock().lock();
+        this.isClosed = true;
+        this.tableProvider.deleteTableFromProvider(this.name);
+        this.lock.writeLock().unlock();    
     }
     
     @Override
     public String toString() throws IllegalStateException {
-    	this.checkIsClosed();
-    	
-    	String className = this.getClass().getSimpleName();
-    	String tablePath = this.tablePath.getAbsolutePath();
-    	
-    	return className + "[" + tablePath + "]";
+        this.checkIsClosed();
+        
+        String className = this.getClass().getSimpleName();
+        String tablePath = this.tablePath.getAbsolutePath();
+        
+        return className + "[" + tablePath + "]";
     }
     
 }

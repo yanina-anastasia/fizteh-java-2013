@@ -115,20 +115,20 @@ public class TableRow implements Storeable {
     
     @Override
     public String toString() {
-    	String className = this.getClass().getSimpleName();
-    	String answer = className + "[";
-    	boolean first = true;
-    	for(Object o : this.row) {
-    		if(!first) {
-    			answer += ",";
-    		}
-    		first = false;
-    		if(o != null) {
-    			answer += o.toString();
-    		}
-    	}
-    	answer += "]";
-    	return answer;
+        String className = this.getClass().getSimpleName();
+        String answer = className + "[";
+        boolean first = true;
+        for (Object o : this.row) {
+            if(!first) {
+                answer += ",";
+            }
+            first = false;
+            if(o != null) {
+                answer += o.toString();
+            }
+        }
+        answer += "]";
+        return answer;
     }
 
 }

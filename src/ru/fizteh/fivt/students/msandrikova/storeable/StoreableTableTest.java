@@ -115,8 +115,8 @@ public class StoreableTableTest {
     
     @Test(expected = IllegalStateException.class)
     public void testClose() throws IllegalStateException, IllegalArgumentException, IOException {
-    	this.table.close();
-    	this.table.size();
+        this.table.close();
+        this.table.size();
     }
 
 }
