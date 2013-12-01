@@ -166,7 +166,9 @@ public class StoreableTable implements Table {
                 if (pair.getValue() == null) {
                     --size;
                 } else {
-                    ++size;
+                    if (!dataBase.containsKey(pair.getKey())) {
+                        ++size;
+                    }
                 }
             }
             return size;
