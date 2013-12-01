@@ -41,7 +41,7 @@ public class MyStoreable implements Storeable {
         if (columnIndex < 0 || columnIndex >= column.size()) {
             throw new IndexOutOfBoundsException("wrong type (wrong column index - " + columnIndex + ")");
         }
-        if (value == null) {
+        if (value == null || value.equals(null)) {
             column.set(columnIndex, null);
             return;
         }
@@ -131,7 +131,7 @@ public class MyStoreable implements Storeable {
     }
 
     public boolean myCastTo(Class<?> type, Object obj) {
-        if (obj == null) {
+        if (obj == null || obj.equals(null)) {
             column.add(null);
             return true;
         }
