@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MyTableProvider implements TableProvider, AutoCloseable {
 
@@ -22,8 +22,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         workingDirectory = dir;
         currTable = null;
         multiFileMap = new HashMap<>();
-        ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-        writeLock = readWriteLock.writeLock();
+        lock = new ReentrantLock(true);
         initTypeToString();
         readData();
     }
@@ -32,7 +31,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     private String currTable;
     private HashMap<String, MyTable> multiFileMap;
     private HashMap<Class<?>, String> typeToString;
-    private Lock writeLock;
+    private Lock lock;
     private volatile boolean isProviderClosed;
 
     public void initTypeToString() {
@@ -55,7 +54,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
     }
 
     public int changeCurrentTable(String newTable) {
-        writeLock.lock();
+        lock.lock();
         try {
             File newDirectory = new File(workingDirectory, newTable);
             if (!newDirectory.exists() || newDirectory.exists() && newDirectory.isFile()) {
@@ -65,7 +64,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                 return 0;
             }
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -155,7 +154,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         checkProviderClosed();
-        writeLock.lock();
+        lock.lock();
         try {
             if (multiFileMap.get(tableName) != null) {
                 return multiFileMap.get(tableName);
@@ -175,7 +174,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
                 return newTable;
             }
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -184,7 +183,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
-        writeLock.lock();
+        lock.lock();
         try {
             checkProviderClosed();
             if (multiFileMap.containsKey(tableName)) {
@@ -199,7 +198,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             multiFileMap.put(tableName, table);
             return table;
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -208,7 +207,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
-        writeLock.lock();
+        lock.lock();
         try {
             checkProviderClosed();
             if (!multiFileMap.containsKey(tableName)) {
@@ -226,7 +225,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage() + " can't remove " + tableName, e);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -281,7 +280,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
         if (isProviderClosed) {
             return;
         }
-        writeLock.lock();
+        lock.lock();
         try {
             Set<Map.Entry<String, MyTable>> fileSet = multiFileMap.entrySet();
             for (Map.Entry<String, MyTable> currItem : fileSet) {
@@ -290,7 +289,7 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
             }
             isProviderClosed = true;
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 

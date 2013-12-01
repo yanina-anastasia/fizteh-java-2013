@@ -50,7 +50,9 @@ public class MyStoreable implements Storeable {
             column.set(columnIndex, null);
             return;
         }
-        if (!value.getClass().equals(columnTypes.get(columnIndex))) {
+        Parser myParser = new Parser();
+        if (!myParser.canBeCastedTo(columnTypes.get(columnIndex), value)) {
+            //if (!value.getClass().equals(columnTypes.get(columnIndex))) {
             throw new ColumnFormatException("wrong type (value " + value
                     + " got invalid type in " + columnIndex + " column)");
         }
