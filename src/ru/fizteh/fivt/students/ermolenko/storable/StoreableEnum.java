@@ -70,6 +70,7 @@ public enum StoreableEnum {
         tmp.add("Boolean");
         tmp.add("Double");
         tmp.add("Float");
+        tmp.add("string");
         dataBaseNamesToType = Collections.unmodifiableMap(dataBaseNamesAndTypes);
         dataBaseClassesToType = Collections.unmodifiableMap(dataBaseClassesAndTypes);
         dataBaseCorrectNamesOfClasses = Collections.unmodifiableSet(tmp);
