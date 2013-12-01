@@ -122,6 +122,7 @@ public class TableRow implements Storeable {
     		if(!first) {
     			answer += ",";
     		}
+    		first = false;
     		if(o != null) {
     			answer += o.toString();
     		}
