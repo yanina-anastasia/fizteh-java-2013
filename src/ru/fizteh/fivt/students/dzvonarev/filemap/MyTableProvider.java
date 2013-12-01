@@ -153,13 +153,30 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public MyTable getTable(String tableName) throws IllegalArgumentException {
-        if (!tableNameIsValid(tableName)) {
-            throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
-        }
+        checkProviderClosed();
         readLock.lock();
         try {
-            checkProviderClosed();
-            return multiFileMap.get(tableName);
+            if (multiFileMap.get(tableName) != null) {
+                return multiFileMap.get(tableName);
+            } else {
+                File dirTable = new File(workingDirectory + File.separator + tableName);
+                if (!(dirTable.exists() && dirTable.isDirectory())) {
+                    return null;
+                }
+                MyTable newTable;
+                try {
+                    newTable = new MyTable(dirTable, this);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    newTable.readFileMap();
+                } catch (IOException | ParseException e) {
+                    throw new RuntimeException(e);
+                }
+                multiFileMap.put(tableName, newTable);
+                return newTable;
+            }
         } finally {
             readLock.unlock();
         }
