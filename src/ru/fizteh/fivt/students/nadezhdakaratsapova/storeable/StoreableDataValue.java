@@ -95,7 +95,7 @@ public class StoreableDataValue implements Storeable {
             if (value != null) {
                 values.append(value.toString() + ",");
             } else {
-                values.append(",");
+                //values.append(",");
             }
         }
         return new String(this.getClass().getSimpleName() + "[" + values + "]");
