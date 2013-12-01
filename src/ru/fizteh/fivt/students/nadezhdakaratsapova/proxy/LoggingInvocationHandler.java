@@ -68,7 +68,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
         if (arg == null) {
             cmdArgs.put(arg);
         } else {
-            if (arg instanceof Iterable || arg.getClass().isArray()) {
+            if (arg instanceof Iterable) {
                 for (Object inArg : (Iterable) arg) {
                     if (prevArgs.get().containsKey(arg)) {
                         cmdArgs.put("cyclic");
@@ -78,7 +78,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     }
                 }
             } else {
-                cmdArgs.put(arg);
+                if (arg.getClass().isArray()) {
+                    cmdArgs.put(arg.toString());
+                } else {
+                    cmdArgs.put(arg);
+                }
             }
         }
     }
