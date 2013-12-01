@@ -150,10 +150,10 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table getTable(String tableName) throws IllegalArgumentException {
+        checkProviderClosed();
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
-        checkProviderClosed();
         lock.lock();
         try {
             if (multiFileMap.get(tableName) != null) {
@@ -180,12 +180,12 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public Table createTable(String tableName, List<Class<?>> types) throws IllegalArgumentException, IOException {
+        checkProviderClosed();
         if (!tableNameIsValid(tableName) || !typesAreValid(types)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + " or types)");
         }
         lock.lock();
         try {
-            checkProviderClosed();
             if (multiFileMap.containsKey(tableName)) {
                 return null;
             }
@@ -204,12 +204,12 @@ public class MyTableProvider implements TableProvider, AutoCloseable {
 
     @Override
     public void removeTable(String tableName) throws IllegalArgumentException, IllegalStateException {
+        checkProviderClosed();
         if (!tableNameIsValid(tableName)) {
             throw new IllegalArgumentException("wrong type (invalid table name " + tableName + ")");
         }
         lock.lock();
         try {
-            checkProviderClosed();
             if (!multiFileMap.containsKey(tableName)) {
                 throw new IllegalStateException(tableName + " not exists");
             }
