@@ -138,25 +138,24 @@ public class MyStoreable implements Storeable {
         if (obj.getClass().equals(Integer.class)) {
             if (type.equals(Byte.class)) {
                 Integer num = (Integer) obj;
-                Byte number = (Byte) obj;
-                column.add(number);
+                column.add(num.byteValue());
                 return num >= -128 && num <= 127;
             }
             if (type.equals(Integer.class)) {
-                Integer number = (Integer) obj;
-                column.add(number);
+                Long number = (Long) obj;
+                column.add(number.intValue());
             }
             if (type.equals(Long.class)) {
                 Long number = (Long) obj;
-                column.add(number);
+                column.add(number.longValue());
             }
             if (type.equals(Double.class)) {
                 Double number = (Double) obj;
-                column.add(number);
+                column.add(number.doubleValue());
             }
             if (type.equals(Float.class)) {
                 Float number = (Float) obj;
-                column.add(number);
+                column.add(number.floatValue());
             }
             return type.equals(Integer.class) || type.equals(Long.class) || type.equals(Double.class)
                     || type.equals(Float.class);
