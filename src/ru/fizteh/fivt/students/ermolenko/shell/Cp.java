@@ -55,7 +55,7 @@ public class Cp implements Command<ShellState> {
             } else
             if (source.toFile().isFile() && target.toFile().isDirectory()) {
                 Files.copy(source, target.resolve(source.getFileName()));
-            }else
+            } else
             if (source.toFile().isDirectory() && target.toFile().isDirectory()) {
                 File[] masOfSource = source.toFile().listFiles();
                 target.toFile().mkdir();
