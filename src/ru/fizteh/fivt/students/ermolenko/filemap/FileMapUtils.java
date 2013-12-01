@@ -33,7 +33,8 @@ public class FileMapUtils {
         return byteOutputStream.toString(StandardCharsets.UTF_8.toString());
     }
 
-    private static String readValue(DataInputStream dis, long offset1, long offset2, long position, long len) throws IOException {
+    private static String readValue(DataInputStream dis, long offset1, long offset2, long position, long len)
+            throws IOException {
 
         dis.mark((int) len);
         dis.skip(offset1 - position);
@@ -57,7 +58,8 @@ public class FileMapUtils {
         }
     }
 
-    public static void readAndCheckDataBase(FileMapState state, int directNumber, int fileNumber) throws IOException {
+    public static void readAndCheckDataBase(FileMapState state, int directNumber, int fileNumber)
+            throws IOException {
 
         if (state.getDataFile().length() == 0) {
             return;
@@ -79,8 +81,6 @@ public class FileMapUtils {
             int firstOffset = offset1;
             position += 5;
             while (position != firstOffset) {
-                if (firstOffset > fileLength) {
-                }
                 String key2 = readKey(dataStream);
                 checkKeyPlacement(key2, directNumber, fileNumber);
 
@@ -120,8 +120,6 @@ public class FileMapUtils {
             int firstOffset = offset1;
             position += 5;
             while (position != firstOffset) {
-                if (firstOffset > fileLength) {
-                }
                 String key2 = readKey(dataStream);
 
                 position += key2.getBytes(StandardCharsets.UTF_8).length;
@@ -139,13 +137,9 @@ public class FileMapUtils {
         }
     }
 
-    public static void closeStream(Closeable stream) {
+    public static void closeStream(Closeable stream) throws IOException {
 
-        try {
             stream.close();
-        } catch (IOException e) {
-
-        }
     }
 
     public static void write(Map<String, String> dataBase, File currentFile) throws IOException {

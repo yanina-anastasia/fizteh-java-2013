@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public enum StoreableEnum {
 
@@ -55,27 +53,26 @@ public enum StoreableEnum {
 
     private static Map<String, StoreableEnum> dataBaseNamesToType;
     private static Map<Class<?>, StoreableEnum> dataBaseClassesToType;
-    private static Map<String, String> dataBaseCorrectNamesOfClasses;
+    public static Set<String> dataBaseCorrectNamesOfClasses;
 
     static {
 
         Map<String, StoreableEnum> dataBaseNamesAndTypes = new HashMap<String, StoreableEnum>();
         Map<Class<?>, StoreableEnum> dataBaseClassesAndTypes = new HashMap<Class<?>, StoreableEnum>();
-        Map<String, String> tmp = new HashMap<String, String>();
+        Set<String> tmp = new HashSet<String>();
         for (StoreableEnum type : values()) {
             dataBaseNamesAndTypes.put(type.nameOfClass, type);
             dataBaseClassesAndTypes.put(type.theClass, type);
         }
-        tmp.put("Integer", "int");
-        tmp.put("Long", "long");
-        tmp.put("Byte", "byte");
-        tmp.put("String", "String");
-        tmp.put("Boolean", "boolean");
-        tmp.put("Double", "double");
-        tmp.put("Float", "float");
+        tmp.add("Integer");
+        tmp.add("Long");
+        tmp.add("Byte");
+        tmp.add("Boolean");
+        tmp.add("Double");
+        tmp.add("Float");
         dataBaseNamesToType = Collections.unmodifiableMap(dataBaseNamesAndTypes);
         dataBaseClassesToType = Collections.unmodifiableMap(dataBaseClassesAndTypes);
-        dataBaseCorrectNamesOfClasses = Collections.unmodifiableMap(tmp);
+        dataBaseCorrectNamesOfClasses = Collections.unmodifiableSet(tmp);
     }
 
     public static Class<?> getClassByName(String name) {

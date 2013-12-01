@@ -26,13 +26,13 @@ public class StoreableTable implements Table {
         tableProvider = inTableProvider;
 
         dataBase = new ThreadLocal<HashMap<String, Storeable>>() {
-            public HashMap<String,Storeable> initialValue() {
-                return new HashMap<String,Storeable>();
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
             }
         };
         changesBase = new ThreadLocal<HashMap<String, Storeable>>(){
-            public HashMap<String,Storeable> initialValue() {
-                return new HashMap<String,Storeable>();
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
             }
         };
         sizeTable = new ThreadLocal<Integer>() {
@@ -113,8 +113,8 @@ public class StoreableTable implements Table {
             throw new ColumnFormatException("less number of columns");
         }
 
-        if ((!changesBase.get().containsKey(key) && !dataBase.get().containsKey(key)) ||
-                (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+        if ((!changesBase.get().containsKey(key) && !dataBase.get().containsKey(key))
+                || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
             //исправлено
             //эквивалент инкремента
             sizeTable.set(Integer.valueOf(sizeTable.get().intValue() + 1));
@@ -141,7 +141,8 @@ public class StoreableTable implements Table {
         }
 
 
-        if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
+        if (changesBase.get().get(newKey) != null
+                || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
             //изменено
             sizeTable.set(Integer.valueOf(sizeTable.get().intValue() - 1));
         }

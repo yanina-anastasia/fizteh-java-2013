@@ -27,6 +27,9 @@ public class CmdCreate implements Command<StoreableState> {
         try {
             for (String type : types) {
 
+                if (StoreableEnum.dataBaseCorrectNamesOfClasses.contains(type)) {
+                    throw new IllegalArgumentException("wrong type");
+                }
                 columnTypes.add(StoreableUtils.convertStringToClass(type));
             }
         } catch (Exception e) {
