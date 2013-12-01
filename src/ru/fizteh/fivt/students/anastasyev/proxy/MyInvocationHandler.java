@@ -17,6 +17,10 @@ public class MyInvocationHandler implements InvocationHandler {
     private IdentityHashMap<Object, Boolean> discoveredItems = new IdentityHashMap<>();
 
     private void writeList(Iterable list) throws XMLStreamException {
+        if (discoveredItems.containsKey(list) && list.iterator().hasNext()) {
+            xmlStreamWriter.writeCharacters("cyclic");
+            return;
+        }
         xmlStreamWriter.writeStartElement("list");
         for (Object element : list) {
             xmlStreamWriter.writeStartElement("value");
@@ -24,12 +28,8 @@ public class MyInvocationHandler implements InvocationHandler {
                 xmlStreamWriter.writeEmptyElement("null");
             } else {
                 if (element instanceof Iterable) {
-                    if (discoveredItems.containsKey(element) && ((Iterable) element).iterator().hasNext()) {
-                        xmlStreamWriter.writeCharacters("cyclic");
-                    } else {
-                        discoveredItems.put(element, true);
-                        writeList((Iterable) element);
-                    }
+                    discoveredItems.put(element, true);
+                    writeList((Iterable) element);
                 } else {
                     xmlStreamWriter.writeCharacters(element.toString());
                 }
