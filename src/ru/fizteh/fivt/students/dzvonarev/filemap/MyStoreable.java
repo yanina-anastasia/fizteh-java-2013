@@ -19,11 +19,9 @@ public class MyStoreable implements Storeable {
             throw new IndexOutOfBoundsException("wrong type (wrong count of columns in value - " + args.size() + ")");
         }
         for (int i = 0; i < args.size(); ++i) {
-            Parser myParser = new Parser();
-            if (!myParser.canBeCastedTo(columnTypes.get(i), args.get(i))) {
+            if (!myCastTo(columnTypes.get(i), args.get(i))) {
                 throw new ColumnFormatException("wrong type (" + i + " column got wrong type - " + args.get(i) + ")");
             }
-            column.add(args.get(i));
         }
     }
 
@@ -49,7 +47,6 @@ public class MyStoreable implements Storeable {
         }
         Parser myParser = new Parser();
         if (!myParser.canBeCastedTo(columnTypes.get(columnIndex), value)) {
-            //if (!value.getClass().equals(columnTypes.get(columnIndex))) {
             throw new ColumnFormatException("wrong type (value " + value
                     + " got invalid type in " + columnIndex + " column)");
         }
@@ -131,6 +128,55 @@ public class MyStoreable implements Storeable {
             throw new ColumnFormatException("wrong type (wrong type of value in " + columnIndex + " column)");
         }
         return (String) column.get(columnIndex);
+    }
+
+    public boolean myCastTo(Class<?> type, Object obj) {
+        if (obj == null || obj.equals(null)) {
+            column.add(null);
+            return true;
+        }
+        if (obj.getClass().equals(Integer.class)) {
+            if (type.equals(Byte.class)) {
+                Integer num = (Integer) obj;
+                Byte number = (Byte) obj;
+                column.add(number);
+                return num >= -128 && num <= 127;
+            }
+            if (type.equals(Integer.class)) {
+                Integer number = (Integer) obj;
+                column.add(number);
+            }
+            if (type.equals(Long.class)) {
+                Long number = (Long) obj;
+                column.add(number);
+            }
+            if (type.equals(Double.class)) {
+                Double number = (Double) obj;
+                column.add(number);
+            }
+            if (type.equals(Float.class)) {
+                Float number = (Float) obj;
+                column.add(number);
+            }
+            return type.equals(Integer.class) || type.equals(Long.class) || type.equals(Double.class)
+                    || type.equals(Float.class);
+        }
+        if (obj.getClass().equals(Long.class)) {
+            return type.equals(Long.class) || type.equals(Double.class);
+        }
+        if (obj.getClass().equals(Boolean.class)) {
+            return type.equals(Boolean.class);
+        }
+        if (obj.getClass().equals(String.class)) {
+            return type.equals(String.class);
+        }
+        if (obj.getClass().equals(Byte.class)) {
+            return !type.equals(String.class) && !type.equals(Boolean.class);
+        }
+        if (obj.getClass().equals(Float.class)) {
+            return type.equals(Double.class) || type.equals(Float.class);
+        }
+        return obj.getClass().equals(Double.class) && (type.equals(Double.class) || type.equals(Float.class));
     }
 
     @Override
