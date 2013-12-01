@@ -64,7 +64,7 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
 
-        try {
+
             if (name == null) {
                 throw new IllegalArgumentException("null name to create");
             }
@@ -82,27 +82,27 @@ public class StoreableTableProvider implements TableProvider {
             }
 
             tableProviderLock.lock();
-
-            File tableFile = new File(currentDir, name);
-
-            if (!tableFile.mkdir()) {
-                return null;
-            }
-
             try {
-                StoreableUtils.writeSignature(tableFile, columnTypes);
-            } catch (IOException e) {
-                throw new IllegalArgumentException("wrong column type table");
-            }
+                File tableFile = new File(currentDir, name);
 
-            StoreableTable table = new StoreableTable(tableFile, this);
-            StoreableTable tmp = mapOfTables.get(name);
-            if (tmp != null) {
-                return null;
-            }
-            mapOfTables.put(name, table);
+                if (!tableFile.mkdir()) {
+                    return null;
+                }
 
-            return table;
+                try {
+                    StoreableUtils.writeSignature(tableFile, columnTypes);
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("wrong column type table");
+                }
+
+                StoreableTable table = new StoreableTable(tableFile, this);
+                StoreableTable tmp = mapOfTables.get(name);
+                if (tmp != null) {
+                    return null;
+                }
+                mapOfTables.put(name, table);
+
+                return table;
         } finally {
             tableProviderLock.unlock();
         }
@@ -111,7 +111,7 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) throws IOException {
 
-        try {
+
             if (name == null) {
                 throw new IllegalArgumentException("null name to create");
             }
@@ -127,8 +127,8 @@ public class StoreableTableProvider implements TableProvider {
             }
 
             tableProviderLock.lock();
-
-            mapOfTables.remove(name);
+            try {
+                mapOfTables.remove(name);
         } finally {
             tableProviderLock.unlock();
         }
