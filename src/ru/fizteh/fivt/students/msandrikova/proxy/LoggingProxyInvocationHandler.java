@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 import javax.xml.stream.XMLStreamException;
 
 public class LoggingProxyInvocationHandler implements InvocationHandler {
-	Writer writer;
-	Object implementation;
+	private Writer writer;
+	private Object implementation;
 	
 	
 	public LoggingProxyInvocationHandler(Writer givenWriter, Object givenImplementation) {
