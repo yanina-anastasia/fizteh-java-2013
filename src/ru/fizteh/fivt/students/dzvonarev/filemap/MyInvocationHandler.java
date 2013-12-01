@@ -60,7 +60,7 @@ public class MyInvocationHandler implements InvocationHandler {
         return result;
     }
 
-    public void writeLog(Method method, Object[] args, Object result, Throwable exception) {
+    private void writeLog(Method method, Object[] args, Object result, Throwable exception) {
         try {
             writeHead(method);
             if (args == null || args.length == 0) {     // arguments part
@@ -81,14 +81,14 @@ public class MyInvocationHandler implements InvocationHandler {
         }
     }
 
-    public void writeHead(Method method) throws Throwable {
+    private void writeHead(Method method) throws Throwable {
         xmlWriter.writeStartElement("invoke");
         xmlWriter.writeAttribute("timestamp", Long.toString(System.currentTimeMillis()));
         xmlWriter.writeAttribute("class", currentImplementation.getClass().getName());
         xmlWriter.writeAttribute("name", method.getName());
     }
 
-    public void writeResult(Object result) throws Throwable {
+    private void writeResult(Object result) throws Throwable {
         xmlWriter.writeStartElement("return");
         if (result != null) {
             xmlWriter.writeCharacters(result.toString());
@@ -98,13 +98,13 @@ public class MyInvocationHandler implements InvocationHandler {
         xmlWriter.writeEndElement();
     }
 
-    public void writeException(Throwable exception) throws Throwable {
+    private void writeException(Throwable exception) throws Throwable {
         xmlWriter.writeStartElement("thrown");
         xmlWriter.writeCharacters(exception.getClass().getName() + ": " + exception.getMessage());
         xmlWriter.writeEndElement();
     }
 
-    public void writeArguments(Object[] args) throws Throwable {
+    private void writeArguments(Object[] args) throws Throwable {
         xmlWriter.writeStartElement("arguments");
         for (Object arg : args) {
             xmlWriter.writeStartElement("argument");
@@ -113,6 +113,7 @@ public class MyInvocationHandler implements InvocationHandler {
             } else {
                 if (arg instanceof Iterable) {
                     IdentityHashMap<Object, String> identityMap = new IdentityHashMap<>(); // to rid of cycles
+                    identityMap.put(arg, null);
                     writeIterable((Iterable<?>) arg, identityMap);
                 } else {
                     xmlWriter.writeCharacters(arg.toString());
@@ -123,7 +124,7 @@ public class MyInvocationHandler implements InvocationHandler {
         xmlWriter.writeEndElement();       // end of "arguments"
     }
 
-    public void writeIterable(Iterable<?> arg, IdentityHashMap<Object, String> identityMap) throws Throwable {
+    private void writeIterable(Iterable<?> arg, IdentityHashMap<Object, String> identityMap) throws Throwable {
         xmlWriter.writeStartElement("list");
         for (Object item : arg) {
             xmlWriter.writeStartElement("value");
