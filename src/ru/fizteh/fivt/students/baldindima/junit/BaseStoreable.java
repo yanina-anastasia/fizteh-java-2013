@@ -113,10 +113,9 @@ public class BaseStoreable implements Storeable {
         if (value == null || value == JSONObject.NULL) {
             value = null;
         }
-        value = cast(types.get(columnIndex), value);
-        if (value != null && (value.getClass() != (types.get(columnIndex)))) {
-            throw new ColumnFormatException(columnIndex + " column has incorrect format");
-        }
+        value  = parseObject(value.toString(), types.get(columnIndex).getSimpleName());
+        
+        
         values.set(columnIndex, value);
     }
 
