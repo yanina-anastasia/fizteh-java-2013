@@ -10,10 +10,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static ru.fizteh.fivt.students.inaumov.filemap.FileMapUtils.isEqual;
 
-public abstract class AbstractDatabaseTable<Key, Value> {
+public abstract class AbstractDatabaseTable<Key, Value> implements AutoCloseable {
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     public final Lock transactionLock = new ReentrantLock(true);
     public HashMap<Key, Value> keyValueHashMap = new HashMap<Key, Value>();
+
     private class Diff {
         private HashMap<Key, Value> modifiedKeyValueHashMap = new HashMap<Key, Value>();
         private int size = 0;
@@ -102,6 +103,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         }
     };
 
+    private TableState tableState;
     private final String tableName;
     private final String tableDir;
 
@@ -117,6 +119,7 @@ public abstract class AbstractDatabaseTable<Key, Value> {
             throw new IllegalArgumentException("error: selected database name is null (or empty)");
         }
 
+        this.tableState = TableState.NOT_INIT;
         this.tableName = tableName;
         this.tableDir = tableDir;
 
@@ -125,17 +128,25 @@ public abstract class AbstractDatabaseTable<Key, Value> {
         } catch (IOException e) {
             throw new IllegalArgumentException("error: can't load table, incorrect file format");
         }
+
+        this.tableState = TableState.WORKING;
     }
 
     public String getName() {
+        tableState.checkAvailable();
+
         return tableName;
     }
 
     public String getDir() {
+        tableState.checkAvailable();
+
         return tableDir;
     }
 
     public Value tableGet(Key key) {
+        tableState.checkAvailable();
+
         if (key == null) {
             throw new IllegalArgumentException("error: selected key is null");
         }
@@ -151,6 +162,8 @@ public abstract class AbstractDatabaseTable<Key, Value> {
     }
 
     public Value tablePut(Key key, Value value) {
+        tableState.checkAvailable();
+
         if (key == null) {
             throw new IllegalArgumentException("error: selected key is null");
         }
@@ -173,6 +186,8 @@ public abstract class AbstractDatabaseTable<Key, Value> {
     }
 
     public Value tableRemove(Key key) throws IllegalArgumentException {
+        tableState.checkAvailable();
+
         if (key == null) {
             throw new IllegalArgumentException("error: selected key is null");
         }
@@ -193,6 +208,8 @@ public abstract class AbstractDatabaseTable<Key, Value> {
     }
 
     public int tableCommit() {
+        tableState.checkAvailable();
+
         try {
             transactionLock.lock();
             int commitedChangesNumber = diff.get().commitChanges();
@@ -211,6 +228,8 @@ public abstract class AbstractDatabaseTable<Key, Value> {
     }
 
     public int tableRollback() {
+        tableState.checkAvailable();
+
         int rollbackedChangesCount = diff.get().getChangesCount();
         diff.get().clear();
 
@@ -231,5 +250,23 @@ public abstract class AbstractDatabaseTable<Key, Value> {
 
     public Value rawGet(Key key) {
         return keyValueHashMap.get(key);
+    }
+
+    public String rawGetTableName() {
+        return tableName;
+    }
+
+    public boolean isClosed() {
+        return tableState.equals(TableState.CLOSED);
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (tableState.equals(TableState.CLOSED)) {
+            return;
+        }
+
+        tableCommit();
+        tableState = TableState.CLOSED;
     }
 }
