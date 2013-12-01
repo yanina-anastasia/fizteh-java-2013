@@ -46,12 +46,12 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 result = method.invoke(implementation.get(), args);
                 if (!method.getReturnType().isAssignableFrom(void.class)) {
                     if (result == null) {
-                        jsonLog.put("return", result);
+                        jsonLog.put("returnValue", result);
                     }
                     if (result instanceof Iterable || result.getClass().isArray()) {
                         JSONArray array = new JSONArray();
                         writeArgument(array, result);
-                        jsonLog.put("return", array);
+                        jsonLog.put("returnValue", array);
                     }
                 }
                 writer.get().write(jsonLog.toString(2));
