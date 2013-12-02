@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,11 +69,12 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     }
                     jsonLog.get().put("returnValue", jsonArray);
                 }
-            } catch (Exception e) {
-                jsonLog.get().put("thrown", e.getCause());
-                writer.get().write(jsonLog.get().toString(2));
-                writer.get().write(System.lineSeparator());
-                throw e.getCause();
+            } catch (InvocationTargetException e) {
+                Throwable thrown = e.getTargetException();
+                jsonLog.get().put("thrown", thrown.toString());
+                //writer.get().write(jsonLog.get().toString(2));
+                //writer.get().write(System.lineSeparator());
+                throw thrown;
             } finally {
                 writer.get().write(jsonLog.get().toString(2));
                 writer.get().write(System.lineSeparator());
