@@ -46,15 +46,22 @@ public class LoggingInvocationHandler implements InvocationHandler {
             try {
                 result = method.invoke(implementation.get(), args);
                 if (!method.getReturnType().isAssignableFrom(void.class)) {
+                    JSONArray array = new JSONArray();
+                    ;
                     if (result == null) {
                         jsonLog.put("returnValue", result);
                     } else {
-                        if (result.getClass().isArray() || result instanceof Iterable) {
-                            JSONArray array = new JSONArray();
+                        if (result instanceof Iterable) {
+
                             writeArgument(array, (Iterable) result);
                             jsonLog.put("returnValue", array);
                         } else {
-                            jsonLog.put("returnValue", result);
+                            if (result.getClass().isArray()) {
+                                writeArgument(array, Arrays.asList((Object[]) result));
+                                jsonLog.put("returnValue", array);
+                            } else {
+                                jsonLog.put("returnValue", result);
+                            }
                         }
 
 
@@ -90,13 +97,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
                         }
                     }
                 } else {
-                /*if (arg.getClass().isArray()) {
-                    JSONArray array = new JSONArray();
-                    writeArgument(array, Arrays.asList(arg));
-                    cmdArgs.put(array);
-                } else {   */
-                    cmdArgs.put(arg);
-                    //}
+                    if (arg.getClass().isArray()) {
+                        cmdArgs.put(arg.toString());
+                    } else {
+                        cmdArgs.put(arg);
+                    }
                 }
             }
         }
