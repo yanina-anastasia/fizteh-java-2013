@@ -47,9 +47,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 result = method.invoke(implementation.get(), args);
                 if (!method.getReturnType().isAssignableFrom(void.class)) {
                     JSONArray array = new JSONArray();
-                    ;
+
                     if (result == null) {
-                        jsonLog.put("returnValue", result);
+                        jsonLog.put("returnValue", JSONObject.NULL);
                     } else {
                         if (result instanceof Iterable) {
 
@@ -66,8 +66,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
 
                     }
-                } else {
-                    jsonLog.put("returnValue", JSONObject.NULL);
                 }
                 writer.get().write(jsonLog.toString(2));
                 writer.get().write(System.lineSeparator());
@@ -105,5 +103,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 }
             }
         }
+    }
+
+    public void writeReturnValue(Object result) {
+
     }
 }
