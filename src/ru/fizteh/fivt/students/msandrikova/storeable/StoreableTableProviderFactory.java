@@ -21,14 +21,24 @@ public class StoreableTableProviderFactory implements ChangesCountingTableProvid
             throw new IllegalArgumentException("Directory can not be null.");
         }
         ChangesCountingTableProvider newTableProvider = null;
+        this.lock.writeLock().lock();
         try {
             newTableProvider = new StoreableTableProvider(new File(dir));
+            this.providers.add(newTableProvider);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (IOException e) {
             throw e;
+        } finally {
+            this.lock.writeLock().unlock();
         }
         return newTableProvider;
+    }
+    
+    public void deleteTableProviderFromfactory(ChangesCountingTableProvider provider) {
+        this.lock.writeLock().lock();
+        this.providers.remove(provider);
+        this.lock.writeLock().unlock();
     }
 
     private void checkIsClosed() throws IllegalStateException {

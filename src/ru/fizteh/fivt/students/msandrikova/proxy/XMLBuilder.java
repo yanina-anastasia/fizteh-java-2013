@@ -55,7 +55,7 @@ public class XMLBuilder {
                 if (o == null) {
                     this.writer.writeStartElement("null");
                     this.writer.writeEndElement();
-                } else if(o instanceof List<?>) {
+                } else if (o instanceof List<?>) {
                     this.checkCyclic.clear();
                     this.checkCyclic.put(o, true);
                     this.writeList((List<?>) o);
@@ -75,7 +75,7 @@ public class XMLBuilder {
             if (o == null) {
                 this.writer.writeStartElement("null");
                 this.writer.writeEndElement();
-            } else if(o instanceof List<?>) {
+            } else if (o instanceof List<?>) {
                 if (this.checkCyclic.get(o) != null) {
                     this.writer.writeCharacters("cyclic");
                 } else {

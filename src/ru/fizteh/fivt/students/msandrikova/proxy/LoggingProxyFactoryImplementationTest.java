@@ -72,7 +72,8 @@ public class LoggingProxyFactoryImplementationTest {
     public void testTableSize() {
         proxy = factory.wrap(writer, this.table, Table.class);
         ((Table) proxy).size();
-        assertEquals("<invoke class=\"ru.fizteh.fivt.students.msandrikova.storeable.StoreableTable\" name=\"size\">"
+        assertEquals("<invoke class=\"ru.fizteh.fivt.students.msandrikova.storeable.StoreableTable\""
+        		+ " name=\"size\">"
                 + "<arguments></arguments><return>0</return></invoke>\n",
                 this.deleteTimeStamp(writer.toString()));
     }
@@ -86,8 +87,10 @@ public class LoggingProxyFactoryImplementationTest {
          proxy = factory.wrap(writer, this.table, Table.class);
          getValue = ((Table) proxy).get("key");
          assertEquals(value, getValue);
-         assertEquals("<invoke class=\"ru.fizteh.fivt.students.msandrikova.storeable.StoreableTable\" name=\"get\">"
-                    + "<arguments><argument>key</argument></arguments><return>TableRow[1,true, value 1 ]</return></invoke>\n",
+         assertEquals("<invoke class=\"ru.fizteh.fivt.students.msandrikova.storeable.StoreableTable\""
+         		+ " name=\"get\">"
+                    + "<arguments><argument>key</argument></arguments><return>TableRow[1,true, value 1 ]</return>"
+                    + "</invoke>\n",
                     this.deleteTimeStamp(writer.toString()));
     }
     
@@ -97,8 +100,10 @@ public class LoggingProxyFactoryImplementationTest {
         try {
             ((TableProvider) proxy).getTable(null);
         } catch (IllegalArgumentException e) {
-            assertEquals("<invoke class=\"ru.fizteh.fivt.students.msandrikova.storeable.StoreableTableProvider\" name=\"getTable\">"
-                    + "<arguments><argument><null></null></argument></arguments><thrown>java.lang.IllegalArgumentException: Table name can not be null "
+            assertEquals("<invoke class=\"ru.fizteh.fivt.students.msandrikova.storeable.StoreableTableProvider\""
+            		+ " name=\"getTable\">"
+                    + "<arguments><argument><null></null></argument></arguments>"
+                    + "<thrown>java.lang.IllegalArgumentException: Table name can not be null "
                     + "or empty or contain bad symbols</thrown></invoke>\n",
                     this.deleteTimeStamp(writer.toString()));
             throw e;
@@ -112,7 +117,8 @@ public class LoggingProxyFactoryImplementationTest {
         proxy = factory.wrap(writer, list, List.class);
         assertEquals(0, ((List<?>) proxy).indexOf(list));
         assertEquals("<invoke class=\"java.util.ArrayList\" name=\"indexOf\">"
-                + "<arguments><argument><list><value>cyclic</value></list></argument></arguments><return>0</return></invoke>\n",
+                + "<arguments><argument><list><value>cyclic</value></list>"
+                + "</argument></arguments><return>0</return></invoke>\n",
                 this.deleteTimeStamp(writer.toString()));
     }
     

@@ -119,11 +119,11 @@ public class TableRow implements Storeable {
         String answer = className + "[";
         boolean first = true;
         for (Object o : this.row) {
-            if(!first) {
+            if (!first) {
                 answer += ",";
             }
             first = false;
-            if(o != null) {
+            if (o != null) {
                 answer += o.toString();
             }
         }

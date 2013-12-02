@@ -245,7 +245,6 @@ public class StoreableTableProvider implements ChangesCountingTableProvider, Aut
         for (ChangesCountingTable table : this.mapOfTables.values()) {
             table.close();
         }
-        
         this.isClosed = true;
         this.lock.writeLock().unlock();
     }
