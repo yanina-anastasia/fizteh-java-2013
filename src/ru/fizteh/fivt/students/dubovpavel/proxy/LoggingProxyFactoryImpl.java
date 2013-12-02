@@ -59,6 +59,9 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
             }
 
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getDeclaringClass().equals(Object.class)) {
+                    return method.invoke(implementation, args);
+                }
                 StringWriter buffer = new StringWriter();
                 XMLStreamWriter xmlWriter = null;
                 boolean xmlBuilt = true;
@@ -68,7 +71,7 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
                     xmlWriter.writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
                     xmlWriter.writeAttribute("class", implementation.getClass().getName());
                     xmlWriter.writeAttribute("name", method.getName());
-                    if (args.length == 0) {
+                    if (args == null || args.length == 0) {
                         xmlWriter.writeEmptyElement("arguments");
                     } else {
                         xmlWriter.writeStartElement("arguments");
