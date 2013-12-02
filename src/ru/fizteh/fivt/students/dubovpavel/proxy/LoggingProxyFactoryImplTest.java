@@ -17,7 +17,7 @@ public class LoggingProxyFactoryImplTest {
     }
     @After
     public void tearDown() {
-        System.out.println(xml.toString());
+        /* System.out.println(xml.toString()); */
     }
 
     @Test
