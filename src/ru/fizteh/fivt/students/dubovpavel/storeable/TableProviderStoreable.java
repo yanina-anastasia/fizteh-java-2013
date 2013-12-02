@@ -43,7 +43,7 @@ public class TableProviderStoreable<DB extends FileRepresentativeDataBase<Storea
             throw new IllegalArgumentException();
         }
         for (Class<?> type : columnTypes) {
-            if (!TypesCaster.SUPPORTED_NAMES.containsKey(type)) {
+            if (!TypesCaster.SUPPORTED_TYPES.containsKey(type)) {
                 throw new IllegalArgumentException();
             }
         }
