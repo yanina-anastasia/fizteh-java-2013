@@ -38,9 +38,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
             jsonLog.put("method", method.getName());
             JSONArray methodArgs = new JSONArray();
             if (args != null) {
-                //for (Object arg : args) {
+                /*for (Object arg : args) {  */
                 writeArgument(methodArgs, Arrays.asList(args));
-                //}
+                // }
             }
             jsonLog.put("arguments", methodArgs);
             try {
@@ -51,7 +51,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     } else {
                         if (result.getClass().isArray() || result instanceof Iterable) {
                             JSONArray array = new JSONArray();
-                            writeArgument(array, Arrays.asList(result));
+                            writeArgument(array, (Iterable) result);
                             jsonLog.put("returnValue", array);
                         } else {
                             jsonLog.put("returnValue", result);
@@ -73,7 +73,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
     }
 
     public void writeArgument(JSONArray cmdArgs, Iterable args) {
-        prevArgs.get().put(args, true);
+
         for (Object arg : args) {
             if (arg == null) {
                 cmdArgs.put(arg);
@@ -84,9 +84,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
                             cmdArgs.put("cyclic");
                         } else {
                             prevArgs.get().put(inArg, true);
-                            //JSONArray array = new JSONArray();
+                            JSONArray array = new JSONArray();
                             writeArgument(cmdArgs, (Iterable) inArg);
-                            //cmdArgs.put(array);
+                            cmdArgs.put(array);
                         }
                     }
                 } else {
