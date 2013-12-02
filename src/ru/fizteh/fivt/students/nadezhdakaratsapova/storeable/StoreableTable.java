@@ -94,7 +94,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public void load() throws IOException, ParseException {
-        isClosed();
+        //isClosed();
         universalLoad();
     }
 
