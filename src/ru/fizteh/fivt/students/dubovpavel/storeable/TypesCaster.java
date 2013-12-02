@@ -18,7 +18,7 @@ public class TypesCaster {
         SUPPORTED_NAMES.put("String", String.class);
 
         SUPPORTED_TYPES = new HashMap<>();
-        for(Map.Entry<String, Class<?>> entry: SUPPORTED_NAMES.entrySet()) {
+        for (Map.Entry<String, Class<?>> entry: SUPPORTED_NAMES.entrySet()) {
             SUPPORTED_TYPES.put(entry.getValue(), entry.getKey());
         }
     }
