@@ -70,6 +70,10 @@ public class StoreableTableProvider implements TableProvider, Provider, AutoClos
         if (!name.matches(CORRECT_FORMAT)) {
             throw new IllegalArgumentException("wrong type (" + name + ")");
         }
+        StoreableTableState table = tables.get(name);
+        if (table != null && table.isClosed()) {
+            tables.put(name, new StoreableTableState(name, table.getWorkingDirectory(), table.getStream(), this));
+        }
         return tables.get(name);
     }
 

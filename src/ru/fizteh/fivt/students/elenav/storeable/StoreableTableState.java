@@ -245,7 +245,6 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
 
     @Override
     public void read() throws IOException {
-        checkIsNotClosed();
         try {
             lock.writeLock().lock();
             
@@ -482,5 +481,9 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         if (isClosed) {
             throw new IllegalStateException("table is closed");
         }
+    }
+    
+    public boolean isClosed() {
+        return isClosed;
     }
 }
