@@ -64,6 +64,12 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
     }
     
+    @Override
+    public String getName() {
+        checkIsNotClosed();
+        return super.getName();
+    }
+    
     public void getColumnTypes() throws IOException {
         checkIsNotClosed();
         File f = new File(getWorkingDirectory(), "signature.tsv");

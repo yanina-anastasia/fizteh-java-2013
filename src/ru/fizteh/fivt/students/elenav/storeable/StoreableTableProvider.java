@@ -37,7 +37,7 @@ public class StoreableTableProvider implements TableProvider, Provider, AutoClos
         loadTablesFromHardDisk(dir);
         setWorkingDirectory(dir);
     }
-
+    
     private synchronized void loadTablesFromHardDisk(File dir) {
         for (File f : dir.listFiles()) {
             if (f.isDirectory()) {
