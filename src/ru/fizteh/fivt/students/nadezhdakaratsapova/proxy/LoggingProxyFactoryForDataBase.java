@@ -21,6 +21,9 @@ public class LoggingProxyFactoryForDataBase implements LoggingProxyFactory {
         if (interfaceClass == null) {
             throw new IllegalArgumentException("Logging wrap: the null interfaceClass is not allowed");
         }
+        if (!interfaceClass.isInterface()) {
+            throw new IllegalArgumentException("Logging wrap: interface is not an interface");
+        }
         if (!interfaceClass.isInstance(implementation)) {
             throw new IllegalArgumentException("interfaceClass and implementation aren't connected");
         }
