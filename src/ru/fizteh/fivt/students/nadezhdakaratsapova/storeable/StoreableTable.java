@@ -44,7 +44,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
         int i;
         for (i = 0; i < signColumnsCount; ++i) {
             try {
-                isClosed();
+                //isClosed();
                 SignatureController signatureController = new SignatureController();
                 signatureController.checkValueForTable(i, this, value);
             } catch (IndexOutOfBoundsException e) {
@@ -52,7 +52,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
             }
         }
         try {
-            isClosed();
+            //isClosed();
             value.getColumnAt(i);
         } catch (IndexOutOfBoundsException e) {
             return putSimple(key, value);
