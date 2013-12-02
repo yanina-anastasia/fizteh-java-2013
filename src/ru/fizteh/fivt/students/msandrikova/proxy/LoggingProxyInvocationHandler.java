@@ -37,7 +37,7 @@ public class LoggingProxyInvocationHandler implements InvocationHandler {
         }
         try {
             res = method.invoke(this.implementation, args);
-            if(!method.getReturnType().equals(void.class)) {
+            if (!method.getReturnType().equals(void.class)) {
                 try {
                     builder.writeResult(res);    
                 } catch (XMLStreamException e) {

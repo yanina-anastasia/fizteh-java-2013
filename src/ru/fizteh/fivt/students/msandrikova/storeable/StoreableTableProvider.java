@@ -150,8 +150,12 @@ public class StoreableTableProvider implements ChangesCountingTableProvider, Aut
     }
 
     @Override
-    public Storeable createFor(Table table) throws IllegalStateException {
+    public Storeable createFor(Table table) 
+            throws IllegalArgumentException, IllegalStateException {
         this.checkIsClosed();
+        if (table == null) {
+            throw new IllegalArgumentException("bad argument");
+        }
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             columnTypes.add(table.getColumnType(i));
@@ -160,8 +164,12 @@ public class StoreableTableProvider implements ChangesCountingTableProvider, Aut
     }
 
     @Override
-    public Storeable createFor(Table table, List<?> values) throws IndexOutOfBoundsException, IllegalStateException {
+    public Storeable createFor(Table table, List<?> values) 
+            throws IllegalArgumentException, IndexOutOfBoundsException, IllegalStateException {
         this.checkIsClosed();
+        if (values == null) {
+            throw new IllegalArgumentException("bad argument");
+        }
         Storeable row = this.createFor(table);
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             row.setColumnAt(i, values.get(i));
