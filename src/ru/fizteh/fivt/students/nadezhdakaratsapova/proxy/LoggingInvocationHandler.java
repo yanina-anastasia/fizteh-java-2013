@@ -8,16 +8,23 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.Set;
 
 public class LoggingInvocationHandler implements InvocationHandler {
     private ThreadLocal<Writer> writer = new ThreadLocal<Writer>();
     private ThreadLocal<Object> implementation = new ThreadLocal<Object>();
-    private ThreadLocal<Map<Object, Boolean>> prevArgs = new ThreadLocal<Map<Object, Boolean>>() {
+    private ThreadLocal<JSONObject> jsonLog = new ThreadLocal<JSONObject>() {
         @Override
-        protected Map<Object, Boolean> initialValue() {
-            return new IdentityHashMap<Object, Boolean>();
+        public JSONObject initialValue() {
+            return new JSONObject();
+        }
+    };
+    private ThreadLocal<Set<Object>> prevArgs = new ThreadLocal<Set<Object>>() {
+        @Override
+        public Set<Object> initialValue() {
+            return Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
         }
     };
 
@@ -30,76 +37,62 @@ public class LoggingInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result;
         if (method.getDeclaringClass().equals(Object.class)) {
-            result = method.invoke(implementation.get(), args);
-        } else {
-            JSONObject jsonLog = new JSONObject();
-            jsonLog.put("timestamp", System.currentTimeMillis());
-            jsonLog.put("class", implementation.get().getClass());
-            jsonLog.put("method", method.getName());
-            JSONArray methodArgs = new JSONArray();
-            if (args != null) {
-                /*for (Object arg : args) {  */
-                prevArgs.get().clear();
-                writeArgument(methodArgs, Arrays.asList(args));
-                // }
-            }
-            jsonLog.put("arguments", methodArgs);
             try {
-                result = method.invoke(implementation.get(), args);
-                if (!method.getReturnType().isAssignableFrom(void.class)) {
-                    JSONArray array = new JSONArray();
-
-                    if (result == null) {
-                        jsonLog.put("returnValue", JSONObject.NULL);
-                    } else {
+                result = method.invoke(implementation, args);
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
+        } else {
+            jsonLog.get().put("timestamp", System.currentTimeMillis());
+            jsonLog.get().put("class", implementation.get().getClass());
+            jsonLog.get().put("method", method.getName());
+            JSONArray array = new JSONArray();
+            if (args != null) {
+                writeArgument(array, Arrays.asList(args));
+            }
+            jsonLog.get().put("arguments", array);
+            try {
+                result = method.invoke(implementation, args);
+                if (!method.getReturnType().equals(void.class)) {
+                    JSONArray jsonArray = new JSONArray();
+                    if (jsonArray != null) {
                         if (result instanceof Iterable) {
-
-                            writeArgument(array, (Iterable) result);
-                            jsonLog.put("returnValue", array);
+                            writeArgument(jsonArray, (Iterable) result);
                         } else {
                             if (result.getClass().isArray()) {
-                                writeArgument(array, Arrays.asList((Object[]) result));
-                                jsonLog.put("returnValue", array);
+                                writeArgument(jsonArray, Arrays.asList((Object[]) result));
                             } else {
-                                jsonLog.put("returnValue", result);
+                                jsonLog.get().put("returnValue", result);
                             }
                         }
-
-
                     }
+                    jsonLog.get().put("returnValue", jsonArray);
                 }
-                writer.get().write(jsonLog.toString(2));
-                writer.get().write(System.lineSeparator());
-            } catch (Exception e) {
-                jsonLog.put("thrown", e.getClass() + ": " + e.getMessage());
-                throw new InvocationTargetException(e);
+            } catch (InvocationTargetException e) {
+                jsonLog.get().put("thrown", e.getTargetException().toString());
+                throw e.getTargetException();
             }
+            writer.get().write(jsonLog.get().toString(2));
         }
         return result;
     }
 
     public void writeArgument(JSONArray cmdArgs, Iterable args) {
-
+        prevArgs.get().add(args);
         for (Object arg : args) {
-            prevArgs.get().put(arg, true);
             if (arg == null) {
                 cmdArgs.put(arg);
             } else {
                 if (arg instanceof Iterable) {
-                    if (prevArgs.get().containsKey(arg)) {
+                    if (prevArgs.get().contains(arg)) {
                         cmdArgs.put("cyclic");
                     } else {
-
                         JSONArray array = new JSONArray();
-                        writeArgument(cmdArgs, (Iterable) arg);
+                        writeArgument(array, (Iterable) arg);
                         cmdArgs.put(array);
                     }
                 } else {
-                    if (arg.getClass().isArray()) {
-                        cmdArgs.put(arg.toString());
-                    } else {
-                        cmdArgs.put(arg);
-                    }
+                    cmdArgs.put(arg);
                 }
             }
         }
