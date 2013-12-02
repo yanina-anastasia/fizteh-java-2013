@@ -37,6 +37,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        isClosed();
         if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("(.*\\s+.*)+"))) {
             throw new IllegalArgumentException("pot correct key or value");
         }
@@ -74,6 +75,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public int commit() throws IOException {
+        isClosed();
         int commitSize = 0;
         tableChangesLock.writeLock().lock();
         try {
