@@ -4,7 +4,7 @@ public enum TableState {
     NOT_INIT {
         @Override
         public void checkAvailable() {
-            throw new IllegalStateException("table is not init yet");
+            throw new IllegalStateException("is not init yet");
         }
     },
     WORKING {
@@ -16,7 +16,7 @@ public enum TableState {
     CLOSED {
         @Override
         public void checkAvailable() {
-            throw new IllegalStateException("table is already closed");
+            throw new IllegalStateException("is already closed");
         }
     };
 

@@ -104,17 +104,13 @@ public class DatabaseRow implements Storeable {
 
     @Override
     public boolean equals(Object obj) {
-        DatabaseRow otherStoreable = (DatabaseRow) obj;
-        if (otherStoreable == null) {
+        if (obj == null) {
             return false;
         }
 
-        return otherStoreable.columns.equals(columns) && otherStoreable.classes.equals(classes);
-    }
+        DatabaseRow otherStoreable = (DatabaseRow) obj;
 
-    @Override
-    public int hashCode() {
-        return columns == null ? 0 : columns.hashCode();
+        return otherStoreable.columns.equals(columns) && otherStoreable.classes.equals(classes);
     }
 
     public void addColumn(Class<?> columnType) {
@@ -149,6 +145,6 @@ public class DatabaseRow implements Storeable {
 
     @Override
     public String toString() {
-        return StoreableUtils.valuesTypeNamesToString(columns);
+        return getClass().getSimpleName() + "[" + StoreableUtils.valuesTypeNamesToString(columns, false, ",") + "]";
     }
 }

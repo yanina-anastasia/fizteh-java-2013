@@ -3,6 +3,10 @@ package ru.fizteh.fivt.students.inaumov.storeable;
 import ru.fizteh.fivt.storage.structured.*;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,18 +23,20 @@ public class StoreableUtils {
         return result;
     }
 
-    public static String valuesTypeNamesToString(List<?> list) {
+    public static String valuesTypeNamesToString(List<?> list, boolean nameNulls, String delimiter) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean firstEntry = true;
 
         for (final Object listEntry: list) {
             if (!firstEntry) {
-                stringBuilder.append(" ");
+                stringBuilder.append(delimiter);
             }
             firstEntry = false;
 
             if (listEntry == null) {
-                stringBuilder.append("null");
+                if (nameNulls) {
+                    stringBuilder.append("null");
+                }
             } else {
                 stringBuilder.append(listEntry.toString());
             }
@@ -92,5 +98,29 @@ public class StoreableUtils {
                 throw new ParseException("{" + stringValue + "}", 0);
             }
         }
+    }
+
+    public static List<String> formatColumnTypes(List<Class<?>> columnTypes) {
+        List<String> formattedColumnTypes = new ArrayList<String>();
+        for (final Class<?> columnType : columnTypes) {
+            formattedColumnTypes.add(TypesFormatter.getSimpleName(columnType));
+        }
+
+        return formattedColumnTypes;
+    }
+
+    public static void writeSignature(File signatureFile, List<Class<?>> columnTypes) throws IOException {
+        File parent = signatureFile.getParentFile();
+        if (!parent.exists()) {
+            parent.mkdir();
+        }
+
+        signatureFile.createNewFile();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
+        List<String> formattedColumnTypes = StoreableUtils.formatColumnTypes(columnTypes);
+
+        String signature = StoreableUtils.valuesTypeNamesToString(formattedColumnTypes, true, " ");
+        writer.write(signature);
+        writer.close();
     }
 }

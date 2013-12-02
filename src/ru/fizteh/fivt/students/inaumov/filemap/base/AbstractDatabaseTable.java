@@ -103,7 +103,7 @@ public abstract class AbstractDatabaseTable<Key, Value> implements AutoCloseable
         }
     };
 
-    private TableState tableState;
+    protected TableState tableState;
     private final String tableName;
     private final String tableDir;
 

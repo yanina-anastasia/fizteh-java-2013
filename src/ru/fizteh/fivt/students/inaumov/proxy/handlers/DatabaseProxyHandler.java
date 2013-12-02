@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.inaumov.proxy.handlers;
 
-import java.io.IOException;
+import ru.fizteh.fivt.students.inaumov.proxy.XMLFormatter;
+
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -18,24 +19,28 @@ public class DatabaseProxyHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
+        Throwable throwable = null;
 
         try {
             result = method.invoke(implementation, args);
-
-            if (!method.getReturnType().getName().equals("void")) {
-
-            }
         } catch (InvocationTargetException e) {
-            Throwable targetException = e.getTargetException();
+            throwable = e.getTargetException();
+        }
 
-            throw targetException;
-        } catch (Exception e) {
-
-        } finally {
-            if (!method.getDeclaringClass().equals(Object.class)) {
-
+        if (method.getDeclaringClass() != Object.class) {
+            try {
+                XMLFormatter formatter = new XMLFormatter();
+                formatter.writeMethodLog(method, args, implementation, throwable, result);
+                writer.write(formatter.toString() + "\n");
+            } catch (Throwable e) {
+                if (throwable != null) {
+                    throwable.addSuppressed(e);
+                }
             }
-            //
+        }
+
+        if (throwable != null) {
+            throw throwable;
         }
 
         return result;
