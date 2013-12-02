@@ -84,7 +84,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 //do nothing
             } finally {
                 try {
-                    if (method.getDeclaringClass().equals(Object.class)) {
+                    if (!method.getDeclaringClass().equals(Object.class)) {
                         writer.get().write(jsonLog.get().toString(2));
                         writer.get().write(System.lineSeparator());
                     }
