@@ -46,7 +46,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             } */
         } else {
             jsonLog.get().put("timestamp", System.currentTimeMillis());
-            jsonLog.get().put("class", implementation.get().getClass());
+            jsonLog.get().put("class", implementation.get().getClass().getName());
             jsonLog.get().put("method", method.getName());
             JSONArray array = new JSONArray();
             if (args != null) {
@@ -112,11 +112,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
                         cmdArgs.put(array);
                     }
                 } else {
-                    /*if (arg.getClass().isArray()) {
+                    if (arg.getClass().isArray()) {
                         cmdArgs.put(arg.toString());
-                    } else {  */
-                    cmdArgs.put(arg);
-                    //}
+                    } else {
+                        cmdArgs.put(arg);
+                    }
                 }
             }
         }
