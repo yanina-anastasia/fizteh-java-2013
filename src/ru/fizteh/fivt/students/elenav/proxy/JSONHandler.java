@@ -49,7 +49,7 @@ public class JSONHandler implements InvocationHandler {
             logArgs(args);
             try {
                 result = m.invoke(obj, args);
-                if (m.getReturnType() != void.class) {
+                if (m.getReturnType() != Void.TYPE) {
                     logReturnValue(result);
                 }                    
             } catch (InvocationTargetException e) {
