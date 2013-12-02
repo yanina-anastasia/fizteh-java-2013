@@ -29,7 +29,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     public StoreableTable(StoreableTable table) {
         tableProvider = table.tableProvider;
-        valueConverter = table.valueConverter;
+        valueConverter = new StoreableValueConverter(tableProvider, this);
         dataBaseDirectory = table.dataBaseDirectory;
         tableName = table.tableName;
         columnTypes = table.columnTypes;
@@ -61,6 +61,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
 
     }
+
 
     public int getColumnsCount() {
         isClosed();
