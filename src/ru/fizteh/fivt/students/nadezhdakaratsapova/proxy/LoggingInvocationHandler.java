@@ -70,6 +70,8 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 }
             } catch (Exception e) {
                 jsonLog.get().put("thrown", e.getCause());
+                writer.get().write(jsonLog.get().toString(2));
+                writer.get().write(System.lineSeparator());
                 throw e.getCause();
             } finally {
                 writer.get().write(jsonLog.get().toString(2));
