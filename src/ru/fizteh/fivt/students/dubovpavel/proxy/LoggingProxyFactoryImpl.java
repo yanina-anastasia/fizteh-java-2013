@@ -1,10 +1,10 @@
 package ru.fizteh.fivt.students.dubovpavel.proxy;
 
-import com.sun.xml.internal.txw2.output.IndentingXMLStreamWriter;
 import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -19,7 +19,7 @@ import java.util.Iterator;
 public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
     public Object wrap(final Writer writer, final Object implementation, Class<?> interfaceClass) {
         InvocationHandler handler = new InvocationHandler() {
-            private void buildArgumentsTree(IndentingXMLStreamWriter xmlWriter, Iterable args,
+            private void buildArgumentsTree(XMLStreamWriter xmlWriter, Iterable args,
                                             IdentityHashMap <Object, Iterable> finishedArguments, int level)
                     throws XMLStreamException {
                 for (Iterator i = args.iterator(); i.hasNext(); ) {
@@ -44,12 +44,10 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
 
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 StringWriter buffer = new StringWriter();
-                IndentingXMLStreamWriter xmlWriter = null;
+                XMLStreamWriter xmlWriter = null;
                 boolean xmlBuilt = true;
                 try {
-                    xmlWriter = new IndentingXMLStreamWriter(
-                            XMLOutputFactory.newInstance().createXMLStreamWriter(buffer));
-                    xmlWriter.setIndentStep("    ");
+                    xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(buffer);
                     xmlWriter.writeStartElement("invoke");
                     xmlWriter.writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
                     xmlWriter.writeAttribute("class", implementation.getClass().getName());
