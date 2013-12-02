@@ -13,6 +13,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
     private boolean closed = false;
 
     public StoreableTableProvider create(String dir) throws IOException {
+        isClosed();
         if ((dir == null) || (dir.trim().isEmpty())) {
             throw new IllegalArgumentException("Not allowed name of DataBaseStorage");
         } else {
