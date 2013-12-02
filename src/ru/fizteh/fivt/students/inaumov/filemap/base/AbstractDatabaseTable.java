@@ -235,6 +235,8 @@ public abstract class AbstractDatabaseTable<Key, Value> implements AutoCloseable
     }
 
     public int tableSize() {
+        tableState.checkAvailable();
+
         return diff.get().getSize();
     }
 
