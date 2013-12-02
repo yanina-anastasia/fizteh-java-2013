@@ -24,6 +24,39 @@ public class TableSessional extends TableStoreableParallel implements AutoClosea
         }
     }
 
+    @Override
+    public String getName() {
+        try {
+            closingLock.readLock().lock();
+            checkIfAlive();
+            return super.getName();
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int getColumnsCount() {
+        try {
+            closingLock.readLock().lock();
+            checkIfAlive();
+            return super.getColumnsCount();
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        try {
+            closingLock.readLock().lock();
+            checkIfAlive();
+            return super.getColumnType(columnIndex);
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
     public boolean closed() {
         try {
             closingLock.readLock().lock();

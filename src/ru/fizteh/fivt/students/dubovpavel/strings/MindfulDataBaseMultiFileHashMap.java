@@ -37,11 +37,7 @@ public class MindfulDataBaseMultiFileHashMap<V> extends DataBaseMultiFileHashMap
     }
 
     public int size() {
-        return size(localDict);
-    }
-
-    protected int size(HashMap<String, V> dict) {
-        return dict.size();
+        return localDict.size();
     }
 
     public int getDiff() {
