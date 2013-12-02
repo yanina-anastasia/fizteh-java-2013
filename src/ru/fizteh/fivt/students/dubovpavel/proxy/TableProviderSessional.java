@@ -47,15 +47,16 @@ public class TableProviderSessional<DB extends FileRepresentativeDataBase<Storea
     public void close() {
         try {
             closingLock.writeLock().lock();
-            checkIfAlive();
-            for (Iterator<DB> i = storage.getDBIterator(); i.hasNext(); ) {
-                try {
-                    i.next().close();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+            if (!closed) {
+                for (Iterator<DB> i = storage.getDBIterator(); i.hasNext(); ) {
+                    try {
+                        i.next().close();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+                closed = true;
             }
-            closed = true;
         } finally {
             closingLock.writeLock().unlock();
         }
