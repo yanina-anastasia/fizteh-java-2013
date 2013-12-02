@@ -98,9 +98,11 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         try {
             isClosed();
             StoreableTable dataTable = dataBaseTables.get(name);
-            if (dataTable.isTableClosed()) {
-                StoreableTable newDataTable = new StoreableTable(dataTable);
-                return newDataTable;
+            if (dataTable != null) {
+                if (dataTable.isTableClosed()) {
+                    StoreableTable newDataTable = new StoreableTable(dataTable);
+                    return newDataTable;
+                }
             }
             return dataBaseTables.get(name);
         } finally {
