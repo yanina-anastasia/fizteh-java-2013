@@ -87,9 +87,7 @@ public class StoreableImplTransformer implements ObjectTransformer<Storeable> {
             return storeable;
         } catch (JSONException e) {
             throw new ParseException(e.getMessage(), -1);
-        } catch (ColumnFormatException e) {
-            throw new SerialException(e.getMessage());
-        } catch (IndexOutOfBoundsException e) {
+        } catch (ColumnFormatException | IndexOutOfBoundsException e) {
             throw new SerialException(e.getMessage());
         }
     }

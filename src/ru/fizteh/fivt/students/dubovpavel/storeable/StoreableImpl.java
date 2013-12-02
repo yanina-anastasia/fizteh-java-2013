@@ -61,7 +61,7 @@ public class StoreableImpl implements Storeable {
 
     public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
         checkIndex(columnIndex);
-        return data.get(columnIndex);
+        return fields.get(columnIndex).cast(data.get(columnIndex));
     }
 
     private <T> T getCastedAt(int columnIndex, Class<T> tClass)
