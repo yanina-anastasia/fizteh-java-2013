@@ -7,22 +7,6 @@ import org.junit.Test;
 import java.io.StringWriter;
 import java.util.HashSet;
 
-class TestClass<T> implements TestInterface<T> {
-    public int test(T i) {
-        return -1;
-    }
-}
-
-class TestClassThrows implements TestInterface<Integer> {
-    public int test(Integer i) {
-        throw new RuntimeException("message");
-    }
-}
-
-interface TestInterface<T> {
-    int test(T i);
-}
-
 public class LoggingProxyFactoryImplTest {
     private StringWriter xml;
     private LoggingProxyFactoryImpl log;
@@ -59,5 +43,21 @@ public class LoggingProxyFactoryImplTest {
         TestInterface<Integer> testObj =
                 (TestInterface<Integer>) log.wrap(xml, new TestClassThrows(), TestInterface.class);
         testObj.test(10);
+    }
+
+    class TestClass<T> implements TestInterface<T> {
+        public int test(T i) {
+            return -1;
+        }
+    }
+
+    class TestClassThrows implements TestInterface<Integer> {
+        public int test(Integer i) {
+            throw new RuntimeException("message");
+        }
+    }
+
+    interface TestInterface<T> {
+        int test(T i);
     }
 }

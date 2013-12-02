@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.dubovpavel.proxy;
 
+import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
@@ -8,6 +9,7 @@ import ru.fizteh.fivt.students.dubovpavel.parallel.TableProviderStoreableParalle
 import ru.fizteh.fivt.students.dubovpavel.storeable.TableStoreableBuilder;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -100,6 +102,51 @@ public class TableProviderSessional<DB extends FileRepresentativeDataBase<Storea
             closingLock.readLock().lock();
             checkIfAlive();
             super.removeTable(name);
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        try {
+            closingLock.readLock().lock();
+            checkIfAlive();
+            return super.deserialize(table, value);
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        try {
+            closingLock.readLock().lock();
+            checkIfAlive();
+            return super.serialize(table, value);
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Storeable createFor(Table table) {
+        try {
+            closingLock.readLock().lock();
+            checkIfAlive();
+            return super.createFor(table);
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Storeable createFor(Table table, List<?> values)
+            throws ColumnFormatException, IndexOutOfBoundsException {
+        try {
+            closingLock.readLock().lock();
+            checkIfAlive();
+            return super.createFor(table, values);
         } finally {
             closingLock.readLock().unlock();
         }
