@@ -22,7 +22,7 @@ public class StoreableImpl implements Storeable {
     public String toString() {
         StringBuilder internal = new StringBuilder();
         for (Object cell: data) {
-            internal.append(cell.toString());
+            internal.append(cell == null ? "null" : cell.toString());
             internal.append(',');
         }
         internal.setLength(internal.length() - 1);
