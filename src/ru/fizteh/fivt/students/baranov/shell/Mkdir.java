@@ -14,7 +14,7 @@ public class Mkdir extends BasicCommand {
         Path newPath = Paths.get(currentPath.getCurrentPath().toString() + "/" + args[1]);
         try {
             Path dir = Files.createDirectory(newPath);
-        } catch(IOException exception) {
+        } catch (IOException exception) {
             System.err.println("mkdir: input/output error");
         }
         return true;

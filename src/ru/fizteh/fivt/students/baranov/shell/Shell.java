@@ -8,8 +8,8 @@ public class Shell {
     public HashMap<String, BasicCommand> commands;
     public ShellState path;
 
-    Shell(Path path_) {
-        this.path = new ShellState(path_);
+    Shell(Path pathС) {
+        this.path = new ShellState(pathС);
         this.commands = new HashMap<String, BasicCommand>();
     }
 
@@ -35,7 +35,7 @@ public class Shell {
     public void pocketMode(String[] args) {
         String commandsString = "";
         for (int i = 0; i < args.length; ++i) {
-            commandsString = commandsString + " "  + args[i];
+            commandsString = commandsString + " " + args[i];
         }
         String[] commandList = commandsString.trim().split("\\s*;\\s*");
         for (int i = 0; i < commandList.length; ++i) {

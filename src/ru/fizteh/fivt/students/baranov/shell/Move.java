@@ -29,7 +29,7 @@ public class Move extends BasicCommand {
             Remove rm = new Remove();
             String[] newArgs = {args[0], args[1]};
             cp.doCommand(args, currentPath);
-            if (currentPath.copyMade == 1){
+            if (currentPath.copyMade == 1) {
                 rm.doCommand(newArgs, currentPath);
             }
         } else {

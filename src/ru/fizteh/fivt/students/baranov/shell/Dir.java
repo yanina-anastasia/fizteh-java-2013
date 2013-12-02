@@ -17,7 +17,7 @@ public class Dir extends BasicCommand {
         try {
             DirectoryStream<Path> stream = Files.newDirectoryStream(dir);
             try {
-                for (Path file: stream) {
+                for (Path file : stream) {
                     System.out.println(file.getFileName());
                 }
             } catch (DirectoryIteratorException x) {

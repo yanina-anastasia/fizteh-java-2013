@@ -40,7 +40,7 @@ public class Copy extends BasicCommand {
             }
             currentPath.copyMade = 1;
             return true;
-        }  else if (Files.isDirectory(sourcePath) && Files.isDirectory(targetPath)) {
+        } else if (Files.isDirectory(sourcePath) && Files.isDirectory(targetPath)) {
             FileTreeCopy fileTree = new FileTreeCopy(sourcePath, targetPath);
             try {
                 Files.walkFileTree(sourcePath, fileTree);
