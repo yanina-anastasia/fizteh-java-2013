@@ -68,7 +68,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        isClosed();
+        //isClosed();
         if (columnIndex >= columnTypes.size() || columnIndex < 0) {
             throw new IndexOutOfBoundsException();
         }
