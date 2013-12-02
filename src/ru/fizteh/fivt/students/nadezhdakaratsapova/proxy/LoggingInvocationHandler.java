@@ -60,15 +60,19 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     if (result != null) {
                         if (result instanceof Iterable) {
                             writeArgument(jsonArray, (Iterable) result);
+                            jsonLog.get().put("returnValue", jsonArray);
                         } else {
                             if (result.getClass().isArray()) {
                                 writeArgument(jsonArray, Arrays.asList((Object[]) result));
+                                jsonLog.get().put("returnValue", jsonArray);
                             } else {
                                 jsonLog.get().put("returnValue", result);
                             }
                         }
+                    } else {
+                        jsonLog.get().put("returnValue", JSONObject.NULL);
                     }
-                    jsonLog.get().put("returnValue", jsonArray);
+
                 }
             } catch (InvocationTargetException e) {
                 Throwable thrown = e.getTargetException();
