@@ -7,6 +7,7 @@ import ru.fizteh.fivt.students.dubovpavel.shell2.performers.PerformerRemove;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Storage<DB extends FileRepresentativeDataBase> {
@@ -24,6 +25,14 @@ public class Storage<DB extends FileRepresentativeDataBase> {
                 throw new StorageException(String.format("Saving: Database %s: %s", entry.getKey(), e.getMessage()));
             }
         }
+    }
+
+    public String getPath() {
+        return dir.getAbsolutePath();
+    }
+
+    public Iterator<DB> getDBIterator() {
+        return storage.values().iterator();
     }
 
     public Storage(String path, Dispatcher dispatcher, DataBaseBuilder<DB> dataBaseBuilder) {

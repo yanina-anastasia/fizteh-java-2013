@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.dubovpavel.storeable;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.dubovpavel.proxy.ProxyUtils;
 
 import java.util.ArrayList;
 
@@ -15,6 +16,17 @@ public class StoreableImpl implements Storeable {
         for (int i = 0; i < fields.size(); i++) {
             data.add(null);
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder internal = new StringBuilder();
+        for (Object cell: data) {
+            internal.append(cell.toString());
+            internal.append(',');
+        }
+        internal.setLength(internal.length() - 1);
+        return ProxyUtils.generateRepr(this, internal.toString());
     }
 
     private void checkIndex(int columnIndex) throws IndexOutOfBoundsException {
