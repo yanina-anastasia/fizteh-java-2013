@@ -12,9 +12,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBase<Storeable> & Table>
+public class TableProviderStoreableParallel<DB extends FileRepresentativeDataBase<Storeable>
+        & Table>
         extends TableProviderStoreable<DB> implements TableProvider {
-    private ReentrantReadWriteLock lock;
+    protected ReentrantReadWriteLock lock;
 
     public TableProviderStoreableParallel(Storage storage, TableStoreableBuilder builder) {
         super(storage, builder);

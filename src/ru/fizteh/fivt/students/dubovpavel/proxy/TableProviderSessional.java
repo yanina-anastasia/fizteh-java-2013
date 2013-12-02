@@ -12,8 +12,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TableProviderSessional<DB extends FileRepresentativeDataBase<Storeable> & Table & AutoCloseable>
-        extends TableProviderStoreableParallel<DB> implements AutoCloseable {
+public class TableProviderSessional<DB extends FileRepresentativeDataBase<Storeable>
+        & Table & AutoCloseable & ClosedCheckable>
+        extends TableProviderStoreableParallel<DB> implements AutoCloseable, ClosedCheckable {
     private boolean closed;
     private ReentrantReadWriteLock closingLock;
 
@@ -33,6 +34,16 @@ public class TableProviderSessional<DB extends FileRepresentativeDataBase<Storea
             throw new IllegalStateException("TableProvider is closed");
         }
     }
+
+    public boolean closed() {
+        try {
+            closingLock.readLock().lock();
+            return closed;
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
     public void close() {
         try {
             closingLock.writeLock().lock();
@@ -67,7 +78,17 @@ public class TableProviderSessional<DB extends FileRepresentativeDataBase<Storea
         try {
             closingLock.readLock().lock();
             checkIfAlive();
-            return super.getTable(name);
+            try {
+                lock.readLock().lock();
+                DB table = super.getTable(name);
+                if (table != null && table.closed()) {
+                    return storage.reOpenDataBase(table.getPath());
+                } else {
+                    return table;
+                }
+            } finally {
+                lock.readLock().unlock();
+            }
         } finally {
             closingLock.readLock().unlock();
         }

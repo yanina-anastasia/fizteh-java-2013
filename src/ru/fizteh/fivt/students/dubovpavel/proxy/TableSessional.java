@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class TableSessional extends TableStoreableParallel implements AutoCloseable {
+public class TableSessional extends TableStoreableParallel implements AutoCloseable, ClosedCheckable {
     private boolean closed;
     private ReentrantReadWriteLock closingLock;
 
@@ -24,11 +24,20 @@ public class TableSessional extends TableStoreableParallel implements AutoClosea
         }
     }
 
+    public boolean closed() {
+        try {
+            closingLock.readLock().lock();
+            return closed;
+        } finally {
+            closingLock.readLock().unlock();
+        }
+    }
+
     public void close() throws Exception {
         try {
             closingLock.writeLock().lock();
             if (!closed) {
-                rollback();
+                super.rollback();
                 closed = true;
             }
         } finally {

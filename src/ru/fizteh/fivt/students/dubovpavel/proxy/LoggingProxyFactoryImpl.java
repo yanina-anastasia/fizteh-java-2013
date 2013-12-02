@@ -24,7 +24,7 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
         if (implementation == null) {
             throw new IllegalArgumentException("Implementation is null");
         }
-        if(interfaceClass == null) {
+        if (interfaceClass == null) {
             throw new IllegalArgumentException("Interface class is null");
         }
         if (!interfaceClass.isInstance(implementation)) {

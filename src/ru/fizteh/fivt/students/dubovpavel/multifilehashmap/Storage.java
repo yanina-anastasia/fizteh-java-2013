@@ -35,6 +35,24 @@ public class Storage<DB extends FileRepresentativeDataBase> {
         return storage.values().iterator();
     }
 
+    public DB reOpenDataBase(File folder) {
+        builder.setPath(folder);
+        DB dataBase = builder.construct();
+        try {
+            dataBase.open();
+        } catch (DataBaseHandler.DataBaseException e) {
+            dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                    String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
+            if (!e.acceptable) {
+                dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                        "Database denied");
+                System.exit(-1);
+            }
+        }
+        storage.put(folder.getName(), dataBase);
+        return dataBase;
+    }
+
     public Storage(String path, Dispatcher dispatcher, DataBaseBuilder<DB> dataBaseBuilder) {
         builder = dataBaseBuilder;
         storage = new HashMap<>();
@@ -48,20 +66,7 @@ public class Storage<DB extends FileRepresentativeDataBase> {
         } else {
             for (File folder : dir.listFiles()) {
                 if (folder.isDirectory()) {
-                    builder.setPath(folder);
-                    DB dataBase = builder.construct();
-                    try {
-                        dataBase.open();
-                    } catch (DataBaseHandler.DataBaseException e) {
-                        dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
-                                String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
-                        if (!e.acceptable) {
-                            dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
-                                    "Database denied");
-                            System.exit(-1);
-                        }
-                    }
-                    storage.put(folder.getName(), dataBase);
+                   reOpenDataBase(folder);
                 }
             }
         }

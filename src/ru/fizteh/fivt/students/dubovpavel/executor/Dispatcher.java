@@ -55,7 +55,7 @@ public class Dispatcher {
 
     public String callbackWriter(MessageType type, String msg) {
         synchronized (quiet) {
-            if(!quiet) {
+            if (!quiet) {
                 PrintStream stream;
                 if (type == MessageType.SUCCESS || type == MessageType.WARNING) {
                     stream = System.out;

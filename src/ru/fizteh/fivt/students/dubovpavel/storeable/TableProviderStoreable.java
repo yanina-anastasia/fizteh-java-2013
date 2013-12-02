@@ -14,7 +14,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableProviderStoreable<DB extends FileRepresentativeDataBase<Storeable> & Table>
+public class TableProviderStoreable<DB extends FileRepresentativeDataBase<Storeable>
+        & Table>
         extends TableProviderStorageExtended<DB> implements TableProvider {
     private TableStoreableBuilder dataBaseBuilder;
 
