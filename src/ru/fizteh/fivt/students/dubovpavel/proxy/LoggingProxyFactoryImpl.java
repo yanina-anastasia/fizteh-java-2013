@@ -4,6 +4,7 @@ import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -17,38 +18,45 @@ import java.util.Iterator;
 
 public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
     public Object wrap(final Writer writer, final Object implementation, Class<?> interfaceClass) {
+        if (writer == null) {
+            throw new IllegalArgumentException("Writer is null");
+        }
+        if (implementation == null) {
+            throw new IllegalArgumentException("Implementation is null");
+        }
+        if (!interfaceClass.isInstance(implementation)) {
+            throw new IllegalArgumentException("Implementation does not implement interfaceClass");
+        }
         InvocationHandler handler = new InvocationHandler() {
-            private void buildArgumentsTree(IndentingXMLStreamWriter xmlWriter, Iterable args,
+            private void buildArgumentsTree(XMLStreamWriter xmlWriter, Iterable args,
                                             IdentityHashMap<Object, Iterable> finishedArguments, int level)
                     throws XMLStreamException {
                 for (Iterator i = args.iterator(); i.hasNext(); ) {
-                        Object next = i.next();
-                        if (finishedArguments.containsKey(next)) {
-                            xmlWriter.writeCharacters("cyclic");
-                        } else {
-                            finishedArguments.put(next, args);
-                            xmlWriter.writeStartElement(level == 0 ? "argument" : "value");
-                            if (next instanceof Iterable) {
-                                xmlWriter.writeStartElement("list");
-                                buildArgumentsTree(xmlWriter, (Iterable) next, finishedArguments, level + 1);
-                                xmlWriter.writeEndElement();
-                            } else {
-                                xmlWriter.writeCharacters(next.toString());
-                            }
+                    Object next = i.next();
+                    xmlWriter.writeStartElement(level == 0 ? "argument" : "value");
+                    if (finishedArguments.containsKey(next)) {
+                        xmlWriter.writeCharacters("cyclic");
+                    } else {
+                        finishedArguments.put(next, args);
+                        if (next instanceof Iterable) {
+                            xmlWriter.writeStartElement("list");
+                            buildArgumentsTree(xmlWriter, (Iterable) next, finishedArguments, level + 1);
                             xmlWriter.writeEndElement();
-                            finishedArguments.remove(next);
+                        } else {
+                            xmlWriter.writeCharacters(next == null ? "null" : next.toString());
                         }
+                        finishedArguments.remove(next);
+                    }
+                    xmlWriter.writeEndElement();
                 }
             }
 
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 StringWriter buffer = new StringWriter();
-                IndentingXMLStreamWriter xmlWriter = null;
+                XMLStreamWriter xmlWriter = null;
                 boolean xmlBuilt = true;
                 try {
-                    xmlWriter = new IndentingXMLStreamWriter(
-                            XMLOutputFactory.newInstance().createXMLStreamWriter(buffer));
-                    xmlWriter.setIndentStep("    ");
+                    xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(buffer);
                     xmlWriter.writeStartElement("invoke");
                     xmlWriter.writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
                     xmlWriter.writeAttribute("class", implementation.getClass().getName());
