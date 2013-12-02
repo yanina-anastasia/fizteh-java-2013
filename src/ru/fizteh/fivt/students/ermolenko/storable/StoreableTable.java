@@ -237,13 +237,14 @@ public class StoreableTable implements Table {
             int size = changesBase.get().size();
             Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
             for (Map.Entry<String, Storeable> pair : set) {
-                String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
-                String tmp2 = tableProvider.serialize(this, pair.getValue());
+                if (dataBase.containsKey(pair.getKey())) {
+                    String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
+                    String tmp2 = tableProvider.serialize(this, pair.getValue());
 
-                if (tmp1.equals(tmp2)) {
-                    --size;
+                    if (tmp1.equals(tmp2)) {
+                        --size;
+                    }
                 }
-
             }
             changesBase.get().clear();
             return size;
