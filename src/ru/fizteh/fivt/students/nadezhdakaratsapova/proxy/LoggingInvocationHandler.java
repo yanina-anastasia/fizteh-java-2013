@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.nadezhdakaratsapova.proxy;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -56,7 +57,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 result = method.invoke(implementation, args);
                 if (!method.getReturnType().equals(void.class)) {
                     JSONArray jsonArray = new JSONArray();
-                    if (jsonArray != null) {
+                    if (result != null) {
                         if (result instanceof Iterable) {
                             writeArgument(jsonArray, (Iterable) result);
                         } else {
@@ -76,13 +77,15 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 //writer.get().write(System.lineSeparator());
                 throw thrown;
             } catch (Exception e) {
-
+                //do nothing
             } finally {
                 try {
-                    writer.get().write(jsonLog.get().toString(2));
-                    writer.get().write(System.lineSeparator());
-                } catch (Exception e) {
-
+                    if (method.getDeclaringClass().equals(Object.class)) {
+                        writer.get().write(jsonLog.get().toString(2));
+                        writer.get().write(System.lineSeparator());
+                    }
+                } catch (IOException e) {
+                    //do nothing
                 }
 
             }
