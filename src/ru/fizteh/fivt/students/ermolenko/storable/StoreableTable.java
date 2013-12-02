@@ -113,7 +113,9 @@ public class StoreableTable implements Table {
 
             Storeable result = get(key);
             changesBase.get().put(key, value);
-            if (value.equals(dataBase.get(key))) {
+            String tmp1 = tableProvider.serialize(this, value);
+            String tmp2 = tableProvider.serialize(this, dataBase.get(key));
+            if (tmp1.equals(tmp2)) {
                 changesBase.get().remove(key);
             }
 
@@ -187,7 +189,6 @@ public class StoreableTable implements Table {
             try {
                     Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
                     for (Map.Entry<String, Storeable> pair : set) {
-                        pair.getKey();
                         if (pair.getValue() == null) {
                             dataBase.remove(pair.getKey());
                             ++size;
@@ -234,6 +235,16 @@ public class StoreableTable implements Table {
         tableLock.lock();
         try {
             int size = changesBase.get().size();
+            Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+            for (Map.Entry<String, Storeable> pair : set) {
+                String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
+                String tmp2 = tableProvider.serialize(this, pair.getValue());
+
+                if (tmp1.equals(tmp2)) {
+                    --size;
+                }
+
+            }
             changesBase.get().clear();
             return size;
         } finally {
