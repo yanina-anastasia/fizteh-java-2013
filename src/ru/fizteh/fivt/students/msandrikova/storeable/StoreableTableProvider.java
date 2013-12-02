@@ -275,7 +275,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider, Aut
             newTable = new StoreableTable(this.currentDirectory, 
                     tablePath.getName(), columnTypes, this);
         } catch (IOException e) {
-           // Do nothing
+           Utils.generateAnError("input error", "closeTable", false);
         }
         this.mapOfTables.put(name, newTable);
         this.lock.writeLock().unlock();
