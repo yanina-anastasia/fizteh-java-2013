@@ -39,7 +39,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
         if (method.getDeclaringClass().equals(Object.class)) {
             try {
                 result = method.invoke(implementation, args);
-                return result;
             } catch (InvocationTargetException e) {
                 throw e.getTargetException();
             }
