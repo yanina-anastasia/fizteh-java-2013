@@ -36,10 +36,9 @@ public class TableSessional extends TableStoreableParallel implements AutoClosea
     public void close() throws Exception {
         try {
             closingLock.writeLock().lock();
-            if (!closed) {
-                super.rollback();
-                closed = true;
-            }
+            checkIfAlive();
+            super.rollback();
+            closed = true;
         } finally {
             closingLock.writeLock().unlock();
         }

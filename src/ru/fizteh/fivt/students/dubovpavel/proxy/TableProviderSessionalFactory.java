@@ -41,12 +41,11 @@ public class TableProviderSessionalFactory extends TableProviderStoreableParalle
     public void close() {
         try {
             closingLock.writeLock().lock();
-            if (!closed) {
-                for (TableProviderSessional provider: created) {
-                    provider.close();
-                }
-                closed = true;
+            checkIfAlive();
+            for (TableProviderSessional provider: created) {
+                provider.close();
             }
+            closed = true;
         } finally {
             closingLock.writeLock().unlock();
         }
