@@ -54,26 +54,29 @@ public class LoggingInvocationHandler implements InvocationHandler {
             }
             jsonLog.get().put("arguments", array);
             try {
-                result = method.invoke(implementation.get(), args);
-                if (!method.getReturnType().isAssignableFrom(void.class)) {
-                    JSONArray jsonArray = new JSONArray();
-                    if (result != null) {
-                        if (result instanceof Iterable) {
-                            writeArgument(jsonArray, (Iterable) result);
-                            jsonLog.get().put("returnValue", jsonArray);
-                        } else {
-                            if (result.getClass().isArray()) {
-                                writeArgument(jsonArray, Arrays.asList((Object[]) result));
+                if (args != null) {
+                    result = method.invoke(implementation.get(), args);
+                    if (!method.getReturnType().isAssignableFrom(void.class)) {
+                        JSONArray jsonArray = new JSONArray();
+                        if (result != null) {
+                            if (result instanceof Iterable) {
+                                writeArgument(jsonArray, (Iterable) result);
                                 jsonLog.get().put("returnValue", jsonArray);
                             } else {
-                                jsonLog.get().put("returnValue", result);
+                                if (result.getClass().isArray()) {
+                                    writeArgument(jsonArray, Arrays.asList((Object[]) result));
+                                    jsonLog.get().put("returnValue", jsonArray);
+                                } else {
+                                    jsonLog.get().put("returnValue", result);
+                                }
                             }
+                        } else {
+                            jsonLog.get().put("returnValue", JSONObject.NULL);
                         }
-                    } else {
-                        jsonLog.get().put("returnValue", JSONObject.NULL);
-                    }
 
+                    }
                 }
+
             } catch (InvocationTargetException e) {
                 Throwable thrown = e.getTargetException();
                 jsonLog.get().put("thrown", thrown.toString());
