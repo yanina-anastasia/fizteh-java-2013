@@ -37,7 +37,6 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
-        isClosed();
         if ((key == null) || (key.trim().isEmpty()) || (value == null) || (key.matches("(.*\\s+.*)+"))) {
             throw new IllegalArgumentException("pot correct key or value");
         }
@@ -66,7 +65,6 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        isClosed();
         if (columnIndex >= columnTypes.size() || columnIndex < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -75,7 +73,6 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public int commit() throws IOException {
-        isClosed();
         int commitSize = 0;
         tableChangesLock.writeLock().lock();
         try {
@@ -95,7 +92,6 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public void writeToDataBase() throws IOException {
-        isClosed();
         writeToDataBaseWithoutSignature();
         File sign = new File(new File(getWorkingDirectory(), getName()), "signature.tsv");
         sign.createNewFile();

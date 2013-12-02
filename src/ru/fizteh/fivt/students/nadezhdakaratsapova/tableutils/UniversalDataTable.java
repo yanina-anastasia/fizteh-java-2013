@@ -111,7 +111,6 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public Set<String> getKeys() {
-        isClosed();
         return dataStorage.keySet();
     }
 
@@ -181,7 +180,6 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     public boolean isEmpty() {
         tableChangesLock.readLock().lock();
         try {
-            isClosed();
             return dataStorage.isEmpty();
         } finally {
             tableChangesLock.readLock().unlock();
@@ -286,17 +284,14 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public int commitSize() {
-        isClosed();
         return putKeys.get().size() + removeKeys.get().size();
     }
 
     public File getWorkingDirectory() {
-        isClosed();
         return dataBaseDirectory;
     }
 
     protected void universalLoad() throws IOException, ParseException {
-        isClosed();
         File curTable = new File(dataBaseDirectory, tableName);
         curTable = curTable.getCanonicalFile();
         File[] dirs = curTable.listFiles();
@@ -381,7 +376,6 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     protected void writeToDataBaseWithoutSignature() throws IOException {
-        isClosed();
         putKeys.get().clear();
         removeKeys.get().clear();
         Set<String> keys = getKeys();

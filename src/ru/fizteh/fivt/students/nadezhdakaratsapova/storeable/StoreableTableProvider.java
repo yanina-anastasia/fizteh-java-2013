@@ -57,7 +57,6 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
 
     public StoreableTable setCurTable(String newTable) throws IOException {
         try {
-            isClosed();
             StoreableTable dataTable = null;
             if (!dataBaseTables.isEmpty()) {
                 dataTable = dataBaseTables.get(newTable);
@@ -318,7 +317,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
     }
 
     public UniversalDataTable getCurTable() {
-        isClosed();
+
         return curDataBaseStorage;
     }
 
