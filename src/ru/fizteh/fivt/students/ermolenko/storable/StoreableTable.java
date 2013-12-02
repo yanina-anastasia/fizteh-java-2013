@@ -194,6 +194,7 @@ public class StoreableTable implements Table {
                             if (dataBase.containsKey(pair.getKey())) {
                                 if (!(dataBase.get(pair.getKey()) == pair.getValue())) {
                                     dataBase.put(pair.getKey(), pair.getValue());
+                                    --size;
                                 }
                             } else {
                                 dataBase.put(pair.getKey(), pair.getValue());
