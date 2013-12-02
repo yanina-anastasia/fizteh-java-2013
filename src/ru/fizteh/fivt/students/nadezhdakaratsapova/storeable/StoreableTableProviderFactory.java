@@ -17,6 +17,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
         if ((dir == null) || (dir.trim().isEmpty())) {
             throw new IllegalArgumentException("Not allowed name of DataBaseStorage");
         } else {
+            isClosed();
             File dataDirectory = new File(dir);
             if (!dataDirectory.exists()) {
                 if (!dataDirectory.mkdir()) {
@@ -24,10 +25,11 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
                 }
             }
             if (!dataDirectory.isDirectory()) {
+                isClosed();
                 throw new IllegalArgumentException("The root directory should be a directory");
             }
             StoreableTableProvider newStorage = new StoreableTableProvider(dataDirectory);
-
+            tableProviders.add(newStorage);
             return newStorage;
         }
     }
@@ -43,10 +45,9 @@ public class StoreableTableProviderFactory implements TableProviderFactory, Auto
         }
     }
 
-    public boolean isClosed() {
+    public void isClosed() {
         if (closed) {
             throw new IllegalStateException("the TableProvider is closed");
         }
-        return closed;
     }
 }
