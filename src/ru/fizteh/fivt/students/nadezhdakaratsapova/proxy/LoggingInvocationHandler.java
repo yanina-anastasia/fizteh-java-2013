@@ -80,19 +80,18 @@ public class LoggingInvocationHandler implements InvocationHandler {
     public void writeArgument(JSONArray cmdArgs, Iterable args) {
 
         for (Object arg : args) {
+            prevArgs.get().put(arg, true);
             if (arg == null) {
                 cmdArgs.put(arg);
             } else {
                 if (arg instanceof Iterable) {
-                    for (Object inArg : (Iterable) arg) {
-                        if (prevArgs.get().containsKey(inArg)) {
-                            cmdArgs.put("cyclic");
-                        } else {
-                            prevArgs.get().put(inArg, true);
-                            JSONArray array = new JSONArray();
-                            writeArgument(cmdArgs, (Iterable) inArg);
-                            cmdArgs.put(array);
-                        }
+                    if (prevArgs.get().containsKey(arg)) {
+                        cmdArgs.put("cyclic");
+                    } else {
+
+                        JSONArray array = new JSONArray();
+                        writeArgument(cmdArgs, (Iterable) arg);
+                        cmdArgs.put(array);
                     }
                 } else {
                     if (arg.getClass().isArray()) {
