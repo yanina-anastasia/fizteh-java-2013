@@ -39,7 +39,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
         Object result = null;
         if (method.getDeclaringClass().equals(Object.class)) {
             //try {
-            result = method.invoke(implementation, args);
+            result = method.invoke(implementation.get(), args);
             return result;
            /* } catch (InvocationTargetException e) {
                 throw e.getTargetException();
@@ -54,7 +54,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             }
             jsonLog.get().put("arguments", array);
             try {
-                result = method.invoke(implementation, args);
+                result = method.invoke(implementation.get(), args);
                 if (!method.getReturnType().equals(void.class)) {
                     JSONArray jsonArray = new JSONArray();
                     if (result != null) {
