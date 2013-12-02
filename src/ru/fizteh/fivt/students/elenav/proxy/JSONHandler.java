@@ -57,8 +57,8 @@ public class JSONHandler implements InvocationHandler {
                 writer.write(json.get().toString(2) + '\n');
                 throw e.getTargetException();
             }
+            writer.write(json.get().toString(2) + '\n');
         }
-        writer.write(json.get().toString(2) + '\n');
         return result;
     }
 
@@ -77,7 +77,7 @@ public class JSONHandler implements InvocationHandler {
             if (arg instanceof Iterable) {
                 logIterable((Iterable) arg, array.get());
             } else if (arg.getClass().isArray()) {
-                logIterable(Arrays.asList((Iterable) arg), array.get());
+                logIterable(Arrays.asList((Object[]) arg), array.get());
             } else {
                 json.get().put("returnValue", arg);
                 return;
