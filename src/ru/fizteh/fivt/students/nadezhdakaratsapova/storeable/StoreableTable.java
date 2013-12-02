@@ -63,7 +63,7 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
     }
 
     public int getColumnsCount() {
-        //isClosed();
+        isClosed();
         return columnTypes.size();
     }
 
