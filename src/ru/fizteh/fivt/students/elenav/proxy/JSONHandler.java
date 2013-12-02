@@ -38,7 +38,7 @@ public class JSONHandler implements InvocationHandler {
         Object result = null;
         if (m.getDeclaringClass().equals(Object.class)) {
             try {
-                result = m.invoke(obj, args);
+                return m.invoke(obj, args);
             } catch (InvocationTargetException e) {
                 throw e.getTargetException();
             }
@@ -77,7 +77,7 @@ public class JSONHandler implements InvocationHandler {
             if (arg instanceof Iterable) {
                 logIterable((Iterable) arg, array.get());
             } else if (arg.getClass().isArray()) {
-                logIterable(Arrays.asList((Object[]) arg), array.get());
+                logIterable(Arrays.asList((Iterable) arg), array.get());
             } else {
                 json.get().put("returnValue", arg);
                 return;
