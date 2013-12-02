@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -37,9 +38,9 @@ public class LoggingInvocationHandler implements InvocationHandler {
             jsonLog.put("method", method.getName());
             JSONArray methodArgs = new JSONArray();
             if (args != null) {
-                for (Object arg : args) {
-                    writeArgument(methodArgs, arg);
-                }
+                //for (Object arg : args) {
+                writeArgument(methodArgs, Arrays.asList(args));
+                //}
             }
             jsonLog.put("arguments", methodArgs);
             try {
@@ -50,7 +51,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     } else {
                         if (result.getClass().isArray() || result instanceof Iterable) {
                             JSONArray array = new JSONArray();
-                            writeArgument(array, result);
+                            writeArgument(array, Arrays.asList(result));
                             jsonLog.put("returnValue", array);
                         } else {
                             jsonLog.put("returnValue", result);
@@ -71,29 +72,32 @@ public class LoggingInvocationHandler implements InvocationHandler {
         return result;
     }
 
-    public void writeArgument(JSONArray cmdArgs, Object arg) {
-        if (arg == null) {
-            cmdArgs.put(arg);
-        } else {
-            if (arg instanceof Iterable) {
-                for (Object inArg : (Iterable) arg) {
-                    if (prevArgs.get().containsKey(inArg)) {
-                        cmdArgs.put("cyclic");
-                    } else {
-                        prevArgs.get().put(inArg, true);
-                        //JSONArray array = new JSONArray();
-                        writeArgument(cmdArgs, inArg);
-                        //cmdArgs.put(array);
-                    }
-                }
+    public void writeArgument(JSONArray cmdArgs, Iterable args) {
+        prevArgs.get().put(args, true);
+        for (Object arg : args) {
+            if (arg == null) {
+                cmdArgs.put(arg);
             } else {
+                if (arg instanceof Iterable) {
+                    for (Object inArg : (Iterable) arg) {
+                        if (prevArgs.get().containsKey(inArg)) {
+                            cmdArgs.put("cyclic");
+                        } else {
+                            prevArgs.get().put(inArg, true);
+                            //JSONArray array = new JSONArray();
+                            writeArgument(cmdArgs, (Iterable) inArg);
+                            //cmdArgs.put(array);
+                        }
+                    }
+                } else {
                 /*if (arg.getClass().isArray()) {
                     JSONArray array = new JSONArray();
                     writeArgument(array, Arrays.asList(arg));
                     cmdArgs.put(array);
                 } else {   */
-                cmdArgs.put(arg);
-                //}
+                    cmdArgs.put(arg);
+                    //}
+                }
             }
         }
     }
