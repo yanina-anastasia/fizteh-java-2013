@@ -55,7 +55,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             jsonLog.get().put("arguments", array);
             try {
                 result = method.invoke(implementation.get(), args);
-                if (!method.getReturnType().equals(void.class)) {
+                if (!method.getReturnType().isAssignableFrom(void.class)) {
                     JSONArray jsonArray = new JSONArray();
                     if (result != null) {
                         if (result instanceof Iterable) {
