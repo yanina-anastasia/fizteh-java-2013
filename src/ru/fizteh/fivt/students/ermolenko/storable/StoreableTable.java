@@ -182,23 +182,28 @@ public class StoreableTable implements Table {
 
         tableLock.lock();
         try {
-            int size = changesBase.get().size();
+            //int size = changesBase.get().size();
+            int size = 0;
             try {
-                if (size != 0) {
                     Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
                     for (Map.Entry<String, Storeable> pair : set) {
                         pair.getKey();
                         if (pair.getValue() == null) {
                             dataBase.remove(pair.getKey());
+                            ++size;
                         } else {
                             if (dataBase.containsKey(pair.getKey())) {
                                 String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
                                 String tmp2 = tableProvider.serialize(this, pair.getValue());
                                 if (!(tmp1).equals(tmp2)) {
                                     dataBase.put(pair.getKey(), pair.getValue());
-                                } else {
+                                    ++size;
+                                }
+                                /*
+                                else {
                                     --size;
                                 }
+                                */
                                 /*
                                 if (!(dataBase.get(pair.getKey()).equals(pair.getValue()))) {
                                     dataBase.put(pair.getKey(), pair.getValue());
@@ -208,11 +213,11 @@ public class StoreableTable implements Table {
                                 */
                             } else {
                                 dataBase.put(pair.getKey(), pair.getValue());
+                                ++size;
                             }
                         }
                     }
                     StoreableUtils.write(dataFile, this, dataBase, tableProvider);
-                }
             } catch (IOException e) {
                 System.err.println(e);
             }
