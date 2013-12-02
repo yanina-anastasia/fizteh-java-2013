@@ -94,8 +94,8 @@ public class StoreableTable implements Table {
         }
         tableLock.lock();
         try {
+            int size = columnOfTypes.size();
             try {
-                int size = columnOfTypes.size();
                 for (int i = 0; i < size; ++i) {
                     if (value.getColumnAt(i) != null
                             && !columnOfTypes.get(i).equals(value.getColumnAt(i).getClass())) {
@@ -105,12 +105,12 @@ public class StoreableTable implements Table {
             } catch (Exception e) {
                 throw new ColumnFormatException("less number of columns");
             }
-            /*
-            if ((!changesBase.get().containsKey(key) && !dataBase.get().containsKey(key))
+
+            if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key))
                     || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
-                ++sizeTable;
+                ++size;
             }
-            */
+
             Storeable result = get(key);
             changesBase.get().put(key, value);
             if (value.equals(dataBase.get(key))) {
