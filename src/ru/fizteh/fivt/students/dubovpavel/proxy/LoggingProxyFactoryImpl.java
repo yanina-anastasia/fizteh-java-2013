@@ -24,8 +24,11 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
         if (implementation == null) {
             throw new IllegalArgumentException("Implementation is null");
         }
+        if(interfaceClass == null) {
+            throw new IllegalArgumentException("Interface class is null");
+        }
         if (!interfaceClass.isInstance(implementation)) {
-            throw new IllegalArgumentException("Implementation does not implement interfaceClass");
+            throw new IllegalArgumentException("Implementation does not implement interface");
         }
         InvocationHandler handler = new InvocationHandler() {
             private void buildArgumentsTree(XMLStreamWriter xmlWriter, Iterable args,
@@ -43,7 +46,11 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
                             buildArgumentsTree(xmlWriter, (Iterable) next, finishedArguments, level + 1);
                             xmlWriter.writeEndElement();
                         } else {
-                            xmlWriter.writeCharacters(next == null ? "null" : next.toString());
+                            if (next == null) {
+                                xmlWriter.writeEmptyElement("null");
+                            } else {
+                                xmlWriter.writeCharacters(next.toString());
+                            }
                         }
                         finishedArguments.remove(next);
                     }
