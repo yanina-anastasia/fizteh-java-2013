@@ -29,7 +29,7 @@ import ru.fizteh.fivt.storage.structured.*;
 
 public class TableManager implements TableProvider, AutoCloseable {
     ConcurrentHashMap<String, TableData> bidDataBase = new ConcurrentHashMap<>();
-    private volatile boolean isClosed = false;
+    private boolean isClosed = false;
     private File mainDir;
     private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private ReentrantReadWriteLock closeLock = new ReentrantReadWriteLock(true);
@@ -38,35 +38,30 @@ public class TableManager implements TableProvider, AutoCloseable {
     private final Lock myWriteLock = readWriteLock.writeLock();
 
     TableManager(String nameMainDir) throws IllegalArgumentException, IOException {
-        closeReadLock.lock();
+        if (nameMainDir == null) {
+            throw new IllegalArgumentException("wrong type (Name of directory is null)");
+        }
+        if (nameMainDir.isEmpty()) {
+            throw new IllegalArgumentException("wrong type (Name of directory is empty)");
+        }
+        mainDir = new File(nameMainDir);
+        myWriteLock.lock();
         try {
-            if (nameMainDir == null) {
-                throw new IllegalArgumentException("wrong type (Name of directory is null)");
+            if (!mainDir.exists()) {
+                if (!mainDir.mkdirs()) {
+                    throw new IOException("wrong type (Creating " + nameMainDir + " is impossible)");
+                }
             }
-            if (nameMainDir.isEmpty()) {
-                throw new IllegalArgumentException("wrong type (Name of directory is empty)");
+            if (!mainDir.isDirectory()) {
+                throw new IllegalArgumentException("wrong type (" + nameMainDir + " is not a directory)");
             }
-            mainDir = new File(nameMainDir);
-            myWriteLock.lock();
             try {
-                if (!mainDir.exists()) {
-                    if (!mainDir.mkdirs()) {
-                        throw new IOException("wrong type (Creating " + nameMainDir + " is impossible)");
-                    }
-                }
-                if (!mainDir.isDirectory()) {
-                    throw new IllegalArgumentException("wrong type (" + nameMainDir + " is not a directory)");
-                }
-                try {
-                    cleaner();
-                } catch (Exception e) {
-                    throw new IOException("wrong type (" + e.getMessage() + ")", e);
-                }
-            } finally {
-                myWriteLock.unlock();
+                cleaner();
+            } catch (Exception e) {
+                throw new IOException("wrong type (" + e.getMessage() + ")", e);
             }
         } finally {
-            closeReadLock.unlock();
+            myWriteLock.unlock();
         }
     }
 

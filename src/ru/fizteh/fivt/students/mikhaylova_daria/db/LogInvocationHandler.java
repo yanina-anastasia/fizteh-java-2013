@@ -104,20 +104,20 @@ public class LogInvocationHandler implements InvocationHandler {
             } catch (Exception e) {
 
             }
+            Throwable thrown = null;
+            InvocationTargetException invTargetExc = null;
             try {
                 returnedValue = method.invoke(proxied, args);
             } catch (InvocationTargetException e) {
-                try {
-                    record.put("thrown", e.getTargetException().toString());
-                    writer.write(record.toString() + System.lineSeparator());
-                } catch (Exception exc) {
-
-                }
-                throw e.getTargetException();
-            } catch (Exception e) {
-                throw new RuntimeException("invoking error", e);
-            } finally {
-               try {
+                invTargetExc = e;
+            } catch (Throwable e) {
+                thrown = e;
+            }
+            try {
+                if (invTargetExc != null) {
+                        record.put("thrown", invTargetExc.getTargetException().toString());
+                        writer.write(record.toString() + System.lineSeparator());
+                } else {
                     if (!method.getReturnType().equals(void.class)) {
                         if (returnedValue == null) {
                             record.put("returnValue",  JSONObject.NULL);
@@ -125,9 +125,16 @@ public class LogInvocationHandler implements InvocationHandler {
                             record.put("returnValue",  returnedValue);
                         }
                     }
-                   writer.write(record.toString() + System.lineSeparator());
-               } catch (Exception e) {
-               }
+                    writer.write(record.toString() + System.lineSeparator());
+                }
+            } catch (Exception exc) {
+
+            }
+            if (thrown != null) {
+                throw thrown;
+            }
+            if (invTargetExc != null) {
+                throw invTargetExc.getTargetException();
             }
         } else {
             try {

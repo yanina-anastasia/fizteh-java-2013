@@ -103,14 +103,9 @@ public class TesterOfTableProviderFactoryAndTableProvider {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void createTableManagerByNullStringShouldFail() {
+    public void createTableManagerByNullStringShouldFail() throws IOException {
         factory = new TableManagerFactory();
-        try {
-            TableManager obj = factory.create(null);
-        } catch (IOException e) {
-            fail();
-            e.printStackTrace();
-        }
+        TableManager obj = factory.create(null);
     }
 
     @Test(expected = IllegalArgumentException.class)

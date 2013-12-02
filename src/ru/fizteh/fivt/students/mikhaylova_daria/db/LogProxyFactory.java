@@ -30,11 +30,7 @@ public class LogProxyFactory implements LoggingProxyFactory {
      * @throws IllegalArgumentException Если любой из переданных аргументов null или имеет некорректное значение.
      */
     @Override
-    public Object wrap(
-    Writer writer,
-    Object implementation,
-    Class<?> interfaceClass
-    ) {
+    public Object wrap(Writer writer, Object implementation, Class<?> interfaceClass) {
         if (writer == null || implementation == null || interfaceClass == null) {
             throw new IllegalArgumentException("Argument is null");
         }
