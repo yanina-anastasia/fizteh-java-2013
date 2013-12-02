@@ -72,8 +72,8 @@ public class LoggingInvocationHandler implements InvocationHandler {
             } catch (InvocationTargetException e) {
                 Throwable thrown = e.getTargetException();
                 jsonLog.get().put("thrown", thrown.toString());
-                //writer.get().write(jsonLog.get().toString(2));
-                //writer.get().write(System.lineSeparator());
+                writer.get().write(jsonLog.get().toString(2));
+                writer.get().write(System.lineSeparator());
                 throw thrown;
             } finally {
                 writer.get().write(jsonLog.get().toString(2));
