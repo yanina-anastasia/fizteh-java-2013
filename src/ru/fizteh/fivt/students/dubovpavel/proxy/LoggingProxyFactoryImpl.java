@@ -19,7 +19,7 @@ import java.util.Iterator;
 public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
     public Object wrap(final Writer writer, final Object implementation, Class<?> interfaceClass) {
         InvocationHandler handler = new InvocationHandler() {
-            private void buildArgumentsTree(XMLStreamWriter xmlWriter, Iterable args,
+            private void buildArgumentsTree(IndentingXMLStreamWriter xmlWriter, Iterable args,
                                             IdentityHashMap <Object, Iterable> finishedArguments, int level)
                     throws XMLStreamException {
                 for (Iterator i = args.iterator(); i.hasNext(); ) {
@@ -44,10 +44,12 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
 
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 StringWriter buffer = new StringWriter();
-                XMLStreamWriter xmlWriter = null;
+                IndentingXMLStreamWriter xmlWriter = null;
                 boolean xmlBuilt = true;
                 try {
-                    xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(buffer);
+                    xmlWriter = new IndentingXMLStreamWriter(
+                            XMLOutputFactory.newInstance().createXMLStreamWriter(buffer));
+                    xmlWriter.setIndentStep("    ");
                     xmlWriter.writeStartElement("invoke");
                     xmlWriter.writeAttribute("timestamp", String.valueOf(System.currentTimeMillis()));
                     xmlWriter.writeAttribute("class", implementation.getClass().getName());
