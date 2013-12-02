@@ -560,7 +560,6 @@ public class StoreableTable implements ChangesCountingTable, AutoCloseable {
         
         this.lock.writeLock().lock();
         this.isClosed = true;
-        this.tableProvider.deleteTableFromProvider(this.name);
         this.lock.writeLock().unlock();    
     }
     
