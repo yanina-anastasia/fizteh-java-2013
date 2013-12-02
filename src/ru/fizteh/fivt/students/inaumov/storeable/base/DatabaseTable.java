@@ -9,9 +9,7 @@ import ru.fizteh.fivt.students.inaumov.multifilemap.handlers.SaveHandler;
 import ru.fizteh.fivt.students.inaumov.storeable.StoreableUtils;
 import ru.fizteh.fivt.students.inaumov.storeable.builders.StoreableTableBuilder;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;

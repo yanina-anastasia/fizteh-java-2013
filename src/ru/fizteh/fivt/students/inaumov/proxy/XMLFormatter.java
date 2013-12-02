@@ -144,7 +144,7 @@ public class XMLFormatter {
                 if (identityHashMap.put(object, true) != null) {
                     xmlStreamWriter.writeCharacters("cyclic");
                 } else {
-                    writeIterable((Iterable)object);
+                    writeIterable((Iterable) object);
                     identityHashMap.remove(object);
                 }
             } else {

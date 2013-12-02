@@ -29,7 +29,7 @@ public class DatabaseProxyTest {
             //
         }
 
-        List<Class<?>> columnTypes = new ArrayList<Class<?>>() {{
+        List<Class<?>> columnTypes = new ArrayList<Class<?>>() { {
             add(Integer.class);
             add(String.class);
         }};
@@ -80,7 +80,7 @@ public class DatabaseProxyTest {
 
     @Test
     public void testStoreableToString() throws Exception {
-        List<Object> values = new ArrayList<Object>(){{
+        List<Object> values = new ArrayList<Object>() { {
             add(1);
             add("hello");
         }};
