@@ -318,6 +318,7 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
     }
 
     public UniversalDataTable getCurTable() {
+        isClosed();
         return curDataBaseStorage;
     }
 
