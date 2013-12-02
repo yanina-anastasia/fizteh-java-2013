@@ -27,12 +27,13 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
         columnTypes = types;
     }
 
-    public StoreableTable(StoreableTable table) {
+    public StoreableTable(StoreableTable table) throws IOException, ParseException {
         tableProvider = table.tableProvider;
         valueConverter = new StoreableValueConverter(tableProvider, this);
         dataBaseDirectory = table.dataBaseDirectory;
         tableName = table.tableName;
         columnTypes = table.columnTypes;
+        this.load();
     }
 
     @Override
