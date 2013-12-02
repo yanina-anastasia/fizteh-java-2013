@@ -133,14 +133,17 @@ public class XMLFormatter {
     }
 
     private void writeIterable(Iterable iterable) throws XMLStreamException {
+        for (final Object object: iterable) {
+            if (object instanceof Iterable) {
+                if (identityHashMap.containsKey(object)) {
+                    xmlStreamWriter.writeCharacters("cyclic");
+                    return;
+                }
+            }
+        }
         xmlStreamWriter.writeStartElement("list");
 
-        boolean cyclic = false;
-
         for (final Object object : iterable) {
-            if (cyclic) {
-                break;
-            }
 
             xmlStreamWriter.writeStartElement("value");
 
@@ -149,7 +152,6 @@ public class XMLFormatter {
             } else if (object instanceof Iterable) {
                 if (identityHashMap.put(object, true) != null) {
                     xmlStreamWriter.writeCharacters("cyclic");
-                    cyclic = true;
                 } else {
                     writeIterable((Iterable) object);
                     identityHashMap.remove(object);
