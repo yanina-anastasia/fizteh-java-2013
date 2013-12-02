@@ -26,9 +26,7 @@ public class DataBaseTable implements TableProvider {
     private String tableDirectory;
     private Map<String, DataBase> tables;
     
-    private ReentrantReadWriteLock readWriteLock = new 
-
-ReentrantReadWriteLock(true);
+    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private Lock readLock = readWriteLock.readLock();
     private Lock writeLock = readWriteLock.writeLock();
 
@@ -68,9 +66,7 @@ throws IOException {
             }
 
             if (!file.mkdir()) {
-                throw new RuntimeException("Cannot create table " 
-
-+ name);
+                throw new RuntimeException("Cannot create table " + name);
             }
 
             
@@ -95,7 +91,7 @@ throws IOException {
         if ((!file.exists()) || (file.isFile())) {
             return null;
         }
-        readLock.lock();
+        /*readLock.lock();
         try {
         	if (tables.containsKey(name)) {
                 return tables.get(name);
@@ -106,6 +102,19 @@ throws IOException {
         }
         writeLock.lock();
         try {
+        	DataBase table = new DataBase(path, this);
+            tables.put(name, table);
+            return table;
+        } catch (IOException e) {
+        	throw new DataBaseException(e.getMessage());
+        } finally {
+        	writeLock.unlock();
+        }*/
+        writeLock.lock();
+        try {
+        	if (tables.containsKey(name)) {
+                return tables.get(name);
+        	}
         	DataBase table = new DataBase(path, this);
             tables.put(name, table);
             return table;
