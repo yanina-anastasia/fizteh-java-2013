@@ -63,7 +63,6 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
                 if (dataTable != null) {
                     tableWorkController.readLock().lock();
                     try {
-                        isClosed();
                         dataTable.load();
                     } finally {
                         tableWorkController.readLock().unlock();
@@ -71,7 +70,6 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
                     if (curDataBaseStorage != null) {
                         tableWorkController.writeLock().lock();
                         try {
-                            isClosed();
                             curDataBaseStorage.writeToDataBase();
                         } finally {
                             tableWorkController.writeLock().unlock();
