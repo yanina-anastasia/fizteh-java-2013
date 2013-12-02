@@ -206,7 +206,6 @@ public class StoreableTable implements Table {
                 System.err.println(e);
             }
         changesBase.get().clear();
-        //sizeTable = dataBase.get().size();
         return size;
         } finally {
             tableLock.unlock();
@@ -220,7 +219,6 @@ public class StoreableTable implements Table {
         try {
             int size = changesBase.get().size();
             changesBase.get().clear();
-            //sizeTable = dataBase.get().size();
             return size;
         } finally {
             tableLock.unlock();
