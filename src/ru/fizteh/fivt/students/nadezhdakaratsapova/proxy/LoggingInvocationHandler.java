@@ -73,6 +73,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 throw e.getTargetException();
             }
             writer.get().write(jsonLog.get().toString(2));
+            writer.get().write(System.lineSeparator());
         }
         return result;
     }
