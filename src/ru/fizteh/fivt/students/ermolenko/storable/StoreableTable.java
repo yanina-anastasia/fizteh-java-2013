@@ -192,11 +192,20 @@ public class StoreableTable implements Table {
                             dataBase.remove(pair.getKey());
                         } else {
                             if (dataBase.containsKey(pair.getKey())) {
-                                if (!(dataBase.get(pair.getKey()) == pair.getValue())) {
+                                String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
+                                String tmp2 = tableProvider.serialize(this, pair.getValue());
+                                if (!(tmp1).equals(tmp2)) {
                                     dataBase.put(pair.getKey(), pair.getValue());
                                 } else {
                                     --size;
                                 }
+                                /*
+                                if (!(dataBase.get(pair.getKey()).equals(pair.getValue()))) {
+                                    dataBase.put(pair.getKey(), pair.getValue());
+                                } else {
+                                    --size;
+                                }
+                                */
                             } else {
                                 dataBase.put(pair.getKey(), pair.getValue());
                             }
