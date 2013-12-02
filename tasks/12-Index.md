@@ -10,10 +10,10 @@
 
 ### Контракт
 
-Прообраз интерфейса Table - интерфейс [Index](../src/ru/fizteh/fivt/storage/structured/Index).
+Прообраз интерфейса Table - интерфейс [Index](../src/ru/fizteh/fivt/storage/structured/Index.java).
 
 Ваш ```TableProvider```, который создается с помощью ```TableProviderFactory```, теперь должен также реализовывать
-интерфейс [IndexProvider](../src/ru/fizteh/fivt/storage/structured/IndexProvider), а именно, его методы
+интерфейс [IndexProvider](../src/ru/fizteh/fivt/storage/structured/IndexProvider.java), а именно, его методы
 ```Index createIndex(Table table, int column, String name)``` и ```Index getIndex(String name)```.
 "Протаскивать" новый интерфейс в декларации не нужно.
 

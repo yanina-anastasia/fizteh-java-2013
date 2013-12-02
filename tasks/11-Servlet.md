@@ -18,15 +18,6 @@
 В контекст нужно добавить нужные обработчики запросы - сервлеты.
 
 [Пример запуска Jetty-сервера](../src/ru/fizteh/fivt/examples/JettyExample.java).
-```
-server = new Server(bindPort);
-ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
-context.addServlet(new ServletHolder(new GetServlet()), "/get");
-context.addServlet(new ServletHolder(new PutServlet()), "/put");
-context.setContextPath("/");
-server.setHandler(context);
-server.start();
-```
 
 ### Транзакция
 
