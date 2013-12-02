@@ -19,7 +19,6 @@ public class FileMapLogging implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object returnValue = null;
-        JSONObject record = new JSONObject();
         if (method.getDeclaringClass().equals(Object.class)) {
             try {
                 returnValue = method.invoke(object, args);
@@ -27,45 +26,62 @@ public class FileMapLogging implements InvocationHandler {
                 throw e.getTargetException();
             }
         } else {
-            record.put("timestamp", System.currentTimeMillis());
-            record.put("class", object.getClass().getName());
-            record.put("method", method.getName());
+            JSONObject record = null;
 
-            if (args == null || args.length == 0) {
-                record.put("arguments", new JSONArray());
-            } else {
-                FileMapLoggingJson creatorJSONArray = new FileMapLoggingJson(args);
-                Object ob = creatorJSONArray.getJSONArray().get(0);
-                record.put("arguments", ob);
+            try {
+                record = new JSONObject();
+                try {
+                    record.put("timestamp", System.currentTimeMillis());
+                } catch (Exception e) {
+                    //pass
+                }
+                record.put("class", object.getClass().getName());
+                record.put("method", method.getName());
+
+                if (args == null || args.length == 0) {
+                    record.put("arguments", new JSONArray());
+                } else {
+                    FileMapLoggingJson creatorJSONArray = new FileMapLoggingJson(args);
+                    Object ob = creatorJSONArray.getJSONArray().get(0);
+                    record.put("arguments", ob);
+                }
+            } catch (Exception e) {
+                //pass
             }
 
             try {
                 returnValue = method.invoke(object, args);
             } catch (InvocationTargetException e) {
-                record.put("thrown", e.getTargetException().toString());
                 try {
+                    if (record == null) {
+                        record = new JSONObject();
+                    }
+                    record.put("thrown", e.getTargetException().toString());
                     writer.write(record.toString() + System.lineSeparator());
-                } finally {
+                } catch (Exception err) {
                     //pass
                 }
                 throw e.getTargetException();
             }
 
-            if (!method.getReturnType().equals(void.class)) {
-                if (returnValue == null) {
-                    record.put("returnValue", JSONObject.NULL);
-                } else {
-                    JSONObject copy = new JSONObject(record, JSONObject.getNames(record));
-                    record.put("returnValue", returnValue);
-                    if (record.toString() == null) {
-                        record = copy;
-                        record.put("returnValue", returnValue.toString());
+            try {
+                if (record == null) {
+                    record = new JSONObject();
+                }
+                if (!method.getReturnType().equals(void.class)) {
+                    if (returnValue == null) {
+                        record.put("returnValue", JSONObject.NULL);
+                    } else {
+                        JSONObject copy = new JSONObject(record, JSONObject.getNames(record));
+                        record.put("returnValue", returnValue);
+                        if (record.toString() == null) {
+                            record = copy;
+                            record.put("returnValue", returnValue.toString());
+                        }
                     }
                 }
-            }
-            try {
                 writer.write(record.toString() + System.lineSeparator());
-            } finally {
+            } catch (Exception e) {
                 //pass
             }
 
