@@ -431,11 +431,10 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
         }
     }
 
-    protected boolean isClosed() {
+    protected void isClosed() {
         if (closed) {
             throw new IllegalStateException("the table is closed");
         }
-        return closed;
     }
 
     public boolean isTableClosed() {

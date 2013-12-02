@@ -338,11 +338,10 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         }
     }
 
-    public boolean isClosed() {
+    public void isClosed() {
         if (closed) {
             throw new IllegalStateException("TableProvider is closed");
         }
-        return closed;
     }
 
     public boolean isTableProviderClosed() {
