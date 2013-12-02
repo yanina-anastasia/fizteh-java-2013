@@ -37,7 +37,6 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             throw new IllegalArgumentException("error: database directory can't be null");
         }
 
-
         this.databaseDirectoryPath = databaseDirectoryPath;
 
         state = TableState.WORKING;

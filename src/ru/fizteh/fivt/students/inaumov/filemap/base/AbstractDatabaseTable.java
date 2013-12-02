@@ -139,8 +139,6 @@ public abstract class AbstractDatabaseTable<Key, Value> implements AutoCloseable
     }
 
     public String getDir() {
-        tableState.checkAvailable();
-
         return tableDir;
     }
 
