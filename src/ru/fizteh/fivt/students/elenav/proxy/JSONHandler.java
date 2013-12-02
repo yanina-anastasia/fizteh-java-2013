@@ -14,12 +14,7 @@ public class JSONHandler implements InvocationHandler {
 
     private final Object obj;
     private final Writer writer;
-    private ThreadLocal<JSONObject> json = new ThreadLocal<JSONObject>() {
-        @Override
-        public JSONObject initialValue() {
-            return new JSONObject();
-        }
-    };
+    private ThreadLocal<JSONObject> json;
     
     private ThreadLocal<IdentityHashMap<Object, Boolean>> map = new ThreadLocal<IdentityHashMap<Object, Boolean>>() {
         @Override
@@ -36,6 +31,13 @@ public class JSONHandler implements InvocationHandler {
     @Override
     public synchronized Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
         Object result = null;
+        json = new ThreadLocal<JSONObject>() {
+            @Override
+            public JSONObject initialValue() {
+                return new JSONObject();
+            }
+        };
+        
         if (m.getDeclaringClass().equals(Object.class)) {
             try {
                 return m.invoke(obj, args);
