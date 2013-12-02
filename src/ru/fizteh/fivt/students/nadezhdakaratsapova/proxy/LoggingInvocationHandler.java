@@ -16,12 +16,6 @@ import java.util.Set;
 public class LoggingInvocationHandler implements InvocationHandler {
     private ThreadLocal<Writer> writer = new ThreadLocal<Writer>();
     private ThreadLocal<Object> implementation = new ThreadLocal<Object>();
-    private ThreadLocal<JSONObject> jsonLog = new ThreadLocal<JSONObject>() {
-        @Override
-        public JSONObject initialValue() {
-            return new JSONObject();
-        }
-    };
     private ThreadLocal<Set<Object>> prevArgs = new ThreadLocal<Set<Object>>() {
         @Override
         public Set<Object> initialValue() {
@@ -36,42 +30,38 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = null;
+        Object result;
         if (method.getDeclaringClass().equals(Object.class)) {
-            //try {
             result = method.invoke(implementation.get(), args);
             return result;
-           /* } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            } */
         } else {
-            jsonLog.get().put("timestamp", System.currentTimeMillis());
-            jsonLog.get().put("class", implementation.get().getClass().getName());
-            jsonLog.get().put("method", method.getName());
+            JSONObject jsonLog = new JSONObject();
+            jsonLog.put("timestamp", System.currentTimeMillis());
+            jsonLog.put("class", implementation.get().getClass().getName());
+            jsonLog.put("method", method.getName());
             JSONArray array = new JSONArray();
             if (args != null) {
                 writeArgument(array, Arrays.asList(args));
             }
-            jsonLog.get().put("arguments", array);
+            jsonLog.put("arguments", array);
             try {
                 result = method.invoke(implementation.get(), args);
-
                 if (!method.getReturnType().isAssignableFrom(void.class)) {
                     JSONArray jsonArray = new JSONArray();
-                    if (result != null && args != null) {
+                    if (result != null) {
                         if (result instanceof Iterable) {
                             writeArgument(jsonArray, (Iterable) result);
-                            jsonLog.get().put("returnValue", jsonArray);
+                            jsonLog.put("returnValue", jsonArray);
                         } else {
                             if (result.getClass().isArray()) {
                                 writeArgument(jsonArray, Arrays.asList((Object[]) result));
-                                jsonLog.get().put("returnValue", jsonArray);
+                                jsonLog.put("returnValue", jsonArray);
                             } else {
-                                jsonLog.get().put("returnValue", result);
+                                jsonLog.put("returnValue", result);
                             }
                         }
                     } else {
-                        jsonLog.get().put("returnValue", JSONObject.NULL);
+                        jsonLog.put("returnValue", JSONObject.NULL);
                     }
 
                 }
@@ -79,14 +69,14 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
             } catch (InvocationTargetException e) {
                 Throwable thrown = e.getTargetException();
-                jsonLog.get().put("thrown", thrown.toString());
+                jsonLog.put("thrown", thrown.toString());
                 //writer.get().write(jsonLog.get().toString(2));
                 //writer.get().write(System.lineSeparator());
                 throw thrown;
             } finally {
                 try {
                     if (!method.getDeclaringClass().equals(Object.class)) {
-                        writer.get().write(jsonLog.get().toString(2));
+                        writer.get().write(jsonLog.toString(2));
                         writer.get().write(System.lineSeparator());
                     }
                 } catch (IOException e) {
