@@ -19,7 +19,7 @@ class TestClassThrows implements TestInterface<Integer> {
     }
 }
 
-interface TestInterface <T> {
+interface TestInterface<T> {
     int test(T i);
 }
 

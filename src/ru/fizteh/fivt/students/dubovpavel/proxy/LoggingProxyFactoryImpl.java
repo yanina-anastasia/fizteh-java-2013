@@ -4,7 +4,6 @@ import ru.fizteh.fivt.proxy.LoggingProxyFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -20,7 +19,7 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
     public Object wrap(final Writer writer, final Object implementation, Class<?> interfaceClass) {
         InvocationHandler handler = new InvocationHandler() {
             private void buildArgumentsTree(IndentingXMLStreamWriter xmlWriter, Iterable args,
-                                            IdentityHashMap <Object, Iterable> finishedArguments, int level)
+                                            IdentityHashMap<Object, Iterable> finishedArguments, int level)
                     throws XMLStreamException {
                 for (Iterator i = args.iterator(); i.hasNext(); ) {
                         Object next = i.next();
@@ -91,6 +90,7 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
                     }
                     try {
                         xmlWriter.writeEndElement(); // </invoke>
+                        xmlWriter.writeCharacters("\n");
                     } catch (XMLStreamException xmlE) {
                         xmlBuilt = false;
                     }

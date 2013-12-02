@@ -24,9 +24,9 @@
  */
 package ru.fizteh.fivt.students.dubovpavel.proxy;
 
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Delegating {@link XMLStreamWriter}.
@@ -84,7 +84,8 @@ abstract class DelegatingXMLStreamWriter implements XMLStreamWriter {
         writer.writeAttribute(localName, value);
     }
 
-    public void writeAttribute(String prefix, String namespaceURI, String localName, String value) throws XMLStreamException {
+    public void writeAttribute(String prefix, String namespaceURI, String localName, String value)
+            throws XMLStreamException {
         writer.writeAttribute(prefix, namespaceURI, localName, value);
     }
 

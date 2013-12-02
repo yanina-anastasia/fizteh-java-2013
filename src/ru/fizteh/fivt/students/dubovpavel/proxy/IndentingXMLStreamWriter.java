@@ -32,9 +32,9 @@ import java.util.Stack;
  * @author Kohsuke Kawaguchi
  */
 public class IndentingXMLStreamWriter extends DelegatingXMLStreamWriter {
-    private final static Object SEEN_NOTHING = new Object();
-    private final static Object SEEN_ELEMENT = new Object();
-    private final static Object SEEN_DATA = new Object();
+    private static final Object SEEN_NOTHING = new Object();
+    private static final Object SEEN_ELEMENT = new Object();
+    private static final Object SEEN_DATA = new Object();
 
     private Object state = SEEN_NOTHING;
     private Stack<Object> stateStack = new Stack<Object>();
@@ -77,7 +77,9 @@ public class IndentingXMLStreamWriter extends DelegatingXMLStreamWriter {
      */
     public void setIndentStep(int indentStep) {
         StringBuilder s = new StringBuilder();
-        for (; indentStep > 0; indentStep--) s.append(' ');
+        for (; indentStep > 0; indentStep--) {
+            s.append(' ');
+        }
         setIndentStep(s.toString());
     }
 
@@ -121,8 +123,9 @@ public class IndentingXMLStreamWriter extends DelegatingXMLStreamWriter {
      */
     private void doIndent() throws XMLStreamException {
         if (depth > 0) {
-            for (int i = 0; i < depth; i++)
+            for (int i = 0; i < depth; i++) {
                 super.writeCharacters(indentStep);
+            }
         }
     }
 
