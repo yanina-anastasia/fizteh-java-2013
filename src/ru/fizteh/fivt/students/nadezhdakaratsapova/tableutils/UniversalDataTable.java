@@ -292,7 +292,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     protected void universalLoad() throws IOException, ParseException {
-        isClosed();
+        //isClosed();
         File curTable = new File(dataBaseDirectory, tableName);
         curTable = curTable.getCanonicalFile();
         File[] dirs = curTable.listFiles();
