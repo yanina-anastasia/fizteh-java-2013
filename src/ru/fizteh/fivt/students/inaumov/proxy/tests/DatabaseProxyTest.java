@@ -11,6 +11,7 @@ import ru.fizteh.fivt.storage.structured.TableProvider;
 import ru.fizteh.fivt.students.inaumov.storeable.base.DatabaseTable;
 import ru.fizteh.fivt.students.inaumov.storeable.base.DatabaseTableProviderFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,13 +96,16 @@ public class DatabaseProxyTest {
 
     @Test
     public void testTableToString() throws Exception {
-        Assert.assertEquals("DatabaseTable[C:\\Users\\inaumov\\Documents\\GitHub\\"
-                + "fizteh-java-2013\\.\\proxy_test\\test]", currentTable.toString());
+        File dbDirFile = new File(System.getProperty("user.dir"), DATABASE_PATH);
+        File tableDirFile = new File(dbDirFile, "test");
+
+        Assert.assertEquals("DatabaseTable[" + tableDirFile.getAbsolutePath() + "]", currentTable.toString());
+
     }
 
     @Test
     public void testTableProviderToString() throws Exception {
-        Assert.assertEquals("DatabaseTableProvider[C:\\Users\\inaumov\\Documents\\GitHub\\"
-                + "fizteh-java-2013\\.\\proxy_test]", tableProvider.toString());
+        File dbDirFile = new File(System.getProperty("user.dir"), DATABASE_PATH);
+        Assert.assertEquals("DatabaseTableProvider[" + dbDirFile.getAbsolutePath() + "]", tableProvider.toString());
     }
 }
