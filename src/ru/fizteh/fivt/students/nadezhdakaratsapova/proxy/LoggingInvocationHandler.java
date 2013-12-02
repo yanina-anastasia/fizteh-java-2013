@@ -62,12 +62,12 @@ public class LoggingInvocationHandler implements InvocationHandler {
                             writeArgument(jsonArray, (Iterable) result);
                             jsonLog.get().put("returnValue", jsonArray);
                         } else {
-                            /*if (result.getClass().isArray()) {
+                            if (result.getClass().isArray()) {
                                 writeArgument(jsonArray, Arrays.asList((Object[]) result));
-                                jsonLog.get().put("returnValue", jsonArray);  */
-                            //} else {
-                            jsonLog.get().put("returnValue", result);
-                            //}
+                                jsonLog.get().put("returnValue", jsonArray);
+                            } else {
+                                jsonLog.get().put("returnValue", result);
+                            }
                         }
                     } else {
                         jsonLog.get().put("returnValue", JSONObject.NULL);
@@ -80,8 +80,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 //writer.get().write(jsonLog.get().toString(2));
                 //writer.get().write(System.lineSeparator());
                 throw thrown;
-            } catch (Exception e) {
-                //do nothing
             } finally {
                 try {
                     if (!method.getDeclaringClass().equals(Object.class)) {
