@@ -100,7 +100,11 @@ public class LoggingProxyFactoryImpl implements LoggingProxyFactory {
                     if (!thrown && !method.getReturnType().equals(Void.TYPE)) {
                         try {
                             xmlWriter.writeStartElement("return");
-                            xmlWriter.writeCharacters(ret.toString());
+                            if (ret == null) {
+                                xmlWriter.writeEmptyElement("null");
+                            } else {
+                                xmlWriter.writeCharacters(ret.toString());
+                            }
                             xmlWriter.writeEndElement();
                         } catch (XMLStreamException xmlE) {
                             xmlBuilt = false;
