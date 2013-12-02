@@ -53,10 +53,10 @@ public class Storage<DB extends FileRepresentativeDataBase> {
                     try {
                         dataBase.open();
                     } catch (DataBaseHandler.DataBaseException e) {
-                        this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                        dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                 String.format("Storage loading: Database %s: %s", folder.getName(), e.getMessage()));
                         if (!e.acceptable) {
-                            this.dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
+                            dispatcher.callbackWriter(Dispatcher.MessageType.WARNING,
                                     "Database denied");
                             System.exit(-1);
                         }
@@ -70,10 +70,7 @@ public class Storage<DB extends FileRepresentativeDataBase> {
     public DB create(String key) {
         try {
             return createExplosive(key);
-        } catch (IOException e) {
-            dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, e.getMessage());
-            return null;
-        } catch (StorageException e) {
+        } catch (IOException | StorageException e) {
             dispatcher.callbackWriter(Dispatcher.MessageType.ERROR, e.getMessage());
             return null;
         }

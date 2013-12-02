@@ -41,7 +41,7 @@ public class TableSessional extends TableStoreableParallel implements AutoClosea
         return ProxyUtils.generateRepr(this, root.getAbsolutePath());
     }
 
-    // getName is not overriden on purpose
+    // getName is not overridden on purpose
 
     @Override
     public int size() {
