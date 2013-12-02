@@ -114,7 +114,8 @@ public class StoreableTableProvider implements TableProvider, UniversalTableProv
         }
     }
 
-    public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException, IllegalArgumentException {
+    public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException,
+            IllegalArgumentException {
         isClosed();
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("create: the table has not allowed name");
