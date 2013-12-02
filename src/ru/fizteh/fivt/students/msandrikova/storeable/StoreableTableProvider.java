@@ -229,9 +229,7 @@ public class StoreableTableProvider implements ChangesCountingTableProvider, Aut
     }
 
     public void deleteTableFromProvider(String name) {
-        this.lock.writeLock().lock();
-        this.mapOfTables.remove(name);
-        this.lock.writeLock().unlock();
+        
     }
 
     private void checkIsClosed() throws IllegalStateException {
@@ -265,5 +263,22 @@ public class StoreableTableProvider implements ChangesCountingTableProvider, Aut
         String providerPath = this.currentDirectory.getAbsolutePath();
         
         return className + "[" + providerPath + "]";
+    }
+
+    public void changeReference(File tablePath, String name) {
+        this.lock.writeLock().lock();
+        this.mapOfTables.remove(name);
+        ChangesCountingTable newTable = null;
+        List<Class<?>> columnTypes = null;
+        try {
+            columnTypes = Utils.getClassTypes(tablePath);
+            newTable = new StoreableTable(this.currentDirectory, 
+                    tablePath.getName(), columnTypes, this);
+        } catch (IOException e) {
+            Utils.generateAnError(e.getMessage(), "closeTable", false);
+        }
+        this.mapOfTables.put(name, newTable);
+        this.lock.writeLock().unlock();
+        
     }
 }
