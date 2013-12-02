@@ -84,7 +84,6 @@ public class ProxyTest {
             provider.createTable(null, null);
             
         } catch (IllegalArgumentException e) {
-            System.out.println(writer.toString());
             JSONObject json = new JSONObject(writer.toString());
             File f = new File(file, "myTable");
             Assert.assertEquals(json.get("class"), 
