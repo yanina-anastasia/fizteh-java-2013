@@ -110,8 +110,8 @@ public class StoreableTableProviderTest {
     
     @Test(expected = IllegalStateException.class)
     public void testClose() throws IllegalStateException, IllegalArgumentException, IOException {
-    	this.tableProvider.close();
-    	this.tableProvider.createTable("tableName", columnTypes);
+        this.tableProvider.close();
+        this.tableProvider.createTable("tableName", columnTypes);
     }
 
 }
