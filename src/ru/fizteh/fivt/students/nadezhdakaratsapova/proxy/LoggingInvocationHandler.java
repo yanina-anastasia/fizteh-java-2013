@@ -35,7 +35,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result;
+        Object result = null;
         if (method.getDeclaringClass().equals(Object.class)) {
             //try {
             result = method.invoke(implementation, args);
@@ -72,12 +72,19 @@ public class LoggingInvocationHandler implements InvocationHandler {
             } catch (InvocationTargetException e) {
                 Throwable thrown = e.getTargetException();
                 jsonLog.get().put("thrown", thrown.toString());
-                writer.get().write(jsonLog.get().toString(2));
-                writer.get().write(System.lineSeparator());
+                //writer.get().write(jsonLog.get().toString(2));
+                //writer.get().write(System.lineSeparator());
                 throw thrown;
+            } catch (Exception e) {
+
             } finally {
-                writer.get().write(jsonLog.get().toString(2));
-                writer.get().write(System.lineSeparator());
+                try {
+                    writer.get().write(jsonLog.get().toString(2));
+                    writer.get().write(System.lineSeparator());
+                } catch (Exception e) {
+
+                }
+
             }
         }
         return result;
