@@ -151,6 +151,8 @@ public class XMLFormatter {
                 identityHashMap.put(object, true);
                 writeObject(object);
             }
+
+            xmlStreamWriter.writeEndElement();
         }
 
         xmlStreamWriter.writeEndElement();
