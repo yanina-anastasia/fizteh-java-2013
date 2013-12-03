@@ -94,6 +94,9 @@ public class StoreableTable implements Table {
         }
         tableLock.lock();
         try {
+
+        } finally {
+            tableLock.unlock();
             int size = columnOfTypes.size();
             try {
                 for (int i = 0; i < size; ++i) {
@@ -105,24 +108,15 @@ public class StoreableTable implements Table {
             } catch (Exception e) {
                 throw new ColumnFormatException("less number of columns");
             }
-
-            if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key))
-                    || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
-                ++size;
-            }
-
             Storeable result = get(key);
-            changesBase.get().put(key, value);
-            /*
-            String tmp1 = tableProvider.serialize(this, value);
-            String tmp2 = tableProvider.serialize(this, dataBase.get(key));
-            if (tmp1.equals(tmp2)) {
-                changesBase.get().remove(key);
+            if (!(changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+                changesBase.get().put(key, value);
+            } else {
+                if (changesBase.get().containsKey(key)) {
+                    changesBase.get().remove(key);
+                }
             }
-            */
             return result;
-        } finally {
-            tableLock.unlock();
         }
     }
 
@@ -140,17 +134,13 @@ public class StoreableTable implements Table {
 
         tableLock.lock();
         try {
-            /*
-            if (changesBase.get().get(newKey) != null
-                    || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
-                //изменено
-                --sizeTable;
-            }
-            */
+
             Storeable result = get(newKey);
-            changesBase.get().put(newKey, null);
-            if (dataBase.get(newKey) == null) {
-                changesBase.get().remove(newKey);
+            if (result != null) {
+                changesBase.get().put(newKey, null);
+            }
+            if (changesBase.get().containsKey(key)) {
+                changesBase.get().remove(key);
             }
             return result;
         } finally {
@@ -176,6 +166,8 @@ public class StoreableTable implements Table {
                         String tmp2 = tableProvider.serialize(this, pair.getValue());
                         if (!(tmp1).equals(tmp2)) {
                             ++size;
+                        } else {
+                            --size;
                         }
                     }
                 }
@@ -252,6 +244,9 @@ public class StoreableTable implements Table {
                         --size;
                     }
                 }
+                if (pair.getValue() == null) {
+                    --size;
+                }
             }
             changesBase.get().clear();
             return size;
@@ -304,6 +299,40 @@ public class StoreableTable implements Table {
         tableProvider = inProvider;
         dataBase = inDataBase;
         dataFile = inFile;
-        //sizeTable = dataBase.get().size();
     }
 }
+
+/*
+        tableLock.lock();
+        try {
+            int size = columnOfTypes.size();
+            try {
+                for (int i = 0; i < size; ++i) {
+                    if (value.getColumnAt(i) != null
+                            && !columnOfTypes.get(i).equals(value.getColumnAt(i).getClass())) {
+                        throw new ColumnFormatException("angry storeable");
+                    }
+                }
+            } catch (Exception e) {
+                throw new ColumnFormatException("less number of columns");
+            }
+
+            if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key))
+                    || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+                ++size;
+            }
+
+            Storeable result = get(key);
+            changesBase.get().put(key, value);
+
+            String tmp1 = tableProvider.serialize(this, value);
+            String tmp2 = tableProvider.serialize(this, dataBase.get(key));
+            if (tmp1.equals(tmp2)) {
+                changesBase.get().remove(key);
+            }
+
+            return result;
+        } finally {
+            tableLock.unlock();
+        }
+        */
