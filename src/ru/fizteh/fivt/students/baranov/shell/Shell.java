@@ -8,8 +8,8 @@ public class Shell {
     public HashMap<String, BasicCommand> commands;
     public ShellState path;
 
-    Shell(Path pathС) {
-        this.path = new ShellState(pathС);
+    Shell(Path pathC) {
+        this.path = new ShellState(pathC);
         this.commands = new HashMap<String, BasicCommand>();
     }
 
@@ -24,7 +24,10 @@ public class Shell {
                 System.err.println(args[0] + " - wrong command");
                 continue;
             }
-            if (!command.doCommand(args, path)) {
+            // 0 - exit
+            // 1 - error
+            // 2 - OK
+            if (command.doCommand(args, path) == 0) {
                 return;
             }
             path.changeCurrentPath(path.getCurrentPath().normalize());
@@ -43,10 +46,16 @@ public class Shell {
             BasicCommand cmd = commands.get(arguments[0]);
             if (cmd == null) {
                 System.err.println(arguments[0] + " - wrong command");
-                continue;
+                System.exit(1);
             }
-            if (!cmd.doCommand(arguments, path)) {
+            int answer = cmd.doCommand(arguments, path);
+            // 0 - exit
+            // 1 - error
+            // 2 - OK
+            if (answer == 0) {
                 return;
+            } else if (answer == 1) {
+                System.exit(1);
             }
             path.changeCurrentPath(path.getCurrentPath().normalize());
             path.copyMade = 0;

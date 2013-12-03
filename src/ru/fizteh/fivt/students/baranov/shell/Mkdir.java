@@ -6,17 +6,18 @@ import java.nio.file.Paths;
 import java.io.IOException;
 
 public class Mkdir extends BasicCommand {
-    public boolean doCommand(String[] args, ShellState currentPath) {
+    public int doCommand(String[] args, ShellState currentPath) {
         if (args.length != 2) {
             System.err.println("mkdir needs 1 argument");
-            return true;
+            return 1;
         }
         Path newPath = Paths.get(currentPath.getCurrentPath().toString() + "/" + args[1]);
         try {
             Path dir = Files.createDirectory(newPath);
         } catch (IOException exception) {
             System.err.println("mkdir: input/output error");
+            return 1;
         }
-        return true;
+        return 2;
     }
 }

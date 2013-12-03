@@ -1,7 +1,7 @@
 package ru.fizteh.fivt.students.baranov.shell;
 
 public class BasicCommand {
-    public boolean doCommand(String args[], ShellState curPath) {
-        return true;
+    public int doCommand(String args[], ShellState curPath) {
+        return 0;
     }
 }

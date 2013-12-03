@@ -7,10 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Dir extends BasicCommand {
-    public boolean doCommand(String[] args, ShellState currentPath) {
+    public int doCommand(String[] args, ShellState currentPath) {
         if (args.length != 1) {
             System.err.println("dir doesn't need arguments");
-            return true;
+            return 1;
         }
 
         Path dir = currentPath.getCurrentPath();
@@ -22,10 +22,12 @@ public class Dir extends BasicCommand {
                 }
             } catch (DirectoryIteratorException x) {
                 System.err.println(x);
+                return 1;
             }
         } catch (IOException e) {
             System.err.println(e);
+            return 1;
         }
-        return true;
+        return 2;
     }
 }

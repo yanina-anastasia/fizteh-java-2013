@@ -5,10 +5,10 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 
 public class Cd extends BasicCommand {
-    public boolean doCommand(String args[], ShellState currentPath) {
+    public int doCommand(String args[], ShellState currentPath) {
         if (args.length != 2) {
             System.err.println("cd needs 1 argument");
-            return true;
+            return 1;
         }
 
         Path tempPath = Paths.get(args[1]).normalize();
@@ -17,10 +17,10 @@ public class Cd extends BasicCommand {
 
         if (Files.isDirectory(newPath)) {
             currentPath.changeCurrentPath(newPath);
-            return true;
+            return 2;
         } else {
             System.err.println(newPath.toString() + " - it isn't path");
-            return true;
+            return 1;
         }
     }
 }

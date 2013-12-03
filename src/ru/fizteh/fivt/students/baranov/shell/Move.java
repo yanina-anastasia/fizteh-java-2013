@@ -5,10 +5,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Move extends BasicCommand {
-    public boolean doCommand(String[] args, ShellState currentPath) {
+    public int doCommand(String[] args, ShellState currentPath) {
         if (args.length != 3) {
             System.err.println("mv needs 2 arguments");
-            return true;
+            return 1;
         }
 
         Path tempPath = Paths.get(args[1]).normalize();
@@ -21,7 +21,7 @@ public class Move extends BasicCommand {
 
         if (!Files.exists(sourcePath)) {
             System.err.println("source doesn't exist: " + sourcePath.toString());
-            return true;
+            return 1;
         }
 
         if (Files.isDirectory(sourcePath) || Files.isDirectory(targetPath)) {
@@ -39,11 +39,11 @@ public class Move extends BasicCommand {
                 if (!targetPath.toFile().renameTo(sourcePath.toFile())) {
                     System.err.println("can't rename " + targetPath.toString());
                     System.err.println("to " + sourcePath.toString());
-                    return true;
+                    return 1;
                 }
             }
         }
 
-        return true;
+        return 2;
     }
 }
