@@ -292,7 +292,6 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     protected void universalLoad() throws IOException, ParseException {
-        //isClosed();
         File curTable = new File(dataBaseDirectory, tableName);
         curTable = curTable.getCanonicalFile();
         File[] dirs = curTable.listFiles();
@@ -377,7 +376,6 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     protected void writeToDataBaseWithoutSignature() throws IOException {
-        isClosed();
         putKeys.get().clear();
         removeKeys.get().clear();
         Set<String> keys = getKeys();
