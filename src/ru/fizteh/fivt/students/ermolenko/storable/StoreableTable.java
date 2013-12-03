@@ -160,18 +160,18 @@ public class StoreableTable implements Table {
                 } else {
                     if (!dataBase.containsKey(pair.getKey())) {
                         ++size;
-                    } else {
+                    }
+                    /*
+                    else {
+
                         String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
                         String tmp2 = tableProvider.serialize(this, pair.getValue());
                         if (!(tmp1).equals(tmp2)) {
                             ++size;
                         }
-                        /*
-                        else {
-                            --size;
-                        }
-                        */
+
                     }
+                    */
                 }
             }
             return size;
