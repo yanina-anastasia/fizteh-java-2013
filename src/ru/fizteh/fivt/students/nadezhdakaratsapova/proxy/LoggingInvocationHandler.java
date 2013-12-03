@@ -32,8 +32,12 @@ public class LoggingInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result;
         if (method.getDeclaringClass().equals(Object.class)) {
-            result = method.invoke(implementation.get(), args);
-            return result;
+            try {
+                result = method.invoke(implementation.get(), args);
+                return result;
+            } catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            }
         } else {
             JSONObject jsonLog = new JSONObject();
             jsonLog.put("timestamp", System.currentTimeMillis());
@@ -70,8 +74,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
             } catch (InvocationTargetException e) {
                 Throwable thrown = e.getTargetException();
                 jsonLog.put("thrown", thrown.toString());
-                //writer.get().write(jsonLog.get().toString(2));
-                //writer.get().write(System.lineSeparator());
                 throw thrown;
             } finally {
                 try {
@@ -111,9 +113,5 @@ public class LoggingInvocationHandler implements InvocationHandler {
                 }
             }
         }
-    }
-
-    public void writeReturnValue(Object result) {
-
     }
 }
