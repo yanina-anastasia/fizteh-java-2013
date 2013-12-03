@@ -165,9 +165,12 @@ public class StoreableTable implements Table {
                         String tmp2 = tableProvider.serialize(this, pair.getValue());
                         if (!(tmp1).equals(tmp2)) {
                             ++size;
-                        } else {
+                        }
+                        /*
+                        else {
                             --size;
                         }
+                        */
                     }
                 }
             }
@@ -182,7 +185,6 @@ public class StoreableTable implements Table {
 
         tableLock.lock();
         try {
-            //int size = changesBase.get().size();
             int size = 0;
             try {
                     Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
@@ -198,18 +200,6 @@ public class StoreableTable implements Table {
                                     dataBase.put(pair.getKey(), pair.getValue());
                                     ++size;
                                 }
-                                /*
-                                else {
-                                    --size;
-                                }
-                                */
-                                /*
-                                if (!(dataBase.get(pair.getKey()).equals(pair.getValue()))) {
-                                    dataBase.put(pair.getKey(), pair.getValue());
-                                } else {
-                                    --size;
-                                }
-                                */
                             } else {
                                 dataBase.put(pair.getKey(), pair.getValue());
                                 ++size;
@@ -300,38 +290,3 @@ public class StoreableTable implements Table {
         dataFile = inFile;
     }
 }
-
-/*
-        tableLock.lock();
-        try {
-            int size = columnOfTypes.size();
-            try {
-                for (int i = 0; i < size; ++i) {
-                    if (value.getColumnAt(i) != null
-                            && !columnOfTypes.get(i).equals(value.getColumnAt(i).getClass())) {
-                        throw new ColumnFormatException("angry storeable");
-                    }
-                }
-            } catch (Exception e) {
-                throw new ColumnFormatException("less number of columns");
-            }
-
-            if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key))
-                    || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
-                ++size;
-            }
-
-            Storeable result = get(key);
-            changesBase.get().put(key, value);
-
-            String tmp1 = tableProvider.serialize(this, value);
-            String tmp2 = tableProvider.serialize(this, dataBase.get(key));
-            if (tmp1.equals(tmp2)) {
-                changesBase.get().remove(key);
-            }
-
-            return result;
-        } finally {
-            tableLock.unlock();
-        }
-        */
