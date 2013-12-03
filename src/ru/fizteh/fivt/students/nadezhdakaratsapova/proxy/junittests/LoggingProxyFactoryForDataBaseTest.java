@@ -23,11 +23,12 @@ public class LoggingProxyFactoryForDataBaseTest {
         Map<String, Integer> proxyStorage = (Map<String, Integer>) loggingProxyFactory.wrap(writer, storage, Map.class);
         proxyStorage.get("key");
         StringBuilder result = new StringBuilder(writer.toString());
-        Assert.assertEquals(result.substring(31, result.length()).toString(), new String("\n  \"arguments\": [\"key\"],\n" +
-                "  \"returnValue\": null,\n" +
-                "  \"class\": \"java.util.HashMap\",\n" +
-                "  \"method\": \"get\"\n" +
-                "}\n"));
+        Assert.assertEquals(result.substring(31, result.length()).toString(), new String(
+                "\n  \"arguments\": [\"key\"],\n"
+                        + "  \"returnValue\": null,\n"
+                        + "  \"class\": \"java.util.HashMap\",\n"
+                        + "  \"method\": \"get\"\n"
+                        + "}\n"));
     }
 
 
@@ -42,11 +43,12 @@ public class LoggingProxyFactoryForDataBaseTest {
         } catch (IndexOutOfBoundsException e) {
             StringBuilder result = new StringBuilder(writer.toString());
             Assert.assertEquals(new String(
-                    "\n  \"thrown\": \"java.lang.IndexOutOfBoundsException: Invalid index of column\"," +
-                            "\n  \"arguments\": [\n    5,\n    5\n  ],\n" +
-                            "  \"class\": \"ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableDataValue\",\n" +
-                            "  \"method\": \"setColumnAt\"\n" +
-                            "}\n"), result.substring(31, result.length()).toString());
+                    "\n  \"thrown\": \"java.lang.IndexOutOfBoundsException: Invalid index of column\","
+                            + "\n  \"arguments\": [\n    5,\n    5\n  ],\n"
+                            + "  \"class\": "
+                            + "\"ru.fizteh.fivt.students.nadezhdakaratsapova.storeable.StoreableDataValue\",\n"
+                            + "  \"method\": \"setColumnAt\"\n"
+                            + "}\n"), result.substring(31, result.length()).toString());
         }
     }
 
@@ -57,10 +59,11 @@ public class LoggingProxyFactoryForDataBaseTest {
         List<Object> proxyList = (List<Object>) loggingProxyFactory.wrap(writer, list, List.class);
         proxyList.add(list);
         StringBuilder result = new StringBuilder(writer.toString());
-        Assert.assertEquals(result.substring(31, result.length()).toString(), new String("\n  \"arguments\": [[\"cyclic\"]],\n" +
-                "  \"returnValue\": true,\n" +
-                "  \"class\": \"java.util.ArrayList\",\n" +
-                "  \"method\": \"add\"\n" +
-                "}\n"));
+        Assert.assertEquals(result.substring(31, result.length()).toString(), new String(
+                "\n  \"arguments\": [[\"cyclic\"]],\n"
+                        + "  \"returnValue\": true,\n"
+                        + "  \"class\": \"java.util.ArrayList\",\n"
+                        + "  \"method\": \"add\"\n"
+                        + "}\n"));
     }
 }
