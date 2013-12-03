@@ -94,9 +94,6 @@ public class StoreableTable implements Table {
         }
         tableLock.lock();
         try {
-
-        } finally {
-            tableLock.unlock();
             int size = columnOfTypes.size();
             try {
                 for (int i = 0; i < size; ++i) {
@@ -117,6 +114,8 @@ public class StoreableTable implements Table {
                 }
             }
             return result;
+        } finally {
+                tableLock.unlock();
         }
     }
 
