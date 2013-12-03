@@ -114,8 +114,13 @@ public class LogInvocationHandler implements InvocationHandler {
                 thrown = e;
             }
             try {
-                if (invTargetExc != null) {
-                    record.put("thrown", invTargetExc.getTargetException().toString());
+                if (invTargetExc != null || thrown != null) {
+                    if (invTargetExc != null) {
+                        record.put("thrown", invTargetExc.getTargetException().toString());
+                    }
+                    if (thrown != null) {
+                        record.put("thrown", thrown.toString());
+                    }
                     writer.write(record.toString() + System.lineSeparator());
                 } else {
                     if (!method.getReturnType().equals(void.class)) {
