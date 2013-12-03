@@ -109,7 +109,7 @@ public class StoreableTable implements Table {
             if (!(changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
                 changesBase.get().put(key, value);
             } else {
-                if (changesBase.get().containsKey(key)) {
+                if (changesBase.get().containsKey(key) && changesBase.get().get(key) == null) {
                     changesBase.get().remove(key);
                 }
             }
@@ -161,17 +161,6 @@ public class StoreableTable implements Table {
                     if (!dataBase.containsKey(pair.getKey())) {
                         ++size;
                     }
-                    /*
-                    else {
-
-                        String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
-                        String tmp2 = tableProvider.serialize(this, pair.getValue());
-                        if (!(tmp1).equals(tmp2)) {
-                            ++size;
-                        }
-
-                    }
-                    */
                 }
             }
             return size;
