@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DistributedTable extends FileManager implements Table {
+public class DistributedTable extends FileManager implements Table, AutoCloseable {
 
     private Path currentFile;
     private Path currentPath;
@@ -36,11 +36,37 @@ public class DistributedTable extends FileManager implements Table {
     private Path[][] filesList = new Path[partsNumber][partsNumber];
     private Path signature;
     private List<Class<?>> types;
+    private DistributedTableProvider provider;
 
     private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock(true);
+    private volatile boolean isClosed = false;
+
+    private void checkState() throws IllegalStateException {
+        if (isClosed) {
+            throw new IllegalStateException("table " + tableName + " already closed");
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (isClosed) {
+            return;
+        }
+        cacheLock.writeLock().lock();
+        try {
+            if (isClosed) {
+                return;
+            }
+            provider.forgetTable(tableName);
+            isClosed = true;
+        } finally {
+            cacheLock.writeLock().unlock();
+        }
+    }
 
     @Override
     public String getName() {
+        checkState();
         return tableName;
     }
 
@@ -48,11 +74,12 @@ public class DistributedTable extends FileManager implements Table {
         return (byte) Math.abs(s.getBytes(StandardCharsets.UTF_8)[0]);
     }
 
-    public boolean isValidKey(String key) {
+    public static boolean isValidKey(String key) {
         return key != null && !key.equals("") && !key.matches(".*[\\s].*");
     }
 
     public boolean isValidValue(Storeable value) {
+        checkState();
         try {
             TableRecord.checkStoreableTypes(value, types);
         } catch (IndexOutOfBoundsException e) {
@@ -180,8 +207,9 @@ public class DistributedTable extends FileManager implements Table {
         }
     }
 
-    private void initialiseTable(Path tableDirectory, String name) throws IOException {
-        currentPath = tableDirectory;
+    private void initialiseTable(Path tableDir, String name, DistributedTableProvider provider) throws IOException {
+        this.provider = provider;
+        currentPath = tableDir;
         tableName = name;
         for (int i = 0; i < partsNumber; i++) {
             directoriesList[i] = currentPath.resolve(i + ".dir");
@@ -199,8 +227,8 @@ public class DistributedTable extends FileManager implements Table {
         readTable();
     }
 
-    public DistributedTable(Path tableDirectory, String name, List<Class<?>> columnTypes)
-            throws IOException {
+    public DistributedTable(DistributedTableProvider provider, Path tableDirectory, String name,
+                            List<Class<?>> columnTypes) throws IOException {
         checkTableName(name);
         TableRecord.checkTypesList(columnTypes);
         if (tableDirectory == null) {
@@ -213,10 +241,10 @@ public class DistributedTable extends FileManager implements Table {
         }
         types = columnTypes;
         createSignature(tableDirectory);
-        initialiseTable(tableDirectory, name);
+        initialiseTable(tableDirectory, name, provider);
     }
 
-    public DistributedTable(Path tableDirectory, String name) throws IOException {
+    public DistributedTable(DistributedTableProvider provider, Path tableDirectory, String name) throws IOException {
         checkTableName(name);
         if (tableDirectory == null) {
             throw new IllegalArgumentException("table directory shouldn't be null");
@@ -225,7 +253,7 @@ public class DistributedTable extends FileManager implements Table {
             throw new IOException(tableDirectory + ": invalid directory");
         }
         types = getSignature(tableDirectory);
-        initialiseTable(tableDirectory, name);
+        initialiseTable(tableDirectory, name, provider);
     }
     
     private int findDifference() {
@@ -245,6 +273,7 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     public int changesSize() {
+        checkState();
         cacheLock.readLock().lock();
         try {
             return findDifference();
@@ -255,6 +284,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public int rollback() {
+        checkState();
         int canceled = changesSize();
         changes.get().clear();
         return canceled;
@@ -262,6 +292,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
      public Storeable get(String key) throws IllegalArgumentException {
+        checkState();
         if (key == null || !isValidKey(key)) {
             throw new IllegalArgumentException("invalid key");
         }
@@ -279,6 +310,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        checkState();
         if (key == null || !isValidKey(key)) {
             throw new IllegalArgumentException("invalid key");
         }
@@ -297,6 +329,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public Storeable remove(String key) throws IllegalArgumentException {
+        checkState();
         if (key == null || !isValidKey(key)) {
             throw new IllegalArgumentException("invalid key");
         }
@@ -308,6 +341,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public int size() {
+        checkState();
         cacheLock.readLock().lock();
         try {
             int size = cache.size();
@@ -330,6 +364,7 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public int commit() throws IOException {
+        checkState();
         cacheLock.writeLock().lock();
         try {
             boolean[][] changedFiles = new boolean[partsNumber][partsNumber];
@@ -396,15 +431,18 @@ public class DistributedTable extends FileManager implements Table {
 
     @Override
     public int getColumnsCount() {
+        checkState();
         return types.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        checkState();
         return types.get(columnIndex);
     }
 
     public List<Class<?>> getTypes() {
+        checkState();
         return types;
     }
 
@@ -461,17 +499,30 @@ public class DistributedTable extends FileManager implements Table {
     }
 
     public void clear() throws IOException {
-        for (int i = 0; i < partsNumber; i++) {
-            for (int j = 0; j < partsNumber; j++) {
-                if (Files.exists(filesList[i][j]) && !Files.exists(filesList[i][j])) {
-                    throw new IOException(filesList[i][j] + ": couldn't remove file");
+        checkState();
+        cacheLock.writeLock().lock();
+        try {
+            for (int i = 0; i < partsNumber; i++) {
+                for (int j = 0; j < partsNumber; j++) {
+                    if (Files.exists(filesList[i][j]) && !Files.exists(filesList[i][j])) {
+                        throw new IOException(filesList[i][j] + ": couldn't remove file");
+                    }
+                }
+                if (Files.exists(directoriesList[i]) && !Files.exists(directoriesList[i])) {
+                    throw new IOException(directoriesList[i] + ": couldn't remove directory");
                 }
             }
-            if (Files.exists(directoriesList[i]) && !Files.exists(directoriesList[i])) {
-                throw new IOException(directoriesList[i] + ": couldn't remove directory");
-            }
+            Files.delete(signature);
+            Files.delete(currentPath);
+            close();
+        } finally {
+            cacheLock.writeLock().unlock();
         }
-        Files.delete(signature);
-        Files.delete(currentPath);
+    }
+
+    @Override
+    public String toString() {
+        checkState();
+        return this.getClass().getSimpleName() + '[' + currentPath.toAbsolutePath() + ']';
     }
 }
