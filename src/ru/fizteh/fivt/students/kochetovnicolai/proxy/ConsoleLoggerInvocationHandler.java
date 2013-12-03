@@ -9,19 +9,15 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 class ConsoleLoggerInvocationHandler implements InvocationHandler {
     private Writer writer;
     private Object implementation;
-    private Lock lock;
     private IOException ioException = null;
 
     ConsoleLoggerInvocationHandler(Writer writer, Object implementation) {
         this.writer = writer;
         this.implementation = implementation;
-        lock = new ReentrantLock(true);
     }
 
     private void addObjectInArray(JSONArray jsonArray, Object anArray, IdentityHashMap<Object, Object> addedElements) {
@@ -75,14 +71,10 @@ class ConsoleLoggerInvocationHandler implements InvocationHandler {
                 object.put("returnValue", returned);
             }
         }
-        lock.lock();
         try {
-            object.write(writer);
-            writer.write(System.lineSeparator());
+            writer.write(object.toString() + System.lineSeparator());
         } catch (IOException e) {
             ioException = ioException == null ? e : ioException;
-        } finally {
-            lock.unlock();
         }
     }
 
