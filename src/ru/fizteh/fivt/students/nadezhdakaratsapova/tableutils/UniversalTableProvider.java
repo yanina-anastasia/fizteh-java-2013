@@ -13,6 +13,4 @@ public interface UniversalTableProvider {
 
     UniversalDataTable setCurTable(String newTable) throws IOException;
 
-    String toString();
-
 }

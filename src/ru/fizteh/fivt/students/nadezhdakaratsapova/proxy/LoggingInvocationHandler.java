@@ -9,23 +9,17 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.IdentityHashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class LoggingInvocationHandler implements InvocationHandler {
-    private ThreadLocal<Writer> writer = new ThreadLocal<Writer>();
-    private ThreadLocal<Object> implementation = new ThreadLocal<Object>();
-    private ThreadLocal<Set<Object>> prevArgs = new ThreadLocal<Set<Object>>() {
-        @Override
-        public Set<Object> initialValue() {
-            return Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
-        }
-    };
+    private Writer writer;
+    private Object implementation;
+    private Set<Object> prevArgs = new HashSet<Object>();
 
     public LoggingInvocationHandler(Writer writer, Object impl) {
-        this.writer.set(writer);
-        implementation.set(impl);
+        this.writer = writer;
+        implementation = impl;
     }
 
     @Override
@@ -33,7 +27,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
         Object result;
         if (method.getDeclaringClass().equals(Object.class)) {
             try {
-                result = method.invoke(implementation.get(), args);
+                result = method.invoke(implementation, args);
                 return result;
             } catch (InvocationTargetException e) {
                 throw e.getTargetException();
@@ -41,7 +35,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
         } else {
             JSONObject jsonLog = new JSONObject();
             jsonLog.put("timestamp", System.currentTimeMillis());
-            jsonLog.put("class", implementation.get().getClass().getName());
+            jsonLog.put("class", implementation.getClass().getName());
             jsonLog.put("method", method.getName());
             JSONArray array = new JSONArray();
             if (args != null) {
@@ -49,7 +43,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             }
             jsonLog.put("arguments", array);
             try {
-                result = method.invoke(implementation.get(), args);
+                result = method.invoke(implementation, args);
                 if (!method.getReturnType().isAssignableFrom(void.class)) {
                     JSONArray jsonArray = new JSONArray();
                     if (result != null) {
@@ -78,8 +72,8 @@ public class LoggingInvocationHandler implements InvocationHandler {
             } finally {
                 try {
                     if (!method.getDeclaringClass().equals(Object.class)) {
-                        writer.get().write(jsonLog.toString(2));
-                        writer.get().write(System.lineSeparator());
+                        writer.write(jsonLog.toString(2));
+                        writer.write(System.lineSeparator());
                     }
                 } catch (IOException e) {
                     //do nothing
@@ -91,13 +85,13 @@ public class LoggingInvocationHandler implements InvocationHandler {
     }
 
     public void writeArgument(JSONArray cmdArgs, Iterable args) {
-        prevArgs.get().add(args);
+        prevArgs.add(args);
         for (Object arg : args) {
             if (arg == null) {
                 cmdArgs.put(arg);
             } else {
                 if (arg instanceof Iterable) {
-                    if (prevArgs.get().contains(arg)) {
+                    if (prevArgs.contains(arg)) {
                         cmdArgs.put("cyclic");
                     } else {
                         JSONArray array = new JSONArray();

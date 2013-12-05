@@ -50,18 +50,18 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public String getName() {
-        isClosed();
+        checkNotClosed();
         return tableName;
     }
 
     protected ValueType putSimple(String key, ValueType value) {
-        isClosed();
+        checkNotClosed();
         ValueType oldValue = null;
         if (!removeKeys.get().contains(key)) {
             if ((oldValue = putKeys.get().get(key)) == null) {
                 tableChangesLock.readLock().lock();
                 try {
-                    isClosed();
+                    checkNotClosed();
                     oldValue = dataStorage.get(key);
                 } finally {
                     tableChangesLock.readLock().unlock();
@@ -71,7 +71,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
                 tableChangesLock.readLock().lock();
                 ValueType dataValue;
                 try {
-                    isClosed();
+                    checkNotClosed();
                     dataValue = dataStorage.get(key);
                 } finally {
                     tableChangesLock.readLock().unlock();
@@ -81,7 +81,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
                 } else {
                     tableChangesLock.readLock().lock();
                     try {
-                        isClosed();
+                        checkNotClosed();
                         if (!dataStorage.get(key).equals(value)) {
                             putKeys.get().put(key, value);
                         } else {
@@ -97,7 +97,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
             tableChangesLock.readLock().lock();
             ValueType dataValue;
             try {
-                isClosed();
+                checkNotClosed();
                 dataValue = dataStorage.get(key);
             } finally {
                 tableChangesLock.readLock().unlock();
@@ -115,7 +115,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public ValueType get(String key) throws IllegalArgumentException {
-        isClosed();
+        checkNotClosed();
         if (key == null) {
             throw new IllegalArgumentException("Not correct key");
         }
@@ -128,7 +128,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
         if (!removeKeys.get().contains(key)) {
             tableChangesLock.readLock().lock();
             try {
-                isClosed();
+                checkNotClosed();
                 value = dataStorage.get(key);
             } finally {
                 tableChangesLock.readLock().unlock();
@@ -141,7 +141,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public ValueType remove(String key) throws IllegalArgumentException {
-        isClosed();
+        checkNotClosed();
         if (key == null) {
             throw new IllegalArgumentException("Not correct key");
         }
@@ -149,7 +149,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
             if (putKeys.get().get(key) != null) {
                 tableChangesLock.readLock().lock();
                 try {
-                    isClosed();
+                    checkNotClosed();
                     if (dataStorage.get(key) != null) {
                         removeKeys.get().add(key);
                     }
@@ -167,7 +167,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
         ValueType value;
         tableChangesLock.readLock().lock();
         try {
-            isClosed();
+            checkNotClosed();
             if ((value = dataStorage.get(key)) != null) {
                 removeKeys.get().add(key);
             }
@@ -187,11 +187,11 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public int size() {
-        isClosed();
+        checkNotClosed();
         int size;
         tableChangesLock.readLock().lock();
         try {
-            isClosed();
+            checkNotClosed();
             size = dataStorage.size();
         } finally {
             tableChangesLock.readLock().unlock();
@@ -199,7 +199,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
         Set<String> keysToCommit = putKeys.get().keySet();
         tableChangesLock.readLock().lock();
         try {
-            isClosed();
+            checkNotClosed();
             for (String key : keysToCommit) {
                 if (!dataStorage.containsKey(key)) {
                     ++size;
@@ -213,13 +213,13 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     protected int commitWithoutWriteToDataBase() {
-        isClosed();
+        checkNotClosed();
         int commitSize = 0;
         if (!putKeys.get().isEmpty()) {
             Set<String> putKeysToCommit = putKeys.get().keySet();
             tableChangesLock.readLock().lock();
             try {
-                isClosed();
+                checkNotClosed();
                 for (String key : putKeysToCommit) {
                     if (dataStorage.get(key) == null) {
                         dataStorage.put(key, putKeys.get().get(key));
@@ -240,7 +240,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
         if (!removeKeys.get().isEmpty()) {
             tableChangesLock.readLock().lock();
             try {
-                isClosed();
+                checkNotClosed();
                 for (String key : removeKeys.get()) {
                     dataStorage.remove(key);
                     ++commitSize;
@@ -254,13 +254,13 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public int rollback() {
-        isClosed();
+        checkNotClosed();
         int rollbackSize = 0;
         if (!putKeys.get().isEmpty()) {
             Set<String> putKeysToRollback = putKeys.get().keySet();
             tableChangesLock.readLock().lock();
             try {
-                isClosed();
+                checkNotClosed();
                 for (String key : putKeysToRollback) {
                     if (dataStorage.get(key) == null) {
                         ++rollbackSize;
@@ -418,7 +418,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
     }
 
     public String toString() {
-        isClosed();
+        checkNotClosed();
         File dataTable = new File(dataBaseDirectory, tableName);
         return new String(this.getClass().getSimpleName() + "[" + dataTable.toString() + "]");
     }
@@ -431,7 +431,7 @@ public abstract class UniversalDataTable<ValueType> implements AutoCloseable {
         }
     }
 
-    protected void isClosed() {
+    protected void checkNotClosed() {
         if (closed) {
             throw new IllegalStateException("the table is closed");
         }
