@@ -107,15 +107,7 @@ public class StoreableTable implements Table {
             }
             Storeable result = get(key);
             if (!(changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
-                if(dataBase.containsKey(key)) {
-                    String tmp1 = tableProvider.serialize(this, dataBase.get(key));
-                    String tmp2 = tableProvider.serialize(this, value);
-                    if (!(tmp1.equals(tmp2))) {
-                        changesBase.get().put(key, value);
-                    }
-                } else {
-                    changesBase.get().put(key, value);
-                }
+                changesBase.get().put(key, value);
             } else {
                 if (changesBase.get().containsKey(key) && changesBase.get().get(key) == null) {
                     changesBase.get().remove(key);
