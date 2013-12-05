@@ -105,12 +105,40 @@ public class StoreableTable implements Table {
             } catch (Exception e) {
                 throw new ColumnFormatException("less number of columns");
             }
+
             Storeable result = get(key);
+            /*
+            String tmp1 = tableProvider.serialize(this, value);
+            if (changesBase.get().containsKey(key)) {
+                if (changesBase.get().get(key) != null) {
+                    String tmp2 = tableProvider.serialize(this, changesBase.get().get(key));
+                    if (tmp1.equals(tmp2)) {
+                        return result;
+                    }
+                }
+            }
+            if (dataBase.containsKey(key)) {
+                String tmp2 = tableProvider.serialize(this, dataBase.get(key));
+                if (tmp1.equals(tmp2)) {
+                    return result;
+                }
+            }
+            */
             if (!(changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+                String tmp1 = tableProvider.serialize(this, value);
+                if (changesBase.get().containsKey(key)) {
+                    if (changesBase.get().get(key) != null) {
+                        String tmp2 = tableProvider.serialize(this, changesBase.get().get(key));
+                        if (!tmp1.equals(tmp2)) {
+                            changesBase.get().put(key, value);
+                        }
+                    }
+                } else {
+                    changesBase.get().put(key, value);
+                }
                 if (dataBase.containsKey(key)) {
-                    String tmp1 = tableProvider.serialize(this, dataBase.get(key));
-                    String tmp2 = tableProvider.serialize(this, value);
-                    if (!(tmp1).equals(tmp2)) {
+                    String tmp2 = tableProvider.serialize(this, dataBase.get(key));
+                    if (!tmp1.equals(tmp2)) {
                         changesBase.get().put(key, value);
                     }
                 } else {
