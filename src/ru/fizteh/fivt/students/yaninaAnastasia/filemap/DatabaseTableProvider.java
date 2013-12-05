@@ -63,10 +63,6 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 return table;
             }
 
-            if (curTable != null && curTable.uncommittedChanges.get() > 0) {
-                throw new IllegalArgumentException(String.format("%d unsaved changes", curTable.uncommittedChanges));
-            }
-
             curTable = table;
 
             return table;
