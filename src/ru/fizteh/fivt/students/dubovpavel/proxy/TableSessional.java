@@ -2,6 +2,7 @@ package ru.fizteh.fivt.students.dubovpavel.proxy;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.dubovpavel.executor.Dispatcher;
+import ru.fizteh.fivt.students.dubovpavel.parallel.LockingWrapperQuiet;
 import ru.fizteh.fivt.students.dubovpavel.parallel.TableStoreableParallel;
 
 import java.io.File;
@@ -18,64 +19,52 @@ public class TableSessional extends TableStoreableParallel implements AutoClosea
         closingLock = new ReentrantReadWriteLock(true);
     }
 
-    private void checkIfAlive() {
-        if (closed) {
-            throw new IllegalStateException("Table was closed");
-        }
-    }
-
     @Override
     public String getName() {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.getName();
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return new LockingWrapperQuietClosedCheck<TableSessional, String>(this, closingLock.readLock()) {
+            @Override
+            protected String perform() {
+                return TableSessional.super.getName();
+            }
+        }.invoke();
     }
 
     @Override
     public int getColumnsCount() {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.getColumnsCount();
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return new LockingWrapperQuietClosedCheck<TableSessional, Integer>(this, closingLock.readLock()) {
+            @Override
+            protected Integer perform() {
+                return TableSessional.super.getColumnsCount();
+            }
+        }.invoke();
     }
 
     @Override
-    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.getColumnType(columnIndex);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+    public Class<?> getColumnType(final int columnIndex) throws IndexOutOfBoundsException {
+        return new LockingWrapperClosedCheck<TableSessional, Class<?>,
+                IndexOutOfBoundsException, RuntimeException>(this, closingLock.readLock()) {
+            @Override
+            protected Class<?> perform() throws IndexOutOfBoundsException {
+                return TableSessional.super.getColumnType(columnIndex);
+            }
+        }.invoke();
     }
 
     public boolean closed() {
-        try {
-            closingLock.readLock().lock();
-            return closed;
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return closed;
     }
 
     public void close() throws Exception {
-        try {
-            closingLock.writeLock().lock();
-            if (!closed) {
-                super.rollback();
-                closed = true;
+        new LockingWrapperQuiet<Void>(closingLock.writeLock()) {
+            @Override
+            protected Void perform() {
+                if (!closed) {
+                    TableSessional.super.rollback();
+                    closed = true;
+                }
+                return null;
             }
-        } finally {
-            closingLock.writeLock().unlock();
-        }
+        }.invoke();
     }
 
     @Override
@@ -87,67 +76,61 @@ public class TableSessional extends TableStoreableParallel implements AutoClosea
 
     @Override
     public int size() {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.size();
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return new LockingWrapperQuietClosedCheck<TableSessional, Integer>(this, closingLock.readLock()) {
+            @Override
+            public Integer perform() {
+                return TableSessional.super.size();
+            }
+        }.invoke();
     }
 
     @Override
-    public Storeable put(String key, Storeable value) {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.put(key, value);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+    public Storeable put(final String key, final Storeable value) {
+        return new LockingWrapperQuietClosedCheck<TableSessional, Storeable>(this, closingLock.readLock()) {
+            @Override
+            protected Storeable perform() {
+                return TableSessional.super.put(key, value);
+            }
+        }.invoke();
     }
 
     @Override
-    public Storeable get(String key) {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.get(key);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+    public Storeable get(final String key) {
+        return new LockingWrapperQuietClosedCheck<TableSessional, Storeable>(this, closingLock.readLock()) {
+            @Override
+            protected Storeable perform() {
+                return TableSessional.super.get(key);
+            }
+        }.invoke();
     }
 
     @Override
-    public Storeable remove(String key) {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.remove(key);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+    public Storeable remove(final String key) {
+        return new LockingWrapperQuietClosedCheck<TableSessional, Storeable>(this, closingLock.readLock()) {
+            @Override
+            protected Storeable perform() {
+                return TableSessional.super.remove(key);
+            }
+        }.invoke();
     }
 
     @Override
     public int rollback() {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.rollback();
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return new LockingWrapperQuietClosedCheck<TableSessional, Integer>(this, closingLock.readLock()) {
+            @Override
+            protected Integer perform() {
+                return TableSessional.super.rollback();
+            }
+        }.invoke();
     }
 
     @Override
     public int commit() {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.commit();
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return new LockingWrapperQuietClosedCheck<TableSessional, Integer>(this, closingLock.readLock()) {
+            @Override
+            protected Integer perform() {
+                return TableSessional.super.commit();
+            }
+        }.invoke();
     }
 }

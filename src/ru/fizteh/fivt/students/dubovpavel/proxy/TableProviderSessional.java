@@ -5,6 +5,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.FileRepresentativeDataBase;
 import ru.fizteh.fivt.students.dubovpavel.multifilehashmap.Storage;
+import ru.fizteh.fivt.students.dubovpavel.parallel.LockingWrapperQuiet;
 import ru.fizteh.fivt.students.dubovpavel.parallel.TableProviderStoreableParallel;
 import ru.fizteh.fivt.students.dubovpavel.storeable.TableStoreableBuilder;
 
@@ -31,124 +32,113 @@ public class TableProviderSessional<DB extends FileRepresentativeDataBase<Storea
         closingLock = new ReentrantReadWriteLock(true);
     }
 
-    private void checkIfAlive() {
-        if (closed) {
-            throw new IllegalStateException("TableProvider is closed");
-        }
-    }
-
     public boolean closed() {
-        try {
-            closingLock.readLock().lock();
-            return closed;
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return closed;
     }
 
     public void close() {
-        try {
-            closingLock.writeLock().lock();
-            if (!closed) {
-                for (Iterator<DB> i = storage.getDBIterator(); i.hasNext(); ) {
-                    try {
-                        i.next().close();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+        new LockingWrapperQuiet<Void>(closingLock.writeLock()) {
+            @Override
+            protected Void perform() {
+                if (!closed) {
+                    for (Iterator<DB> i = storage.getDBIterator(); i.hasNext(); ) {
+                        try {
+                            i.next().close();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
+                    closed = true;
                 }
-                closed = true;
+                return null;
             }
-        } finally {
-            closingLock.writeLock().unlock();
-        }
+        }.invoke();
     }
 
     @Override
     public Table createTable(final String name, final List<Class<?>> columnTypes) throws IOException {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.createTable(name, columnTypes);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return new LockingWrapperClosedCheck<TableProviderSessional, Table,
+                IOException, RuntimeException>(this, closingLock.readLock()) {
+            @Override
+            protected Table perform() throws IOException {
+                return TableProviderSessional.super.createTable(name, columnTypes);
+            }
+        }.invoke();
     }
 
     @Override
     public DB getTable(final String name) {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            try {
-                lock.readLock().lock();
-                DB table = super.getTable(name);
-                if (table != null && table.closed()) {
-                    return storage.reOpenDataBase(table.getPath());
-                } else {
-                    return table;
-                }
-            } finally {
-                lock.readLock().unlock();
+        return new LockingWrapperQuietClosedCheck<TableProviderSessional, DB>(this, closingLock.readLock()) {
+            @Override
+            protected DB perform() {
+                return new LockingWrapperQuiet<DB>(lock.readLock()) {
+                    @Override
+                    protected DB perform() {
+                        DB table = TableProviderSessional.super.getTable(name);
+                        if (table != null && table.closed()) {
+                            return storage.reOpenDataBase(table.getPath());
+                        } else {
+                            return table;
+                        }
+                    }
+                }.invoke();
             }
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        }.invoke();
     }
 
     @Override
     public void removeTable(final String name) throws IOException {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            super.removeTable(name);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        new LockingWrapperClosedCheck<TableProviderSessional, Void,
+                IOException, RuntimeException>(this, closingLock.readLock()) {
+            @Override
+            protected Void perform() throws IOException {
+                TableProviderSessional.super.removeTable(name);
+                return null;
+            }
+        }.invoke();
     }
 
     @Override
-    public Storeable deserialize(Table table, String value) throws ParseException {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.deserialize(table, value);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+    public Storeable deserialize(final Table table, final String value) throws ParseException {
+        return new LockingWrapperClosedCheck<TableProviderSessional, Storeable,
+                ParseException, RuntimeException>(this, closingLock.readLock()) {
+            @Override
+            protected Storeable perform() throws ParseException {
+                return TableProviderSessional.super.deserialize(table, value);
+            }
+        }.invoke();
     }
 
     @Override
-    public String serialize(Table table, Storeable value) throws ColumnFormatException {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.serialize(table, value);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+    public String serialize(final Table table, final Storeable value) throws ColumnFormatException {
+        return new LockingWrapperClosedCheck<TableProviderSessional, String,
+                ColumnFormatException, RuntimeException>(this, closingLock.readLock()) {
+            @Override
+            protected String perform() throws ColumnFormatException {
+                return TableProviderSessional.super.serialize(table, value);
+            }
+        }.invoke();
     }
 
     @Override
-    public Storeable createFor(Table table) {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.createFor(table);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+    public Storeable createFor(final Table table) {
+        return new LockingWrapperQuietClosedCheck<TableProviderSessional, Storeable>(this, closingLock.readLock()) {
+            @Override
+            protected Storeable perform() {
+                return TableProviderSessional.super.createFor(table);
+            }
+        }.invoke();
     }
 
     @Override
-    public Storeable createFor(Table table, List<?> values)
+    public Storeable createFor(final Table table, final List<?> values)
             throws ColumnFormatException, IndexOutOfBoundsException {
-        try {
-            closingLock.readLock().lock();
-            checkIfAlive();
-            return super.createFor(table, values);
-        } finally {
-            closingLock.readLock().unlock();
-        }
+        return new LockingWrapperClosedCheck<TableProviderSessional, Storeable,
+                ColumnFormatException, IndexOutOfBoundsException>(this, closingLock.readLock()) {
+            @Override
+            protected Storeable perform() throws ColumnFormatException, IndexOutOfBoundsException {
+                return TableProviderSessional.super.createFor(table, values);
+            }
+        }.invoke();
     }
 }
