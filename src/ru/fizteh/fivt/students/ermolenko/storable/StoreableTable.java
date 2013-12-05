@@ -134,7 +134,14 @@ public class StoreableTable implements Table {
                         }
                     }
                 } else {
-                    changesBase.get().put(key, value);
+                    if (dataBase.containsKey(key)) {
+                        String tmp2 = tableProvider.serialize(this, dataBase.get(key));
+                        if (!tmp1.equals(tmp2)) {
+                            changesBase.get().put(key, value);
+                        }
+                    } else {
+                        changesBase.get().put(key, value);
+                    }
                 }
                 if (dataBase.containsKey(key)) {
                     String tmp2 = tableProvider.serialize(this, dataBase.get(key));
