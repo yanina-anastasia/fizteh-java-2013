@@ -135,11 +135,14 @@ public class StoreableTable implements Table {
         try {
 
             Storeable result = get(newKey);
-            if (result != null) {
-                changesBase.get().put(newKey, null);
-            }
             if (changesBase.get().containsKey(key)) {
-                changesBase.get().remove(key);
+                if (changesBase.get().get(key) != null) {
+                    changesBase.get().remove(key);
+                }
+            } else {
+                if (result != null) {
+                    changesBase.get().put(newKey, null);
+                }
             }
             return result;
         } finally {
