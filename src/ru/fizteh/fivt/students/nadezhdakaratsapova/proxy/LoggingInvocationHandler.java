@@ -9,13 +9,14 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Set;
 
 public class LoggingInvocationHandler implements InvocationHandler {
     private Writer writer;
     private Object implementation;
-    private Set<Object> prevArgs = new HashSet<Object>();
+    private Set<Object> prevArgs = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
 
     public LoggingInvocationHandler(Writer writer, Object impl) {
         this.writer = writer;
