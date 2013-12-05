@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.mikhaylova_daria.db;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -105,22 +104,16 @@ public class LogInvocationHandler implements InvocationHandler {
 
             }
             Throwable thrown = null;
-            InvocationTargetException invTargetExc = null;
             try {
                 returnedValue = method.invoke(proxied, args);
             } catch (InvocationTargetException e) {
-                invTargetExc = e;
+                thrown = e.getTargetException();
             } catch (Throwable e) {
                 thrown = e;
             }
             try {
-                if (invTargetExc != null || thrown != null) {
-                    if (invTargetExc != null) {
-                        record.put("thrown", invTargetExc.getTargetException().toString());
-                    }
-                    if (thrown != null) {
-                        record.put("thrown", thrown.toString());
-                    }
+                if (thrown != null) {
+                    record.put("thrown", thrown.toString());
                     writer.write(record.toString() + System.lineSeparator());
                 } else {
                     if (!method.getReturnType().equals(void.class)) {
@@ -137,9 +130,6 @@ public class LogInvocationHandler implements InvocationHandler {
             }
             if (thrown != null) {
                 throw thrown;
-            }
-            if (invTargetExc != null) {
-                throw invTargetExc.getTargetException();
             }
         } else {
             try {
