@@ -9,9 +9,7 @@ import ru.fizteh.fivt.students.inaumov.multifilemap.handlers.SaveHandler;
 import ru.fizteh.fivt.students.inaumov.storeable.StoreableUtils;
 import ru.fizteh.fivt.students.inaumov.storeable.builders.StoreableTableBuilder;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -42,6 +40,13 @@ public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> impl
         }
     }
 
+    public DatabaseTable(DatabaseTable otherTable) {
+        super(otherTable.getDir(), otherTable.rawGetTableName());
+        this.columnTypes = otherTable.columnTypes;
+        this.tableProvider = otherTable.tableProvider;
+        this.keyValueHashMap = otherTable.keyValueHashMap;
+    }
+
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
         if (key != null) {
@@ -66,8 +71,6 @@ public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> impl
         return tableGet(key);
     }
 
-
-
     @Override
     public Storeable remove(String key) {
         return tableRemove(key);
@@ -90,11 +93,15 @@ public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> impl
 
     @Override
     public int getColumnsCount() {
+        tableState.checkAvailable();
+
         return columnTypes.size();
     }
 
     @Override
-    public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+    public Class<?> getColumnType(int columnIndex) {
+        tableState.checkAvailable();
+
         if (columnIndex < 0 || columnIndex > getColumnsCount()) {
             throw new IndexOutOfBoundsException();
         }
@@ -131,16 +138,9 @@ public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> impl
     }
 
     private void writeSignatureFile() throws IOException {
-        File tableDirectory = new File(getDir(), getName());
-        File signatureFile = new File(tableDirectory, DatabaseTableProvider.SIGNATURE_FILE);
-        signatureFile.createNewFile();
-        BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
-
-        List<String> formattedColumnTypes = StoreableUtils.getColumnTypesNames(columnTypes);
-        String signature = StoreableUtils.valuesTypeNamesToString(formattedColumnTypes);
-
-        writer.write(signature);
-        writer.close();
+        File tableDir = new File(getDir(), getName());
+        File signatureFile = new File(tableDir, DatabaseTableProvider.SIGNATURE_FILE);
+        StoreableUtils.writeSignature(signatureFile, columnTypes);
     }
 
     public boolean checkAlienStoreable(Storeable storeable) {
@@ -179,5 +179,15 @@ public class DatabaseTable extends AbstractDatabaseTable<String, Storeable> impl
 
     public Set<String> rawGetKeys() {
         return keyValueHashMap.keySet();
+    }
+
+    public String getTableDir() {
+        File tableDir = new File(getDir(), getName());
+        return tableDir.getAbsolutePath();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + getTableDir() + "]";
     }
 }

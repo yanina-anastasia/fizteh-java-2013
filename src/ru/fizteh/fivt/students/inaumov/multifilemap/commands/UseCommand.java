@@ -5,7 +5,8 @@ import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
 import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
-public class UseCommand<Table, Key, Value, State extends MultiFileMapShellState<Table, Key, Value>> extends AbstractCommand<State> {
+public class UseCommand<Table, Key, Value, State extends MultiFileMapShellState<Table, Key, Value>>
+        extends AbstractCommand<State> {
     public UseCommand() {
         super("use", 1);
     }

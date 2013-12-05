@@ -44,8 +44,8 @@ public enum TypesFormatter {
     private final String name;
     private final Class<?> type;
 
-    private static final Map<String, TypesFormatter> typesByName;
-    private static final Map<Class<?>, TypesFormatter> typesByClass;
+    private static Map<String, TypesFormatter> typesByName;
+    private static Map<Class<?>, TypesFormatter> typesByClass;
 
     private TypesFormatter(String name, Class<?> type) {
         this.name = name;
@@ -67,7 +67,7 @@ public enum TypesFormatter {
     public static Class<?> getTypeByName(String name) {
         TypesFormatter typesFormatter = typesByName.get(name);
         if (typesFormatter == null) {
-            throw new IllegalArgumentException("error: unknown type");
+            throw new IllegalArgumentException("wrong type (" + name + ")");
         }
 
         return typesFormatter.type;

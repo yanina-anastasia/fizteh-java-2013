@@ -6,11 +6,11 @@ import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class RollbackCommand<State extends FileMapShellState> extends AbstractCommand<State> {
-	public RollbackCommand() {
-		super("rollback", 0);
-	}
+    public RollbackCommand() {
+        super("rollback", 0);
+    }
 
-	public void execute(String argumentsLine, State state) {
+    public void execute(String argumentsLine, State state) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
@@ -19,6 +19,6 @@ public class RollbackCommand<State extends FileMapShellState> extends AbstractCo
             return;
         }
 
-		System.out.println(state.rollback());
-	}
+        System.out.println(state.rollback());
+    }
 }

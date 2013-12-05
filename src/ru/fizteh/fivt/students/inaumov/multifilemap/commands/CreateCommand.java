@@ -4,7 +4,8 @@ import ru.fizteh.fivt.students.inaumov.shell.ShellUtils;
 import ru.fizteh.fivt.students.inaumov.shell.base.AbstractCommand;
 import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapShellState;
 
-public class CreateCommand<Table, Key, Value, State extends MultiFileMapShellState<Table, Key, Value>> extends AbstractCommand<State> {
+public class CreateCommand<Table, Key, Value, State extends MultiFileMapShellState<Table, Key, Value>>
+        extends AbstractCommand<State> {
     public CreateCommand() {
         super("create", 1);
     }
@@ -23,7 +24,7 @@ public class CreateCommand<Table, Key, Value, State extends MultiFileMapShellSta
         }
 
         if (newTable == null) {
-            System.out.println(arguments[0] + " exists");
+            System.out.println(arguments[0].split("\\s+")[0] + " exists");
         } else {
             System.out.println("created");
         }

@@ -6,11 +6,11 @@ import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class SizeCommand<State extends FileMapShellState> extends AbstractCommand<State> {
-	public SizeCommand() {
-		super("size", 0);
-	}
+    public SizeCommand() {
+        super("size", 0);
+    }
 
-	public void execute(String argumentsLine, State state) {
+    public void execute(String argumentsLine, State state) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
@@ -20,5 +20,5 @@ public class SizeCommand<State extends FileMapShellState> extends AbstractComman
         }
 
         System.out.println(state.size());
-	}
+    }
 }

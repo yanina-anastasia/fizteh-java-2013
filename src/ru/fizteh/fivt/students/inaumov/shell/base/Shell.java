@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Shell<State> {
-	private final String invite = " $ ";
+    private final String invite = " $ ";
 
-	private final Map<String, Command> commandsMap = new HashMap<String, Command>();
+    private final Map<String, Command> commandsMap = new HashMap<String, Command>();
     private State state = null;
 
     private String[] args;
@@ -24,25 +24,25 @@ public class Shell<State> {
         this.args = args;
     }
 
-	public void addCommand(Command command) {
+    public void addCommand(Command command) {
         if (command == null) {
             throw new IllegalArgumentException("error: command is null");
         }
 
-		commandsMap.put(command.getName(), command);
-	}
+        commandsMap.put(command.getName(), command);
+    }
 
-	public Command getCommand(String commandName) {
+    public Command getCommand(String commandName) {
         if (commandName == null || commandName.trim().isEmpty()) {
             throw new IllegalArgumentException("error: command name is null (or empty)");
         }
 
-		Command command = commandsMap.get(commandName);
+        Command command = commandsMap.get(commandName);
 
-		return command;
-	}
+        return command;
+    }
 
-	private String[] parseCommandLine(String inputLine) {
+    private String[] parseCommandLine(String inputLine) {
         if (inputLine == null || inputLine.trim().isEmpty()) {
             throw new IllegalArgumentException();
         }
@@ -60,7 +60,7 @@ public class Shell<State> {
         }
 
         return new String[]{commandName, commandParameters};
-	}
+    }
 
     private String[][] parseBatchLine(String inputLine) {
         if (inputLine == null || inputLine.trim().isEmpty()) {
@@ -94,47 +94,47 @@ public class Shell<State> {
         return arguments;
     }
 
-	public void executeAll(String[][] commands) throws UserInterruptionException {
-		for (int i = 0; i < commands.length; ++i) {
-				Command command = getCommand(commands[i][0]);
+    public void executeAll(String[][] commands) throws UserInterruptionException {
+        for (int i = 0; i < commands.length; ++i) {
+                Command command = getCommand(commands[i][0]);
                 if (command == null) {
                     throw new IllegalArgumentException("error: command " + commands[i][0] + " not found");
                 }
 
-			    command.execute(commands[i][1], state);
-		}
-	}
+                command.execute(commands[i][1], state);
+        }
+    }
 
-	private void batchMode() {
-		StringBuilder stringBuilder = new StringBuilder();
-		for (String nextEntry: args) {
-			stringBuilder.append(nextEntry + " ");
-		}
+    private void batchMode() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String nextEntry: args) {
+            stringBuilder.append(nextEntry + " ");
+        }
 
-		String[][] commands = parseBatchLine(stringBuilder.toString());
+        String[][] commands = parseBatchLine(stringBuilder.toString());
 
-		try {
-			executeAll(commands);
-		} catch (IllegalArgumentException e) {
+        try {
+            executeAll(commands);
+        } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         } catch (IllegalStateException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         } catch (UserInterruptionException e) {
-			System.exit(0);
-		}
-	}
+            System.exit(0);
+        }
+    }
 
-	private void interactiveMode() {
-		BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(System.in));
+    private void interactiveMode() {
+        BufferedReader inputStreamReader = new BufferedReader(new InputStreamReader(System.in));
 
-		while (true) {
-			System.out.print(invite);
+        while (true) {
+            System.out.print(invite);
             String[] nextEntry = null;
 
             try {
-			    nextEntry = parseCommandLine(inputStreamReader.readLine());
+                nextEntry = parseCommandLine(inputStreamReader.readLine());
             } catch (IOException e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
@@ -145,8 +145,8 @@ public class Shell<State> {
             String[][] singleCommand = new String[1][];
             singleCommand[0] = nextEntry;
 
-			try {
-				executeAll(singleCommand);
+            try {
+                executeAll(singleCommand);
             } catch (IllegalArgumentException e) {
                 System.err.println(e.getMessage());
             } catch (IllegalStateException e) {
@@ -154,9 +154,9 @@ public class Shell<State> {
             } catch (UserInterruptionException e) {
                 System.exit(0);
             }
-		}
-	}
-	
+        }
+    }
+
     public void run() {
         if (args.length == 0) {
             interactiveMode();

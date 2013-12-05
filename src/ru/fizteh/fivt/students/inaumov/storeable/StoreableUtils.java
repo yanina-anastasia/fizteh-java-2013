@@ -1,7 +1,12 @@
 package ru.fizteh.fivt.students.inaumov.storeable;
 
 import ru.fizteh.fivt.storage.structured.*;
+import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +23,20 @@ public class StoreableUtils {
         return result;
     }
 
-    public static String valuesTypeNamesToString(List<?> list) {
+    public static String valuesTypeNamesToString(List<?> list, boolean nameNulls, String delimiter) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean firstEntry = true;
 
         for (final Object listEntry: list) {
             if (!firstEntry) {
-                stringBuilder.append(" ");
+                stringBuilder.append(delimiter);
             }
             firstEntry = false;
 
             if (listEntry == null) {
-                stringBuilder.append("null");
+                if (nameNulls) {
+                    stringBuilder.append("null");
+                }
             } else {
                 stringBuilder.append(listEntry.toString());
             }
@@ -40,15 +47,22 @@ public class StoreableUtils {
 
     public static TableInfo parseCreateCommand(String arguments) {
         TableInfo tableInfo = null;
-        String[] columnTypesNames = arguments.split(" ");
-        if (columnTypesNames.length <= 1) {
-            throw new IllegalArgumentException("error: can't parse arguments");
+
+        String tableName = arguments.split("\\s+")[0];
+        arguments = arguments.replaceAll("\\s+", " ");
+
+        int spaceFirstEntryIndex = arguments.indexOf(' ');
+        if (spaceFirstEntryIndex == -1) {
+            throw new IllegalArgumentException("error: select column value types");
         }
 
-        String tableName = columnTypesNames[0];
+        String columnTypesString = arguments.substring(spaceFirstEntryIndex).replaceAll("\\((.*)\\)", "$1");
+
+        String[] columnTypesNames = Shell.parseCommandParameters(columnTypesString);
+
         tableInfo = new TableInfo(tableName);
 
-        for (int i = 1; i < columnTypesNames.length; ++i) {
+        for (int i = 0; i < columnTypesNames.length; ++i) {
             tableInfo.addColumn(TypesFormatter.getTypeByName(columnTypesNames[i]));
         }
 
@@ -75,12 +89,38 @@ public class StoreableUtils {
 
         if (TypesFormatter.getSimpleName(type).equals("String")) {
             String stringValue = (String) value;
-            if (stringValue.trim().isEmpty()) {
+            stringValue = stringValue.trim();
+
+            if (stringValue.isEmpty()) {
                 return;
             }
             if (isStringIncorrect(stringValue)) {
                 throw new ParseException("{" + stringValue + "}", 0);
             }
         }
+    }
+
+    public static List<String> formatColumnTypes(List<Class<?>> columnTypes) {
+        List<String> formattedColumnTypes = new ArrayList<String>();
+        for (final Class<?> columnType : columnTypes) {
+            formattedColumnTypes.add(TypesFormatter.getSimpleName(columnType));
+        }
+
+        return formattedColumnTypes;
+    }
+
+    public static void writeSignature(File signatureFile, List<Class<?>> columnTypes) throws IOException {
+        File parent = signatureFile.getParentFile();
+        if (!parent.exists()) {
+            parent.mkdir();
+        }
+
+        signatureFile.createNewFile();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
+        List<String> formattedColumnTypes = StoreableUtils.formatColumnTypes(columnTypes);
+
+        String signature = StoreableUtils.valuesTypeNamesToString(formattedColumnTypes, true, " ");
+        writer.write(signature);
+        writer.close();
     }
 }

@@ -32,7 +32,7 @@ public class WriteHandler implements Closeable {
         try {
             writer.close();
         } catch (IOException e) {
-
+            //
         }
     }
 

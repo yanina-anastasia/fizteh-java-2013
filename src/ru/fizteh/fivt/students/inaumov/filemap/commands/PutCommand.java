@@ -6,11 +6,11 @@ import ru.fizteh.fivt.students.inaumov.filemap.FileMapShellState;
 
 public class PutCommand<Table, Key, Value, State extends FileMapShellState<Table, Key, Value>>
         extends AbstractCommand<State> {
-	public PutCommand() {
-		super("put", 2);
-	}
+    public PutCommand() {
+        super("put", 2);
+    }
 
-	public void execute(String argumentsLine, State state) {
+    public void execute(String argumentsLine, State state) {
         String[] arguments = state.parsePutCommand(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
@@ -22,12 +22,12 @@ public class PutCommand<Table, Key, Value, State extends FileMapShellState<Table
         Key key = state.parseKey(arguments[0]);
         Value value = state.parseValue(arguments[1]);
         Value oldValue = state.put(key, value);
-		
-		if (oldValue == null) {
-			System.out.println("new");
-		} else {
-			System.out.println("overwrite");
-			System.out.println(state.valueToString(oldValue));
-		}
-	}
+
+        if (oldValue == null) {
+            System.out.println("new");
+        } else {
+            System.out.println("overwrite");
+            System.out.println(state.valueToString(oldValue));
+        }
+    }
 }

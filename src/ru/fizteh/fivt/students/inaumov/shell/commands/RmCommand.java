@@ -6,14 +6,14 @@ import ru.fizteh.fivt.students.inaumov.shell.ShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class RmCommand extends AbstractCommand<ShellState> {
-	public RmCommand() {
-		super("rm", 1);
-	}
+    public RmCommand() {
+        super("rm", 1);
+    }
 
-	public void execute(String argumentsLine, ShellState shellState) {
+    public void execute(String argumentsLine, ShellState shellState) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
-		shellState.fileCommander.remove(arguments[0]);
-	}
+        shellState.fileCommander.remove(arguments[0]);
+    }
 }

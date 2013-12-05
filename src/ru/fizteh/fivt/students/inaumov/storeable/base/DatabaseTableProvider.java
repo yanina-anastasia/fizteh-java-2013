@@ -6,7 +6,9 @@ import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.students.inaumov.filemap.base.TableState;
 import ru.fizteh.fivt.students.inaumov.multifilemap.MultiFileMapUtils;
+import ru.fizteh.fivt.students.inaumov.storeable.StoreableUtils;
 import ru.fizteh.fivt.students.inaumov.storeable.TypesFormatter;
 
 import java.io.BufferedReader;
@@ -20,14 +22,15 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class DatabaseTableProvider implements TableProvider {
+public class DatabaseTableProvider implements TableProvider, AutoCloseable {
     static final String SIGNATURE_FILE = "signature.tsv";
     private static final String CHECK_EXPRESSION_STRING = "[0-9A-Za-zА-Яа-я]+";
     private final Lock tableLock = new ReentrantLock(true);
 
-    HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
+    private HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     private String databaseDirectoryPath;
     private DatabaseTable currentTable = null;
+    protected TableState state;
 
     public DatabaseTableProvider(String databaseDirectoryPath) {
         if (databaseDirectoryPath == null) {
@@ -35,12 +38,15 @@ public class DatabaseTableProvider implements TableProvider {
         }
 
         this.databaseDirectoryPath = databaseDirectoryPath;
+
+        state = TableState.WORKING;
+
         File databaseDirectory = new File(databaseDirectoryPath);
         if (databaseDirectory.isFile()) {
             throw new IllegalArgumentException("error: database can't be placed in a file");
         }
 
-        for (final File tableFile: databaseDirectory.listFiles()) {
+        for (File tableFile: databaseDirectory.listFiles()) {
             if (tableFile.isFile()) {
                 continue;
             }
@@ -60,7 +66,10 @@ public class DatabaseTableProvider implements TableProvider {
     public Table getTable(String name) {
         try {
             tableLock.lock();
-            if (name == null || name.isEmpty()) {
+
+            state.checkAvailable();
+
+            if (name == null || name.trim().isEmpty()) {
                 throw new IllegalArgumentException("error: table name can't be null (or empty)");
             }
 
@@ -76,6 +85,11 @@ public class DatabaseTableProvider implements TableProvider {
                 throw new IllegalStateException(currentTable.getUnsavedChangesNumber() + " unsaved changes");
             }
 
+            if (table.isClosed()) {
+                table = new DatabaseTable(table);
+                tables.put(table.getName(), table);
+            }
+
             currentTable = table;
             return table;
         } finally {
@@ -87,14 +101,17 @@ public class DatabaseTableProvider implements TableProvider {
     public Table createTable(String name, List<Class<?>> columnTypes) throws IOException {
         try {
             tableLock.lock();
-            if (name == null || name.isEmpty()) {
+
+            state.checkAvailable();
+
+            if (name == null || name.trim().isEmpty()) {
                 throw new IllegalArgumentException("error: table name can't be null (or empty)");
             }
 
             checkTableName(name);
 
             if (columnTypes == null || columnTypes.isEmpty()) {
-                throw new IllegalArgumentException("error: column types can't be null (or empty)");
+                throw new IllegalArgumentException("error: wrong type (null or empty columns types)");
             }
 
             checkColumnTypes(columnTypes);
@@ -102,6 +119,11 @@ public class DatabaseTableProvider implements TableProvider {
             if (tables.containsKey(name)) {
                 return null;
             }
+
+            File tableDir = new File(databaseDirectoryPath, name);
+            File signatureFile = new File(tableDir, DatabaseTableProvider.SIGNATURE_FILE);
+
+            StoreableUtils.writeSignature(signatureFile, columnTypes);
 
             DatabaseTable table = new DatabaseTable(this, databaseDirectoryPath, name, columnTypes);
             tables.put(name, table);
@@ -115,7 +137,10 @@ public class DatabaseTableProvider implements TableProvider {
     public void removeTable(String name) throws IOException {
         try {
             tableLock.lock();
-            if (name == null || name.isEmpty()) {
+
+            state.checkAvailable();
+
+            if (name == null || name.trim().isEmpty()) {
                 throw new IllegalArgumentException("error: table name can't be null (or empty)");
             }
 
@@ -127,6 +152,8 @@ public class DatabaseTableProvider implements TableProvider {
 
             File tableFile = new File(databaseDirectoryPath, name);
             MultiFileMapUtils.deleteFile(tableFile);
+
+            currentTable = null;
         } finally {
             tableLock.unlock();
         }
@@ -134,6 +161,8 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public String serialize(Table table, Storeable value) throws ColumnFormatException {
+        state.checkAvailable();
+
         Object[] values = new Object[table.getColumnsCount()];
         for (int i = 0; i < table.getColumnsCount(); ++i) {
             values[i] = value.getColumnAt(i);
@@ -145,6 +174,8 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public Storeable deserialize(Table table, String value) throws ParseException {
+        state.checkAvailable();
+
         JSONArray array;
         try {
             array = new JSONArray(value);
@@ -162,8 +193,8 @@ public class DatabaseTableProvider implements TableProvider {
                 values.add(null);
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Integer.class) {
                 values.add(array.getInt(i));
-            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class) &&
-                    table.getColumnType(i) == Long.class) {
+            } else if ((array.get(i).getClass() == Long.class || array.get(i).getClass() == Integer.class)
+                    && table.getColumnType(i) == Long.class) {
                 values.add(array.getLong(i));
             } else if (array.get(i).getClass() == Integer.class && table.getColumnType(i) == Byte.class) {
                 Integer a = array.getInt(i);
@@ -187,11 +218,15 @@ public class DatabaseTableProvider implements TableProvider {
 
     @Override
     public Storeable createFor(Table table) {
+        state.checkAvailable();
+
         return rawCreateFor(table);
     }
 
     @Override
-    public Storeable createFor(Table table, List<?> values) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Storeable createFor(Table table, List<?> values) {
+        state.checkAvailable();
+
         if (values == null) {
             throw new IllegalArgumentException("error: values can't be null");
         }
@@ -236,11 +271,6 @@ public class DatabaseTableProvider implements TableProvider {
         return columnTypes;
     }
 
-    private boolean checkCorrectTable(File tableDirectory) {
-        File signatureFile = new File(tableDirectory, SIGNATURE_FILE);
-        return signatureFile.exists();
-    }
-
     private DatabaseRow rawCreateFor(Table table) {
         DatabaseRow row = new DatabaseRow();
         for (int i = 0; i < table.getColumnsCount(); ++i) {
@@ -251,7 +281,7 @@ public class DatabaseTableProvider implements TableProvider {
     }
 
     private void checkColumnTypes(List<Class<?>> columnTypes) {
-        for (final Class<?> columnType: columnTypes) {
+        for (final Class<?> columnType : columnTypes) {
             if (columnType == null) {
                 throw new IllegalArgumentException("unknown column type");
             }
@@ -264,5 +294,23 @@ public class DatabaseTableProvider implements TableProvider {
         if (!name.matches(CHECK_EXPRESSION_STRING)) {
             throw new IllegalArgumentException("error: bad table name");
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + databaseDirectoryPath + "]";
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (state.equals(TableState.CLOSED)) {
+            return;
+        }
+
+        for (final String tableName : tables.keySet()) {
+            tables.get(tableName).close();
+        }
+
+        state = TableState.CLOSED;
     }
 }

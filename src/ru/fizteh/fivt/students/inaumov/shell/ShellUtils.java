@@ -9,8 +9,8 @@ public class ShellUtils {
         }
 
         if (command.getArgumentsNumber() != argumentsNumber) {
-            throw new IllegalArgumentException("error: command " + command.getName() +
-                    ": expected " + command.getArgumentsNumber() + " arguments");
+            throw new IllegalArgumentException("error: command " + command.getName()
+                    + ": expected " + command.getArgumentsNumber() + " arguments");
         }
 
         return;

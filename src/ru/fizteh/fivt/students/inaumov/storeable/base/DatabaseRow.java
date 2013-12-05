@@ -28,7 +28,7 @@ public class DatabaseRow implements Storeable {
     public void setColumnAt(int columnIndex, Object value) throws ColumnFormatException, IndexOutOfBoundsException {
         checkBounds(columnIndex);
         if (value != null) {
-            checkColumnType(columnIndex, value);
+            checkColumnType(columnIndex, value.getClass());
             try {
                 StoreableUtils.isValueCorrect(value, value.getClass());
             } catch (ParseException e) {
@@ -40,14 +40,14 @@ public class DatabaseRow implements Storeable {
     }
 
     @Override
-    public Object getColumnAt(int columnIndex) throws IndexOutOfBoundsException {
+    public Object getColumnAt(int columnIndex) {
         checkBounds(columnIndex);
 
         return columns.get(columnIndex);
     }
 
     @Override
-    public Integer getIntAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Integer getIntAt(int columnIndex) {
         checkBounds(columnIndex);
         checkColumnType(columnIndex, Integer.class);
 
@@ -55,7 +55,7 @@ public class DatabaseRow implements Storeable {
     }
 
     @Override
-    public Long getLongAt(int columnIndex) throws ColumnFormatException, IndexOutOfBoundsException {
+    public Long getLongAt(int columnIndex) {
         checkBounds(columnIndex);
         checkColumnType(columnIndex, Long.class);
 
@@ -104,10 +104,12 @@ public class DatabaseRow implements Storeable {
 
     @Override
     public boolean equals(Object obj) {
-        DatabaseRow otherStoreable = (DatabaseRow) obj;
-        if (otherStoreable == null) {
+        if (obj == null) {
             return false;
         }
+
+        DatabaseRow otherStoreable = (DatabaseRow) obj;
+
         return otherStoreable.columns.equals(columns) && otherStoreable.classes.equals(classes);
     }
 
@@ -134,15 +136,15 @@ public class DatabaseRow implements Storeable {
         }
     }
 
-    private void checkColumnType(int columnIndex, Object value) throws ColumnFormatException {
-        if (!value.getClass().isAssignableFrom(classes.get(columnIndex))) {
+    private void checkColumnType(int columnIndex, Class value) throws ColumnFormatException {
+        if (!value.isAssignableFrom(classes.get(columnIndex))) {
             throw new ColumnFormatException(String.format("incorrect type: expected type: %s actual type: %s",
-                    classes.get(columnIndex).getName(), value.getClass().getName()));
+                    classes.get(columnIndex).getName(), value.getName()));
         }
     }
 
     @Override
     public String toString() {
-        return StoreableUtils.valuesTypeNamesToString(columns);
+        return getClass().getSimpleName() + "[" + StoreableUtils.valuesTypeNamesToString(columns, false, ",") + "]";
     }
 }

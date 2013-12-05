@@ -6,15 +6,15 @@ import ru.fizteh.fivt.students.inaumov.shell.ShellState;
 import ru.fizteh.fivt.students.inaumov.shell.base.Shell;
 
 public class PwdCommand extends AbstractCommand<ShellState> {
-	public PwdCommand() {
-		super("pwd", 0);
-	}
+    public PwdCommand() {
+        super("pwd", 0);
+    }
 
-	public void execute(String argumentsLine, ShellState shellState) {
+    public void execute(String argumentsLine, ShellState shellState) {
         String[] arguments = Shell.parseCommandParameters(argumentsLine);
         ShellUtils.checkArgumentsNumber(this, arguments.length);
 
         String workingDir = shellState.fileCommander.getCurrentDirectory();
         System.out.println(workingDir);
-	}
+    }
 }
