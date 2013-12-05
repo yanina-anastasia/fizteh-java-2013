@@ -225,9 +225,6 @@ public class StoreableTable implements Table {
                         --size;
                     }
                 }
-                if (pair.getValue() == null) {
-                    --size;
-                }
             }
             changesBase.get().clear();
             return size;
