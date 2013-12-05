@@ -7,6 +7,6 @@ public class Pwd extends BasicCommand {
             return 1;
         }
         System.out.println(currentPath.getCurrentPath().toString());
-        return 2;
+        return 0;
     }
 }

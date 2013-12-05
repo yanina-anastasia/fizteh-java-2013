@@ -17,7 +17,7 @@ public class Cd extends BasicCommand {
 
         if (Files.isDirectory(newPath)) {
             currentPath.changeCurrentPath(newPath);
-            return 2;
+            return 0;
         } else {
             System.err.println(newPath.toString() + " - it isn't path");
             return 1;

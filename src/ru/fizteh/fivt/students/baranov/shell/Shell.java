@@ -24,12 +24,10 @@ public class Shell {
                 System.err.println(args[0] + " - wrong command");
                 continue;
             }
-            // 0 - exit
-            // 1 - error
-            // 2 - OK
-            if (command.doCommand(args, path) == 0) {
+            if (args[0].equals("exit")) {
                 return;
             }
+            int x = command.doCommand(args, path);
             path.changeCurrentPath(path.getCurrentPath().normalize());
             path.copyMade = 0;
         }
@@ -48,13 +46,13 @@ public class Shell {
                 System.err.println(arguments[0] + " - wrong command");
                 System.exit(1);
             }
-            int answer = cmd.doCommand(arguments, path);
-            // 0 - exit
-            // 1 - error
-            // 2 - OK
-            if (answer == 0) {
+            if (arguments[0].equals("exit")) {
                 return;
-            } else if (answer == 1) {
+            }
+            int answer = cmd.doCommand(arguments, path);
+            // 0 - OK
+            // 1 - error
+            if (answer == 1) {
                 System.exit(1);
             }
             path.changeCurrentPath(path.getCurrentPath().normalize());

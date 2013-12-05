@@ -39,7 +39,7 @@ public class Copy extends BasicCommand {
                 return 1;
             }
             currentPath.copyMade = 1;
-            return 2;
+            return 0;
         } else if (Files.isDirectory(sourcePath) && Files.isDirectory(targetPath)) {
             FileTreeCopy fileTree = new FileTreeCopy(sourcePath, targetPath);
             try {
@@ -49,12 +49,12 @@ public class Copy extends BasicCommand {
                 return 1;
             }
             currentPath.copyMade = 1;
-            return 2;
+            return 0;
         } else if (Files.isDirectory(sourcePath) && !Files.isDirectory(targetPath)) {
             System.err.println("copying directory to file");
             return 1;
         }
         currentPath.copyMade = 1;
-        return 2;
+        return 0;
     }
 }

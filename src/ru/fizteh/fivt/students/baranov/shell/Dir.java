@@ -28,6 +28,6 @@ public class Dir extends BasicCommand {
             System.err.println(e);
             return 1;
         }
-        return 2;
+        return 0;
     }
 }

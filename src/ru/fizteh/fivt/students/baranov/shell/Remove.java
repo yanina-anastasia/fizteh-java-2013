@@ -27,7 +27,7 @@ public class Remove extends BasicCommand {
                 System.err.println("can't delete file: " + newPath.toString());
                 return 1;
             }
-            return 2;
+            return 0;
         } else {
             FileTreeRemove fileTree = new FileTreeRemove(newPath);
             try {
@@ -43,7 +43,7 @@ public class Remove extends BasicCommand {
                 System.err.println("can't delete directory: " + newPath.toString());
                 return 1;
             }
-            return 2;
+            return 0;
         }
     }
 }

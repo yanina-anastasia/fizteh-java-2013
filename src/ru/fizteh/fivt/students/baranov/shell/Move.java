@@ -44,6 +44,6 @@ public class Move extends BasicCommand {
             }
         }
 
-        return 2;
+        return 0;
     }
 }

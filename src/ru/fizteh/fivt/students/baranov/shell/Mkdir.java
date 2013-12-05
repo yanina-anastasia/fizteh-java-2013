@@ -18,6 +18,6 @@ public class Mkdir extends BasicCommand {
             System.err.println("mkdir: input/output error");
             return 1;
         }
-        return 2;
+        return 0;
     }
 }
