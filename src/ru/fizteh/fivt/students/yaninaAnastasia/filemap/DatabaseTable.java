@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DatabaseTable implements Table {
+public class DatabaseTable implements Table, AutoCloseable {
     public HashMap<String, Storeable> oldData;
     public ThreadLocal<HashMap<String, Storeable>> modifiedData;
     public ThreadLocal<HashSet<String>> deletedKeys;
@@ -21,9 +21,11 @@ public class DatabaseTable implements Table {
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
     private ReadWriteLock transactionLock = new ReentrantReadWriteLock(true);
+    volatile boolean isClosed;
 
 
     public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
+        isClosed = false;
         this.tableName = name;
         oldData = new HashMap<String, Storeable>();
         modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
@@ -54,6 +56,33 @@ public class DatabaseTable implements Table {
         }
     }
 
+    public DatabaseTable(DatabaseTable other) {
+        this.tableName = other.tableName;
+        this.columnTypes = other.columnTypes;
+        this.provider = other.provider;
+        this.oldData = other.oldData;
+        isClosed = false;
+        modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
+        deletedKeys = new ThreadLocal<HashSet<String>>() {
+            @Override
+            public HashSet<String> initialValue() {
+                return new HashSet<String>();
+            }
+        };
+        uncommittedChanges = new ThreadLocal<Integer>() {
+            @Override
+            public Integer initialValue() {
+                return new Integer(0);
+            }
+        };
+        uncommittedChanges.set(0);
+    }
+
     public static int getDirectoryNum(String key) {
         int keyByte = Math.abs(key.getBytes(StandardCharsets.UTF_8)[0]);
         return keyByte % 16;
@@ -65,6 +94,7 @@ public class DatabaseTable implements Table {
     }
 
     public String getName() {
+        isCloseChecker();
         if (tableName == null) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
@@ -72,9 +102,11 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable get(String key) throws IllegalArgumentException {
+        isCloseChecker();
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Table name cannot be null");
         }
+
         if (modifiedData.get().containsKey(key)) {
             return modifiedData.get().get(key);
         }
@@ -90,6 +122,7 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
+        isCloseChecker();
         if ((key == null) || (key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key can not be null");
         }
@@ -130,6 +163,7 @@ public class DatabaseTable implements Table {
     }
 
     public Storeable remove(String key) throws IllegalArgumentException {
+        isCloseChecker();
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
             throw new IllegalArgumentException("Key name cannot be null");
         }
@@ -161,6 +195,7 @@ public class DatabaseTable implements Table {
     }
 
     public int size() {
+        isCloseChecker();
         transactionLock.readLock().lock();
         try {
             return oldData.size() + diffSize();
@@ -170,6 +205,7 @@ public class DatabaseTable implements Table {
     }
 
     public int commit() {
+        isCloseChecker();
         int recordsCommitted = 0;
         transactionLock.writeLock().lock();
         try {
@@ -194,6 +230,7 @@ public class DatabaseTable implements Table {
     }
 
     public int rollback() {
+        isCloseChecker();
         int recordsDeleted = Math.abs(changesCount());
 
         deletedKeys.get().clear();
@@ -205,8 +242,9 @@ public class DatabaseTable implements Table {
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        isCloseChecker();
         if (columnIndex < 0 || columnIndex >= getColumnsCount()) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("wrong index");
         }
         return columnTypes.get(columnIndex);
     }
@@ -241,7 +279,7 @@ public class DatabaseTable implements Table {
         if (tableName.equals("")) {
             return true;
         }
-        File tablePath = new File(System.getProperty("fizteh.db.dir"), tableName);
+        File tablePath = new File(provider.getDatabaseDirectory(), tableName);
         for (int i = 0; i < 16; i++) {
             String directoryName = String.format("%d.dir", i);
             File path = new File(tablePath, directoryName);
@@ -368,8 +406,8 @@ public class DatabaseTable implements Table {
             }
         }
         for (final String key : deletedKeys.get()) {
+            transactionLock.readLock().lock();
             try {
-                transactionLock.readLock().lock();
                 if (oldData.containsKey(key)) {
                     result -= 1;
                 }
@@ -391,6 +429,7 @@ public class DatabaseTable implements Table {
     }
 
     public int getColumnsCount() {
+        isCloseChecker();
         return columnTypes.size();
     }
 
@@ -414,5 +453,26 @@ public class DatabaseTable implements Table {
             return;
         }
         throw new ColumnFormatException("Alien storeable with more columns");
+    }
+
+    public void isCloseChecker() {
+        if (isClosed) {
+            throw new IllegalStateException("It is closed");
+        }
+    }
+
+    @Override
+    public String toString() {
+        isCloseChecker();
+        return String.format("%s[%s]", getClass().getSimpleName(), new File(provider.curDir, tableName).toString());
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (isClosed) {
+            return;
+        }
+        rollback();
+        isClosed = true;
     }
 }

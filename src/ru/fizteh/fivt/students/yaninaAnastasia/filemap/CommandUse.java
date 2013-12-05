@@ -21,15 +21,14 @@ public class CommandUse extends Command {
                 myState.table.save(tableBuilder);
             }
             if (myState.table != null && myState.table.uncommittedChanges.get() != 0) {
-                System.out.println(myState.table.uncommittedChanges.get() + "unsaved changes");
+                System.out.println(myState.table.uncommittedChanges.get() + " unsaved changes");
+                return false;
             }
             myState.table = myState.database.getTable(args[0]);
             System.out.println("using " + args[0]);
         } catch (IllegalArgumentException e) {
-            System.err.println(e.getMessage());
             return false;
         } catch (IllegalStateException f) {
-            System.err.println(f.getMessage());
             return false;
         }
         return true;
