@@ -63,12 +63,12 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
 
     public int getColumnsCount() {
-        isClosed();
+        checkNotClosed();
         return columnTypes.size();
     }
 
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
-        isClosed();
+        checkNotClosed();
         if (columnIndex >= columnTypes.size() || columnIndex < 0) {
             throw new IndexOutOfBoundsException();
         }
@@ -77,11 +77,11 @@ public class StoreableTable extends UniversalDataTable<Storeable> implements Tab
 
     @Override
     public int commit() throws IOException {
-        isClosed();
+        checkNotClosed();
         int commitSize = 0;
         tableChangesLock.writeLock().lock();
         try {
-            isClosed();
+            checkNotClosed();
             commitSize = commitWithoutWriteToDataBase();
             writeToDataBase();
             return commitSize;
