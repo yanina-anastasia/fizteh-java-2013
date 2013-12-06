@@ -15,8 +15,12 @@ public class Shell {
 
     public void interactiveMode() {
         Scanner scanner = new Scanner(System.in);
+        System.out.print("$ ");
         while (true) {
-            System.out.print("$ ");
+            if (!scanner.hasNextLine()) {
+                return;
+            }
+
             String arguments = scanner.nextLine().trim();
             String[] args = arguments.split("\\s+");
             BasicCommand command = commands.get(args[0]);
@@ -30,6 +34,7 @@ public class Shell {
             int x = command.doCommand(args, path);
             path.changeCurrentPath(path.getCurrentPath().normalize());
 
+            System.out.print("$ ");
             if (!scanner.hasNextLine()) {
                 return;
             }
