@@ -35,7 +35,7 @@ public class FileTreeCopy implements FileVisitor<Path> {
         try {
             Files.copy(file, target.resolve(source.getParent().relativize(file)));
         } catch (IOException e) {
-            throw new IllegalArgumentException("input/output error while copying file: " + file.toString());
+            System.err.println(e);
         }
 
         return CONTINUE;

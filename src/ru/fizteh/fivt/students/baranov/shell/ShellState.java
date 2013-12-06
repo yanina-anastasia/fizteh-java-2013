@@ -6,7 +6,6 @@ import java.util.Arrays;
 
 public class ShellState {
     private Path currentPath;
-    public int copyMade = 0;
 
     ShellState(Path path) {
         this.currentPath = path;

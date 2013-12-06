@@ -1,8 +1,11 @@
 package ru.fizteh.fivt.students.baranov.shell;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static java.nio.file.StandardCopyOption.*;
 
 public class Move extends BasicCommand {
     public int doCommand(String[] args, ShellState currentPath) {
@@ -19,29 +22,16 @@ public class Move extends BasicCommand {
         Path targetPath = currentPath.getCurrentPath().resolve(tempPath);
         targetPath = targetPath.toAbsolutePath();
 
-        if (!Files.exists(sourcePath)) {
-            System.err.println("source doesn't exist: " + sourcePath.toString());
+        if (Files.isDirectory(sourcePath) && Files.isRegularFile(targetPath)) {
+            System.err.println("can't move directory to file");
             return 1;
         }
 
-        if (Files.isDirectory(sourcePath) || Files.isDirectory(targetPath)) {
-            Copy cp = new Copy();
-            Remove rm = new Remove();
-            String[] newArgs = {args[0], args[1]};
-            cp.doCommand(args, currentPath);
-            if (currentPath.copyMade == 1) {
-                rm.doCommand(newArgs, currentPath);
-            }
-        } else {
-            Path sourceParent = sourcePath.getParent();
-            Path targetParent = targetPath.getParent();
-            if (sourceParent.equals(targetParent)) {
-                if (!targetPath.toFile().renameTo(sourcePath.toFile())) {
-                    System.err.println("can't rename " + targetPath.toString());
-                    System.err.println("to " + sourcePath.toString());
-                    return 1;
-                }
-            }
+        try {
+            Files.move(sourcePath, targetPath, REPLACE_EXISTING);
+        } catch (IOException e) {
+            System.err.println(e);
+            return 1;
         }
 
         return 0;

@@ -29,7 +29,6 @@ public class Shell {
             }
             int x = command.doCommand(args, path);
             path.changeCurrentPath(path.getCurrentPath().normalize());
-            path.copyMade = 0;
         }
     }
 
@@ -56,7 +55,6 @@ public class Shell {
                 System.exit(1);
             }
             path.changeCurrentPath(path.getCurrentPath().normalize());
-            path.copyMade = 0;
         }
     }
 }

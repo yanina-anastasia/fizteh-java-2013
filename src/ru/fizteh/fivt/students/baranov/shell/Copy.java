@@ -24,37 +24,51 @@ public class Copy extends BasicCommand {
             System.err.println("source doesn't exist: " + sourcePath.toString());
             return 1;
         }
-
-        if (!Files.exists(targetPath)) {
-            System.err.println("target doesn't exist: " + targetPath.toString());
-            return 1;
-        }
-
-        if ((!Files.isDirectory(sourcePath) && !Files.isDirectory(targetPath))
-                || (!Files.isDirectory(sourcePath) && Files.isDirectory(targetPath))) {
+        if (Files.exists(targetPath)) {
+            boolean flag = false;
             try {
-                Files.copy(sourcePath, targetPath.resolve(sourcePath.getFileName()));
+                flag = Files.isSameFile(sourcePath, targetPath);
             } catch (IOException e) {
-                System.err.println("error in copying files");
+                System.err.println(e);
                 return 1;
             }
-            currentPath.copyMade = 1;
-            return 0;
-        } else if (Files.isDirectory(sourcePath) && Files.isDirectory(targetPath)) {
-            FileTreeCopy fileTree = new FileTreeCopy(sourcePath, targetPath);
-            try {
-                Files.walkFileTree(sourcePath, fileTree);
-            } catch (IOException e) {
-                System.err.println("error in copying directories");
+            if (flag) {
+                System.err.println("same files");
                 return 1;
             }
-            currentPath.copyMade = 1;
+        }
+        if (Files.isRegularFile(targetPath)) {
+            if (Files.isRegularFile(sourcePath)) {
+                try {
+                    Files.copy(sourcePath, targetPath);
+                } catch (IOException e) {
+                    System.err.println(e);
+                    return 1;
+                }
+                return 0;
+            }
+            if (Files.isDirectory(sourcePath)) {
+                System.err.println("can't cope directory to file");
+                return 1;
+            }
+        }
+        if (Files.isRegularFile(sourcePath) && !Files.exists(targetPath)) {
+            try {
+                Files.copy(sourcePath, targetPath);
+            } catch (IOException e) {
+                System.err.println(e);
+                return 1;
+            }
             return 0;
-        } else if (Files.isDirectory(sourcePath) && !Files.isDirectory(targetPath)) {
-            System.err.println("copying directory to file");
+        }
+
+        FileTreeCopy fileTree = new FileTreeCopy(sourcePath, targetPath);
+        try {
+            Files.walkFileTree(sourcePath, fileTree);
+        } catch (IOException e) {
+            System.err.println(e);
             return 1;
         }
-        currentPath.copyMade = 1;
         return 0;
     }
 }
