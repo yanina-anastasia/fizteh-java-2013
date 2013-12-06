@@ -107,25 +107,15 @@ public class StoreableTable implements Table {
             }
 
             Storeable result = get(key);
-            /*
-            String tmp1 = tableProvider.serialize(this, value);
-            if (changesBase.get().containsKey(key)) {
-                if (changesBase.get().get(key) != null) {
-                    String tmp2 = tableProvider.serialize(this, changesBase.get().get(key));
-                    if (tmp1.equals(tmp2)) {
-                        return result;
-                    }
-                }
-            }
-            if (dataBase.containsKey(key)) {
-                String tmp2 = tableProvider.serialize(this, dataBase.get(key));
-                if (tmp1.equals(tmp2)) {
-                    return result;
-                }
-            }
-            */
             if (!(changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
-                changesBase.get().put(key, value);
+                String tmp1 = tableProvider.serialize(this, value);
+                String tmp2 = tableProvider.serialize(this, dataBase.get(key));
+                String tmp3 = tableProvider.serialize(this, changesBase.get().get(key));
+                if (!((dataBase.containsKey(key) && tmp1.equals(tmp2))
+                        || (changesBase.get().get(key) != null && tmp1.equals(tmp3)))) {
+                    changesBase.get().put(key, value);
+                }
+
             } else {
                 if (changesBase.get().containsKey(key) && changesBase.get().get(key) == null) {
                     changesBase.get().remove(key);
