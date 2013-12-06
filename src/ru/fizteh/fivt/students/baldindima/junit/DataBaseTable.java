@@ -87,11 +87,17 @@ public class DataBaseTable implements TableProvider {
             return null;
         }
         
-        writeLock.lock();
+        readLock.lock();
         try {
             if (tables.containsKey(name)) {
                 return tables.get(name);
             }
+        } finally {
+            readLock.unlock();
+        }
+        
+        writeLock.lock();
+        try {
             DataBase table = new DataBase(path, this);
             tables.put(name, table);
             return table;
