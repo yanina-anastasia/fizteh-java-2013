@@ -69,10 +69,11 @@ public class JSONHandler implements InvocationHandler {
             json.get().put("returnValue", JSONObject.NULL);
             return;
         } else {
+            IdentityHashMap<Object, Boolean> map = new IdentityHashMap<Object, Boolean>();
             if (arg instanceof Iterable) {
-                logIterable((Iterable) arg, array.get());
+                logIterable((Iterable) arg, array.get(), map);
             } else if (arg.getClass().isArray()) {
-                logIterable(Arrays.asList((Object[]) arg), array.get());
+                logIterable(Arrays.asList((Object[]) arg), array.get(), map);
             } else {
                 json.get().put("returnValue", arg);
                 return;
@@ -90,14 +91,14 @@ public class JSONHandler implements InvocationHandler {
         };
         
         if (args != null) {
-            logIterable(Arrays.asList(args), array.get());
+            IdentityHashMap<Object, Boolean> map = new IdentityHashMap<Object, Boolean>();
+            logIterable(Arrays.asList(args), array.get(), map);
         }
         
         json.get().put("arguments", array.get());
     }
 
-    private void logIterable(Iterable args, JSONArray array) {
-        IdentityHashMap<Object, Boolean> map = new IdentityHashMap<Object, Boolean>();
+    private void logIterable(Iterable args, JSONArray array, IdentityHashMap<Object, Boolean> map) {
         map.put(args, true);
         for (Object arg : args) {
             if (arg == null) {
@@ -107,7 +108,7 @@ public class JSONHandler implements InvocationHandler {
                     array.put("cyclic");
                 } else {
                     JSONArray arr = new JSONArray();
-                    logIterable((Iterable) arg, arr);
+                    logIterable((Iterable) arg, arr, map);
                     array.put(arr);
                 }
             } else if (arg.getClass().isArray()) {
