@@ -39,7 +39,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             jsonLog.put("method", method.getName());
             JSONArray array = new JSONArray();
             if (args != null) {
-                writeArgument(array, Arrays.asList(args));
+                writeArgument(array, Arrays.asList(args), Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
             }
             jsonLog.put("arguments", array);
             try {
@@ -48,11 +48,11 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     JSONArray jsonArray = new JSONArray();
                     if (result != null) {
                         if (result instanceof Iterable) {
-                            writeArgument(jsonArray, (Iterable) result);
+                            writeArgument(jsonArray, (Iterable) result, Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
                             jsonLog.put("returnValue", jsonArray);
                         } else {
                             if (result.getClass().isArray()) {
-                                writeArgument(jsonArray, Arrays.asList((Object[]) result));
+                                writeArgument(jsonArray, Arrays.asList((Object[]) result), Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
                                 jsonLog.put("returnValue", jsonArray);
                             } else {
                                 jsonLog.put("returnValue", result);
@@ -84,8 +84,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
         return result;
     }
 
-    public void writeArgument(JSONArray cmdArgs, Iterable args) {
-        Set<Object> prevArgs = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
+    public void writeArgument(JSONArray cmdArgs, Iterable args, Set<Object> prevArgs) {
         prevArgs.add(args);
         for (Object arg : args) {
             if (arg == null) {
@@ -96,7 +95,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                         cmdArgs.put("cyclic");
                     } else {
                         JSONArray array = new JSONArray();
-                        writeArgument(array, (Iterable) arg);
+                        writeArgument(array, (Iterable) arg, prevArgs);
                         cmdArgs.put(array);
                     }
                 } else {
