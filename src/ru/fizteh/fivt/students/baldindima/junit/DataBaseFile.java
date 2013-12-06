@@ -54,7 +54,7 @@ public class DataBaseFile {
         fileNumber = nFileNumber;
         directoryNumber = nDirectoryNumber;
         oldMap = new HashMap<>();
-        readLock =table.readLock;
+        readLock = table.readLock;
         read();
         check();
 
@@ -123,14 +123,20 @@ public class DataBaseFile {
     }
 
     public int realMapSize() {
-        normalizeDataBaseFile();
-        int result = diffMap.get().size() + oldMap.size() - deletedMap.get().size();
-        for (String key : diffMap.get().keySet()) {
-            if (oldMap.containsKey(key)) {
-                --result;
+        readLock.lock();
+    	try {
+        	normalizeDataBaseFile();
+            int result = diffMap.get().size() + oldMap.size() - deletedMap.get().size();
+            for (String key : diffMap.get().keySet()) {
+                if (oldMap.containsKey(key)) {
+                    --result;
+                }
             }
-        }
-        return result;
+            return result;
+       } finally {
+    	   readLock.unlock();
+       }
+    	
     }
 
     public void write() throws IOException {
@@ -290,7 +296,7 @@ public class DataBaseFile {
         	normalizeDataBaseFile();
             return diffMap.get().size() + deletedMap.get().size();
         } finally {
-        	readLock.lock();
+        	readLock.unlock();
         }
     	
     }
