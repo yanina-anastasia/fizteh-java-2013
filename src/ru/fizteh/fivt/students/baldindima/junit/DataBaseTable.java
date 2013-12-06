@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -25,10 +24,10 @@ public class DataBaseTable implements TableProvider {
 
     private String tableDirectory;
     private Map<String, DataBase> tables;
-    
-    private ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private Lock readLock = readWriteLock.readLock();
-    private Lock writeLock = readWriteLock.writeLock();
+
+    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private final Lock readLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
 
     public DataBaseTable(String nTableDirectory) {
         tableDirectory = nTableDirectory;
@@ -41,27 +40,25 @@ public class DataBaseTable implements TableProvider {
             throw new IllegalArgumentException("Cannot create table");
         }
 
-        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+") 
+        if (name.matches("[" + '"' + "'\\/:/*/?/</>/|/.\\\\]+")
 
-|| name.contains(File.separator)
+                || name.contains(File.separator)
                 || name.contains(".")) {
             throw new RuntimeException("Wrong symbols");
         }
     }
 
-    public Table createTable(String name, List<Class<?>> types) 
-
-throws IOException {
-    	if (types == null || types.size() == 0) {
+    public Table createTable(String name, List<Class<?>> types) throws IOException {
+        if (types == null || types.size() == 0) {
             throw new IllegalArgumentException("wrong list of types");
         }
-    	checkName(name);
+        checkName(name);
         String path = tableDirectory + File.separator + name;
 
         File file = new File(path);
         writeLock.lock();
         try {
-        	if (file.exists()) {
+            if (file.exists()) {
                 return null;
             }
 
@@ -69,17 +66,15 @@ throws IOException {
                 throw new RuntimeException("Cannot create table " + name);
             }
 
-            
 
             DataBase table = new DataBase(path, this, types);
 
             tables.put(name, table);
             return table;
-         } finally {
-        	 writeLock.unlock();
-         }
+        } finally {
+            writeLock.unlock();
+        }
 
-        
 
     }
 
@@ -91,40 +86,22 @@ throws IOException {
         if ((!file.exists()) || (file.isFile())) {
             return null;
         }
-        /*readLock.lock();
-        try {
-        	if (tables.containsKey(name)) {
-                return tables.get(name);
-        }
         
-        } finally {
-        	readLock.lock();
-        }
         writeLock.lock();
         try {
-        	DataBase table = new DataBase(path, this);
-            tables.put(name, table);
-            return table;
-        } catch (IOException e) {
-        	throw new DataBaseException(e.getMessage());
-        } finally {
-        	writeLock.unlock();
-        }*/
-        writeLock.lock();
-        try {
-        	if (tables.containsKey(name)) {
+            if (tables.containsKey(name)) {
                 return tables.get(name);
-        	}
-        	DataBase table = new DataBase(path, this);
+            }
+            DataBase table = new DataBase(path, this);
             tables.put(name, table);
             return table;
         } catch (IOException e) {
-        	throw new DataBaseException(e.getMessage());
+            throw new DataBaseException(e.getMessage());
         } finally {
-        	writeLock.unlock();
+            writeLock.unlock();
         }
 
-        
+
     }
 
     public void removeTable(String name) throws IOException {
@@ -138,7 +115,7 @@ throws IOException {
         }
         writeLock.lock();
         try {
-        	if (tables.containsKey(name)) {
+            if (tables.containsKey(name)) {
                 tables.get(name).drop();
                 tables.remove(name);
 
@@ -153,31 +130,29 @@ throws IOException {
                 throw new RuntimeException("Cannot delete a table" + name);
             }
         } finally {
-        	writeLock.unlock();
+            writeLock.unlock();
         }
-        
+
     }
 
 
-    
-    public Storeable deserialize(Table table, String value)
-            throws ParseException{
-    	Storeable storeable;
-    	try {
-	    	JSONArray jsonValue = new JSONArray(value);
-	        List<Object> values = new ArrayList<>();
-	        for (int i = 0; i < jsonValue.length(); ++i) {
-	            values.add(jsonValue.get(i));
-	        }
-	        
-	        storeable = createFor(table, values);
+    public Storeable deserialize(Table table, String value) throws ParseException {
+        Storeable storeable;
+        try {
+            JSONArray jsonValue = new JSONArray(value);
+            List<Object> values = new ArrayList<>();
+            for (int i = 0; i < jsonValue.length(); ++i) {
+                values.add(jsonValue.get(i));
+            }
+
+            storeable = createFor(table, values);
         } catch (JSONException e) {
-        	throw new ParseException(e.getMessage(), 0);
+            throw new ParseException(e.getMessage(), 0);
         } catch (IndexOutOfBoundsException e) {
             throw new ParseException("Invalid number of arguments", 0);
         } catch (ColumnFormatException e) {
             throw new ParseException(e.getMessage(), 0);
-        } 
+        }
 
         return storeable;
     }
@@ -195,9 +170,7 @@ throws IOException {
 
 
     public Storeable createFor(Table table, List<?> values)
-            throws ColumnFormatException, 
-
-IndexOutOfBoundsException {
+            throws ColumnFormatException, IndexOutOfBoundsException {
         BaseStoreable storeable = new BaseStoreable(table);
         storeable.setValues(values);
         return storeable;
