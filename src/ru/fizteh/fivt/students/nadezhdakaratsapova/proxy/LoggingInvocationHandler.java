@@ -39,7 +39,8 @@ public class LoggingInvocationHandler implements InvocationHandler {
             jsonLog.put("method", method.getName());
             JSONArray array = new JSONArray();
             if (args != null) {
-                writeArgument(array, Arrays.asList(args), Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
+                writeArgument(array, Arrays.asList(args),
+                        Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
             }
             jsonLog.put("arguments", array);
             try {
@@ -48,11 +49,13 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     JSONArray jsonArray = new JSONArray();
                     if (result != null) {
                         if (result instanceof Iterable) {
-                            writeArgument(jsonArray, (Iterable) result, Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
+                            writeArgument(jsonArray, (Iterable) result,
+                                    Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
                             jsonLog.put("returnValue", jsonArray);
                         } else {
                             if (result.getClass().isArray()) {
-                                writeArgument(jsonArray, Arrays.asList((Object[]) result), Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
+                                writeArgument(jsonArray, Arrays.asList((Object[]) result),
+                                        Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
                                 jsonLog.put("returnValue", jsonArray);
                             } else {
                                 jsonLog.put("returnValue", result);
