@@ -29,6 +29,10 @@ public class Shell {
             }
             int x = command.doCommand(args, path);
             path.changeCurrentPath(path.getCurrentPath().normalize());
+
+            if (!scanner.hasNextLine()) {
+                return;
+            }
         }
     }
 
