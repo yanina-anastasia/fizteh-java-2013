@@ -16,13 +16,6 @@ public class JSONHandler implements InvocationHandler {
     private final Writer writer;
     private ThreadLocal<JSONObject> json;
     
-    private ThreadLocal<IdentityHashMap<Object, Boolean>> map = new ThreadLocal<IdentityHashMap<Object, Boolean>>() {
-        @Override
-        public IdentityHashMap<Object, Boolean> initialValue() {
-            return new IdentityHashMap<Object, Boolean>();
-        }
-    };
-    
     public JSONHandler(Writer w, Object o) {
         writer = w;
         obj = o;
@@ -104,12 +97,13 @@ public class JSONHandler implements InvocationHandler {
     }
 
     private void logIterable(Iterable args, JSONArray array) {
-        map.get().put(args, true);
+        IdentityHashMap<Object, Boolean> map = new IdentityHashMap<Object, Boolean>();
+        map.put(args, true);
         for (Object arg : args) {
             if (arg == null) {
                 array.put(arg);
             } else if (arg instanceof Iterable) {
-                if (map.get().containsKey(arg)) {
+                if (map.containsKey(arg)) {
                     array.put("cyclic");
                 } else {
                     JSONArray arr = new JSONArray();
