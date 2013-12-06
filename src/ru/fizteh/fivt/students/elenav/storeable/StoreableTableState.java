@@ -29,11 +29,12 @@ import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.students.elenav.states.FilesystemState;
 import ru.fizteh.fivt.students.elenav.utils.Writer;
 
-public class StoreableTableState extends FilesystemState implements Table {
+public class StoreableTableState extends FilesystemState implements Table, AutoCloseable {
 
     private static final int DIR_COUNT = 16;
     private static final int FILES_PER_DIR = 16;
     
+    private boolean isClosed = false;
     private List<Class<?>> columnTypes = new ArrayList<>();
     private volatile HashMap<String, Storeable> startMap = new HashMap<>();
     private ReadWriteLock lock = new ReentrantReadWriteLock(true);
@@ -57,13 +58,21 @@ public class StoreableTableState extends FilesystemState implements Table {
         try {
             if (wd != null) {
                 getColumnTypes();
+                read();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     
+    @Override
+    public String getName() {
+        checkIsNotClosed();
+        return super.getName();
+    }
+    
     public void getColumnTypes() throws IOException {
+        checkIsNotClosed();
         File f = new File(getWorkingDirectory(), "signature.tsv");
         if (!f.exists()) {
             throw new IOException("can't get " + getName() + "'s signature: file doesn't exist");
@@ -91,6 +100,7 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     @Override
     public Storeable put(String key, Storeable value) throws ColumnFormatException {
+        checkIsNotClosed();
         if (key == null || value == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("can't put null key or(and) value");
         }
@@ -127,6 +137,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 
     @Override
     public Storeable remove(String key) {
+        checkIsNotClosed();
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("can't remove null key");
         }
@@ -145,6 +156,7 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     @Override 
     public String removeKey(String key) {
+        checkIsNotClosed();
         try {
             return Serializer.run(this, remove(key));
         } catch (XMLStreamException e) {
@@ -155,6 +167,7 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     @Override
     public int size() {
+        checkIsNotClosed();
         int result = 0;
         try {
             lock.readLock().lock();
@@ -177,6 +190,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 
     @Override
     public int commit() {
+        checkIsNotClosed();
         int result = 0;
         try {
             lock.writeLock().lock();
@@ -194,7 +208,14 @@ public class StoreableTableState extends FilesystemState implements Table {
 
     @Override
     public int rollback() {
-        int result = getNumberOfChanges();
+        checkIsNotClosed();
+        int result;
+        try {
+            lock.writeLock().lock();
+            result = getNumberOfChanges();
+        } finally {
+            lock.writeLock().unlock();
+        }
         changedKeys.get().clear();
         removedKeys.get().clear();
         return result;
@@ -267,7 +288,7 @@ public class StoreableTableState extends FilesystemState implements Table {
         }
     }
     
-    public void readFile(File in, StoreableTableState table) throws IOException, ParseException {
+    private void readFile(File in, StoreableTableState table) throws IOException, ParseException {
         DataInputStream s = new DataInputStream(new FileInputStream(in));
         boolean flag = true;
         do {
@@ -304,6 +325,7 @@ public class StoreableTableState extends FilesystemState implements Table {
     }
     
     public void write() throws IOException {
+        checkIsNotClosed();
         if (getWorkingDirectory() != null) {
             saveChanges();
             for (int i = 0; i < DIR_COUNT; ++i) {
@@ -358,11 +380,13 @@ public class StoreableTableState extends FilesystemState implements Table {
 
     @Override
     public int getColumnsCount() {
+        checkIsNotClosed();
         return columnTypes.size();
     }
 
     @Override
     public Class<?> getColumnType(int columnIndex) throws IndexOutOfBoundsException {
+        checkIsNotClosed();
         return columnTypes.get(columnIndex);
     }
     
@@ -372,6 +396,7 @@ public class StoreableTableState extends FilesystemState implements Table {
 
     @Override
     public String put(String key, String value) throws XMLStreamException, ParseException {
+        checkIsNotClosed();
         Storeable storeable = put(key, Deserializer.run(this, value));
         if (storeable == null) {
             return null;
@@ -381,6 +406,7 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     @Override
     public Storeable get(String key) {
+        checkIsNotClosed();
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("can't get null key");
         }
@@ -403,6 +429,7 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     @Override
     public String getValue(String key) {
+        checkIsNotClosed();
         try {
             return Serializer.run(this, get(key));
         } catch (XMLStreamException e) {
@@ -421,22 +448,18 @@ public class StoreableTableState extends FilesystemState implements Table {
     
     @Override
     public int getNumberOfChanges() {
+        checkIsNotClosed();
         int result = 0;
-        try {
-            lock.readLock().lock();
-            for (String key : removedKeys.get()) {
-                if (startMap.get(key) != null) {
-                    ++result;
-                }
+        for (String key : removedKeys.get()) {
+            if (startMap.get(key) != null) {
+               ++result;
             }
-            for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-                if (startMap.get(pair.getKey()) == null 
-                        || !startMap.get(pair.getKey()).equals(pair.getValue())) {
-                    ++result;
-                }
+        }
+        for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
+            if (startMap.get(pair.getKey()) == null 
+                    || !startMap.get(pair.getKey()).equals(pair.getValue())) {
+                ++result;
             }
-        } finally {
-            lock.readLock().unlock();
         }
         return result;
     }
@@ -447,5 +470,27 @@ public class StoreableTableState extends FilesystemState implements Table {
 
     public void setLock(ReadWriteLock lock) {
         this.lock = lock;
+    }
+    
+    public String toString() {
+        return getClass().getSimpleName() + "[" + getWorkingDirectory().getAbsolutePath() + "]"; 
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (!isClosed) {
+            rollback();
+        }
+        isClosed = true;
+    }
+    
+    private void checkIsNotClosed() {
+        if (isClosed) {
+            throw new IllegalStateException("table is closed");
+        }
+    }
+    
+    public boolean isClosed() {
+        return isClosed;
     }
 }
