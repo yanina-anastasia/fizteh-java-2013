@@ -16,7 +16,6 @@ import java.util.Set;
 public class LoggingInvocationHandler implements InvocationHandler {
     private Writer writer;
     private Object implementation;
-    private Set<Object> prevArgs = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
 
     public LoggingInvocationHandler(Writer writer, Object impl) {
         this.writer = writer;
@@ -41,7 +40,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
             JSONArray array = new JSONArray();
             if (args != null) {
                 writeArgument(array, Arrays.asList(args));
-                prevArgs.clear();
             }
             jsonLog.put("arguments", array);
             try {
@@ -51,12 +49,10 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     if (result != null) {
                         if (result instanceof Iterable) {
                             writeArgument(jsonArray, (Iterable) result);
-                            prevArgs.clear();
                             jsonLog.put("returnValue", jsonArray);
                         } else {
                             if (result.getClass().isArray()) {
                                 writeArgument(jsonArray, Arrays.asList((Object[]) result));
-                                prevArgs.clear();
                                 jsonLog.put("returnValue", jsonArray);
                             } else {
                                 jsonLog.put("returnValue", result);
@@ -89,6 +85,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
     }
 
     public void writeArgument(JSONArray cmdArgs, Iterable args) {
+        Set<Object> prevArgs = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
         prevArgs.add(args);
         for (Object arg : args) {
             if (arg == null) {
@@ -100,7 +97,6 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     } else {
                         JSONArray array = new JSONArray();
                         writeArgument(array, (Iterable) arg);
-                        prevArgs.clear();
                         cmdArgs.put(array);
                     }
                 } else {
