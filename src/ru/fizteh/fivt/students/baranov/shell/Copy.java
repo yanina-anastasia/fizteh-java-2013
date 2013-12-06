@@ -69,6 +69,9 @@ public class Copy extends BasicCommand {
             System.err.println(e);
             return 1;
         }
+        if (fileTree.error == 1) {
+            return 1;
+        }
         return 0;
     }
 }

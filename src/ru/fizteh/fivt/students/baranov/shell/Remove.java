@@ -37,6 +37,10 @@ public class Remove extends BasicCommand {
                 return 1;
             }
 
+            if (fileTree.error == 1) {
+                return 1;
+            }
+
             try {
                 Files.delete(newPath);
             } catch (IOException e) {

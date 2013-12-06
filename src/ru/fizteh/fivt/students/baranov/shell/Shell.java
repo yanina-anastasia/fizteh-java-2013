@@ -22,6 +22,10 @@ public class Shell {
             }
 
             String arguments = scanner.nextLine().trim();
+            if (arguments.equals("")) {
+                System.out.print("$ ");
+                continue;
+            }
             String[] args = arguments.split("\\s+");
             BasicCommand command = commands.get(args[0]);
             if (command == null) {

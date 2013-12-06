@@ -10,9 +10,11 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 
 public class FileTreeRemove implements FileVisitor<Path> {
     private Path source;
+    public int error;
 
     FileTreeRemove(Path s) {
         this.source = s;
+        this.error = 0;
     }
 
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
@@ -23,6 +25,7 @@ public class FileTreeRemove implements FileVisitor<Path> {
             // nothing
         } catch (IOException x) {
             System.err.format("Unable to delete: %s:%n, skipping the subtree.", x);
+            error = 1;
             return SKIP_SUBTREE;
         }
 
@@ -49,7 +52,7 @@ public class FileTreeRemove implements FileVisitor<Path> {
         }
 
         System.err.println(exc);
-
+        error = 1;
         return CONTINUE;
     }
 }

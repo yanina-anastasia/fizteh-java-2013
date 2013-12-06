@@ -11,10 +11,12 @@ import static java.nio.file.FileVisitResult.SKIP_SUBTREE;
 public class FileTreeCopy implements FileVisitor<Path> {
     private Path source;
     private Path target;
+    public int error;
 
     FileTreeCopy(Path s, Path t) {
         this.source = s;
         this.target = t;
+        this.error = 0;
     }
 
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
@@ -25,6 +27,7 @@ public class FileTreeCopy implements FileVisitor<Path> {
             // nothing
         } catch (IOException x) {
             System.err.format("Unable to create: %s: %s%n, skipping the subtree.", newDir, x);
+            error = 1;
             return SKIP_SUBTREE;
         }
 
@@ -36,6 +39,7 @@ public class FileTreeCopy implements FileVisitor<Path> {
             Files.copy(file, target.resolve(source.getParent().relativize(file)));
         } catch (IOException e) {
             System.err.println(e);
+            error = 1;
         }
 
         return CONTINUE;
@@ -49,6 +53,7 @@ public class FileTreeCopy implements FileVisitor<Path> {
                 Files.setLastModifiedTime(newDir, time);
             } catch (IOException x) {
                 System.err.println(x.getMessage());
+                error = 1;
             }
         }
 
@@ -61,7 +66,7 @@ public class FileTreeCopy implements FileVisitor<Path> {
         }
 
         System.err.println(exc);
-
+        error = 1;
         return CONTINUE;
     }
 }
