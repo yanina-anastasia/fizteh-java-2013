@@ -41,6 +41,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
             JSONArray array = new JSONArray();
             if (args != null) {
                 writeArgument(array, Arrays.asList(args));
+                prevArgs.clear();
             }
             jsonLog.put("arguments", array);
             try {
@@ -50,10 +51,12 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     if (result != null) {
                         if (result instanceof Iterable) {
                             writeArgument(jsonArray, (Iterable) result);
+                            prevArgs.clear();
                             jsonLog.put("returnValue", jsonArray);
                         } else {
                             if (result.getClass().isArray()) {
                                 writeArgument(jsonArray, Arrays.asList((Object[]) result));
+                                prevArgs.clear();
                                 jsonLog.put("returnValue", jsonArray);
                             } else {
                                 jsonLog.put("returnValue", result);
@@ -97,6 +100,7 @@ public class LoggingInvocationHandler implements InvocationHandler {
                     } else {
                         JSONArray array = new JSONArray();
                         writeArgument(array, (Iterable) arg);
+                        prevArgs.clear();
                         cmdArgs.put(array);
                     }
                 } else {
