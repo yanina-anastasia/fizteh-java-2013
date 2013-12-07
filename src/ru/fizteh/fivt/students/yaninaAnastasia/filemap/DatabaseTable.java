@@ -13,21 +13,25 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DatabaseTable implements Table, AutoCloseable {
-    public HashMap<String, Storeable> oldData;
+    public WeakHashMap<String, Storeable> oldData;
     public ThreadLocal<HashMap<String, Storeable>> modifiedData;
     public ThreadLocal<HashSet<String>> deletedKeys;
     public ThreadLocal<Integer> uncommittedChanges;
     private String tableName;
+    int size;
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
     private ReadWriteLock transactionLock = new ReentrantReadWriteLock(true);
     volatile boolean isClosed;
+    String curDir;
 
 
-    public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef) {
+    public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef, String dir) {
+        curDir = dir;
+        size = 0;
         isClosed = false;
         this.tableName = name;
-        oldData = new HashMap<String, Storeable>();
+        oldData = new WeakHashMap<String, Storeable>();
         modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -57,6 +61,8 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
     public DatabaseTable(DatabaseTable other) {
+        this.curDir = other.curDir;
+        this.size = other.size;
         this.tableName = other.tableName;
         this.columnTypes = other.columnTypes;
         this.provider = other.provider;
@@ -101,6 +107,76 @@ public class DatabaseTable implements Table, AutoCloseable {
         return tableName;
     }
 
+
+    private void loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j,
+                           TableBuilder tableBuilder) throws IllegalArgumentException, IOException {
+        if (temp.length() == 0) {
+            return;
+        }
+        long nextOffset = 0;
+        temp.seek(0);
+        byte c = temp.readByte();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        while (c != 0) {
+            out.write(c);
+            c = temp.readByte();
+        }
+        String key = new String(out.toByteArray(), StandardCharsets.UTF_8);
+        long firstOffset = temp.readInt();
+        long currentOffset = firstOffset;
+        long cursor = temp.getFilePointer();
+        String nextKey = key;
+        while (cursor < firstOffset) {
+            c = temp.readByte();
+            out = new ByteArrayOutputStream();
+            while (c != 0) {
+                out.write(c);
+                c = temp.readByte();
+            }
+            nextKey = new String(out.toByteArray(), StandardCharsets.UTF_8);
+            nextOffset = temp.readInt();
+            cursor = temp.getFilePointer();
+            temp.seek(currentOffset);
+            int len = (int) (nextOffset - currentOffset);
+            if (len < 0) {
+                throw new IllegalArgumentException("File has incorrect format");
+            }
+            byte[] bytes = new byte[len];
+            temp.read(bytes);
+            String putValue = new String(bytes, StandardCharsets.UTF_8);
+            if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
+                tableBuilder.put(key, putValue);
+            } else {
+                throw new IllegalArgumentException("File has incorrect format");
+            }
+            temp.seek(cursor);
+            key = nextKey;
+            currentOffset = nextOffset;
+        }
+        temp.seek(currentOffset);
+        int len = (int) (temp.length() - currentOffset);
+        if (len < 0) {
+            throw new IllegalArgumentException("File has incorrect format");
+        }
+        byte[] bytes = new byte[len];
+        temp.read(bytes);
+        String putValue = new String(bytes, StandardCharsets.UTF_8);
+        if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
+            tableBuilder.put(nextKey, putValue);
+        } else {
+            throw new IllegalArgumentException("File has incorrect format");
+        }
+    }
+
+
+    public File getFileWithNum(int fileNum, int dirNum) {
+        String dirName = String.format("%d.dir", dirNum);
+        String fileName = String.format("%d.dat", fileNum);
+        File res = new File(curDir, tableName);
+        res = new File(res, dirName);
+        return new File(res, fileName);
+    }
+
     public Storeable get(String key) throws IllegalArgumentException {
         isCloseChecker();
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
@@ -113,6 +189,22 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (deletedKeys.get().contains(key)) {
             return null;
         }
+
+
+        File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
+        File tmpFile = new File(currentFile.toString());
+        try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
+            TableBuilder tableBuilder = new TableBuilder(provider, this);
+            loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+        } catch (EOFException e) {
+            //
+        } catch (IOException e) {
+            //
+        } catch (IllegalArgumentException e) {
+            //
+        }
+
+
         transactionLock.readLock().lock();
         try {
             return oldData.get(key);
@@ -158,6 +250,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (deletedKeys.get().contains(key)) {
             deletedKeys.get().remove(key);
         }
+
         uncommittedChanges.set(changesCount());
         return oldValue;
     }
@@ -198,14 +291,43 @@ public class DatabaseTable implements Table, AutoCloseable {
         isCloseChecker();
         transactionLock.readLock().lock();
         try {
-            return oldData.size() + diffSize();
+            return (size + oldData.size() + diffSize());
         } finally {
             transactionLock.readLock().unlock();
         }
     }
 
+
+    public File getDirWithNum(int dirNum) {
+        String dirName = String.format("%d.dir", dirNum);
+        File res = new File(curDir, tableName);
+        return new File(res, dirName);
+    }
+
+
     public int commit() {
         isCloseChecker();
+
+
+        Set<String> loadSet = new HashSet<>();
+        loadSet.addAll(modifiedData.get().keySet());
+        loadSet.addAll(deletedKeys.get());
+        for (String key : loadSet) {
+            File currentFile = getFileWithNum(getDirectoryNum(key), getFileNum(key));
+            File tmpFile = new File(currentFile.toString());
+            try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
+                TableBuilder tableBuilder = new TableBuilder(provider, this);
+                loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+            } catch (EOFException e) {
+                //
+            } catch (IOException e) {
+                //
+            } catch (IllegalArgumentException e) {
+                //
+            }
+        }
+
+
         int recordsCommitted = 0;
         transactionLock.writeLock().lock();
         try {
@@ -280,6 +402,14 @@ public class DatabaseTable implements Table, AutoCloseable {
             return true;
         }
         File tablePath = new File(provider.getDatabaseDirectory(), tableName);
+        File sizeFile = new File (tablePath, "size.tsv");
+        sizeFile.delete();
+        try (BufferedWriter sizeWriter = new BufferedWriter(new FileWriter(sizeFile))) {
+            sizeFile.createNewFile();
+            sizeWriter.write(size());
+        } catch (IOException e) {
+            return false;
+        }
         for (int i = 0; i < 16; i++) {
             String directoryName = String.format("%d.dir", i);
             File path = new File(tablePath, directoryName);
@@ -365,7 +495,6 @@ public class DatabaseTable implements Table, AutoCloseable {
                 String value = tableBuilder.get(key);
                 temp.write(value.getBytes(StandardCharsets.UTF_8));
             }
-            temp.close();
         } catch (IOException e) {
             return false;
         }

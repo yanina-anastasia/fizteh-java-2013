@@ -234,8 +234,8 @@ public class TestsDatabaseProvider {
         second.start();
         first.join();
         second.join();
-        Table requiredTable1 = new DatabaseTable("testTable1", columnTypes, provider);
-        Table requiredTable2 = new DatabaseTable("testTable2", columnTypes, provider);
+        Table requiredTable1 = new DatabaseTable("testTable1", columnTypes, provider, folder.getRoot().getPath());
+        Table requiredTable2 = new DatabaseTable("testTable2", columnTypes, provider, folder.getRoot().getPath());
         Assert.assertEquals(requiredTable1.getColumnsCount(), provider.getTable("testTable1").getColumnsCount());
         Assert.assertEquals(requiredTable2.getColumnsCount(), provider.getTable("testTable2").getColumnsCount());
         provider.removeTable("testTable1");

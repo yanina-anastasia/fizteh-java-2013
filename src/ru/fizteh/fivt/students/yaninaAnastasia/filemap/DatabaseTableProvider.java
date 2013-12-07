@@ -97,8 +97,11 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 tableDirectory.mkdir();
             }
             File signatureFile = new File(tableDirectory, "signature.tsv");
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile))) {
+            File sizeFile = new File(tableDirectory, "size.tsv");
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(signatureFile));
+                 BufferedWriter sizeWriter = new BufferedWriter(new FileWriter(sizeFile))) {
                 signatureFile.createNewFile();
+                sizeFile.createNewFile();
                 List<String> formattedColumnTypes = new ArrayList<String>();
                 for (final Class<?> columnType : columnTypes) {
                     formattedColumnTypes.add(ColumnTypes.fromTypeToName(columnType));
@@ -118,6 +121,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 }
                 String signature = sb.toString();
                 writer.write(signature);
+                sizeWriter.write(0);
             } catch (IOException e) {
                 System.out.println("Can't write signature file to the disk");
                 return null;
@@ -126,7 +130,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 return null;
             }
 
-            DatabaseTable table = new DatabaseTable(name, columnTypes, this);
+            DatabaseTable table = new DatabaseTable(name, columnTypes, this, curDir);
             tables.put(name, table);
             return table;
         } finally {
@@ -292,30 +296,34 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
 
     public boolean open() {
         File databaseDirectory = new File(curDir);
-        String curTableName;
+        String curTableName = "";
         DatabaseTable loadingTable;
         for (File table : databaseDirectory.listFiles()) {
             curTableName = table.getName();
             List<Class<?>> zeroList = new ArrayList<Class<?>>();
-            curTable = new DatabaseTable(curTableName, zeroList, this);
-            loadingTable = new DatabaseTable(curTableName, zeroList, this);
-            File preSignature = new File(curDir, curTableName);
-            if (preSignature.listFiles().length == 0) {
-                throw new IllegalArgumentException("Invalid database");
+            curTable = new DatabaseTable(curTableName, zeroList, this, curDir);
+            loadingTable = new DatabaseTable(curTableName, zeroList, this, curDir);
+            File preSignature = new File(table.toString());
+            if (preSignature.listFiles() == null) {
+                throw new IllegalArgumentException("Invalid database1");
             }
             File signatureFile = new File(preSignature, "signature.tsv");
+            File sizeFile = new File (preSignature, "size.tsv");
             String signature = null;
-            if (!signatureFile.exists()) {
-                throw new IllegalArgumentException("Invalid database");
+            int size = 0;
+            if (!signatureFile.exists() || !sizeFile.exists()) {
+                throw new IllegalArgumentException("Invalid database2");
             }
-            if (signatureFile.length() == 0) {
-                throw new IllegalArgumentException("Invalid database");
+            if (signatureFile.length() == 0 || sizeFile.length() == 0) {
+                throw new IllegalArgumentException("Invalid database3");
             }
-            try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile));
+                 FileInputStream sizeReader = new FileInputStream(sizeFile)) {
                 signature = reader.readLine();
+                size = sizeReader.read();
             } catch (IOException e) {
                 System.err.println("error loading signature file");
-                throw new IllegalArgumentException("Invalid database");
+                throw new IllegalArgumentException("Invalid database4");
             }
             List<Class<?>> columnTypes = new ArrayList<Class<?>>();
             for (final String columnType : signature.split("\\s")) {
@@ -326,62 +334,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 columnTypes.add(type);
             }
             loadingTable.columnTypes = columnTypes;
-            File[] files = new File(curDir, curTableName).listFiles();
-            for (File step : files) {
-                if (step.isFile()) {
-                    continue;
-                }
-                if ((step.getName() == null) || (step.getName().isEmpty())) {
-                    throw new IllegalArgumentException("Error with the property");
-                }
-            }
-            if (files.length == 0) {
-                tables.put(curTableName, loadingTable);
-                continue;
-            }
-            for (int i = 0; i < 16; i++) {
-                File currentDir = getDirWithNum(i);
-                if (currentDir.isFile()) {
-                    throw new IllegalArgumentException("Illegal argument: it is not a directory");
-                }
-                if (currentDir.exists() && currentDir.listFiles().length == 0) {
-                    throw new IllegalArgumentException("Illegal database: the directory is empty");
-                }
-                if (!currentDir.exists()) {
-                    continue;
-                } else {
-                    for (int j = 0; j < 16; ++j) {
-                        File currentFile = getFileWithNum(j, i);
-                        if (currentFile.exists()) {
-                            try {
-                                if (currentFile.length() == 0) {
-                                    throw new IllegalArgumentException("Illegal database: empty file");
-                                }
-                                File tmpFile = new File(currentFile.toString());
-                                RandomAccessFile temp = new RandomAccessFile(tmpFile, "r");
-                                try {
-                                    TableBuilder tableBuilder = new TableBuilder(this, loadingTable);
-                                    loadTable(temp, loadingTable, i, j, tableBuilder);
-                                } catch (EOFException e) {
-                                    System.err.println("Wrong format");
-                                    return false;
-                                } catch (IOException e) {
-                                    System.err.println("IO exception");
-                                    return false;
-                                } catch (IllegalArgumentException e) {
-                                    System.err.println("Wrong file format");
-                                    return false;
-                                } finally {
-                                    temp.close();
-                                }
-                            } catch (IOException e) {
-                                System.err.println("Cannot create new file");
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
+            loadingTable.size = size;
             loadingTable.uncommittedChanges.set(0);
             tables.put(curTableName, loadingTable);
         }
