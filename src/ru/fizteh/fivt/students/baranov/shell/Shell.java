@@ -21,22 +21,25 @@ public class Shell {
                 return;
             }
 
-            String arguments = scanner.nextLine().trim();
-            if (arguments.equals("")) {
+            String commandString = scanner.nextLine().trim();
+            if (commandString.equals("")) {
                 System.out.print("$ ");
                 continue;
             }
-            String[] args = arguments.split("\\s+");
-            BasicCommand command = commands.get(args[0]);
-            if (command == null) {
-                System.err.println(args[0] + " - wrong command");
-                continue;
+            String[] commandList = commandString.split("\\s*;\\s*");
+            for (int i = 0; i < commandList.length; ++i) {
+                String[] args = commandList[i].split("\\s+");
+                BasicCommand command = commands.get(args[0]);
+                if (command == null) {
+                    System.err.println(args[0] + " - wrong command");
+                    continue;
+                }
+                if (args[0].equals("exit")) {
+                    return;
+                }
+                int x = command.doCommand(args, path);
+                path.changeCurrentPath(path.getCurrentPath().normalize());
             }
-            if (args[0].equals("exit")) {
-                return;
-            }
-            int x = command.doCommand(args, path);
-            path.changeCurrentPath(path.getCurrentPath().normalize());
 
             System.out.print("$ ");
             if (!scanner.hasNextLine()) {
@@ -52,7 +55,7 @@ public class Shell {
         }
         String[] commandList = commandsString.trim().split("\\s*;\\s*");
         for (int i = 0; i < commandList.length; ++i) {
-            String[] arguments = commandList[i].split(" ");
+            String[] arguments = commandList[i].split("\\s+");
             BasicCommand cmd = commands.get(arguments[0]);
             if (cmd == null) {
                 System.err.println(arguments[0] + " - wrong command");
