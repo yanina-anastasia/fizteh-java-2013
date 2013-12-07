@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -34,9 +35,11 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     private static final int DIR_COUNT = 16;
     private static final int FILES_PER_DIR = 16;
     
+    private int size = 0;
     private boolean isClosed = false;
     private List<Class<?>> columnTypes = new ArrayList<>();
-    private volatile HashMap<String, Storeable> startMap = new HashMap<>();
+    private volatile HashMap<String, WeakReference<Storeable>> startMap 
+                         = new HashMap<String, WeakReference<Storeable>>();
     private ReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final ThreadLocal<HashMap<String, Storeable>> changedKeys 
                          = new ThreadLocal<HashMap<String, Storeable>>() {
@@ -65,10 +68,45 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
     }
     
+    public void clearTable() {
+        startMap.clear();
+    }
+    
     @Override
     public String getName() {
         checkIsNotClosed();
         return super.getName();
+    }
+    
+    private int getSize() {
+        int result;
+        File in = new File(getWorkingDirectory(), "size.tsv");
+        if (!in.isFile()) {
+            throw new RuntimeException("doesn't exist file size.tsv");
+        }
+        try {
+            DataInputStream s = new DataInputStream(new FileInputStream(in));
+            result = s.readInt();
+            s.close();
+        } catch (IOException e) {
+            throw new RuntimeException("doesn't exist file size.tsv");
+        }
+        return result;
+    }
+    
+    private Storeable getStartValue(String key) {
+        WeakReference<Storeable> result = startMap.get(key);
+        if (result == null) {
+            return null;
+        }
+        if (result.get() == null) {
+            try {
+                lazyRead(getDir(key), getFile(key));
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        return startMap.get(key).get();
     }
     
     public void getColumnTypes() throws IOException {
@@ -145,7 +183,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         changedKeys.get().remove(key);
         try {
             lock.readLock().lock();
-            if (startMap.get(key) != null) {
+            if (getStartValue(key) != null) {
                 removedKeys.get().add(key);
             }
         } finally {
@@ -167,6 +205,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     
     @Override
     public int size() {
+        /*checkIsNotClosed();
+        return getSize() + size;*/
         checkIsNotClosed();
         int result = 0;
         try {
@@ -201,6 +241,18 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         } finally {
             lock.writeLock().unlock();
         }
+        File in = new File(getWorkingDirectory(), "size.tsv");
+        if (!in.isFile()) {
+            throw new RuntimeException("doesn't exist file size.tsv");
+        }
+        try {
+            DataOutputStream s = new DataOutputStream(new FileOutputStream(in));
+            s.writeInt(size + getSize());
+            s.close();
+        } catch (IOException e) {
+            throw new RuntimeException("problem with writting");
+        }
+        size = 0;
         removedKeys.get().clear();
         changedKeys.get().clear();
         return result;
@@ -218,6 +270,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
         changedKeys.get().clear();
         removedKeys.get().clear();
+        size = 0;
         return result;
     }
 
@@ -249,7 +302,29 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
         return nfile;
     }    
+    
+    private String getFilePath(int dir, int file) throws IOException {
+        return getWorkingDirectory().getCanonicalPath() + dir + ".dir" + file + ".dat";
+    }
 
+    public void lazyRead(int dir, int file) throws IOException {
+        try {
+            lock.writeLock().lock();
+            
+            File f = new File(getFilePath(dir, file));
+            if (f.length() == 0) {
+                        throw new IOException("can't read files: empty file " + f.getName());
+            }
+            try {
+                readFile(f, this);
+            } catch (ParseException e) {
+                throw new IOException("can't deserialize");
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+    
     @Override
     public void read() throws IOException {
         try {
@@ -312,7 +387,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 s.read(tempValue);
                 String value = new String(tempValue, StandardCharsets.UTF_8);
                 try {
-                    table.startMap.put(key, Deserializer.run(table, value));
+                    table.startMap.put(key, new WeakReference<Storeable>(Deserializer.run(table, value)));
                 } catch (XMLStreamException e) {
                     throw new RuntimeException(e);
                 }
@@ -334,7 +409,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             
                     for (String key : startMap.keySet()) {
                         if (getDir(key) == i && getFile(key) == j) {
-                            toWriteInCurFile.put(key, startMap.get(key));
+                            toWriteInCurFile.put(key, startMap.get(key).get());
                         }
                     }
                     
@@ -366,7 +441,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             startMap.remove(key);
         }
         for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-            startMap.put(pair.getKey(), pair.getValue());
+            startMap.put(pair.getKey(), new WeakReference<Storeable>(pair.getValue()));
         }
     }
 
@@ -419,7 +494,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         Storeable result = null;
         try {
             lock.readLock().lock();
-            result = startMap.get(key);
+            result = getStartValue(key);
         } finally {
             lock.readLock().unlock();
         } 
@@ -457,7 +532,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
         for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
             if (startMap.get(pair.getKey()) == null 
-                    || !startMap.get(pair.getKey()).equals(pair.getValue())) {
+                    || !getStartValue(pair.getKey()).equals(pair.getValue())) {
                 ++result;
             }
         }
