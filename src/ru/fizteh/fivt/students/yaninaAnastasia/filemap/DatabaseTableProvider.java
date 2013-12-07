@@ -308,7 +308,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 throw new IllegalArgumentException("Invalid database1");
             }
             File signatureFile = new File(preSignature, "signature.tsv");
-            File sizeFile = new File (preSignature, "size.tsv");
+            File sizeFile = new File(preSignature, "size.tsv");
             String signature = null;
             int size = 0;
             if (!signatureFile.exists() || !sizeFile.exists()) {

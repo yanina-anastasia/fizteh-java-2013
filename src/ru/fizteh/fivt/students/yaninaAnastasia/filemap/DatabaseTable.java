@@ -402,7 +402,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             return true;
         }
         File tablePath = new File(provider.getDatabaseDirectory(), tableName);
-        File sizeFile = new File (tablePath, "size.tsv");
+        File sizeFile = new File(tablePath, "size.tsv");
         sizeFile.delete();
         try (BufferedWriter sizeWriter = new BufferedWriter(new FileWriter(sizeFile))) {
             sizeFile.createNewFile();

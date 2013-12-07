@@ -18,9 +18,10 @@ public class DatabaseTableProviderFactory implements TableProviderFactory, AutoC
         }
         File databaseDirectory = new File(directory);
         if (!databaseDirectory.exists()) {
-            if (!databaseDirectory.mkdirs()) {
+            /*if (!databaseDirectory.mkdirs()) {
                 throw new IOException("Error while getting property");
-            }
+            }  */
+            throw new IOException("Provider is unavailable");
         }
         if ((directory.isEmpty()) || (!databaseDirectory.isDirectory())) {
             throw new IllegalArgumentException("Error while getting property");
