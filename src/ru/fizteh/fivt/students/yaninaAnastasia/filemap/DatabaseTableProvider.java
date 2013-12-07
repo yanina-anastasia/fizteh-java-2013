@@ -334,7 +334,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                 columnTypes.add(type);
             }
             loadingTable.columnTypes = columnTypes;
-            loadingTable.size = size;
+            loadingTable.size.set(size);
             loadingTable.uncommittedChanges.set(0);
             tables.put(curTableName, loadingTable);
         }

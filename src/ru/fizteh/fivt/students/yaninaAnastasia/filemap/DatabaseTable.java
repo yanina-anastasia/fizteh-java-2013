@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -18,7 +19,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     public ThreadLocal<HashSet<String>> deletedKeys;
     public ThreadLocal<Integer> uncommittedChanges;
     private String tableName;
-    int size;
+    AtomicInteger size;
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
     private ReadWriteLock transactionLock = new ReentrantReadWriteLock(true);
@@ -28,7 +29,8 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     public DatabaseTable(String name, List<Class<?>> colTypes, DatabaseTableProvider providerRef, String dir) {
         curDir = dir;
-        size = 0;
+        size = new AtomicInteger();
+        size.set(0);
         isClosed = false;
         this.tableName = name;
         oldData = new WeakHashMap<String, Storeable>();
@@ -291,7 +293,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         isCloseChecker();
         transactionLock.readLock().lock();
         try {
-            return (size + oldData.size() + diffSize());
+            return (size.get() + oldData.size() + diffSize());
         } finally {
             transactionLock.readLock().unlock();
         }
