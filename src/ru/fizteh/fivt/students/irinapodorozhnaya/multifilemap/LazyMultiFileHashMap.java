@@ -13,7 +13,7 @@ import java.util.Scanner;
 import java.util.WeakHashMap;
 
 public class LazyMultiFileHashMap<ValueType> {
-    Map <Integer, Map<String, ValueType>> data = new WeakHashMap<>();
+    Map<Integer, Map<String, ValueType>> data = new WeakHashMap<>();
     int size;
     final File sizeFile;
     final File rootDir;
@@ -23,7 +23,7 @@ public class LazyMultiFileHashMap<ValueType> {
         sizeFile = new File(rootDir, "size.tsv");
         if (!sizeFile.exists()) {
             size = 0;
-            for(int i = 0; i < 256; ++i) {
+            for (int i = 0; i < 256; ++i) {
                 size += loadFile(i).size();
             }
             sizeFile.createNewFile();

@@ -36,8 +36,7 @@ public class MyTableProvider implements ExtendProvider, AutoCloseable {
         this.dataBaseDir = dataBaseDir;
         for (String tableName: dataBaseDir.list()) {
             tables.put(tableName, new MyTable(tableName, dataBaseDir, this));
-            tables.get(tableName).loadAll();
-        }
+      }
     }
 
 
@@ -54,7 +53,6 @@ public class MyTableProvider implements ExtendProvider, AutoCloseable {
             ExtendTable table = tables.get(name);
             if (table != null && table.isClosed()) {
                 ExtendTable newTable = new MyTable(name, dataBaseDir, this);
-                newTable.loadAll();
                 tables.put(name, newTable);
             }
             return tables.get(name);

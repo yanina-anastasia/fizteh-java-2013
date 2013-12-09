@@ -37,7 +37,7 @@ public abstract class GenericTable<ValueType> {
         this.name = name;
     }
 
-    public ValueType get(String key){
+    public ValueType get(String key) {
         checkKey(key);
         if (changedValues.get().containsKey(key)) {
             return changedValues.get().get(key);
