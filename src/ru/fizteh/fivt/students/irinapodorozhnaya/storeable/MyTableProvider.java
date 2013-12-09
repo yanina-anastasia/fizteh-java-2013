@@ -91,7 +91,12 @@ public class MyTableProvider implements ExtendProvider, AutoCloseable {
                 signature.print(Types.getSimpleName(s));
             }
         }
-        ExtendTable newTable = new MyTable(name, dataBaseDir, this, columnTypes);
+
+        try (PrintStream sizePrint = new PrintStream(new File(table, "size.tsv"))) {
+            sizePrint.print(0);
+        }
+
+            ExtendTable newTable = new MyTable(name, dataBaseDir, this, columnTypes);
         tables.put(name, newTable);
         return newTable;
    }
