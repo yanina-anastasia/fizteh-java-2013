@@ -27,31 +27,34 @@ public class MyWordCounter implements WordCounter {
                 continue;
             }
             Scanner scanner = new Scanner(files.get(i));
-            while (scanner.hasNextLine()) {
-                String str = scanner.nextLine();
-                String[] words = Parse(str.trim());
+            try {
+                while (scanner.hasNextLine()) {
+                    String str = scanner.nextLine();
+                    String[] words = parse(str.trim());
 
-                for (int j = 0; j < words.length; ++j) {
-                    if (mapOfWords.get(words[j]) == null) {
-                        mapOfWords.put(words[j], 1);
-                    } else {
-                        mapOfWords.put(words[j], mapOfWords.get(words[j]) + 1);
+                    for (int j = 0; j < words.length; ++j) {
+                        if (mapOfWords.get(words[j]) == null) {
+                            mapOfWords.put(words[j], 1);
+                        } else {
+                            mapOfWords.put(words[j], mapOfWords.get(words[j]) + 1);
+                        }
                     }
                 }
+            } finally {
+                scanner.close();
             }
             if (!aggregate) {
                 out.write((files.get(i).getName() + ":\n").getBytes(StandardCharsets.UTF_8));
-                PrintMap(mapOfWords, out);
+                printMap(mapOfWords, out);
                 mapOfWords = new HashMap<>();
             }
-            scanner.close();
         }
         if (aggregate) {
-            PrintMap(mapOfWords, out);
+            printMap(mapOfWords, out);
         }
     }
 
-    private void PrintMap(Map<String, Integer> map, OutputStream out) {
+    private void printMap(Map<String, Integer> map, OutputStream out) {
         Map<String, Integer> treeMap = new TreeMap<>(map);
         for (Map.Entry<String, Integer> entry : treeMap.entrySet()) {
             try {
@@ -62,7 +65,7 @@ public class MyWordCounter implements WordCounter {
         }
     }
 
-    private String[] Parse(String s) {
+    private String[] parse(String s) {
         List<String> listOfWords = new ArrayList<String>();
         s = s.toLowerCase();
         char prevCh = new Character(' ');
