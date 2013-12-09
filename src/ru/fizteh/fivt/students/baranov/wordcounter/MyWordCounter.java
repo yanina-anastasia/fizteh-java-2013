@@ -26,8 +26,7 @@ public class MyWordCounter implements WordCounter {
                 }
                 continue;
             }
-            Scanner scanner = new Scanner(files.get(i));
-            try {
+            try (Scanner scanner = new Scanner(files.get(i))) {
                 while (scanner.hasNextLine()) {
                     String str = scanner.nextLine();
                     String[] words = parse(str.trim());
@@ -40,9 +39,8 @@ public class MyWordCounter implements WordCounter {
                         }
                     }
                 }
-            } finally {
-                scanner.close();
             }
+
             if (!aggregate) {
                 out.write((files.get(i).getName() + ":\n").getBytes(StandardCharsets.UTF_8));
                 printMap(mapOfWords, out);
