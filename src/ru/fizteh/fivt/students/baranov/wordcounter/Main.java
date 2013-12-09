@@ -48,7 +48,7 @@ public class Main {
 
         MyWordCounterFactory factory = new MyWordCounterFactory();
         MyWordCounter counter = factory.create();
-        OutputStream stream = null;
+        OutputStream stream = System.out;
 
         if (output) {
             if (outputIsFound) {
@@ -62,8 +62,6 @@ public class Main {
                 System.err.println("output not found");
                 System.exit(1);
             }
-        } else {
-            stream = System.out;
         }
 
         try {
