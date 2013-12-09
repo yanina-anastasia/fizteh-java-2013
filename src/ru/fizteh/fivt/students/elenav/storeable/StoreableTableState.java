@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -38,8 +38,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     private int numberOfChanges = 0;
     private boolean isClosed = false;
     private List<Class<?>> columnTypes = new ArrayList<>();
-    private volatile HashMap<String, WeakReference<Storeable>> startMap 
-                         = new HashMap<String, WeakReference<Storeable>>();
+    private volatile WeakHashMap<String, Storeable> startMap 
+                         = new WeakHashMap<String, Storeable>();
     private ReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final ThreadLocal<HashMap<String, Storeable>> changedKeys 
                          = new ThreadLocal<HashMap<String, Storeable>>() {
@@ -128,18 +128,17 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     }
 
     private Storeable getStartValue(String key) {
-        WeakReference<Storeable> result = startMap.get(key);
-        if (result == null) {
-            return null;
-        }
-        if (result.get() == null) {
+        Storeable result = startMap.get(key);
+        if (result != null) {
+            return result;
+        } else {
             try {
                 lazyRead(getDir(key), getFile(key));
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
+            return startMap.get(key);
         }
-        return startMap.get(key).get();
     }
     
     public void getColumnTypes() throws IOException {
@@ -440,7 +439,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 s.read(tempValue);
                 String value = new String(tempValue, StandardCharsets.UTF_8);
                 try {
-                    table.startMap.put(key, new WeakReference<Storeable>(Deserializer.run(table, value)));
+                    table.startMap.put(key, (Deserializer.run(table, value)));
                 } catch (XMLStreamException e) {
                     throw new RuntimeException(e);
                 }
@@ -482,11 +481,11 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                         if (startMap.size() > 0) {
                             out.createNewFile();
                             DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-                            Set<Entry<String, WeakReference<Storeable>>> set = startMap.entrySet();
-                            for (Entry<String, WeakReference<Storeable>> element : set) {
+                            Set<Entry<String, Storeable>> set = startMap.entrySet();
+                            for (Entry<String, Storeable> element : set) {
                                 try {
                                     Writer.writePair(element.getKey(), 
-                                            Serializer.run(this, element.getValue().get()), s);
+                                            Serializer.run(this, element.getValue()), s);
                                 } catch (XMLStreamException e) {
                                     throw new IOException(e);
                                 }
@@ -505,7 +504,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             startMap.remove(key);
         }
         for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-            startMap.put(pair.getKey(), new WeakReference<Storeable>(pair.getValue()));
+            startMap.put(pair.getKey(), pair.getValue());
         }
     }
 
