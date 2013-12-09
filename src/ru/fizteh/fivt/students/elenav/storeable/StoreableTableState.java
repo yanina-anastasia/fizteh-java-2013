@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -36,6 +35,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     private static final int FILES_PER_DIR = 16;
     
     private int size = 0;
+    private int numberOfChanges = 0;
     private boolean isClosed = false;
     private List<Class<?>> columnTypes = new ArrayList<>();
     private volatile HashMap<String, WeakReference<Storeable>> startMap 
@@ -146,10 +146,44 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             throw new IllegalArgumentException("can't put key with spaces inside");
         }
         checkStoreable(value);
-        Storeable result = get(key);
+        Storeable curValue = get(key);
+        
+        if (getStartValue(key) != null) {
+            if (removedKeys.get().contains(key)) {
+                ++size;
+                if (value.equals(getStartValue(key))) {
+                    --numberOfChanges;
+                    removedKeys.get().remove(key);
+                    return curValue;
+                }
+            }
+            
+            if (changedKeys.get().containsKey(key)) {
+                if (value.equals(getStartValue(key))) {
+                    --numberOfChanges;
+                    changedKeys.get().remove(key);
+                    return curValue;
+                }
+            } 
+            
+            if (!changedKeys.get().containsKey(key) && !removedKeys.get().contains(key)) {
+                if (!value.equals(getStartValue(key))) {
+                    ++numberOfChanges;
+                } else {
+                    return curValue;
+                }
+            }
+            
+        } else {
+            if (!changedKeys.get().containsKey(key)) {
+                ++size;
+                ++numberOfChanges;
+            }
+        }
+        
         changedKeys.get().put(key, value);
         removedKeys.get().remove(key);
-        return result;
+        return curValue;
     }
     
     private void checkStoreable(Storeable s) {
@@ -180,6 +214,25 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             throw new IllegalArgumentException("can't remove null key");
         }
         Storeable result = get(key);
+        
+        if (getStartValue(key) != null) {
+            
+            if (!removedKeys.get().contains(key) && changedKeys.get().containsKey(key)) {
+                --size;
+            } 
+            
+            if (!changedKeys.get().containsKey(key) && !removedKeys.get().contains(key)) {
+                ++numberOfChanges;
+                --size;
+            }
+            
+        } else {
+            if (changedKeys.get().containsKey(key)) {
+                --size;
+                --numberOfChanges;
+            } 
+        }
+        
         changedKeys.get().remove(key);
         try {
             lock.readLock().lock();
@@ -205,36 +258,16 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     
     @Override
     public int size() {
-        /*checkIsNotClosed();
-        return getSize() + size;*/
         checkIsNotClosed();
-        int result = 0;
-        try {
-            lock.readLock().lock();
-            result = startMap.size();
-            for (String key : removedKeys.get()) {
-                if (startMap.get(key) != null) {
-                    --result;
-                }
-            }
-            for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-                if (startMap.get(pair.getKey()) == null) {
-                    ++result;
-                }
-            }
-        } finally {
-            lock.readLock().unlock();
-        }
-        return result;
+        return getSize() + size;        
     }
 
     @Override
     public int commit() {
         checkIsNotClosed();
-        int result = 0;
+        int result = numberOfChanges;
         try {
             lock.writeLock().lock();
-            result = getNumberOfChanges();
             write();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -253,6 +286,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             throw new RuntimeException("problem with writting");
         }
         size = 0;
+        numberOfChanges = 0;
         removedKeys.get().clear();
         changedKeys.get().clear();
         return result;
@@ -261,16 +295,11 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int rollback() {
         checkIsNotClosed();
-        int result;
-        try {
-            lock.writeLock().lock();
-            result = getNumberOfChanges();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        int result = numberOfChanges;
         changedKeys.get().clear();
         removedKeys.get().clear();
         size = 0;
+        numberOfChanges = 0;
         return result;
     }
 
@@ -399,37 +428,48 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         
     }
     
-    public void write() throws IOException {
+    public synchronized void write() throws IOException {
         checkIsNotClosed();
         if (getWorkingDirectory() != null) {
-            saveChanges();
             for (int i = 0; i < DIR_COUNT; ++i) {
                 for (int j = 0; j < FILES_PER_DIR; ++j) {
-                    Map<String, Storeable> toWriteInCurFile = new HashMap<>();
-            
-                    for (String key : startMap.keySet()) {
+                    Set<String> modifiedKeys = new HashSet<String>();
+                    modifiedKeys.addAll(removedKeys.get());
+                    modifiedKeys.addAll(changedKeys.get().keySet());
+                    
+                    boolean toWrite = false;
+                    for (String key : modifiedKeys) {
                         if (getDir(key) == i && getFile(key) == j) {
-                            toWriteInCurFile.put(key, startMap.get(key).get());
+                            toWrite = true;
                         }
                     }
                     
-                    File dir = new File(getWorkingDirectory(), i + ".dir"); 
-                    File out = new File(dir, j + ".dat");
-                    out.delete();
-                    if (toWriteInCurFile.size() > 0) {
-                        out.createNewFile();
-                        DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-                        Set<Entry<String, Storeable>> set = toWriteInCurFile.entrySet();
-                        for (Entry<String, Storeable> element : set) {
-                            try {
-                                Writer.writePair(element.getKey(), 
-                                        Serializer.run(this, element.getValue()), s);
-                            } catch (XMLStreamException e) {
-                                throw new IOException(e);
-                            }
+                    if (toWrite) {
+                        startMap.clear();
+                        File dir = new File(getWorkingDirectory(), i + ".dir"); 
+                        File out = new File(dir, j + ".dat");
+                        try {
+                            readFile(out, this);
+                        } catch (ParseException e) {
+                            throw new IOException(e.getMessage());
                         }
-                        s.close();
-                    } 
+                        out.delete();
+                        saveChanges();
+                        if (startMap.size() > 0) {
+                            out.createNewFile();
+                            DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
+                            Set<Entry<String, WeakReference<Storeable>>> set = startMap.entrySet();
+                            for (Entry<String, WeakReference<Storeable>> element : set) {
+                                try {
+                                    Writer.writePair(element.getKey(), 
+                                            Serializer.run(this, element.getValue().get()), s);
+                                } catch (XMLStreamException e) {
+                                    throw new IOException(e);
+                                }
+                            }
+                            s.close();
+                        } 
+                    }
                 }
             }
             deleteEmptyDirs(getWorkingDirectory());
@@ -524,19 +564,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int getNumberOfChanges() {
         checkIsNotClosed();
-        int result = 0;
-        for (String key : removedKeys.get()) {
-            if (startMap.get(key) != null) {
-               ++result;
-            }
-        }
-        for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-            if (startMap.get(pair.getKey()) == null 
-                    || !getStartValue(pair.getKey()).equals(pair.getValue())) {
-                ++result;
-            }
-        }
-        return result;
+        return numberOfChanges;
     }
 
     public ReadWriteLock getLock() {
