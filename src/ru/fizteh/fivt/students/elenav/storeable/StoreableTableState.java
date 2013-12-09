@@ -103,7 +103,9 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 File out = new File(dir, j + ".dat");
                 startMap.clear();
                 try {
-                    readFile(out, this);
+                    if (out.isFile()) {
+                        readFile(out, this);
+                    }
                 } catch (ParseException | IOException e) {
                     throw new RuntimeException(e.getMessage());
                 }
