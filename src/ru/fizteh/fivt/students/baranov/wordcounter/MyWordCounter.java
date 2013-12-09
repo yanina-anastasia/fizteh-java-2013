@@ -61,16 +61,35 @@ public class MyWordCounter implements WordCounter {
     private String[] Parse(String s) {
         List<String> listOfWords = new ArrayList<String>();
         s = s.toLowerCase();
-
+        String prevCh = "";
         String currentString = "";
         for (int i = 0; i < s.length(); ++i) {
             String ch = Character.toString(s.charAt(i));
-            if (ch.matches("[0-9a-z]*") || ch.equals("-")) {
+            if (ch.matches("[0-9a-z]*") && (prevCh.matches("[0-9a-z]*") || prevCh.equals(""))) {
                 currentString = currentString + ch;
-            } else {
+                prevCh = ch;
+                continue;
+            }
+            if (ch.matches("[0-9a-z]*") && prevCh.equals("-")) {
                 if (!currentString.equals("")) {
-                    listOfWords.add(currentString);
+                    currentString = currentString + "-" + ch;
+                    prevCh = ch;
+                } else {
+                    currentString = currentString + ch;
+                    prevCh = ch;
                 }
+                continue;
+            }
+            if (ch.equals("-")) {
+                if (prevCh.equals("-") && !currentString.equals("")) {
+                    listOfWords.add(currentString);
+                    currentString = "";
+                }
+                prevCh = "-";
+                continue;
+            }
+            if (!currentString.equals("")) {
+                listOfWords.add(currentString);
                 currentString = "";
             }
         }
