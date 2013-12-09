@@ -105,7 +105,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 try {
                     readFile(out, this);
                 } catch (ParseException | IOException e) {
-                    throw new RuntimeException("problems in setSize()");
+                    throw new RuntimeException(e.getMessage());
                 }
                 size += startMap.size(); 
             }
