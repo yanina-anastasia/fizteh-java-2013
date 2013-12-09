@@ -61,7 +61,6 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         try {
             if (wd != null) {
                 getColumnTypes();
-                getSize();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
