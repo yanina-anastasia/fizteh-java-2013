@@ -61,7 +61,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         try {
             if (wd != null) {
                 getColumnTypes();
-                read();
+                getSize();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -79,21 +79,53 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     }
     
     private int getSize() {
-        int result;
-        File in = new File(getWorkingDirectory(), "size.tsv");
-        if (!in.isFile()) {
-            throw new RuntimeException("doesn't exist file size.tsv");
-        }
         try {
-            DataInputStream s = new DataInputStream(new FileInputStream(in));
-            result = s.readInt();
-            s.close();
+            int result;
+            File in = new File(getWorkingDirectory(), "size.tsv");
+            if (!in.isFile()) {
+                in.createNewFile();
+                return setSize();
+            } else {
+                DataInputStream s = new DataInputStream(new FileInputStream(in));
+                result = s.readInt();
+                s.close();
+                return result;
+            }
         } catch (IOException e) {
             throw new RuntimeException("doesn't exist file size.tsv");
         }
-        return result;
     }
     
+    private int setSize() {
+        int size = 0;    
+        for (int i = 0; i < DIR_COUNT; ++i) {
+            for (int j = 0; j < FILES_PER_DIR; ++j) {                   
+                File dir = new File(getWorkingDirectory(), i + ".dir"); 
+                File out = new File(dir, j + ".dat");
+                startMap.clear();
+                try {
+                    readFile(out, this);
+                } catch (ParseException | IOException e) {
+                    throw new RuntimeException("problems in setSize()");
+                }
+                size += startMap.size(); 
+            }
+        }
+        writeSize(size);
+        return size;
+    }
+
+    private void writeSize(int size) {
+        try {
+            File in = new File(getWorkingDirectory(), "size.tsv");
+            DataOutputStream s = new DataOutputStream(new FileOutputStream(in));
+            s.writeInt(size);
+            s.close();
+        } catch (IOException e) {
+            throw new RuntimeException("problem with writting");
+        }        
+    }
+
     private Storeable getStartValue(String key) {
         WeakReference<Storeable> result = startMap.get(key);
         if (result == null) {
@@ -266,6 +298,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     public int commit() {
         checkIsNotClosed();
         int result = numberOfChanges;
+        int oldSize = getSize();
         try {
             lock.writeLock().lock();
             write();
@@ -274,17 +307,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         } finally {
             lock.writeLock().unlock();
         }
-        File in = new File(getWorkingDirectory(), "size.tsv");
-        if (!in.isFile()) {
-            throw new RuntimeException("doesn't exist file size.tsv");
-        }
-        try {
-            DataOutputStream s = new DataOutputStream(new FileOutputStream(in));
-            s.writeInt(size + getSize());
-            s.close();
-        } catch (IOException e) {
-            throw new RuntimeException("problem with writting");
-        }
+        writeSize(oldSize + size);
         size = 0;
         numberOfChanges = 0;
         removedKeys.get().clear();
@@ -342,7 +365,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             
             File f = new File(getFilePath(dir, file));
             if (f.length() == 0) {
-                        throw new IOException("can't read files: empty file " + f.getName());
+                throw new IOException("can't read files: empty file " + f.getName());
             }
             try {
                 readFile(f, this);
