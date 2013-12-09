@@ -7,7 +7,6 @@ public class MyWordCounterFactory implements WordCounterFactory {
     }
 
     public MyWordCounter create() {
-        MyWordCounter result = new MyWordCounter();
-        return result;
+        return new MyWordCounter();
     }
 }

@@ -5,16 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static int main(String[] args) {
+    public static void main(String[] args) {
         if (args.length < 1) {
-            System.err.println("wordcounter needs arguments");
-            return 0;
+            System.err.println("WordCounter needs arguments");
+            System.err.println("Arguments:");
+            System.err.println("Paths to files: file1.txt test/file2.txt //for example...");
+            System.err.println("-o FILENAME if //you want to write results to file");
+            System.err.println("-a //if you want to count number of words in all files");
+            System.exit(1);
         }
 
         boolean output = false;
         boolean aggregate = false;
         boolean outputIsFound = false;
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
         File outputFile = null;
         String dir = System.getProperty("user.dir");
 
@@ -28,7 +32,7 @@ public class Main {
                 aggregate = true;
                 continue;
             }
-            if (output && !outputIsFound) {
+            if (output && !outputIsFound && args[i - 1].equals("-o")) {
                 outputFile = new File(args[i]);
                 outputIsFound = true;
                 continue;
@@ -44,7 +48,7 @@ public class Main {
 
         MyWordCounterFactory factory = new MyWordCounterFactory();
         MyWordCounter counter = factory.create();
-        OutputStream stream;
+        OutputStream stream = null;
 
         if (output) {
             if (outputIsFound) {
@@ -52,11 +56,11 @@ public class Main {
                     stream = new FileOutputStream(outputFile);
                 } catch (FileNotFoundException e) {
                     System.err.println(e);
-                    return 0;
+                    System.exit(1);
                 }
             } else {
                 System.err.println("output not found");
-                return 0;
+                System.exit(1);
             }
         } else {
             stream = System.out;
@@ -66,8 +70,14 @@ public class Main {
             counter.count(files, stream, aggregate);
         } catch (IOException e) {
             System.err.println(e);
-            return 0;
+            System.exit(1);
         }
-        return 0;
+
+        try {
+            stream.close();
+        } catch (IOException e) {
+            System.err.println(e);
+            System.exit(1);
+        }
     }
 }
