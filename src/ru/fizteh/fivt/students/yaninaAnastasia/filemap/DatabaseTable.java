@@ -5,6 +5,7 @@ import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 
 import java.io.*;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,7 +15,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DatabaseTable implements Table, AutoCloseable {
-    public WeakHashMap<String, Storeable> oldData;
+    public WeakHashMap<String, WeakReference<Storeable>> oldData;
     public ThreadLocal<HashMap<String, Storeable>> modifiedData;
     public ThreadLocal<HashSet<String>> deletedKeys;
     public ThreadLocal<Integer> uncommittedChanges;
@@ -33,7 +34,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         size.set(0);
         isClosed = false;
         this.tableName = name;
-        oldData = new WeakHashMap<String, Storeable>();
+        oldData = new WeakHashMap<String, WeakReference<Storeable>>();
         modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
             @Override
             public HashMap<String, Storeable> initialValue() {
@@ -209,7 +210,11 @@ public class DatabaseTable implements Table, AutoCloseable {
 
         transactionLock.readLock().lock();
         try {
-            return oldData.get(key);
+            if (oldData.containsKey(key)) {
+                return oldData.get(key).get();
+            } else {
+                return null;
+            }
         } finally {
             transactionLock.readLock().unlock();
         }
@@ -243,7 +248,11 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (oldValue == null && !deletedKeys.get().contains(key)) {
             transactionLock.readLock().lock();
             try {
-                oldValue = oldData.get(key);
+                if (oldData.containsKey(key)) {
+                    oldValue = oldData.get(key).get();
+                } else {
+                    oldValue = null;
+                }
             } finally {
                 transactionLock.readLock().unlock();
             }
@@ -267,7 +276,11 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (oldValue == null && !deletedKeys.get().contains(key)) {
             transactionLock.readLock().lock();
             try {
-                oldValue = oldData.get(key);
+                if (oldData.containsKey(key)) {
+                    oldValue = oldData.get(key).get();
+                } else {
+                    oldValue = null;
+                }
             } finally {
                 transactionLock.readLock().unlock();
             }
@@ -339,7 +352,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             }
             for (String keyToAdd : modifiedData.get().keySet()) {
                 if (modifiedData.get().get(keyToAdd) != null) {
-                    oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
+                    oldData.put(keyToAdd, new WeakReference(modifiedData.get().get(keyToAdd)));
                 }
             }
             deletedKeys.get().clear();
@@ -376,7 +389,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     public Storeable storeableGet(String key) {
         transactionLock.readLock().lock();
         try {
-            return oldData.get(key);
+            return oldData.get(key).get();
         } finally {
             transactionLock.readLock().unlock();
         }
@@ -385,7 +398,7 @@ public class DatabaseTable implements Table, AutoCloseable {
     public void storeablePut(String key, Storeable value) {
         transactionLock.writeLock().lock();
         try {
-            oldData.put(key, value);
+            oldData.put(key, new WeakReference(value));
         } finally {
             transactionLock.writeLock().unlock();
         }
@@ -511,8 +524,10 @@ public class DatabaseTable implements Table, AutoCloseable {
         transactionLock.readLock().lock();
         try {
             for (String key : tempSet) {
-                if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get().get(key))) {
-                    toRemove.add(key);
+                if (oldData.containsKey(key)) {
+                    if (tempSet.contains(key) && compare(oldData.get(key).get(), modifiedData.get().get(key))) {
+                        toRemove.add(key);
+                    }
                 }
             }
         } finally {
@@ -524,10 +539,12 @@ public class DatabaseTable implements Table, AutoCloseable {
     private int diffSize() {
         int result = 0;
         for (final String key : modifiedData.get().keySet()) {
-            Storeable oldValue;
+            Storeable oldValue = null;
             transactionLock.readLock().lock();
             try {
-                oldValue = oldData.get(key);
+                if (oldData.containsKey(key)) {
+                    oldValue = oldData.get(key).get();
+                }
             } finally {
                 transactionLock.readLock().unlock();
             }
