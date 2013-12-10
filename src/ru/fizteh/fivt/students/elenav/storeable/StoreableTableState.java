@@ -304,12 +304,12 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         try {
             lock.writeLock().lock();
             write();
+            writeSize(oldSize + size);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             lock.writeLock().unlock();
         }
-        writeSize(oldSize + size);
         size = 0;
         numberOfChanges = 0;
         removedKeys.get().clear();
@@ -370,7 +370,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         try {
             readFile(f, this);
         } catch (ParseException e) {
-            throw new IOException("can't deserialize");
+            throw new IOException("can't deserialize: " + e.getMessage());
         }
         
     }
@@ -467,9 +467,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                     }
                     
                     if (toWrite) {
-                        startMap.clear();
-                        File dir = new File(getWorkingDirectory(), i + ".dir"); 
-                        File out = new File(dir, j + ".dat");
+                        startMap.clear(); 
+                        File out = getFilePath(i, j);
                         try {
                             readFile(out, this);
                         } catch (ParseException e) {
