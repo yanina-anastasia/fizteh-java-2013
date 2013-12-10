@@ -7,22 +7,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class MyWordCounter implements WordCounter {
+    public String ls = System.lineSeparator();
+
     public void count(List<File> files, OutputStream out, boolean aggregate) throws IOException {
-        Map<String, Integer> mapOfWords = new HashMap<>();
+        Map<String, Integer> mapOfWords = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (files.isEmpty()) {
             throw new IllegalArgumentException("files for counting not found");
         }
 
+
         for (int i = 0; i < files.size(); ++i) {
             if (!files.get(i).exists()) {
                 if (!aggregate) {
-                    out.write((files.get(i).getName() + ": file not found\n").getBytes(StandardCharsets.UTF_8));
+                    out.write((files.get(i).getName() + ": file not found" + ls).getBytes(StandardCharsets.UTF_8));
                 }
                 continue;
             }
             if (files.get(i).isHidden()) {
                 if (!aggregate) {
-                    out.write((files.get(i).getName() + ": file not available\n").getBytes(StandardCharsets.UTF_8));
+                    out.write((files.get(i).getName() + ": file not available" + ls).getBytes(StandardCharsets.UTF_8));
                 }
                 continue;
             }
@@ -42,9 +45,9 @@ public class MyWordCounter implements WordCounter {
             }
 
             if (!aggregate) {
-                out.write((files.get(i).getName() + ":\n").getBytes(StandardCharsets.UTF_8));
+                out.write((files.get(i).getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
                 printMap(mapOfWords, out);
-                mapOfWords = new HashMap<>();
+                mapOfWords = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             }
         }
         if (aggregate) {
@@ -53,10 +56,9 @@ public class MyWordCounter implements WordCounter {
     }
 
     private void printMap(Map<String, Integer> map, OutputStream out) {
-        Map<String, Integer> treeMap = new TreeMap<>(map);
-        for (Map.Entry<String, Integer> entry : treeMap.entrySet()) {
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
             try {
-                out.write((entry.getKey() + " " + entry.getValue() + "\n").getBytes(StandardCharsets.UTF_8));
+                out.write((entry.getKey() + " " + entry.getValue() + ls).getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
                 System.err.println(e);
             }
@@ -64,42 +66,42 @@ public class MyWordCounter implements WordCounter {
     }
 
     private String[] parse(String s) {
-        List<String> listOfWords = new ArrayList<String>();
-        s = s.toLowerCase();
-        char prevCh = new Character(' ');
-        String currentString = "";
+        List<String> listOfWords = new ArrayList<>();
+        char prevCh = ' ';
+        StringBuilder currentString = new StringBuilder("");
         for (int i = 0; i < s.length(); ++i) {
             char ch = s.charAt(i);
             if (Character.isLetterOrDigit(ch) && (Character.isLetterOrDigit(prevCh) || Character.isSpaceChar(prevCh))) {
-                currentString = currentString + Character.toString(ch);
+                currentString.append(ch);
                 prevCh = ch;
                 continue;
             }
             if (Character.isLetterOrDigit(ch) && prevCh == '-') {
                 if (!currentString.equals("")) {
-                    currentString = currentString + "-" + Character.toString(ch);
+                    currentString.append("-");
+                    currentString.append(ch);
                     prevCh = ch;
                 } else {
-                    currentString = currentString + Character.toString(ch);
+                    currentString.append(ch);
                     prevCh = ch;
                 }
                 continue;
             }
             if (ch == '-') {
                 if (prevCh == '-' && !currentString.equals("")) {
-                    listOfWords.add(currentString);
-                    currentString = "";
+                    listOfWords.add(currentString.toString());
+                    currentString = new StringBuilder("");
                 }
                 prevCh = ch;
                 continue;
             }
             if (!currentString.equals("")) {
-                listOfWords.add(currentString);
-                currentString = "";
+                listOfWords.add(currentString.toString());
+                currentString = new StringBuilder("");
             }
         }
         if (!currentString.equals("")) {
-            listOfWords.add(currentString);
+            listOfWords.add(currentString.toString());
         }
 
         String[] simpleArray = new String[listOfWords.size()];

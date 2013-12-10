@@ -22,7 +22,6 @@ public class Main {
         File outputFile = null;
         String dir = System.getProperty("user.dir");
 
-
         for (int i = 0; i < args.length; ++i) {
             if (args[i].equals("-o")) {
                 output = true;
@@ -48,13 +47,12 @@ public class Main {
 
         MyWordCounterFactory factory = new MyWordCounterFactory();
         MyWordCounter counter = factory.create();
-        OutputStream stream = System.out;
 
         if (output) {
             if (outputIsFound) {
-                try {
-                    stream = new FileOutputStream(outputFile);
-                } catch (FileNotFoundException e) {
+                try (OutputStream stream = new FileOutputStream(outputFile)) {
+                    counter.count(files, stream, aggregate);
+                } catch (IOException e) {
                     System.err.println(e);
                     System.exit(1);
                 }
@@ -62,20 +60,13 @@ public class Main {
                 System.err.println("output not found");
                 System.exit(1);
             }
-        }
-
-        try {
-            counter.count(files, stream, aggregate);
-        } catch (IOException e) {
-            System.err.println(e);
-            System.exit(1);
-        }
-
-        try {
-            stream.close();
-        } catch (IOException e) {
-            System.err.println(e);
-            System.exit(1);
+        } else {
+            try (OutputStream stream = System.out) {
+                counter.count(files, stream, aggregate);
+            } catch (IOException e) {
+                System.err.println(e);
+                System.exit(1);
+            }
         }
     }
 }
