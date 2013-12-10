@@ -248,11 +248,14 @@ public class DatabaseTable implements Table, AutoCloseable {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key)
-                    && getFileNum(key) == DatabaseTable.getFileNum(key)) {
+            if (getDirectoryNum(nextKey) == DatabaseTable.getDirectoryNum(nextKey)
+                    && getFileNum(nextKey) == DatabaseTable.getFileNum(nextKey)) {
                 transactionLock.writeLock().lock();
                 try {
                     tableBuilder.put(nextKey, putValue);
+                } finally {
+                    transactionLock.writeLock().unlock();
+                }
                     if (nextKey == keyComp) {
                         try {
                             return provider.deserialize(this, putValue);
@@ -260,9 +263,7 @@ public class DatabaseTable implements Table, AutoCloseable {
                             System.out.println("Very bad");
                         }
                     }
-                } finally {
-                    transactionLock.writeLock().unlock();
-                }
+
             } else {
                 throw new IllegalArgumentException("File has incorrect format");
             }
