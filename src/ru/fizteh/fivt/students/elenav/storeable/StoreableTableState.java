@@ -361,12 +361,13 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         return nfile;
     }    
     
-    private String getFilePath(int dir, int file) throws IOException {
-        return getWorkingDirectory().getCanonicalPath() + dir + ".dir" + file + ".dat";
+    private File getFilePath(int dir, int file) throws IOException {
+        File directory = new File(getWorkingDirectory(), dir + ".dir");
+        return  new File(directory, file + ".dat");
     }
 
     public void lazyRead(int dir, int file) throws IOException {
-        File f = new File(getFilePath(dir, file));
+        File f = getFilePath(dir, file);
         if (f.length() == 0) {
             throw new IOException("can't read files: empty file " + f.getName());
         }
@@ -465,6 +466,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                     for (String key : modifiedKeys) {
                         if (getDir(key) == i && getFile(key) == j) {
                             toWrite = true;
+                            break;
                         }
                     }
                     
