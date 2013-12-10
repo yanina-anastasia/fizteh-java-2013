@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -319,7 +320,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         File f = getFilePath(dir, file);
         if (f.isFile() && f.length() != 0) {
             try {
-                readFile(f, this);
+                readFile(f, this, startMap);
             } catch (ParseException e) {
                 throw new IOException("can't deserialize: " + e.getMessage());
             }
@@ -351,7 +352,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                                 throw new IOException("can't read files: empty file " + f.getName());
                             }
                             try {
-                                readFile(f, this);
+                                readFile(f, this, startMap);
                             } catch (ParseException e) {
                                 throw new IOException("can't deserialize");
                             }
@@ -364,7 +365,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
     }
     
-    private void readFile(File in, StoreableTableState table) throws IOException, ParseException {
+    private void readFile(File in, StoreableTableState table, AbstractMap<String, Storeable> map) throws IOException, ParseException {
         DataInputStream s = new DataInputStream(new FileInputStream(in));
         boolean flag = true;
         do {
@@ -388,7 +389,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 s.read(tempValue);
                 String value = new String(tempValue, StandardCharsets.UTF_8);
                 try {
-                    table.startMap.put(key, (Deserializer.run(table, value)));
+                    map.put(key, (Deserializer.run(table, value)));
                 } catch (XMLStreamException e) {
                     throw new RuntimeException(e);
                 }
@@ -434,6 +435,13 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         Set<String> modifiedKeys = new HashSet<String>();
         modifiedKeys.addAll(removedKeys.get());
         modifiedKeys.addAll(changedKeys.get().keySet());
+        ThreadLocal<HashMap<String, Storeable>> map = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            protected HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+        
         if (getWorkingDirectory() != null) {
             for (int i = 0; i < DIR_COUNT; ++i) {
                 for (int j = 0; j < FILES_PER_DIR; ++j) {
@@ -448,23 +456,25 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                     }
                     
                     if (toWrite) {
-                        startMap.clear(); 
+                        map.get().clear(); 
                         File out = getFilePath(i, j);
                         try {
-                            readFile(out, this);
+                            readFile(out, this, map.get());
                         } catch (ParseException e) {
                             throw new IOException(e.getMessage());
                         }
                         out.delete();
                         saveChanges();
-                        if (startMap.size() > 0) {
+                        if (map.get().size() > 0) {
                             out.createNewFile();
                             DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-                            Set<Entry<String, Storeable>> set = startMap.entrySet();
+                            Set<Entry<String, Storeable>> set = map.get().entrySet();
                             for (Entry<String, Storeable> element : set) {
                                 try {
-                                    Writer.writePair(element.getKey(), 
-                                            Serializer.run(this, element.getValue()), s);
+                                    if (i == getDir(element.getKey()) && j == getFile(element.getKey())) {
+                                        Writer.writePair(element.getKey(), 
+                                                Serializer.run(this, element.getValue()), s);
+                                    }
                                 } catch (XMLStreamException e) {
                                     throw new IOException(e);
                                 }
