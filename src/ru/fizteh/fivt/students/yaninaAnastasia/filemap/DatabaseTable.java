@@ -248,12 +248,23 @@ public class DatabaseTable implements Table, AutoCloseable {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-
-            transactionLock.writeLock().lock();
-            try {
-                tableBuilder.put(nextKey, putValue);
-            } finally {
-                transactionLock.writeLock().unlock();
+            if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key)
+                    && getFileNum(key) == DatabaseTable.getFileNum(key)) {
+                transactionLock.writeLock().lock();
+                try {
+                    tableBuilder.put(nextKey, putValue);
+                    if (nextKey == keyComp) {
+                        try {
+                            return provider.deserialize(this, putValue);
+                        } catch (ParseException e) {
+                            System.out.println("Very bad");
+                        }
+                    }
+                } finally {
+                    transactionLock.writeLock().unlock();
+                }
+            } else {
+                throw new IllegalArgumentException("File has incorrect format");
             }
 
 
