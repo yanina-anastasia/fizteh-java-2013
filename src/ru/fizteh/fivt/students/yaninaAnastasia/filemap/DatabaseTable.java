@@ -293,7 +293,13 @@ public class DatabaseTable implements Table, AutoCloseable {
             //
         }
 
-        return loadKeyValue(key);
+
+        transactionLock.readLock().lock();
+        try {
+            return loadKeyValue(key);
+        } finally {
+            transactionLock.readLock().unlock();
+        }
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
