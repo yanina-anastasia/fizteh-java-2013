@@ -146,11 +146,8 @@ public class DatabaseTable implements Table, AutoCloseable {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
-                tableBuilder.put(key, putValue);
-            } else {
-                throw new IllegalArgumentException("File has incorrect format");
-            }
+            tableBuilder.put(key, putValue);
+
             temp.seek(cursor);
             key = nextKey;
             currentOffset = nextOffset;
@@ -163,11 +160,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         byte[] bytes = new byte[len];
         temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
-        if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
-            tableBuilder.put(nextKey, putValue);
-        } else {
-            throw new IllegalArgumentException("File has incorrect format");
-        }
+        tableBuilder.put(nextKey, putValue);
     }
 
 
@@ -207,7 +200,6 @@ public class DatabaseTable implements Table, AutoCloseable {
         } catch (IllegalArgumentException e) {
             //
         }
-
 
         transactionLock.readLock().lock();
         try {
@@ -313,7 +305,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         isCloseChecker();
 
 
-        /*Set<String> loadSet = new HashSet<>();
+        Set<String> loadSet = new HashSet<>();
         loadSet.addAll(modifiedData.get().keySet());
         loadSet.addAll(deletedKeys.get());
         for (String key : loadSet) {
@@ -329,7 +321,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             } catch (IllegalArgumentException e) {
                 //
             }
-        }                  */
+        }
 
 
         int recordsCommitted = 0;
