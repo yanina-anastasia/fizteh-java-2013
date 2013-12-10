@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -179,6 +180,92 @@ public class DatabaseTable implements Table, AutoCloseable {
         return new File(res, fileName);
     }
 
+
+    Storeable loadKeyValue(String keyComp) {
+        File currentFile = getFileWithNum(getFileNum(keyComp), getDirectoryNum(keyComp));
+        File tmpFile = new File(currentFile.toString());
+        Storeable result = null;
+        try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
+            TableBuilder tableBuilder = new TableBuilder(provider, this);
+            //loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+
+            if (temp.length() == 0) {
+                return null;
+            }
+            long nextOffset = 0;
+            temp.seek(0);
+            byte c = temp.readByte();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            while (c != 0) {
+                out.write(c);
+                c = temp.readByte();
+            }
+            String key = new String(out.toByteArray(), StandardCharsets.UTF_8);
+            long firstOffset = temp.readInt();
+            long currentOffset = firstOffset;
+            long cursor = temp.getFilePointer();
+            String nextKey = key;
+            while (cursor < firstOffset) {
+                c = temp.readByte();
+                out = new ByteArrayOutputStream();
+                while (c != 0) {
+                    out.write(c);
+                    c = temp.readByte();
+                }
+                nextKey = new String(out.toByteArray(), StandardCharsets.UTF_8);
+                nextOffset = temp.readInt();
+                cursor = temp.getFilePointer();
+                temp.seek(currentOffset);
+                int len = (int) (nextOffset - currentOffset);
+                if (len < 0) {
+                    throw new IllegalArgumentException("File has incorrect format");
+                }
+                byte[] bytes = new byte[len];
+                temp.read(bytes);
+                String putValue = new String(bytes, StandardCharsets.UTF_8);
+                if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key) &&
+                        getFileNum(key) == DatabaseTable.getFileNum(key)) {
+                    tableBuilder.put(key, putValue);
+                    if (key == keyComp) {
+                        try {
+                            return provider.deserialize(this, putValue);
+                        } catch (ParseException e) {
+                            System.out.println("Very bad");
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("File has incorrect format");
+                }
+                temp.seek(cursor);
+                key = nextKey;
+                currentOffset = nextOffset;
+            }
+            temp.seek(currentOffset);
+            int len = (int) (temp.length() - currentOffset);
+            if (len < 0) {
+                throw new IllegalArgumentException("File has incorrect format");
+            }
+            byte[] bytes = new byte[len];
+            temp.read(bytes);
+            String putValue = new String(bytes, StandardCharsets.UTF_8);
+            if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key) &&
+                    getFileNum(key) == DatabaseTable.getFileNum(key)) {
+                tableBuilder.put(nextKey, putValue);
+            } else {
+                throw new IllegalArgumentException("File has incorrect format");
+            }
+
+
+        } catch (EOFException e) {
+            //
+        } catch (IOException e) {
+            //
+        } catch (IllegalArgumentException e) {
+            //
+        }
+        return result;
+    }
+
     public Storeable get(String key) throws IllegalArgumentException {
         isCloseChecker();
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
@@ -209,7 +296,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
         transactionLock.readLock().lock();
         try {
-            return oldData.get(key);
+            return loadKeyValue(key);
         } finally {
             transactionLock.readLock().unlock();
         }
