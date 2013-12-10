@@ -236,7 +236,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         checkIsNotClosed();
         int result = 0;
         try {
-            lock.readLock().lock();
+            lock.writeLock().lock();
             result = getSize();
             for (String key : removedKeys.get()) {
                 if (getStartValue(key) != null) {
@@ -249,7 +249,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 }
             }
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
         return result;      
     }
@@ -257,10 +257,9 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int commit() {
         checkIsNotClosed();
-        int result = 0;
+        int result = getNumberOfChanges();
         try {
             lock.writeLock().lock();
-            result = getNumberOfChanges();
             write();
             writeSize(size());
         } catch (IOException e) {
@@ -276,13 +275,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int rollback() {
         checkIsNotClosed();
-        int result = 0;
-        try {
-            lock.writeLock().lock();
-            result = getNumberOfChanges();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        int result = getNumberOfChanges();
         changedKeys.get().clear();
         removedKeys.get().clear();
         return result;
@@ -574,16 +567,21 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     public int getNumberOfChanges() {
         checkIsNotClosed();
         int result = 0;
-        for (String key : removedKeys.get()) {
-            if (getStartValue(key) != null) {
-               ++result;
+        try {
+            lock.readLock().lock();
+            for (String key : removedKeys.get()) {
+                if (getStartValue(key) != null) {
+                   ++result;
+                }
             }
-        }
-        for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-            if (getStartValue(pair.getKey()) == null 
-                    || !getStartValue(pair.getKey()).equals(pair.getValue())) {
-                ++result;
+            for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
+                if (getStartValue(pair.getKey()) == null 
+                        || !getStartValue(pair.getKey()).equals(pair.getValue())) {
+                    ++result;
+                }
             }
+        } finally {
+            lock.readLock().unlock();
         }
      
         return result;
