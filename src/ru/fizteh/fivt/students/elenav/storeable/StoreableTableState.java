@@ -78,7 +78,6 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     
     private int getSize() {
         try {
-            lock.writeLock().lock();
             int result;
             File in = new File(getWorkingDirectory(), "size.tsv");
             if (!in.isFile()) {
@@ -92,8 +91,6 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             }
         } catch (IOException e) {
             throw new RuntimeException("doesn't exist file size.tsv");
-        } finally {
-            lock.writeLock().unlock();
         }
     }
     
@@ -577,22 +574,18 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     public int getNumberOfChanges() {
         checkIsNotClosed();
         int result = 0;
-        try {
-            lock.readLock().lock();
-            for (String key : removedKeys.get()) {
-                if (getStartValue(key) != null) {
-                   ++result;
-                }
+        for (String key : removedKeys.get()) {
+            if (getStartValue(key) != null) {
+               ++result;
             }
-            for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-                if (getStartValue(pair.getKey()) == null 
-                        || !getStartValue(pair.getKey()).equals(pair.getValue())) {
-                    ++result;
-                }
-            }
-        } finally {
-            lock.readLock().unlock();
         }
+        for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
+            if (getStartValue(pair.getKey()) == null 
+                    || !getStartValue(pair.getKey()).equals(pair.getValue())) {
+                ++result;
+            }
+        }
+     
         return result;
     }
 
