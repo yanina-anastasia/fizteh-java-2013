@@ -101,15 +101,11 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     private int setSize() {
         int size = 0;    
         for (int i = 0; i < DIR_COUNT; ++i) {
-            for (int j = 0; j < FILES_PER_DIR; ++j) {                   
-                File dir = new File(getWorkingDirectory(), i + ".dir"); 
-                File out = new File(dir, j + ".dat");
+            for (int j = 0; j < FILES_PER_DIR; ++j) {
                 startMap.clear();
                 try {
-                    if (out.isFile()) {
-                        readFile(out, this);
-                    }
-                } catch (ParseException | IOException e) {
+                    lazyRead(i, j);
+                } catch (IOException e) {
                     throw new RuntimeException(e.getMessage());
                 }
                 size += startMap.size(); 
@@ -361,7 +357,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         return nfile;
     }    
     
-    private File getFilePath(int dir, int file) throws IOException {
+    private File getFilePath(int dir, int file) {
         File directory = new File(getWorkingDirectory(), dir + ".dir");
         return  new File(directory, file + ".dat");
     }
