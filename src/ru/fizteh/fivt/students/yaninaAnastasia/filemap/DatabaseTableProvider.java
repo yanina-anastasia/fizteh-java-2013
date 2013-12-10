@@ -311,8 +311,16 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             File sizeFile = new File(preSignature, "size.tsv");
             String signature = null;
             int size = 0;
-            if (!signatureFile.exists() || !sizeFile.exists()) {
+            if (!signatureFile.exists()) {
                 throw new IllegalArgumentException("Invalid database2");
+            }
+            if (!sizeFile.exists()) {
+                try (BufferedWriter sizeWriter = new BufferedWriter(new FileWriter(sizeFile))) {
+                    sizeFile.createNewFile();
+                    sizeWriter.write(tables.get(curTableName).size());
+                } catch (IOException e) {
+                    System.out.println("Very bad");
+                }
             }
             if (signatureFile.length() == 0 || sizeFile.length() == 0) {
                 throw new IllegalArgumentException("Invalid database3");
