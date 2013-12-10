@@ -146,8 +146,11 @@ public class DatabaseTable implements Table, AutoCloseable {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            tableBuilder.put(key, putValue);
-
+            if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
+                tableBuilder.put(key, putValue);
+            } else {
+                throw new IllegalArgumentException("File has incorrect format");
+            }
             temp.seek(cursor);
             key = nextKey;
             currentOffset = nextOffset;
@@ -160,7 +163,11 @@ public class DatabaseTable implements Table, AutoCloseable {
         byte[] bytes = new byte[len];
         temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
-        tableBuilder.put(nextKey, putValue);
+        if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
+            tableBuilder.put(key, putValue);
+        } else {
+            throw new IllegalArgumentException("File has incorrect format");
+        }
     }
 
 
