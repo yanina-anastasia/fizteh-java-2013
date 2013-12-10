@@ -223,8 +223,8 @@ public class DatabaseTable implements Table, AutoCloseable {
                 byte[] bytes = new byte[len];
                 temp.read(bytes);
                 String putValue = new String(bytes, StandardCharsets.UTF_8);
-                if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key) &&
-                        getFileNum(key) == DatabaseTable.getFileNum(key)) {
+                if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key)
+                        && getFileNum(key) == DatabaseTable.getFileNum(key)) {
                     tableBuilder.put(key, putValue);
                     if (key == keyComp) {
                         try {
@@ -248,9 +248,14 @@ public class DatabaseTable implements Table, AutoCloseable {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key) &&
-                    getFileNum(key) == DatabaseTable.getFileNum(key)) {
-                tableBuilder.put(nextKey, putValue);
+            if (getDirectoryNum(key) == DatabaseTable.getDirectoryNum(key)
+                    && getFileNum(key) == DatabaseTable.getFileNum(key)) {
+                transactionLock.writeLock().lock();
+                try {
+                    tableBuilder.put(nextKey, putValue);
+                } finally {
+                    transactionLock.writeLock().unlock();
+                }
             } else {
                 throw new IllegalArgumentException("File has incorrect format");
             }
@@ -293,13 +298,8 @@ public class DatabaseTable implements Table, AutoCloseable {
             //
         }
 
+        return loadKeyValue(key);
 
-        transactionLock.readLock().lock();
-        try {
-            return loadKeyValue(key);
-        } finally {
-            transactionLock.readLock().unlock();
-        }
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
