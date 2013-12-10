@@ -366,15 +366,16 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
 
     public void lazyRead(int dir, int file) throws IOException {
         File f = getFilePath(dir, file);
-        if (f.length() == 0) {
-            throw new IOException("can't read files: empty file " + f.getName());
+        if (f.isFile()) {
+            if (f.length() == 0) {
+                throw new IOException("can't read files: empty file " + f.getName());
+            }
+            try {
+                readFile(f, this);
+            } catch (ParseException e) {
+                throw new IOException("can't deserialize: " + e.getMessage());
+            }
         }
-        try {
-            readFile(f, this);
-        } catch (ParseException e) {
-            throw new IOException("can't deserialize: " + e.getMessage());
-        }
-        
     }
     
     @Override
