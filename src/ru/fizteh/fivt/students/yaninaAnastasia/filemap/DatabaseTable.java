@@ -313,7 +313,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         isCloseChecker();
 
 
-        Set<String> loadSet = new HashSet<>();
+        /*Set<String> loadSet = new HashSet<>();
         loadSet.addAll(modifiedData.get().keySet());
         loadSet.addAll(deletedKeys.get());
         for (String key : loadSet) {
@@ -329,7 +329,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             } catch (IllegalArgumentException e) {
                 //
             }
-        }
+        }                  */
 
 
         int recordsCommitted = 0;
