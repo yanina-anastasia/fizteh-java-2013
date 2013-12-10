@@ -365,7 +365,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
     }
     
-    private void readFile(File in, StoreableTableState table, AbstractMap<String, Storeable> map) throws IOException, ParseException {
+    private void readFile(File in, StoreableTableState table, AbstractMap<String, Storeable> map) 
+                                                                throws IOException, ParseException {
         DataInputStream s = new DataInputStream(new FileInputStream(in));
         boolean flag = true;
         do {
