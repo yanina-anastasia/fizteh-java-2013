@@ -87,8 +87,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 in.createNewFile();
                 return setSize();
             } else {
-                DataInputStream s = new DataInputStream(new FileInputStream(in));
-                result = s.readInt();
+                Scanner s = new Scanner(in);
+                result = s.nextInt();
                 s.close();
                 return result;
             }
