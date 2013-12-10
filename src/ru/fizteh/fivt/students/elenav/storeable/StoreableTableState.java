@@ -236,7 +236,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         checkIsNotClosed();
         int result = 0;
         try {
-            lock.writeLock().lock();
+            lock.readLock().lock();
             result = getSize();
             for (String key : removedKeys.get()) {
                 if (getStartValue(key) != null) {
@@ -249,7 +249,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 }
             }
         } finally {
-            lock.writeLock().unlock();
+            lock.readLock().unlock();
         }
         return result;      
     }
@@ -260,8 +260,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         int result = getNumberOfChanges();
         try {
             lock.writeLock().lock();
-            write();
             writeSize(size());
+            write();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
