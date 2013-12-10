@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -102,13 +103,14 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         int size = 0;    
         for (int i = 0; i < DIR_COUNT; ++i) {
             for (int j = 0; j < FILES_PER_DIR; ++j) {
-                startMap.clear();
-                try {
-                    lazyRead(i, j);
-                } catch (IOException e) {
-                    throw new RuntimeException(e.getMessage());
+                File f = getFilePath(i, j);
+                if (f.isFile() && f.length() != 0) {
+                    try {
+                        size += readFileForSize(f);
+                    } catch (IOException e) {
+                        throw new RuntimeException("setSize(): " + e.getMessage());
+                    }
                 }
-                size += startMap.size(); 
             }
         }
         writeSize(size);
@@ -447,6 +449,35 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         } while (flag);
         s.close();
         
+    }
+    
+    private int readFileForSize(File in) throws IOException {
+        int size = 0;
+        if (in.isFile()) {
+            DataInputStream s;
+            try {
+                s = new DataInputStream(new FileInputStream(in));
+            } catch (FileNotFoundException e1) {
+                throw new RuntimeException("problem in readFileForSize()");
+            }
+            boolean flag = true;            
+            do {
+                try {
+                    int keyLength = s.readInt();
+                    int valueLength = s.readInt();
+                    byte[] tempKey = new byte[keyLength];    
+                    s.read(tempKey);
+             
+                    byte[] tempValue = new byte[valueLength];
+                    s.read(tempValue);
+                    ++size;
+                } catch (EOFException e) {
+                    break;
+                }
+            } while (flag);
+            s.close();
+        }
+        return size;
     }
     
     public synchronized void write() throws IOException {
