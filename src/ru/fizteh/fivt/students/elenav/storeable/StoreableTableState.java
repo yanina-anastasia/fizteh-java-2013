@@ -125,6 +125,9 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             s.close();
             
             File in2 = new File(getWorkingDirectory().getParent(), "size.tsv");
+            if (!in2.isFile()) {
+                in2.createNewFile();
+            }
             DataOutputStream s2 = new DataOutputStream(new FileOutputStream(in2)); 
             s2.writeInt(size);
             s2.close();
