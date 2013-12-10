@@ -122,8 +122,7 @@ public abstract class GenericTable<ValueType> {
             }
 
             for (Integer nfile: filesToUpdate.get()) {
-                Map<String, ValueType> data = oldDatabase.getMap(nfile);
-                oldDatabase.putAllInMap(nfile, database.get().get(nfile));
+                Map<String, ValueType> data = oldDatabase.putAllInMap(nfile, database.get().get(nfile));
                 FileStorage.commitDiff(getFile(nfile), serialize(data));
             }
 

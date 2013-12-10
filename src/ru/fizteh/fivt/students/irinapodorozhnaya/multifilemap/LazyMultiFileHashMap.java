@@ -13,11 +13,11 @@ import java.util.Scanner;
 import java.util.WeakHashMap;
 
 public class LazyMultiFileHashMap<ValueType> {
-    Map<Integer, Map<String, ValueType>> data = new WeakHashMap<>();
-    int size;
-    final File sizeFile;
-    final File rootDir;
-    GenericTable<ValueType> table;
+    private Map<Integer, Map<String, ValueType>> data = new WeakHashMap<>();
+    private int size;
+    private final File sizeFile;
+    private final File rootDir;
+    private GenericTable<ValueType> table;
 
     public LazyMultiFileHashMap(File rootDir, GenericTable table) throws IOException {
         sizeFile = new File(rootDir, "size.tsv");
@@ -26,7 +26,9 @@ public class LazyMultiFileHashMap<ValueType> {
             for (int i = 0; i < 256; ++i) {
                 size += loadFile(i).size();
             }
-            sizeFile.createNewFile();
+            if (!sizeFile.createNewFile()) {
+                throw new IllegalArgumentException("can't create file");
+            }
             try (PrintStream printStream = new PrintStream(sizeFile)) {
                 printStream.print(size);
             }
@@ -74,9 +76,8 @@ public class LazyMultiFileHashMap<ValueType> {
         return loadFile(nfile);
     }
 
-    public void putAllInMap(int nfile, Map<String, ValueType> newData) throws IOException {
+    public Map<String, ValueType> putAllInMap(int nfile, Map<String, ValueType> newData) throws IOException {
         Map<String, ValueType> map = getMap(nfile);
-
         for (Map.Entry<String, ValueType> s: newData.entrySet()) {
             if (s.getValue() == null) {
                 map.remove(s.getKey());
@@ -85,6 +86,7 @@ public class LazyMultiFileHashMap<ValueType> {
             }
         }
         data.put(nfile, map);
+        return map;
     }
 
     public int size() {
