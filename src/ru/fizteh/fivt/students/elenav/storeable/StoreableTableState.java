@@ -79,6 +79,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     
     private int getSize() {
         try {
+            lock.writeLock().lock();
             int result;
             File in = new File(getWorkingDirectory(), "size.tsv");
             if (!in.isFile()) {
@@ -92,6 +93,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             }
         } catch (IOException e) {
             throw new RuntimeException("doesn't exist file size.tsv");
+        } finally {
+            lock.writeLock().unlock();
         }
     }
     
@@ -245,36 +248,39 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("can't remove null key");
         }
-        Storeable result = get(key);
+        try {
+            lock.writeLock().lock();
+            Storeable result = get(key);
         
-        if (getStartValue(key) != null) {
-            
-            if (!removedKeys.get().contains(key) && changedKeys.get().containsKey(key)) {
-                --size;
-            } 
-            
-            if (!changedKeys.get().containsKey(key) && !removedKeys.get().contains(key)) {
-                ++numberOfChanges;
-                --size;
+            if (getStartValue(key) != null) {
+                
+                if (!removedKeys.get().contains(key) && changedKeys.get().containsKey(key)) {
+                    --size;
+                } 
+                
+                if (!changedKeys.get().containsKey(key) && !removedKeys.get().contains(key)) {
+                    ++numberOfChanges;
+                    --size;
+                }
+                
+            } else {
+                if (changedKeys.get().containsKey(key)) {
+                    --size;
+                    --numberOfChanges;
+                } 
             }
             
-        } else {
-            if (changedKeys.get().containsKey(key)) {
-                --size;
-                --numberOfChanges;
-            } 
-        }
+            changedKeys.get().remove(key);
         
-        changedKeys.get().remove(key);
-        try {
-            lock.readLock().lock();
             if (getStartValue(key) != null) {
                 removedKeys.get().add(key);
             }
+            
+
+            return result;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
-        return result;
     }
     
     @Override 
@@ -360,21 +366,16 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     }
 
     public void lazyRead(int dir, int file) throws IOException {
-        try {
-            lock.writeLock().lock();
-            
-            File f = new File(getFilePath(dir, file));
-            if (f.length() == 0) {
-                throw new IOException("can't read files: empty file " + f.getName());
-            }
-            try {
-                readFile(f, this);
-            } catch (ParseException e) {
-                throw new IOException("can't deserialize");
-            }
-        } finally {
-            lock.writeLock().unlock();
+        File f = new File(getFilePath(dir, file));
+        if (f.length() == 0) {
+            throw new IOException("can't read files: empty file " + f.getName());
         }
+        try {
+            readFile(f, this);
+        } catch (ParseException e) {
+            throw new IOException("can't deserialize");
+        }
+        
     }
     
     @Override
@@ -556,10 +557,10 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
         Storeable result = null;
         try {
-            lock.readLock().lock();
+            lock.writeLock().lock();
             result = getStartValue(key);
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         } 
         return result;
         
