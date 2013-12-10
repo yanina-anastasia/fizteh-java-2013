@@ -317,7 +317,11 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             if (!sizeFile.exists()) {
                 try (BufferedWriter sizeWriter = new BufferedWriter(new FileWriter(sizeFile))) {
                     sizeFile.createNewFile();
-                    sizeWriter.write(tables.get(curTableName).size());
+                    if (tables.containsKey(curTableName)) {
+                        sizeWriter.write(tables.get(curTableName).size());
+                    } else {
+                        sizeWriter.write(0);
+                    }
                 } catch (IOException e) {
                     System.out.println("Very bad");
                 }
