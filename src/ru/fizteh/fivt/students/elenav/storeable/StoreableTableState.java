@@ -35,8 +35,6 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     private static final int DIR_COUNT = 16;
     private static final int FILES_PER_DIR = 16;
     
-    private int size = 0;
-    private int numberOfChanges = 0;
     private boolean isClosed = false;
     private List<Class<?>> columnTypes = new ArrayList<>();
     private volatile WeakHashMap<String, Storeable> startMap 
@@ -179,44 +177,10 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             throw new IllegalArgumentException("can't put key with spaces inside");
         }
         checkStoreable(value);
-        Storeable curValue = get(key);
-        
-        if (getStartValue(key) != null) {
-            if (removedKeys.get().contains(key)) {
-                ++size;
-                if (value.equals(getStartValue(key))) {
-                    --numberOfChanges;
-                    removedKeys.get().remove(key);
-                    return curValue;
-                }
-            }
-            
-            if (changedKeys.get().containsKey(key)) {
-                if (value.equals(getStartValue(key))) {
-                    --numberOfChanges;
-                    changedKeys.get().remove(key);
-                    return curValue;
-                }
-            } 
-            
-            if (!changedKeys.get().containsKey(key) && !removedKeys.get().contains(key)) {
-                if (!value.equals(getStartValue(key))) {
-                    ++numberOfChanges;
-                } else {
-                    return curValue;
-                }
-            }
-            
-        } else {
-            if (!changedKeys.get().containsKey(key)) {
-                ++size;
-                ++numberOfChanges;
-            }
-        }
-        
+        Storeable result = get(key);
         changedKeys.get().put(key, value);
         removedKeys.get().remove(key);
-        return curValue;
+        return result;
     }
     
     private void checkStoreable(Storeable s) {
@@ -246,39 +210,17 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("can't remove null key");
         }
+        Storeable result = get(key);
+        changedKeys.get().remove(key);
         try {
-            lock.writeLock().lock();
-            Storeable result = get(key);
-        
-            if (getStartValue(key) != null) {
-                
-                if (!removedKeys.get().contains(key) && changedKeys.get().containsKey(key)) {
-                    --size;
-                } 
-                
-                if (!changedKeys.get().containsKey(key) && !removedKeys.get().contains(key)) {
-                    ++numberOfChanges;
-                    --size;
-                }
-                
-            } else {
-                if (changedKeys.get().containsKey(key)) {
-                    --size;
-                    --numberOfChanges;
-                } 
-            }
-            
-            changedKeys.get().remove(key);
-        
+            lock.readLock().lock();
             if (getStartValue(key) != null) {
                 removedKeys.get().add(key);
             }
-            
-
-            return result;
         } finally {
-            lock.writeLock().unlock();
+            lock.readLock().unlock();
         }
+        return result;
     }
     
     @Override 
@@ -295,25 +237,40 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int size() {
         checkIsNotClosed();
-        return getSize() + size;        
+        int result = 0;
+        try {
+            lock.readLock().lock();
+            result = getSize();
+            for (String key : removedKeys.get()) {
+                if (getStartValue(key) != null) {
+                    --result;
+                }
+            }
+            for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
+                if (getStartValue(pair.getKey()) == null) {
+                    ++result;
+                }
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+        return result;      
     }
 
     @Override
     public int commit() {
         checkIsNotClosed();
-        int result = numberOfChanges;
-        int oldSize = getSize();
+        int result = 0;
         try {
             lock.writeLock().lock();
+            result = getNumberOfChanges();
             write();
-            writeSize(oldSize + size);
+            writeSize(size());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             lock.writeLock().unlock();
         }
-        size = 0;
-        numberOfChanges = 0;
         removedKeys.get().clear();
         changedKeys.get().clear();
         return result;
@@ -322,11 +279,15 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int rollback() {
         checkIsNotClosed();
-        int result = numberOfChanges;
+        int result = 0;
+        try {
+            lock.writeLock().lock();
+            result = getNumberOfChanges();
+        } finally {
+            lock.writeLock().unlock();
+        }
         changedKeys.get().clear();
         removedKeys.get().clear();
-        size = 0;
-        numberOfChanges = 0;
         return result;
     }
 
@@ -478,14 +439,15 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         return size;
     }
     
-    public synchronized void write() throws IOException {
+    public void write() throws IOException {
         checkIsNotClosed();
+        Set<String> modifiedKeys = new HashSet<String>();
+        modifiedKeys.addAll(removedKeys.get());
+        modifiedKeys.addAll(changedKeys.get().keySet());
         if (getWorkingDirectory() != null) {
             for (int i = 0; i < DIR_COUNT; ++i) {
                 for (int j = 0; j < FILES_PER_DIR; ++j) {
-                    Set<String> modifiedKeys = new HashSet<String>();
-                    modifiedKeys.addAll(removedKeys.get());
-                    modifiedKeys.addAll(changedKeys.get().keySet());
+                    
                     
                     boolean toWrite = false;
                     for (String key : modifiedKeys) {
@@ -614,7 +576,24 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int getNumberOfChanges() {
         checkIsNotClosed();
-        return numberOfChanges;
+        int result = 0;
+        try {
+            lock.readLock().lock();
+            for (String key : removedKeys.get()) {
+                if (getStartValue(key) != null) {
+                   ++result;
+                }
+            }
+            for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
+                if (getStartValue(pair.getKey()) == null 
+                        || !getStartValue(pair.getKey()).equals(pair.getValue())) {
+                    ++result;
+                }
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+        return result;
     }
 
     public ReadWriteLock getLock() {
