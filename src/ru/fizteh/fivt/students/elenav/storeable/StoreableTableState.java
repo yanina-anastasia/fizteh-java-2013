@@ -123,6 +123,11 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
             DataOutputStream s = new DataOutputStream(new FileOutputStream(in));
             s.writeInt(size);
             s.close();
+            
+            File in2 = new File(getWorkingDirectory().getParent(), "size.tsv");
+            DataOutputStream s2 = new DataOutputStream(new FileOutputStream(in2)); 
+            s2.writeInt(size);
+            s2.close();
         } catch (IOException e) {
             throw new RuntimeException("problem with writting");
         }        
