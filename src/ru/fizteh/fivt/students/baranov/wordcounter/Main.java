@@ -26,8 +26,22 @@ public class Main {
         for (int i = 0; i < args.length; ++i) {
             if (output && !outputIsFound && args[i - 1].equals("-o")) {
                 outputFileMaybe = new File(args[i]);
+
+                if (!outputFileMaybe.isAbsolute()) {
+                    outputFileMaybe = new File(dir, args[i]);
+                }
+
                 if (outputFileMaybe.isFile()) {
                     outputFile = outputFileMaybe;
+                    outputIsFound = true;
+                } else if (!(outputFileMaybe.exists()) && !isParameter(outputFileMaybe)) {
+                    outputFile = outputFileMaybe;
+                    try {
+                        outputFile.createNewFile();
+                    } catch (IOException e) {
+                        System.err.println("can't create output: " + outputFile.toString());
+                        System.exit(1);
+                    }
                     outputIsFound = true;
                 } else {
                     System.err.println(outputFileMaybe.toString() + " - isn't correct output");
@@ -76,5 +90,9 @@ public class Main {
                 System.exit(1);
             }
         }
+    }
+
+    public static boolean isParameter(File file) {
+        return (file.getName().equals("-o") || file.getName().equals("-a"));
     }
 }
