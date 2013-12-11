@@ -93,19 +93,19 @@ public class MyWordCounter implements WordCounter {
                 continue;
             }
             if (ch == '-') {
-                if (prevCh == '-' && !currentString.toString().equals("")) {
+                if (prevCh == '-' && !(currentString.length() == 0)) {
                     listOfWords.add(currentString.toString());
                     currentString = new StringBuilder("");
                 }
                 prevCh = ch;
                 continue;
             }
-            if (!currentString.toString().equals("")) {
+            if (!(currentString.length() == 0)) {
                 listOfWords.add(currentString.toString());
                 currentString = new StringBuilder("");
             }
         }
-        if (!currentString.toString().equals("")) {
+        if (!(currentString.length() == 0)) {
             listOfWords.add(currentString.toString());
         }
 
