@@ -59,7 +59,7 @@ public class Main {
             if (outputIsFound) {
                 try (OutputStream stream = new FileOutputStream(outputFile)) {
                     counter.count(files, stream, aggregate);
-                } catch (IllegalArgumentException|IOException e) {
+                } catch (IllegalArgumentException | IOException e) {
                     System.err.println(e.getMessage());
                     System.exit(1);
                 }
@@ -71,7 +71,7 @@ public class Main {
             OutputStream stream = System.out;
             try {
                 counter.count(files, stream, aggregate);
-            } catch (IllegalArgumentException |IOException e) {
+            } catch (IllegalArgumentException | IOException e) {
                 System.err.println(e.getMessage());
                 System.exit(1);
             }
