@@ -77,7 +77,11 @@ public class Main {
                     System.out.println(grep.count(inputFiles, invert));
                 }
             } else {
-                grep.find(inputFiles, output, invert);
+                if (outputFile != null) {
+                    grep.find(inputFiles, output, invert);
+                } else {
+                    grep.find(inputFiles, System.out, invert);
+                }
             }
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
