@@ -45,9 +45,14 @@ public class MyWordCounter implements WordCounter {
             }
 
             if (!aggregate) {
-                out.write((files.get(i).getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
-                printMap(mapOfWords, out);
-                mapOfWords = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                if (mapOfWords.isEmpty()) {
+                    out.write(("file " + files.get(i).getName() + " is empty" + ls).getBytes(StandardCharsets.UTF_8));
+                } else {
+                    out.write((files.get(i).getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
+                    printMap(mapOfWords, out);
+                    mapOfWords = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                }
+
             }
         }
         if (aggregate) {
@@ -88,19 +93,19 @@ public class MyWordCounter implements WordCounter {
                 continue;
             }
             if (ch == '-') {
-                if (prevCh == '-' && !currentString.equals("")) {
+                if (prevCh == '-' && !currentString.toString().equals("")) {
                     listOfWords.add(currentString.toString());
                     currentString = new StringBuilder("");
                 }
                 prevCh = ch;
                 continue;
             }
-            if (!currentString.equals("")) {
+            if (!currentString.toString().equals("")) {
                 listOfWords.add(currentString.toString());
                 currentString = new StringBuilder("");
             }
         }
-        if (!currentString.equals("")) {
+        if (!currentString.toString().equals("")) {
             listOfWords.add(currentString.toString());
         }
 

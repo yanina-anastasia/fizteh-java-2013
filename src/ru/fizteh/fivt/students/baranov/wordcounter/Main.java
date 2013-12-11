@@ -20,20 +20,27 @@ public class Main {
         boolean outputIsFound = false;
         List<File> files = new ArrayList<>();
         File outputFile = null;
+        File outputFileMaybe;
         String dir = System.getProperty("user.dir");
 
         for (int i = 0; i < args.length; ++i) {
+            if (output && !outputIsFound && args[i - 1].equals("-o")) {
+                outputFileMaybe = new File(args[i]);
+                if (outputFileMaybe.isFile()) {
+                    outputFile = outputFileMaybe;
+                    outputIsFound = true;
+                } else {
+                    System.err.println(outputFileMaybe.toString() + " - isn't correct output");
+                    System.exit(1);
+                }
+                continue;
+            }
             if (args[i].equals("-o")) {
                 output = true;
                 continue;
             }
             if (args[i].equals("-a")) {
                 aggregate = true;
-                continue;
-            }
-            if (output && !outputIsFound && args[i - 1].equals("-o")) {
-                outputFile = new File(args[i]);
-                outputIsFound = true;
                 continue;
             }
 
@@ -61,7 +68,8 @@ public class Main {
                 System.exit(1);
             }
         } else {
-            try (OutputStream stream = System.out) {
+            OutputStream stream = System.out;
+            try {
                 counter.count(files, stream, aggregate);
             } catch (IOException e) {
                 System.err.println(e);
