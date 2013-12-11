@@ -81,16 +81,20 @@ public class Main {
             }
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
         } catch (IOException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
         } finally {
             if (output != null) {
                 try {
                     output.close();
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
+                    System.exit(1);
                 }
             }
         }
