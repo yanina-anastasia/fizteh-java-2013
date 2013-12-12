@@ -179,6 +179,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         return new File(res, fileName);
     }
 
+
     public Storeable get(String key) throws IllegalArgumentException {
         isCloseChecker();
         if (key == null || (key.isEmpty() || key.trim().isEmpty())) {
@@ -194,18 +195,23 @@ public class DatabaseTable implements Table, AutoCloseable {
 
 
         File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
-        File tmpFile = new File(currentFile.toString());
-        try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
-            TableBuilder tableBuilder = new TableBuilder(provider, this);
-            loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
-        } catch (EOFException e) {
-            //
-        } catch (IOException e) {
-            //
-        } catch (IllegalArgumentException e) {
-            //
+        transactionLock.readLock().lock();
+        try {
+            if (!oldData.containsKey(key)) {
+                try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
+                    TableBuilder tableBuilder = new TableBuilder(provider, this);
+                    loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+                } catch (EOFException e) {
+                    //
+                } catch (IOException e) {
+                    //
+                } catch (IllegalArgumentException e) {
+                    //
+                }
+            }
+        } finally {
+            transactionLock.readLock().unlock();
         }
-
 
         transactionLock.readLock().lock();
         try {
@@ -265,6 +271,19 @@ public class DatabaseTable implements Table, AutoCloseable {
         Storeable oldValue = null;
         oldValue = modifiedData.get().get(key);
         if (oldValue == null && !deletedKeys.get().contains(key)) {
+            File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
+            if (!oldData.containsKey(key)) {
+                try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
+                    TableBuilder tableBuilder = new TableBuilder(provider, this);
+                    loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+                } catch (EOFException e) {
+                    //
+                } catch (IOException e) {
+                    //
+                } catch (IllegalArgumentException e) {
+                    //
+                }
+            }
             transactionLock.readLock().lock();
             try {
                 oldValue = oldData.get(key);
