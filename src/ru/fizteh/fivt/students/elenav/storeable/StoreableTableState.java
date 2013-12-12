@@ -5,19 +5,21 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -36,7 +38,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     
     private boolean isClosed = false;
     private List<Class<?>> columnTypes = new ArrayList<>();
-    private volatile HashMap<String, Storeable> startMap = new HashMap<>();
+    private volatile WeakHashMap<String, Storeable> startMap 
+                         = new WeakHashMap<String, Storeable>();
     private ReadWriteLock lock = new ReentrantReadWriteLock(true);
     private final ThreadLocal<HashMap<String, Storeable>> changedKeys 
                          = new ThreadLocal<HashMap<String, Storeable>>() {
@@ -58,17 +61,81 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         try {
             if (wd != null) {
                 getColumnTypes();
-                read();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     
+    public void clearTable() {
+        startMap.clear();
+    }
+    
     @Override
     public String getName() {
         checkIsNotClosed();
         return super.getName();
+    }
+    
+    private int getSize() {
+        try {
+            int result;
+            File in = new File(getWorkingDirectory(), "size.tsv");
+            if (!in.isFile()) {
+                in.createNewFile();
+                return setSize();
+            } else {
+                Scanner s = new Scanner(in);
+                result = s.nextInt();
+                s.close();
+                return result;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("doesn't exist file size.tsv");
+        }
+    }
+    
+    private int setSize() {
+        int size = 0;    
+        for (int i = 0; i < DIR_COUNT; ++i) {
+            for (int j = 0; j < FILES_PER_DIR; ++j) {
+                File f = getFilePath(i, j);
+                if (f.isFile() && f.length() != 0) {
+                    try {
+                        size += readFileForSize(f);
+                    } catch (IOException e) {
+                        throw new RuntimeException("setSize(): " + e.getMessage());
+                    }
+                }
+            }
+        }
+        writeSize(size);
+        return size;
+    }
+
+    private void writeSize(int size) {
+        try {
+            File in = new File(getWorkingDirectory(), "size.tsv");
+            PrintStream s = new PrintStream(in);
+            s.print(size);
+            s.close();
+        } catch (IOException e) {
+            throw new RuntimeException("problems in writeSize()", e);
+        }        
+    }
+
+    private Storeable getStartValue(String key) {
+        Storeable result = startMap.get(key);
+        if (result != null) {
+            return result;
+        } else {
+            try {
+                lazyRead(getDir(key), getFile(key));
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            return startMap.get(key);
+        }
     }
     
     public void getColumnTypes() throws IOException {
@@ -145,7 +212,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         changedKeys.get().remove(key);
         try {
             lock.readLock().lock();
-            if (startMap.get(key) != null) {
+            if (getStartValue(key) != null) {
                 removedKeys.get().add(key);
             }
         } finally {
@@ -171,30 +238,30 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         int result = 0;
         try {
             lock.readLock().lock();
-            result = startMap.size();
+            result = getSize();
             for (String key : removedKeys.get()) {
-                if (startMap.get(key) != null) {
+                if (getStartValue(key) != null) {
                     --result;
                 }
             }
             for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-                if (startMap.get(pair.getKey()) == null) {
+                if (getStartValue(pair.getKey()) == null) {
                     ++result;
                 }
             }
         } finally {
             lock.readLock().unlock();
         }
-        return result;
+        return result;      
     }
 
     @Override
     public int commit() {
         checkIsNotClosed();
-        int result = 0;
+        int result = getNumberOfChanges();
         try {
             lock.writeLock().lock();
-            result = getNumberOfChanges();
+            writeSize(size());
             write();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -209,13 +276,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     @Override
     public int rollback() {
         checkIsNotClosed();
-        int result;
-        try {
-            lock.writeLock().lock();
-            result = getNumberOfChanges();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        int result = getNumberOfChanges();
         changedKeys.get().clear();
         removedKeys.get().clear();
         return result;
@@ -249,7 +310,23 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
         return nfile;
     }    
+    
+    private File getFilePath(int dir, int file) {
+        File directory = new File(getWorkingDirectory(), dir + ".dir");
+        return  new File(directory, file + ".dat");
+    }
 
+    public void lazyRead(int dir, int file) throws IOException {
+        File f = getFilePath(dir, file);
+        if (f.isFile() && f.length() != 0) {
+            try {
+                readFile(f, this, startMap);
+            } catch (ParseException e) {
+                throw new IOException("can't deserialize: " + e.getMessage());
+            }
+        }
+    }
+    
     @Override
     public void read() throws IOException {
         try {
@@ -275,7 +352,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                                 throw new IOException("can't read files: empty file " + f.getName());
                             }
                             try {
-                                readFile(f, this);
+                                readFile(f, this, startMap);
                             } catch (ParseException e) {
                                 throw new IOException("can't deserialize");
                             }
@@ -288,7 +365,8 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
     }
     
-    private void readFile(File in, StoreableTableState table) throws IOException, ParseException {
+    private void readFile(File in, StoreableTableState table, AbstractMap<String, Storeable> map) 
+                                                                throws IOException, ParseException {
         DataInputStream s = new DataInputStream(new FileInputStream(in));
         boolean flag = true;
         do {
@@ -312,7 +390,7 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
                 s.read(tempValue);
                 String value = new String(tempValue, StandardCharsets.UTF_8);
                 try {
-                    table.startMap.put(key, Deserializer.run(table, value));
+                    map.put(key, (Deserializer.run(table, value)));
                 } catch (XMLStreamException e) {
                     throw new RuntimeException(e);
                 }
@@ -324,37 +402,87 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         
     }
     
+    private int readFileForSize(File in) throws IOException {
+        int size = 0;
+        if (in.isFile()) {
+            DataInputStream s;
+            try {
+                s = new DataInputStream(new FileInputStream(in));
+            } catch (FileNotFoundException e1) {
+                throw new RuntimeException("problem in readFileForSize()");
+            }
+            boolean flag = true;            
+            do {
+                try {
+                    int keyLength = s.readInt();
+                    int valueLength = s.readInt();
+                    byte[] tempKey = new byte[keyLength];    
+                    s.read(tempKey);
+             
+                    byte[] tempValue = new byte[valueLength];
+                    s.read(tempValue);
+                    ++size;
+                } catch (EOFException e) {
+                    break;
+                }
+            } while (flag);
+            s.close();
+        }
+        return size;
+    }
+    
     public void write() throws IOException {
         checkIsNotClosed();
+        Set<String> modifiedKeys = new HashSet<String>();
+        modifiedKeys.addAll(removedKeys.get());
+        modifiedKeys.addAll(changedKeys.get().keySet());
+        ThreadLocal<HashMap<String, Storeable>> map = new ThreadLocal<HashMap<String, Storeable>>() {
+            @Override
+            protected HashMap<String, Storeable> initialValue() {
+                return new HashMap<>();
+            }
+        };
+        
         if (getWorkingDirectory() != null) {
-            saveChanges();
             for (int i = 0; i < DIR_COUNT; ++i) {
                 for (int j = 0; j < FILES_PER_DIR; ++j) {
-                    Map<String, Storeable> toWriteInCurFile = new HashMap<>();
-            
-                    for (String key : startMap.keySet()) {
+                    
+                    
+                    boolean toWrite = false;
+                    for (String key : modifiedKeys) {
                         if (getDir(key) == i && getFile(key) == j) {
-                            toWriteInCurFile.put(key, startMap.get(key));
+                            toWrite = true;
+                            break;
                         }
                     }
                     
-                    File dir = new File(getWorkingDirectory(), i + ".dir"); 
-                    File out = new File(dir, j + ".dat");
-                    out.delete();
-                    if (toWriteInCurFile.size() > 0) {
-                        out.createNewFile();
-                        DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
-                        Set<Entry<String, Storeable>> set = toWriteInCurFile.entrySet();
-                        for (Entry<String, Storeable> element : set) {
-                            try {
-                                Writer.writePair(element.getKey(), 
-                                        Serializer.run(this, element.getValue()), s);
-                            } catch (XMLStreamException e) {
-                                throw new IOException(e);
-                            }
+                    if (toWrite) {
+                        map.get().clear(); 
+                        File out = getFilePath(i, j);
+                        try {
+                            readFile(out, this, map.get());
+                        } catch (ParseException e) {
+                            throw new IOException(e.getMessage());
                         }
-                        s.close();
-                    } 
+                        out.delete();
+                        saveChanges();
+                        if (map.get().size() > 0) {
+                            out.createNewFile();
+                            DataOutputStream s = new DataOutputStream(new FileOutputStream(out));
+                            Set<Entry<String, Storeable>> set = map.get().entrySet();
+                            for (Entry<String, Storeable> element : set) {
+                                try {
+                                    if (i == getDir(element.getKey()) && j == getFile(element.getKey())) {
+                                        Writer.writePair(element.getKey(), 
+                                                Serializer.run(this, element.getValue()), s);
+                                    }
+                                } catch (XMLStreamException e) {
+                                    throw new IOException(e);
+                                }
+                            }
+                            s.close();
+                        } 
+                    }
                 }
             }
             deleteEmptyDirs(getWorkingDirectory());
@@ -418,10 +546,10 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
         }
         Storeable result = null;
         try {
-            lock.readLock().lock();
-            result = startMap.get(key);
+            lock.writeLock().lock();
+            result = getStartValue(key);
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         } 
         return result;
         
@@ -450,17 +578,23 @@ public class StoreableTableState extends FilesystemState implements Table, AutoC
     public int getNumberOfChanges() {
         checkIsNotClosed();
         int result = 0;
-        for (String key : removedKeys.get()) {
-            if (startMap.get(key) != null) {
-               ++result;
+        try {
+            lock.readLock().lock();
+            for (String key : removedKeys.get()) {
+                if (getStartValue(key) != null) {
+                   ++result;
+                }
             }
-        }
-        for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
-            if (startMap.get(pair.getKey()) == null 
-                    || !startMap.get(pair.getKey()).equals(pair.getValue())) {
-                ++result;
+            for (Entry<String, Storeable> pair : changedKeys.get().entrySet()) {
+                if (getStartValue(pair.getKey()) == null 
+                        || !getStartValue(pair.getKey()).equals(pair.getValue())) {
+                    ++result;
+                }
             }
+        } finally {
+            lock.readLock().unlock();
         }
+     
         return result;
     }
 
