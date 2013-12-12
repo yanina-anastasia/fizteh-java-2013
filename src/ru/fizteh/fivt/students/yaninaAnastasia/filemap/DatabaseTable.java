@@ -195,9 +195,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
 
         File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
-        transactionLock.readLock().lock();
-        try {
-            if (!oldData.containsKey(key)) {
+            if (oldData.get(key) == null) {
                 try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
                     TableBuilder tableBuilder = new TableBuilder(provider, this);
                     loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
@@ -209,16 +207,7 @@ public class DatabaseTable implements Table, AutoCloseable {
                     //
                 }
             }
-        } finally {
-            transactionLock.readLock().unlock();
-        }
-
-        transactionLock.readLock().lock();
-        try {
-            return oldData.get(key);
-        } finally {
-            transactionLock.readLock().unlock();
-        }
+        return oldData.get(key);
     }
 
     public Storeable put(String key, Storeable value) throws IllegalArgumentException {
