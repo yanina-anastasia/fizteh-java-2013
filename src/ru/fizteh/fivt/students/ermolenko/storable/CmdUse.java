@@ -1,12 +1,14 @@
-package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
+package ru.fizteh.fivt.students.ermolenko.storable;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 
-public class CmdUse implements Command<MultiFileHashMapState> {
+public class CmdUse implements Command<StoreableState> {
 
     @Override
     public String getName() {
@@ -15,7 +17,11 @@ public class CmdUse implements Command<MultiFileHashMapState> {
     }
 
     @Override
-    public void executeCmd(MultiFileHashMapState inState, String[] args) throws IOException {
+    public void executeCmd(StoreableState inState, String[] args) throws IOException {
+
+        if (args.length != 1) {
+            throw new IOException("incorrect number of arguments");
+        }
 
         if (inState.getCurrentTable() != null) {
             if (!inState.getCurrentTable().getName().equals(args[0])) {
@@ -34,12 +40,13 @@ public class CmdUse implements Command<MultiFileHashMapState> {
             return;
         }
 
-        Map<String, String> tmpDataBase = inState.getTable(args[0]).getDataBase();
+        HashMap<String, Storeable> tmpDataBase = inState.getTable(args[0]).getDataBase();
         File tmpDataFile = inState.getTable(args[0]).getDataFile();
+        List<Class<?>> tmpColumnOfTypes = inState.getTable(args[0]).getColumnOfTypes();
 
-        MultiFileHashMapUtils.read(tmpDataFile, tmpDataBase);
+        StoreableUtils.read(tmpDataFile, inState.getTable(args[0]), tmpDataBase, inState.getProvider());
 
-        inState.setCurrentTable(args[0], tmpDataBase, tmpDataFile);
+        inState.setCurrentTable(args[0], tmpColumnOfTypes, inState.getProvider(), tmpDataBase, tmpDataFile);
 
         System.out.println("using " + args[0]);
     }
