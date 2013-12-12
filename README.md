@@ -17,6 +17,7 @@
 9. [Многопоточность](http://yadi.sk/d/jIKk9vuVByxnq)
 10. [Многопоточность](http://yadi.sk/d/0tP_TrerCoKuL)
 11. [Работа с сетью. Сборщик мусора](http://yadi.sk/d/sNektz_-DCQUa)
+12. [Сервлеты. ООП](http://yadi.sk/d/jVonmGNXEEYYG)
 
 ## Семинары
 В папке [tasks](tasks) находятся описания заданий на
