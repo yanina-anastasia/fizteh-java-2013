@@ -343,11 +343,15 @@ public class DatabaseTable implements Table, AutoCloseable {
             try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
 
                 for (String keyToDelete : deletedKeys.get()) {
-                    oldData.remove(keyToDelete);
+                    if (keyToDelete == key) {
+                        oldData.remove(keyToDelete);
+                    }
                 }
                 for (String keyToAdd : modifiedData.get().keySet()) {
-                    if (modifiedData.get().get(keyToAdd) != null) {
-                        oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
+                    if (keyToAdd == key) {
+                        if (modifiedData.get().get(keyToAdd) != null) {
+                            oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
+                        }
                     }
                 }
                 TableBuilder tableBuilder = new TableBuilder(provider, this);
