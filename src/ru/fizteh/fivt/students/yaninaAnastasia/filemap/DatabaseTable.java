@@ -146,7 +146,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
+            if (i == getDirectoryNum(key) && j == getFileNum(key)) {
                 tableBuilder.put(key, putValue);
             } else {
                 throw new IllegalArgumentException("File has incorrect format");
@@ -163,7 +163,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         byte[] bytes = new byte[len];
         temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
-        if (i == DatabaseTable.getDirectoryNum(key) && j == DatabaseTable.getFileNum(key)) {
+        if (i == getDirectoryNum(key) && j == getFileNum(key)) {
             tableBuilder.put(nextKey, putValue);
         } else {
             throw new IllegalArgumentException("File has incorrect format");
@@ -195,18 +195,18 @@ public class DatabaseTable implements Table, AutoCloseable {
 
 
         File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
-            if (oldData.get(key) == null) {
-                try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
-                    TableBuilder tableBuilder = new TableBuilder(provider, this);
-                    loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
-                } catch (EOFException e) {
-                    //
-                } catch (IOException e) {
-                    //
-                } catch (IllegalArgumentException e) {
-                    //
-                }
+        if (oldData.get(key) == null) {
+            try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
+                TableBuilder tableBuilder = new TableBuilder(provider, this);
+                loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+            } catch (EOFException e) {
+                //
+            } catch (IOException e) {
+                //
+            } catch (IllegalArgumentException e) {
+                //
             }
+        }
         return oldData.get(key);
     }
 
@@ -322,22 +322,6 @@ public class DatabaseTable implements Table, AutoCloseable {
         Set<String> loadSet = new HashSet<>();
         loadSet.addAll(modifiedData.get().keySet());
         loadSet.addAll(deletedKeys.get());
-        for (String key : loadSet) {
-            File currentFile = getFileWithNum(getDirectoryNum(key), getFileNum(key));
-            File tmpFile = new File(currentFile.toString());
-            try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
-                TableBuilder tableBuilder = new TableBuilder(provider, this);
-                loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
-            } catch (EOFException e) {
-                //
-            } catch (IOException e) {
-                //
-            } catch (IllegalArgumentException e) {
-                //
-            }
-        }
-
-
         int recordsCommitted = 0;
         transactionLock.writeLock().lock();
         try {
@@ -350,14 +334,30 @@ public class DatabaseTable implements Table, AutoCloseable {
                     oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
                 }
             }
-            deletedKeys.get().clear();
-            modifiedData.get().clear();
-            TableBuilder tableBuilder = new TableBuilder(provider, this);
-            save(tableBuilder);
-            uncommittedChanges.set(0);
         } finally {
             transactionLock.writeLock().unlock();
         }
+        for (String key : loadSet) {
+            File currentFile = getFileWithNum(getDirectoryNum(key), getFileNum(key));
+            File tmpFile = new File(currentFile.toString());
+            try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
+                TableBuilder tableBuilder = new TableBuilder(provider, this);
+                loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+                TableBuilder tableBuilderSaver = new TableBuilder(provider, this);
+                save(tableBuilderSaver);
+            } catch (EOFException e) {
+                //
+            } catch (IOException e) {
+                //
+            } catch (IllegalArgumentException e) {
+                //
+            }
+        }
+
+        deletedKeys.get().clear();
+        modifiedData.get().clear();
+        uncommittedChanges.set(0);
+
         return recordsCommitted;
     }
 
