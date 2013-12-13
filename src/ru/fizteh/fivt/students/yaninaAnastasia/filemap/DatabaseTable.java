@@ -357,7 +357,7 @@ public class DatabaseTable implements Table, AutoCloseable {
                 TableBuilder tableBuilderSaver = new TableBuilder(provider, this);
                 save(tableBuilderSaver);
             } catch (EOFException e) {
-                //
+                //  bad
             } catch (IOException e) {
                 //
             } catch (IllegalArgumentException e) {
