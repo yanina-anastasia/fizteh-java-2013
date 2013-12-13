@@ -287,7 +287,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         Storeable oldValue = null;
         oldValue = modifiedData.get().get(key);
         if (oldValue == null && !deletedKeys.get().contains(key)) {
-            /*File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
+            File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
             if (!oldData.containsKey(key)) {
                 try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
                     TableBuilder tableBuilder = new TableBuilder(provider, this);
@@ -299,7 +299,7 @@ public class DatabaseTable implements Table, AutoCloseable {
                 } catch (IllegalArgumentException e) {
                     //
                 }
-            } */
+            }
             transactionLock.readLock().lock();
             try {
                 oldValue = oldData.get(key);
@@ -368,7 +368,8 @@ public class DatabaseTable implements Table, AutoCloseable {
             File currentFile = getFileWithNum(getDirectoryNum(key), getFileNum(key));
             File tmpFile = new File(currentFile.toString());
             try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
-
+                TableBuilder tableBuilder = new TableBuilder(provider, this);
+                oldData.putAll(loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder));
                 for (String keyToDelete : deletedKeys.get()) {
                     if (keyToDelete == key) {
                         oldData.remove(keyToDelete);
@@ -381,9 +382,6 @@ public class DatabaseTable implements Table, AutoCloseable {
                         }
                     }
                 }
-                TableBuilder tableBuilder = new TableBuilder(provider, this);
-                loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
-
 
                 TableBuilder tableBuilderSaver = new TableBuilder(provider, this);
                 save(tableBuilderSaver);
