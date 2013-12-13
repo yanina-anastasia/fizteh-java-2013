@@ -51,7 +51,7 @@ public class MyWordCounter implements WordCounter {
 
             if (!aggregate) {
                 if (mapOfWords.isEmpty()) {
-                    out.write(("file " + file.getName() + " is empty" + ls).getBytes(StandardCharsets.UTF_8));
+                    continue;
                 } else {
                     out.write((file.getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
                     printMap(mapOfWords, out);
