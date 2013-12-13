@@ -17,19 +17,24 @@ public class MyWordCounter implements WordCounter {
 
 
         for (int i = 0; i < files.size(); ++i) {
-            if (!files.get(i).exists()) {
+            File file = files.get(i);
+            if (file == null) {
+                throw new IllegalArgumentException("file is null");
+            }
+
+            if (!(file.exists())) {
                 if (!aggregate) {
-                    out.write((files.get(i).getName() + ": file not found" + ls).getBytes(StandardCharsets.UTF_8));
+                    out.write((file.getName() + ":" + ls + "file not found" + ls).getBytes(StandardCharsets.UTF_8));
                 }
                 continue;
             }
-            if (files.get(i).isHidden()) {
+            if (file.isHidden() || !(file.canRead())) {
                 if (!aggregate) {
-                    out.write((files.get(i).getName() + ": file not available" + ls).getBytes(StandardCharsets.UTF_8));
+                    out.write((file.getName() + ":" + ls + "file not available" + ls).getBytes(StandardCharsets.UTF_8));
                 }
                 continue;
             }
-            try (Scanner scanner = new Scanner(files.get(i))) {
+            try (Scanner scanner = new Scanner(file)) {
                 while (scanner.hasNextLine()) {
                     String str = scanner.nextLine();
                     String[] words = parse(str.trim());
@@ -46,9 +51,9 @@ public class MyWordCounter implements WordCounter {
 
             if (!aggregate) {
                 if (mapOfWords.isEmpty()) {
-                    out.write(("file " + files.get(i).getName() + " is empty" + ls).getBytes(StandardCharsets.UTF_8));
+                    out.write(("file " + file.getName() + " is empty" + ls).getBytes(StandardCharsets.UTF_8));
                 } else {
-                    out.write((files.get(i).getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
+                    out.write((file.getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
                     printMap(mapOfWords, out);
                     mapOfWords = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
                 }
@@ -76,13 +81,14 @@ public class MyWordCounter implements WordCounter {
         StringBuilder currentString = new StringBuilder("");
         for (int i = 0; i < s.length(); ++i) {
             char ch = s.charAt(i);
+
             if (Character.isLetterOrDigit(ch) && (Character.isLetterOrDigit(prevCh) || Character.isSpaceChar(prevCh))) {
                 currentString.append(ch);
                 prevCh = ch;
                 continue;
             }
             if (Character.isLetterOrDigit(ch) && prevCh == '-') {
-                if (!currentString.equals("")) {
+                if (!(currentString.length() == 0)) {
                     currentString.append("-");
                     currentString.append(ch);
                     prevCh = ch;

@@ -10,7 +10,7 @@ public class Main {
             System.err.println("WordCounter needs arguments");
             System.err.println("Arguments:");
             System.err.println("Paths to files: file1.txt test/file2.txt //for example...");
-            System.err.println("-o FILENAME if //you want to write results to file");
+            System.err.println("-o FILENAME //if you want to write results to file");
             System.err.println("-a //if you want to count number of words in all files");
             System.exit(1);
         }
@@ -70,7 +70,7 @@ public class Main {
         MyWordCounter counter = factory.create();
 
         if (output) {
-            if (outputIsFound) {
+            if (outputIsFound && !(outputFile == null)) {
                 try (OutputStream stream = new FileOutputStream(outputFile)) {
                     counter.count(files, stream, aggregate);
                 } catch (IllegalArgumentException | IOException e) {
