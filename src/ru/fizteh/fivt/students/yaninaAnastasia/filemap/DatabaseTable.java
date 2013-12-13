@@ -341,21 +341,19 @@ public class DatabaseTable implements Table, AutoCloseable {
             File currentFile = getFileWithNum(getDirectoryNum(key), getFileNum(key));
             File tmpFile = new File(currentFile.toString());
             try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
+
+                for (String keyToDelete : deletedKeys.get()) {
+                    oldData.remove(keyToDelete);
+                }
+                for (String keyToAdd : modifiedData.get().keySet()) {
+                    if (modifiedData.get().get(keyToAdd) != null) {
+                        oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
+                    }
+                }
                 TableBuilder tableBuilder = new TableBuilder(provider, this);
                 loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
-                transactionLock.writeLock().lock();
-                try {
-                    for (String keyToDelete : deletedKeys.get()) {
-                        oldData.remove(keyToDelete);
-                    }
-                    for (String keyToAdd : modifiedData.get().keySet()) {
-                        if (modifiedData.get().get(keyToAdd) != null) {
-                            oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
-                        }
-                    }
-                } finally {
-                    transactionLock.writeLock().unlock();
-                }
+
+
                 TableBuilder tableBuilderSaver = new TableBuilder(provider, this);
                 save(tableBuilderSaver);
             } catch (EOFException e) {
