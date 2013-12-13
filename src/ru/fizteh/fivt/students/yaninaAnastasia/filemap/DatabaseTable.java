@@ -111,9 +111,9 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
 
-    private HashMap<String, Storeable> loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j,
-                                                 TableBuilder tableBuilder) throws IllegalArgumentException, IOException {
-        HashMap<String, Storeable> result = new HashMap<String, Storeable>();
+    private Storeable loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j,
+                           TableBuilder tableBuilder, String nKey) throws IllegalArgumentException, IOException {
+        Storeable result = null;
         if (temp.length() == 0) {
             return result;
         }
@@ -148,9 +148,9 @@ public class DatabaseTable implements Table, AutoCloseable {
             byte[] bytes = new byte[len];
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
-            if (i == getDirectoryNum(key) && j == getFileNum(key)) {
+            if (i == getDirectoryNum(key) && j == getFileNum(key) && key == nKey) {
                 try {
-                    result.put(key, provider.deserialize(table, putValue));
+                result = provider.deserialize(table, putValue);
                 } catch (ParseException e) {
                     //
                 }
@@ -169,9 +169,9 @@ public class DatabaseTable implements Table, AutoCloseable {
         byte[] bytes = new byte[len];
         temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
-        if (i == getDirectoryNum(key) && j == getFileNum(key)) {
+        if (i == getDirectoryNum(key) && j == getFileNum(key) && nextKey == nKey) {
             try {
-                result.put(nextKey, provider.deserialize(table, putValue));
+                result = provider.deserialize(table, putValue);
             } catch (ParseException e) {
                 //
             }
@@ -179,6 +179,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             throw new IllegalArgumentException("File has incorrect format");
         }
         return result;
+
     }
 
 
@@ -188,22 +189,6 @@ public class DatabaseTable implements Table, AutoCloseable {
         File res = new File(curDir, tableName);
         res = new File(res, dirName);
         return new File(res, fileName);
-    }
-
-    public Storeable miniLoader(String key) {
-        File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
-        HashMap<String, Storeable> result = new HashMap<String, Storeable>();
-        try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
-            TableBuilder tableBuilder = new TableBuilder(provider, this);
-            result = loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
-        } catch (EOFException e) {
-            //
-        } catch (IOException e) {
-            //
-        } catch (IllegalArgumentException e) {
-            //
-        }
-        return result.get(key);
     }
 
 
@@ -225,7 +210,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (oldData.get(key) == null) {
             try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
                 TableBuilder tableBuilder = new TableBuilder(provider, this);
-                return loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder).get(key);
+                return loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder, key);
             } catch (EOFException e) {
                 //
             } catch (IOException e) {
@@ -291,7 +276,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             if (!oldData.containsKey(key)) {
                 try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
                     TableBuilder tableBuilder = new TableBuilder(provider, this);
-                    loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+                    oldValue = loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder, key);
                 } catch (EOFException e) {
                     //
                 } catch (IOException e) {
@@ -299,12 +284,6 @@ public class DatabaseTable implements Table, AutoCloseable {
                 } catch (IllegalArgumentException e) {
                     //
                 }
-            }
-            transactionLock.readLock().lock();
-            try {
-                oldValue = oldData.get(key);
-            } finally {
-                transactionLock.readLock().unlock();
             }
         }
         if (modifiedData.get().containsKey(key)) {
@@ -368,8 +347,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             File currentFile = getFileWithNum(getDirectoryNum(key), getFileNum(key));
             File tmpFile = new File(currentFile.toString());
             try (RandomAccessFile temp = new RandomAccessFile(tmpFile, "r")) {
-                TableBuilder tableBuilder = new TableBuilder(provider, this);
-                oldData.putAll(loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder));
+
                 for (String keyToDelete : deletedKeys.get()) {
                     if (keyToDelete == key) {
                         oldData.remove(keyToDelete);
@@ -382,6 +360,9 @@ public class DatabaseTable implements Table, AutoCloseable {
                         }
                     }
                 }
+                TableBuilder tableBuilder = new TableBuilder(provider, this);
+                oldData.put(key, loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder, key));
+
 
                 TableBuilder tableBuilderSaver = new TableBuilder(provider, this);
                 save(tableBuilderSaver);
