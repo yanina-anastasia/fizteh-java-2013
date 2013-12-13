@@ -10,3 +10,4 @@ public class MyWordCounterFactory implements WordCounterFactory {
         return new MyWordCounter();
     }
 }
+
