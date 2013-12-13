@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -110,10 +111,11 @@ public class DatabaseTable implements Table, AutoCloseable {
     }
 
 
-    private void loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j,
-                           TableBuilder tableBuilder) throws IllegalArgumentException, IOException {
+    private HashMap<String, Storeable> loadTable(RandomAccessFile temp, DatabaseTable table, int i, int j,
+                                                 TableBuilder tableBuilder) throws IllegalArgumentException, IOException {
+        HashMap<String, Storeable> result = new HashMap<String, Storeable>();
         if (temp.length() == 0) {
-            return;
+            return result;
         }
         long nextOffset = 0;
         temp.seek(0);
@@ -147,7 +149,11 @@ public class DatabaseTable implements Table, AutoCloseable {
             temp.read(bytes);
             String putValue = new String(bytes, StandardCharsets.UTF_8);
             if (i == getDirectoryNum(key) && j == getFileNum(key)) {
-                tableBuilder.put(key, putValue);
+                try {
+                    result.put(key, provider.deserialize(table, putValue));
+                } catch (ParseException e) {
+                    //
+                }
             } else {
                 throw new IllegalArgumentException("File has incorrect format");
             }
@@ -164,10 +170,15 @@ public class DatabaseTable implements Table, AutoCloseable {
         temp.read(bytes);
         String putValue = new String(bytes, StandardCharsets.UTF_8);
         if (i == getDirectoryNum(key) && j == getFileNum(key)) {
-            tableBuilder.put(nextKey, putValue);
+            try {
+                result.put(nextKey, provider.deserialize(table, putValue));
+            } catch (ParseException e) {
+                //
+            }
         } else {
             throw new IllegalArgumentException("File has incorrect format");
         }
+        return result;
     }
 
 
@@ -177,6 +188,22 @@ public class DatabaseTable implements Table, AutoCloseable {
         File res = new File(curDir, tableName);
         res = new File(res, dirName);
         return new File(res, fileName);
+    }
+
+    public Storeable miniLoader(String key) {
+        File currentFile = getFileWithNum(getFileNum(key), getDirectoryNum(key));
+        HashMap<String, Storeable> result = new HashMap<String, Storeable>();
+        try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
+            TableBuilder tableBuilder = new TableBuilder(provider, this);
+            result = loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+        } catch (EOFException e) {
+            //
+        } catch (IOException e) {
+            //
+        } catch (IllegalArgumentException e) {
+            //
+        }
+        return result.get(key);
     }
 
 
@@ -198,7 +225,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         if (oldData.get(key) == null) {
             try (RandomAccessFile temp = new RandomAccessFile(currentFile, "r")) {
                 TableBuilder tableBuilder = new TableBuilder(provider, this);
-                loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder);
+                return loadTable(temp, this, getDirectoryNum(key), getFileNum(key), tableBuilder).get(key);
             } catch (EOFException e) {
                 //
             } catch (IOException e) {
