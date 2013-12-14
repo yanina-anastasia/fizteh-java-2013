@@ -87,10 +87,10 @@ public class Main {
             System.err.println(e.getMessage());
             System.exit(1);
         } catch (FileNotFoundException e) {
-            System.err.println(e.getMessage());
+            System.err.println("Some input files are missing.");
             System.exit(1);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            System.err.println("Input / output error.");
             System.exit(1);
         } finally {
             if (output != null) {

@@ -4,7 +4,7 @@ import ru.fizteh.fivt.file.GrepFactory;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-class MyGrepFactory implements GrepFactory {
+public class MyGrepFactory implements GrepFactory {
     @Override
     public MyGrep create(String strPattern) {
         if (strPattern == null) {

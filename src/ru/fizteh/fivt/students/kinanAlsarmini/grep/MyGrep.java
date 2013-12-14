@@ -12,7 +12,7 @@ import java.io.FileReader;
 import java.util.List;
 import java.util.ArrayList;
 
-class MyGrep implements Grep {
+public class MyGrep implements Grep {
     private Pattern pattern;
     public MyGrep(Pattern pattern) {
         if (pattern == null) {
