@@ -53,21 +53,20 @@ public class MyGrep implements Grep {
         try (PrintWriter printer = new PrintWriter(output)) {
             for (File inputFile: inputFiles) {
                 printer.println(inputFile.getName() + ":");
+                if (!inputFile.exists()) {
+                    printer.println("file not found");
+                }
                 if (!inputFile.canRead()) {
                     printer.println("file not available");
                 } else {
-                    try {
-                        List<String> matches = find(inputFile, inverse);    
-
-                        if (matches.isEmpty()) {
-                            printer.println("no matches");
-                        } else {
-                            for (String match: matches) {
-                                printer.println(match);
-                            }
+                    List<String> matches = find(inputFile, inverse);    
+                    
+                    if (matches.isEmpty()) {
+                        printer.println("no matches");
+                    } else {
+                        for (String match: matches) {
+                            printer.println(match);
                         }
-                    } catch (FileNotFoundException e) {
-                        printer.println("file not found");
                     }
                 }
             }
