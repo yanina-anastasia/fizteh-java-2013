@@ -50,14 +50,9 @@ public class MyWordCounter implements WordCounter {
             }
 
             if (!aggregate) {
-                if (mapOfWords.isEmpty()) {
-                    continue;
-                } else {
-                    out.write((file.getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
-                    printMap(mapOfWords, out);
-                    mapOfWords = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-                }
-
+                out.write((file.getName() + ":" + ls).getBytes(StandardCharsets.UTF_8));
+                printMap(mapOfWords, out);
+                mapOfWords = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             }
         }
         if (aggregate) {
