@@ -14,6 +14,9 @@ public class MyWordCounter implements WordCounter {
         if (files.isEmpty()) {
             throw new IllegalArgumentException("files for counting not found");
         }
+        if (out == null) {
+            throw new IllegalArgumentException("output is null");
+        }
 
 
         for (int i = 0; i < files.size(); ++i) {

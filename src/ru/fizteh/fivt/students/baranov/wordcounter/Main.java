@@ -70,7 +70,7 @@ public class Main {
         MyWordCounter counter = factory.create();
 
         if (output) {
-            if (outputIsFound && !(outputFile == null)) {
+            if (outputIsFound) {
                 try (OutputStream stream = new FileOutputStream(outputFile)) {
                     counter.count(files, stream, aggregate);
                 } catch (IllegalArgumentException | IOException e) {
