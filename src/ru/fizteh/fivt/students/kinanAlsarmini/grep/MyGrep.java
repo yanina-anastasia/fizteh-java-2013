@@ -24,16 +24,20 @@ public class MyGrep implements Grep {
 
     private List<String> find(File inputFile, boolean inverse) throws IOException {
         List<String> matches = new ArrayList<String>();
-        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                Matcher matcher = pattern.matcher(line);
-                boolean found = matcher.find();
+        try {
+            try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    Matcher matcher = pattern.matcher(line);
+                    boolean found = matcher.find();
 
-                if ((!inverse && found) || (inverse && !found)) {
-                    matches.add(line);
+                    if ((!inverse && found) || (inverse && !found)) {
+                        matches.add(line);
+                    }
                 }
             }
+        } catch (FileNotFoundException e) {
+            throw new IllegalArgumentException("One of input files doesn't exist");
         }
 
         return matches;
