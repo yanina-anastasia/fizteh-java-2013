@@ -55,8 +55,7 @@ public class MyGrep implements Grep {
                 printer.println(inputFile.getName() + ":");
                 if (!inputFile.exists()) {
                     printer.println("file not found");
-                }
-                if (!inputFile.canRead()) {
+                } else if (!inputFile.canRead()) {
                     printer.println("file not available");
                 } else {
                     List<String> matches = find(inputFile, inverse);    
