@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -24,20 +25,16 @@ public class MyGrep implements Grep {
 
     private List<String> find(File inputFile, boolean inverse) throws IOException {
         List<String> matches = new ArrayList<String>();
-        try {
-            try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    Matcher matcher = pattern.matcher(line);
-                    boolean found = matcher.find();
-
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Matcher matcher = pattern.matcher(line);
+                boolean found = matcher.find();
                     if ((!inverse && found) || (inverse && !found)) {
-                        matches.add(line);
-                    }
+                    matches.add(line);
                 }
             }
-        } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("One of input files doesn't exist");
         }
 
         return matches;
@@ -56,14 +53,21 @@ public class MyGrep implements Grep {
         try (PrintWriter printer = new PrintWriter(output)) {
             for (File inputFile: inputFiles) {
                 printer.println(inputFile.getName() + ":");
-
-                List<String> matches = find(inputFile, inverse);
-
-                if (matches.isEmpty()) {
-                    printer.println("no matches");
+                if (!inputFile.canRead()) {
+                    printer.println("file not available");
                 } else {
-                    for (String match: matches) {
-                        printer.println(match);
+                    try {
+                        List<String> matches = find(inputFile, inverse);    
+
+                        if (matches.isEmpty()) {
+                            printer.println("no matches");
+                        } else {
+                            for (String match: matches) {
+                                printer.println(match);
+                            }
+                        }
+                    } catch (FileNotFoundException e) {
+                        printer.println("file not found");
                     }
                 }
             }
