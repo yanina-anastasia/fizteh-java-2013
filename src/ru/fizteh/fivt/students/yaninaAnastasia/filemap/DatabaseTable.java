@@ -14,9 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DatabaseTable implements Table, AutoCloseable {
     public HashMap<String, Storeable> oldData;
-    public ThreadLocal<HashMap<String, Storeable>> modifiedData;
-    public ThreadLocal<HashSet<String>> deletedKeys;
-    public ThreadLocal<Integer> uncommittedChanges;
+    public ThreadLocal<TransactionWithModifies> transaction;
     private String tableName;
     public List<Class<?>> columnTypes;
     DatabaseTableProvider provider;
@@ -28,27 +26,14 @@ public class DatabaseTable implements Table, AutoCloseable {
         isClosed = false;
         this.tableName = name;
         oldData = new HashMap<String, Storeable>();
-        modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
+        transaction = new ThreadLocal<TransactionWithModifies>() {
             @Override
-            public HashMap<String, Storeable> initialValue() {
-                return new HashMap<String, Storeable>();
-            }
-        };
-        deletedKeys = new ThreadLocal<HashSet<String>>() {
-            @Override
-            public HashSet<String> initialValue() {
-                return new HashSet<String>();
-            }
-        };
-        uncommittedChanges = new ThreadLocal<Integer>() {
-            @Override
-            public Integer initialValue() {
-                return new Integer(0);
+            public TransactionWithModifies initialValue() {
+                return new TransactionWithModifies();
             }
         };
         columnTypes = colTypes;
         provider = providerRef;
-        uncommittedChanges.set(0);
         for (final Class<?> columnType : columnTypes) {
             if (columnType == null || ColumnTypes.fromTypeToName(columnType) == null) {
                 throw new IllegalArgumentException("unknown column type");
@@ -62,25 +47,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         this.provider = other.provider;
         this.oldData = other.oldData;
         isClosed = false;
-        modifiedData = new ThreadLocal<HashMap<String, Storeable>>() {
-            @Override
-            public HashMap<String, Storeable> initialValue() {
-                return new HashMap<String, Storeable>();
-            }
-        };
-        deletedKeys = new ThreadLocal<HashSet<String>>() {
-            @Override
-            public HashSet<String> initialValue() {
-                return new HashSet<String>();
-            }
-        };
-        uncommittedChanges = new ThreadLocal<Integer>() {
-            @Override
-            public Integer initialValue() {
-                return new Integer(0);
-            }
-        };
-        uncommittedChanges.set(0);
+        this.transaction = other.transaction;
     }
 
     public static int getDirectoryNum(String key) {
@@ -107,10 +74,10 @@ public class DatabaseTable implements Table, AutoCloseable {
             throw new IllegalArgumentException("Table name cannot be null");
         }
 
-        if (modifiedData.get().containsKey(key)) {
-            return modifiedData.get().get(key);
+        if (transaction.get().modifiedData.containsKey(key)) {
+            return transaction.get().modifiedData.get(key);
         }
-        if (deletedKeys.get().contains(key)) {
+        if (transaction.get().deletedKeys.contains(key)) {
             return null;
         }
         transactionLock.readLock().lock();
@@ -145,8 +112,8 @@ public class DatabaseTable implements Table, AutoCloseable {
             }
         }
         Storeable oldValue = null;
-        oldValue = modifiedData.get().get(key);
-        if (oldValue == null && !deletedKeys.get().contains(key)) {
+        oldValue = transaction.get().modifiedData.get(key);
+        if (oldValue == null && !transaction.get().deletedKeys.contains(key)) {
             transactionLock.readLock().lock();
             try {
                 oldValue = oldData.get(key);
@@ -154,11 +121,11 @@ public class DatabaseTable implements Table, AutoCloseable {
                 transactionLock.readLock().unlock();
             }
         }
-        modifiedData.get().put(key, value);
-        if (deletedKeys.get().contains(key)) {
-            deletedKeys.get().remove(key);
+        transaction.get().modifiedData.put(key, value);
+        if (transaction.get().deletedKeys.contains(key)) {
+            transaction.get().deletedKeys.remove(key);
         }
-        uncommittedChanges.set(changesCount());
+        transaction.get().uncommittedChanges = changesCount();
         return oldValue;
     }
 
@@ -168,8 +135,8 @@ public class DatabaseTable implements Table, AutoCloseable {
             throw new IllegalArgumentException("Key name cannot be null");
         }
         Storeable oldValue = null;
-        oldValue = modifiedData.get().get(key);
-        if (oldValue == null && !deletedKeys.get().contains(key)) {
+        oldValue = transaction.get().modifiedData.get(key);
+        if (oldValue == null && !transaction.get().deletedKeys.contains(key)) {
             transactionLock.readLock().lock();
             try {
                 oldValue = oldData.get(key);
@@ -177,20 +144,20 @@ public class DatabaseTable implements Table, AutoCloseable {
                 transactionLock.readLock().unlock();
             }
         }
-        if (modifiedData.get().containsKey(key)) {
-            modifiedData.get().remove(key);
+        if (transaction.get().modifiedData.containsKey(key)) {
+            transaction.get().modifiedData.remove(key);
             transactionLock.readLock().lock();
             try {
                 if (oldData.containsKey(key)) {
-                    deletedKeys.get().add(key);
+                    transaction.get().deletedKeys.add(key);
                 }
             } finally {
                 transactionLock.readLock().unlock();
             }
         } else {
-            deletedKeys.get().add(key);
+            transaction.get().deletedKeys.add(key);
         }
-        uncommittedChanges.set(changesCount());
+        transaction.get().uncommittedChanges = changesCount();
         return oldValue;
     }
 
@@ -210,19 +177,19 @@ public class DatabaseTable implements Table, AutoCloseable {
         transactionLock.writeLock().lock();
         try {
             recordsCommitted = Math.abs(changesCount());
-            for (String keyToDelete : deletedKeys.get()) {
+            for (String keyToDelete : transaction.get().deletedKeys) {
                 oldData.remove(keyToDelete);
             }
-            for (String keyToAdd : modifiedData.get().keySet()) {
-                if (modifiedData.get().get(keyToAdd) != null) {
-                    oldData.put(keyToAdd, modifiedData.get().get(keyToAdd));
+            for (String keyToAdd : transaction.get().modifiedData.keySet()) {
+                if (transaction.get().modifiedData.get(keyToAdd) != null) {
+                    oldData.put(keyToAdd, transaction.get().modifiedData.get(keyToAdd));
                 }
             }
-            deletedKeys.get().clear();
-            modifiedData.get().clear();
+            transaction.get().deletedKeys.clear();
+            transaction.get().modifiedData.clear();
             TableBuilder tableBuilder = new TableBuilder(provider, this);
             save(tableBuilder);
-            uncommittedChanges.set(0);
+            transaction.get().uncommittedChanges = 0;
         } finally {
             transactionLock.writeLock().unlock();
         }
@@ -233,10 +200,10 @@ public class DatabaseTable implements Table, AutoCloseable {
         isCloseChecker();
         int recordsDeleted = Math.abs(changesCount());
 
-        deletedKeys.get().clear();
-        modifiedData.get().clear();
+        transaction.get().deletedKeys.clear();
+        transaction.get().modifiedData.clear();
 
-        uncommittedChanges.set(0);
+        transaction.get().uncommittedChanges = 0;
 
         return recordsDeleted;
     }
@@ -375,12 +342,12 @@ public class DatabaseTable implements Table, AutoCloseable {
     private int changesCount() {
         HashSet<String> tempSet = new HashSet<>();
         HashSet<String> toRemove = new HashSet<>();
-        tempSet.addAll(modifiedData.get().keySet());
-        tempSet.addAll(deletedKeys.get());
+        tempSet.addAll(transaction.get().modifiedData.keySet());
+        tempSet.addAll(transaction.get().deletedKeys);
         transactionLock.readLock().lock();
         try {
             for (String key : tempSet) {
-                if (tempSet.contains(key) && compare(oldData.get(key), modifiedData.get().get(key))) {
+                if (tempSet.contains(key) && compare(oldData.get(key), transaction.get().modifiedData.get(key))) {
                     toRemove.add(key);
                 }
             }
@@ -392,7 +359,7 @@ public class DatabaseTable implements Table, AutoCloseable {
 
     private int diffSize() {
         int result = 0;
-        for (final String key : modifiedData.get().keySet()) {
+        for (final String key : transaction.get().modifiedData.keySet()) {
             Storeable oldValue;
             transactionLock.readLock().lock();
             try {
@@ -400,12 +367,12 @@ public class DatabaseTable implements Table, AutoCloseable {
             } finally {
                 transactionLock.readLock().unlock();
             }
-            Storeable newValue = modifiedData.get().get(key);
+            Storeable newValue = transaction.get().modifiedData.get(key);
             if (oldValue == null && newValue != null) {
                 result += 1;
             }
         }
-        for (final String key : deletedKeys.get()) {
+        for (final String key : transaction.get().deletedKeys) {
             transactionLock.readLock().lock();
             try {
                 if (oldData.containsKey(key)) {
@@ -418,7 +385,7 @@ public class DatabaseTable implements Table, AutoCloseable {
         return result;
     }
 
-    private boolean compare(Storeable key1, Storeable key2) {
+    public static boolean compare(Storeable key1, Storeable key2) {
         if (key1 == null && key2 == null) {
             return true;
         }
@@ -474,5 +441,13 @@ public class DatabaseTable implements Table, AutoCloseable {
         }
         rollback();
         isClosed = true;
+    }
+
+    public void defineTransaction(TransactionWithModifies transaction) {
+        this.transaction.set(transaction);
+    }
+
+    public TransactionWithModifies getTransaction() {
+        return this.transaction.get();
     }
 }
