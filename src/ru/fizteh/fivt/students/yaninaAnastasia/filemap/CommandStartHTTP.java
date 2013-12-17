@@ -19,9 +19,9 @@ public class CommandStartHTTP extends Command {
                 int port = Integer.parseInt(args[0]);
                 myState.server.start(port);
             }
-            System.out.println(String.format("Server was started at port " + myState.server.getPortNumber()));
+            System.out.println(String.format("started at " + myState.server.getPortNumber()));
         } catch (Exception e) {
-            System.out.println("Server was not started: " + e.getMessage());
+            System.out.println("not started: " + e.getMessage());
             return false;
         }
         return true;
