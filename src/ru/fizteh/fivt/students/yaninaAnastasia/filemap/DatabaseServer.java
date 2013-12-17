@@ -53,4 +53,8 @@ public class DatabaseServer {
         }
         server = null;
     }
+
+    public boolean isStarted() {
+        return server.isStarted();
+    }
 }
