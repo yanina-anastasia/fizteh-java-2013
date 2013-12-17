@@ -16,14 +16,9 @@ public class CommandSizeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (request.getParameterMap().isEmpty())
-        {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no table name");
-            return;
-        }
         String transactionId = request.getParameter("tid");
         if (transactionId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "There is no transaction id");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no transaction id");
             return;
         }
 
