@@ -18,13 +18,13 @@ public class CommandSizeServlet extends HttpServlet {
             throws ServletException, IOException {
         String transactionId = request.getParameter("tid");
         if (transactionId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "There is no transaction id");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no transaction id");
             return;
         }
 
         Transaction transaction = worker.getTransaction(transactionId);
         if (transaction == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Transaction was not found");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Transaction was not found");
             return;
         }
 

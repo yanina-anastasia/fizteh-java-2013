@@ -18,7 +18,7 @@ public class CommandBeginServlet extends HttpServlet {
             throws ServletException, IOException {
         String name = request.getParameter("table");
         if (name == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "There is no table name");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no table name");
             return;
         }
         String tId = manager.startTransaction(name);

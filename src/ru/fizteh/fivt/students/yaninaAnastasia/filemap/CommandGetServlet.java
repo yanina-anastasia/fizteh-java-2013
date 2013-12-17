@@ -19,19 +19,19 @@ public class CommandGetServlet extends HttpServlet {
             throws ServletException, IOException {
         String transactionId = request.getParameter("tid");
         if (transactionId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "There is no transaction id");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no transaction id");
             return;
         }
 
         String key = request.getParameter("key");
         if (key == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Key expected");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Key expected");
             return;
         }
 
         Transaction transaction = worker.getTransaction(transactionId);
         if (transaction == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Transaction was not found");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Transaction was not found");
             return;
         }
 
@@ -42,7 +42,7 @@ public class CommandGetServlet extends HttpServlet {
             response.setCharacterEncoding("UTF8");
             response.getWriter().println(value);
         } catch (IllegalArgumentException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
