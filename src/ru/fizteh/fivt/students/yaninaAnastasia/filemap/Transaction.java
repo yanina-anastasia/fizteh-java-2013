@@ -60,10 +60,11 @@ public class Transaction {
     public String put(String key, String value) throws IOException {
         table.defineTransaction(curChanges);
         try {
-            Storeable oldValue = table.put(key, provider.deserialize(table, value));
-            if (oldValue == null) {
-                return "new";
+            if (table.get(key) == null)
+            {
+                throw new IllegalArgumentException("key not found");
             }
+            Storeable oldValue = table.put(key, provider.deserialize(table, value));
             return provider.serialize(table, oldValue);
         } catch (ParseException e) {
             throw new IOException("Error with serialization");

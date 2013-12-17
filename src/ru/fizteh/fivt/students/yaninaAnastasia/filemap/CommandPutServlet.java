@@ -45,6 +45,8 @@ public class CommandPutServlet extends HttpServlet {
             response.setContentType("text/plain");
             response.setCharacterEncoding("UTF8");
             response.getWriter().println(oldValue);
+        } catch (IllegalArgumentException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (IOException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
