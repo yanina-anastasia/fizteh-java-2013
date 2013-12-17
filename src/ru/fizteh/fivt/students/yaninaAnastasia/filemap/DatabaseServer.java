@@ -49,7 +49,7 @@ public class DatabaseServer {
         try {
             server.stop();
         } catch (Exception e) {
-
+            //
         }
         server = null;
     }
