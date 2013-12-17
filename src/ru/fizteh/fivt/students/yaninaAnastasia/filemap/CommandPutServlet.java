@@ -18,19 +18,19 @@ public class CommandPutServlet extends HttpServlet {
             throws ServletException, IOException {
         String transactionId = request.getParameter("tid");
         if (transactionId == null) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no transaction id");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "There is no transaction id");
             return;
         }
 
         String key = request.getParameter("key");
         if (key == null) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Key expected");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Key expected");
             return;
         }
 
         String value = request.getParameter("value");
         if (value == null) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
 
         Transaction transaction = worker.getTransaction(transactionId);

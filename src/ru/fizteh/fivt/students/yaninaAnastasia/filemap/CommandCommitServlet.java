@@ -18,7 +18,7 @@ public class CommandCommitServlet extends HttpServlet {
             throws ServletException, IOException {
         String transactionId = request.getParameter("tid");
         if (transactionId == null) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no transaction id");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "There is no transaction id");
             return;
         }
 
