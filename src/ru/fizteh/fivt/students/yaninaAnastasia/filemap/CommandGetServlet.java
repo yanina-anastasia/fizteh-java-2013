@@ -37,17 +37,12 @@ public class CommandGetServlet extends HttpServlet {
 
         try {
             String value = transaction.get(key);
-            if (value == null)
-            {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Key not found");
-                return;
-            }
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("text/plain");
             response.setCharacterEncoding("UTF8");
             response.getWriter().println(value);
         } catch (IllegalArgumentException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
