@@ -13,7 +13,7 @@ public class CommandStopHTTP extends Command {
         }
 
         try {
-            String stopText = String.format("Server was stopped at port " + myState.server.getPortNumber());
+            String stopText = String.format("stopped at " + myState.server.getPortNumber());
             myState.server.stop();
             System.out.println(stopText);
         } catch (IllegalStateException e) {
