@@ -35,7 +35,7 @@ public class CommandPutServlet extends HttpServlet {
 
         Transaction transaction = worker.getTransaction(transactionId);
         if (transaction == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Transaction was not found");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Transaction not found");
             return;
         }
 
@@ -47,8 +47,6 @@ public class CommandPutServlet extends HttpServlet {
             response.getWriter().println(oldValue);
         } catch (IllegalArgumentException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        } catch (IOException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }

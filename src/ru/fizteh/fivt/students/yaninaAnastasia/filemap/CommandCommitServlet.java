@@ -7,10 +7,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class CommandCommitServlet extends HttpServlet {
-    private TransactionWorker manager;
+    private TransactionWorker worker;
 
-    public CommandCommitServlet(TransactionWorker manager) {
-        this.manager = manager;
+    public CommandCommitServlet(TransactionWorker worker) {
+        this.worker = worker;
     }
 
     @Override
@@ -18,24 +18,22 @@ public class CommandCommitServlet extends HttpServlet {
             throws ServletException, IOException {
         String transactionId = request.getParameter("tid");
         if (transactionId == null) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no transaction id");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Transaction id expected");
             return;
         }
 
-        Transaction transaction = manager.getTransaction(transactionId);
+        Transaction transaction = worker.getTransaction(transactionId);
         if (transaction == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Transaction was not found");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Transaction not found");
             return;
         }
 
-        try {
-            int diff = transaction.commit();
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("text/plain");
-            response.setCharacterEncoding("UTF8");
-            response.getWriter().println("diff=" + diff);
-        } catch (IOException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        int result = transaction.commit();
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF8");
+
+        response.getWriter().println(String.format("diff=" + result));
     }
 }

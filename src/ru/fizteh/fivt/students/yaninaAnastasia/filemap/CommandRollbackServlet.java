@@ -18,24 +18,20 @@ public class CommandRollbackServlet extends HttpServlet {
             throws ServletException, IOException {
         String transactionId = request.getParameter("tid");
         if (transactionId == null) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There is no transaction id");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Transaction id expected");
             return;
         }
 
         Transaction transaction = worker.getTransaction(transactionId);
         if (transaction == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Transaction was not found");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Transaction not found");
             return;
         }
 
-        try {
-            int diff = transaction.rollback();
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setContentType("text/plain");
-            response.setCharacterEncoding("UTF8");
-            response.getWriter().println(String.format("diff=" + diff));
-        } catch (IOException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        int result = transaction.rollback();
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF8");
+        response.getWriter().println(String.format("diff=" + result));
     }
 }
