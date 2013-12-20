@@ -32,7 +32,6 @@ public class StartFileMap {
 
         cmdList.add(new CommandStartHTTP());
         cmdList.add(new CommandStopHTTP());
-        cmdList.add(new CommandExit());
         cmdList.add(new CommandPut());
         cmdList.add(new CommandGet());
         cmdList.add(new CommandRemove());
@@ -42,6 +41,7 @@ public class StartFileMap {
         cmdList.add(new CommandCommit());
         cmdList.add(new CommandRollback());
         cmdList.add(new CommandSize());
+        cmdList.add(new CommandExit());
 
         shell.fillHashMap(cmdList);
 

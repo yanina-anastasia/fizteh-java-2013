@@ -382,7 +382,6 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
                     }
                 }
             }
-            loadingTable.transaction.get().uncommittedChanges = 0;
             tables.put(curTableName, loadingTable);
         }
         curTable = null;

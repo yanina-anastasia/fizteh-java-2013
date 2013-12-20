@@ -11,9 +11,13 @@ public class CommandStopHTTP extends Command {
         if (args.length > 0) {
             throw new IllegalArgumentException("Illegal arguments");
         }
+        if (!myState.server.isStarted()) {
+            System.out.println("not started");
+            return true;
+        }
 
         try {
-            String stopText = String.format("stopped at " + myState.server.getPortNumber());
+            String stopText = "stopped at " + myState.server.getPortNumber();
             myState.server.stop();
             System.out.println(stopText);
         } catch (IllegalStateException e) {
