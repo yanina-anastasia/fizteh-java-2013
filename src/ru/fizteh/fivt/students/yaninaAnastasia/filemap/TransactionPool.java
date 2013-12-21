@@ -19,8 +19,8 @@ public class TransactionPool {
     }
 
     public TransactionWithModifies getTransaction(Long id) {
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
             return pool.get(id);
         } finally {
             lock.readLock().unlock();
@@ -28,8 +28,8 @@ public class TransactionPool {
     }
 
     public long createTransaction() {
+        lock.writeLock().lock();
         try {
-            lock.writeLock().lock();
             long id = counter++;
             pool.put(id, new TransactionWithModifies());
             return id;
