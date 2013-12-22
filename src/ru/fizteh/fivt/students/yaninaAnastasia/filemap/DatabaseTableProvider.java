@@ -1,9 +1,6 @@
 package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
-import ru.fizteh.fivt.storage.structured.ColumnFormatException;
-import ru.fizteh.fivt.storage.structured.Storeable;
-import ru.fizteh.fivt.storage.structured.Table;
-import ru.fizteh.fivt.storage.structured.TableProvider;
+import ru.fizteh.fivt.storage.structured.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -14,12 +11,13 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DatabaseTableProvider implements TableProvider, AutoCloseable {
+public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
     public DatabaseTable curTable = null;
     HashMap<String, DatabaseTable> tables = new HashMap<String, DatabaseTable>();
     String curDir;
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
     volatile boolean isClosed;
+    HashMap<String, DatabaseIndex> indexMap = new HashMap<String, DatabaseIndex>();
 
     public DatabaseTableProvider(String directory) {
         isClosed = false;
@@ -290,12 +288,90 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
         return new File(res, fileName);
     }
 
+    public static Object typesParser(String value, Class type) {
+        switch (type.toString()) {
+            case "class java.lang.Long":
+                return Long.parseLong(value);
+            case "class java.lang.Integer":
+                return Integer.parseInt(value);
+            case "class java.lang.Double":
+                return Double.parseDouble(value);
+            case "class java.lang.Float":
+                return Float.parseFloat(value);
+            case "class java.lang.Boolean":
+                return Boolean.parseBoolean(value);
+            default:
+                return null;
+        }
+    }
+
     public boolean open() {
         File databaseDirectory = new File(curDir);
         String curTableName;
         DatabaseTable loadingTable;
         for (File table : databaseDirectory.listFiles()) {
             curTableName = table.getName();
+            if (curTableName.equals("indexes")) {
+                File indexDir = new File(databaseDirectory, "indexes");
+                if (indexDir.listFiles().length == 0) {
+                    throw new IllegalArgumentException("Invalid index database");
+                }
+                for (File indexTable : indexDir.listFiles()) {
+                    if (indexTable.listFiles().length == 0) {
+                        throw new IllegalArgumentException("Invalid index database");
+                    }
+                    File indexInfoFile = new File(indexTable, "indexInfo.tsv");
+                    String indexInfo = null;
+                    if (!indexInfoFile.exists()) {
+                        throw new IllegalArgumentException("Invalid index database");
+                    }
+                    if (indexInfoFile.length() == 0) {
+                        throw new IllegalArgumentException("Invalid index database");
+                    }
+                    try (BufferedReader reader = new BufferedReader(new FileReader(indexInfoFile))) {
+                        indexInfo = reader.readLine();
+                    } catch (IOException e) {
+                        System.err.println("error loading index info file");
+                        throw new IllegalArgumentException("Invalid index database");
+                    }
+                    String[] indexArgs = indexInfo.split("\\s");
+
+
+                    Class type = tables.get(indexArgs[0]).getColumnType(Integer.parseInt(indexArgs[1]));
+                    File indexTableFile = new File(indexTable, "indexTable.tsv");
+                    String indexStorage = "";
+                    if (!indexTableFile.exists()) {
+                        throw new IllegalArgumentException("Invalid index database");
+                    }
+                    try (BufferedReader reader = new BufferedReader(new FileReader(indexTableFile))) {
+                        String value = reader.readLine();
+                        while (value != null) {
+                            indexStorage += value + " ";
+                            value = reader.readLine();
+                        }
+                    } catch (IOException e) {
+                        System.err.println("error loading index info file");
+                        throw new IllegalArgumentException("Invalid index database");
+                    }
+                    HashMap<Object, String> indexes = new HashMap<Object, String>();
+                    String[] indTemp = indexStorage.trim().split("\\s");
+                    for (int i = 0; i < indTemp.length; i++) {
+                        if (indTemp[i + 1] == null) {
+                            throw  new IllegalArgumentException("Index has wrong type");
+                        }
+                        Object val = null;
+                        if (type == String.class) {
+                            val = indTemp[i];
+                        } else {
+                            val =  typesParser(indTemp[i], type);
+                        }
+                        indexes.put(val, indTemp[i + 1]);
+                        i++;
+                    }
+                    indexMap.put(indexTable.toString(), new DatabaseIndex(tables.get(indexArgs[0]),
+                            Integer.getInteger(indexArgs[1]), indexTable.toString(), indexes));
+                }
+            } else {
             List<Class<?>> zeroList = new ArrayList<Class<?>>();
             curTable = new DatabaseTable(curTableName, zeroList, this);
             loadingTable = new DatabaseTable(curTableName, zeroList, this);
@@ -384,6 +460,7 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             }
             tables.put(curTableName, loadingTable);
         }
+        }
         curTable = null;
         return true;
     }
@@ -469,5 +546,40 @@ public class DatabaseTableProvider implements TableProvider, AutoCloseable {
             tables.get(tableName).close();
         }
         isClosed = true;
+    }
+
+
+    public DatabaseIndex createIndex(Table table, int column, String name) {
+        DatabaseTable myTable = DatabaseTable.class.cast(table);
+        ArrayList elements = new ArrayList();
+        for (String key : myTable.oldData.keySet()) {
+            if (myTable.get(key).getColumnAt(column) == null) {
+                System.out.println("There is null element. Index can't be produced");
+                return null;
+            }
+            if (elements.contains(myTable.get(key).getColumnAt(column))) {
+                System.out.println("There are two equal elements. Index can't be produced");
+                return null;
+            } else {
+                elements.add(myTable.get(key).getColumnAt(column));
+            }
+        }
+        if (name.equals(myTable.getName())) {
+            System.out.println("The index name and the table name are the same. Index can't be produced");
+            return null;
+        }
+
+        HashMap<Object, String> newIndex = new HashMap<Object, String>();
+        for (String key: tables.get(table.getName()).oldData.keySet()) {
+            Object value = tables.get(table.getName()).oldData.get(key).getColumnAt(column);
+            newIndex.put(value, key);
+        }
+        DatabaseIndex index = new DatabaseIndex(myTable, column, name, newIndex);
+        indexMap.put(name, index);
+        return index;
+    }
+
+    public DatabaseIndex getIndex(String name) {
+        return indexMap.get(name);
     }
 }
