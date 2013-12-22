@@ -554,19 +554,16 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
         ArrayList elements = new ArrayList();
         for (String key : myTable.oldData.keySet()) {
             if (myTable.get(key).getColumnAt(column) == null) {
-                System.out.println("There is null element. Index can't be produced");
-                return null;
+                throw new IllegalStateException("The column contains null elements");
             }
             if (elements.contains(myTable.get(key).getColumnAt(column))) {
-                System.out.println("There are two equal elements. Index can't be produced");
-                return null;
+                throw new IllegalStateException("The column contains equal elements");
             } else {
                 elements.add(myTable.get(key).getColumnAt(column));
             }
         }
         if (name.equals(myTable.getName())) {
-            System.out.println("The index name and the table name are the same. Index can't be produced");
-            return null;
+            throw new IllegalStateException("The index name equals the table name");
         }
 
         HashMap<Object, String> newIndex = new HashMap<Object, String>();

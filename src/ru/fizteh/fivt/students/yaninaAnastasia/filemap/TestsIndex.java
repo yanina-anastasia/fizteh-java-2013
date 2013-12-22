@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import ru.fizteh.fivt.storage.strings.TableProvider;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.storage.structured.Table;
 import ru.fizteh.fivt.storage.structured.TableProviderFactory;
@@ -136,5 +135,72 @@ public class TestsIndex {
     public void testGetColumn() {
         DatabaseIndex testIndexOne = provider.createIndex(multiColumnTable, 1, "testIndexOne");
         Assert.assertEquals(testIndexOne.column, 1);
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void createIndexWithNullElements() {
+        multiColumnTable.put("key_1", makeMultiStoreable(3, null, 3.0));
+        multiColumnTable.put("key_2", makeMultiStoreable(1, "Null", 10.0));
+        multiColumnTable.put("key_3", makeMultiStoreable(8, null, 5.0));
+        try {
+            multiColumnTable.commit();
+        } catch (IOException e) {
+            //
+        }
+        provider.createIndex(multiColumnTable, 1, "testNullIndex");
+        multiColumnTable.remove("key_1");
+        multiColumnTable.remove("key_2");
+        multiColumnTable.remove("key_3");
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void createIndexWithTheSameElements() {
+        multiColumnTable.put("key_1", makeMultiStoreable(3, "First", 3.0));
+        multiColumnTable.put("key_2", makeMultiStoreable(1, "Second", 10.0));
+        multiColumnTable.put("key_3", makeMultiStoreable(8, "First", 5.0));
+        try {
+            multiColumnTable.commit();
+        } catch (IOException e) {
+            //
+        }
+        provider.createIndex(multiColumnTable, 1, "testTheSameElementsIndex");
+        multiColumnTable.remove("key_1");
+        multiColumnTable.remove("key_2");
+        multiColumnTable.remove("key_3");
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void createIndexWithWrongName() {
+        multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
+        multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
+        multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
+        try {
+            multiColumnTable.commit();
+        } catch (IOException e) {
+            //
+        }
+        provider.createIndex(multiColumnTable, 1, "MultiColumnTable");
+        multiColumnTable.remove("key_1");
+        multiColumnTable.remove("key_2");
+        multiColumnTable.remove("key_3");
+    }
+
+    @Test
+    public void createIndexEmptyTable() {
+        multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
+        multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
+        multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
+        DatabaseIndex index = provider.createIndex(multiColumnTable, 1, "testTheSameElementsIndex");
+        Assert.assertEquals(index.get("First"), null);
+        try {
+            multiColumnTable.commit();
+        } catch (IOException e) {
+            //
+        }
+        Assert.assertEquals(provider.indexMap.get("testTheSameElementsIndex").get("First"),
+                multiColumnTable.get("key_1"));
+        multiColumnTable.remove("key_1");
+        multiColumnTable.remove("key_2");
+        multiColumnTable.remove("key_3");
     }
 }

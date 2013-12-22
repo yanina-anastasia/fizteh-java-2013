@@ -12,7 +12,7 @@ public class DatabaseIndex implements Index {
     HashMap<Object, String> indexes;
     DatabaseTableProvider provider;
 
-    DatabaseIndex (DatabaseTable table, int column, String name, HashMap<Object, String> indexes) {
+    DatabaseIndex(DatabaseTable table, int column, String name, HashMap<Object, String> indexes) {
         this.indexTable = table;
         this.column = column;
         this.indexName = name;

@@ -201,8 +201,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             transaction.uncommittedChanges = 0;
             for (String name : provider.indexMap.keySet()) {
                 if (provider.indexMap.get(name).indexTable.getName().equals(this.getName())) {
-                    provider.createIndex(provider.indexMap.get(name).indexTable,
-                            provider.indexMap.get(name).column, name);
+                    provider.createIndex(this, provider.indexMap.get(name).column, name);
                 }
             }
             if (!indexSave()) {
