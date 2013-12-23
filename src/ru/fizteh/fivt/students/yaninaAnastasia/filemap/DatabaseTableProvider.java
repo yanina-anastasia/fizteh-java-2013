@@ -289,25 +289,25 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
     }
 
     public static Object typesParser(String value, Class type) {
-        if (type.toString().equals("class java.lang.Long")) {
+        if (type.equals(Long.class)) {
             return Long.parseLong(value);
         }
-        if (type.toString().equals("class java.lang.Integer")) {
+        if (type.equals(Integer.class)) {
             return Integer.parseInt(value);
         }
-        if (type.toString().equals("class java.lang.Double")) {
+        if (type.equals(Double.class)) {
             return Double.parseDouble(value);
         }
-        if (type.toString().equals("class java.lang.Float")) {
+        if (type.equals(Float.class)) {
             return Float.parseFloat(value);
         }
-        if (type.toString().equals("class java.lang.Boolean")) {
+        if (type.equals(Boolean.class)) {
             return Boolean.parseBoolean(value);
         }
-        if (type.toString().equals("class java.lang.Byte")) {
+        if (type.equals(Byte.class)) {
             return Byte.parseByte(value);
         }
-        if (type.toString().equals("class java.lang.Short")) {
+        if (type.equals(Short.class)) {
             return Short.parseShort(value);
         }
         return null;
