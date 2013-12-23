@@ -200,7 +200,8 @@ public class DatabaseTable implements Table, AutoCloseable {
             save(tableBuilder);
             transaction.uncommittedChanges = 0;
             for (String name : provider.indexMap.keySet()) {
-                if (provider.indexMap.get(name).indexTable.getName().equals(this.getName())) {
+                if ((provider.indexMap.get(name).indexTable.getName().equals(this.getName()))
+                        && (recordsCommitted != 0)) {
                     provider.createIndex(this, provider.indexMap.get(name).column, name);
                 }
             }
@@ -262,7 +263,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             }
         }
         if (!indexDir.mkdir()) {
-            System.out.println("Error making directory");
+            System.err.println("Error making directory");
             return false;
         }
 
@@ -270,7 +271,7 @@ public class DatabaseTable implements Table, AutoCloseable {
             if (provider.indexMap.get(key).indexTable.getName().equals(this.getName())) {
                 File indexTable = new File(indexDir, key);
                 if (!indexTable.mkdir()) {
-                    System.out.println("Error making directory");
+                    System.err.println("Error making directory");
                     return false;
                 }
                 File tableInfo = new File(indexTable, "indexInfo.tsv");

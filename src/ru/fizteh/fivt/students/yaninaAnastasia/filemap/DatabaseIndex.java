@@ -4,13 +4,15 @@ import ru.fizteh.fivt.storage.structured.Index;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
 import java.util.HashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DatabaseIndex implements Index {
     DatabaseTable indexTable;
     int column;
     String indexName;
     HashMap<Object, String> indexes;
-    DatabaseTableProvider provider;
+    ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     DatabaseIndex(DatabaseTable table, int column, String name, HashMap<Object, String> indexes) {
         this.indexTable = table;
@@ -25,14 +27,21 @@ public class DatabaseIndex implements Index {
 
     public Storeable get(String key) {
         Object myKey = null;
-        if (indexTable.getColumnType(column).equals(String.class)) {
-            myKey = key;
-        } else {
-            myKey = DatabaseTableProvider.typesParser(key, indexTable.getColumnType(column));
+        Storeable result = null;
+        lock.readLock().lock();
+        try {
+            if (indexTable.getColumnType(column).equals(String.class)) {
+                myKey = key;
+            } else {
+                myKey = DatabaseTableProvider.typesParser(key, indexTable.getColumnType(column));
+            }
+            if (indexes.get(myKey) == null) {
+                return null;
+            }
+            result = indexTable.get(indexes.get(myKey));
+        } finally {
+            lock.readLock().unlock();
         }
-        if (indexes.get(myKey) == null) {
-            return null;
-        }
-        return indexTable.get(indexes.get(myKey));
+        return result;
     }
 }

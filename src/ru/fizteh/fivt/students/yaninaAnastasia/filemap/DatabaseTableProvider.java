@@ -289,20 +289,28 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
     }
 
     public static Object typesParser(String value, Class type) {
-        switch (type.toString()) {
-            case "class java.lang.Long":
-                return Long.parseLong(value);
-            case "class java.lang.Integer":
-                return Integer.parseInt(value);
-            case "class java.lang.Double":
-                return Double.parseDouble(value);
-            case "class java.lang.Float":
-                return Float.parseFloat(value);
-            case "class java.lang.Boolean":
-                return Boolean.parseBoolean(value);
-            default:
-                return null;
+        if (type.toString().equals("class java.lang.Long")) {
+            return Long.parseLong(value);
         }
+        if (type.toString().equals("class java.lang.Integer")) {
+            return Integer.parseInt(value);
+        }
+        if (type.toString().equals("class java.lang.Double")) {
+            return Double.parseDouble(value);
+        }
+        if (type.toString().equals("class java.lang.Float")) {
+            return Float.parseFloat(value);
+        }
+        if (type.toString().equals("class java.lang.Boolean")) {
+            return Boolean.parseBoolean(value);
+        }
+        if (type.toString().equals("class java.lang.Byte")) {
+            return Byte.parseByte(value);
+        }
+        if (type.toString().equals("class java.lang.Short")) {
+            return Short.parseShort(value);
+        }
+        return null;
     }
 
     public boolean open() {
@@ -357,13 +365,13 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
                     String[] indTemp = indexStorage.trim().split("\\s");
                     for (int i = 0; i < indTemp.length; i++) {
                         if (indTemp[i + 1] == null) {
-                            throw  new IllegalArgumentException("Index has wrong type");
+                            throw new IllegalArgumentException("Index has wrong type");
                         }
                         Object val = null;
                         if (type == String.class) {
                             val = indTemp[i];
                         } else {
-                            val =  typesParser(indTemp[i], type);
+                            val = typesParser(indTemp[i], type);
                         }
                         indexes.put(val, indTemp[i + 1]);
                         i++;
@@ -372,94 +380,94 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
                             Integer.getInteger(indexArgs[1]), indexTable.toString(), indexes));
                 }
             } else {
-            List<Class<?>> zeroList = new ArrayList<Class<?>>();
-            curTable = new DatabaseTable(curTableName, zeroList, this);
-            loadingTable = new DatabaseTable(curTableName, zeroList, this);
-            File preSignature = new File(curDir, curTableName);
-            if (preSignature.listFiles().length == 0) {
-                throw new IllegalArgumentException("Invalid database");
-            }
-            File signatureFile = new File(preSignature, "signature.tsv");
-            String signature = null;
-            if (!signatureFile.exists()) {
-                throw new IllegalArgumentException("Invalid database");
-            }
-            if (signatureFile.length() == 0) {
-                throw new IllegalArgumentException("Invalid database");
-            }
-            try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile))) {
-                signature = reader.readLine();
-            } catch (IOException e) {
-                System.err.println("error loading signature file");
-                throw new IllegalArgumentException("Invalid database");
-            }
-            List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-            for (final String columnType : signature.split("\\s")) {
-                Class<?> type = ColumnTypes.fromNameToType(columnType);
-                if (type == null) {
-                    throw new IllegalArgumentException("unknown type");
+                List<Class<?>> zeroList = new ArrayList<Class<?>>();
+                curTable = new DatabaseTable(curTableName, zeroList, this);
+                loadingTable = new DatabaseTable(curTableName, zeroList, this);
+                File preSignature = new File(curDir, curTableName);
+                if (preSignature.listFiles().length == 0) {
+                    throw new IllegalArgumentException("Invalid database");
                 }
-                columnTypes.add(type);
-            }
-            loadingTable.columnTypes = columnTypes;
-            File[] files = new File(curDir, curTableName).listFiles();
-            for (File step : files) {
-                if (step.isFile()) {
+                File signatureFile = new File(preSignature, "signature.tsv");
+                String signature = null;
+                if (!signatureFile.exists()) {
+                    throw new IllegalArgumentException("Invalid database");
+                }
+                if (signatureFile.length() == 0) {
+                    throw new IllegalArgumentException("Invalid database");
+                }
+                try (BufferedReader reader = new BufferedReader(new FileReader(signatureFile))) {
+                    signature = reader.readLine();
+                } catch (IOException e) {
+                    System.err.println("error loading signature file");
+                    throw new IllegalArgumentException("Invalid database");
+                }
+                List<Class<?>> columnTypes = new ArrayList<Class<?>>();
+                for (final String columnType : signature.split("\\s")) {
+                    Class<?> type = ColumnTypes.fromNameToType(columnType);
+                    if (type == null) {
+                        throw new IllegalArgumentException("unknown type");
+                    }
+                    columnTypes.add(type);
+                }
+                loadingTable.columnTypes = columnTypes;
+                File[] files = new File(curDir, curTableName).listFiles();
+                for (File step : files) {
+                    if (step.isFile()) {
+                        continue;
+                    }
+                    if ((step.getName() == null) || (step.getName().isEmpty())) {
+                        throw new IllegalArgumentException("Error with the property");
+                    }
+                }
+                if (files.length == 0) {
+                    tables.put(curTableName, loadingTable);
                     continue;
                 }
-                if ((step.getName() == null) || (step.getName().isEmpty())) {
-                    throw new IllegalArgumentException("Error with the property");
-                }
-            }
-            if (files.length == 0) {
-                tables.put(curTableName, loadingTable);
-                continue;
-            }
-            for (int i = 0; i < 16; i++) {
-                File currentDir = getDirWithNum(i);
-                if (currentDir.isFile()) {
-                    throw new IllegalArgumentException("Illegal argument: it is not a directory");
-                }
-                if (currentDir.exists() && currentDir.listFiles().length == 0) {
-                    throw new IllegalArgumentException("Illegal database: the directory is empty");
-                }
-                if (!currentDir.exists()) {
-                    continue;
-                } else {
-                    for (int j = 0; j < 16; ++j) {
-                        File currentFile = getFileWithNum(j, i);
-                        if (currentFile.exists()) {
-                            try {
-                                if (currentFile.length() == 0) {
-                                    throw new IllegalArgumentException("Illegal database: empty file");
-                                }
-                                File tmpFile = new File(currentFile.toString());
-                                RandomAccessFile temp = new RandomAccessFile(tmpFile, "r");
+                for (int i = 0; i < 16; i++) {
+                    File currentDir = getDirWithNum(i);
+                    if (currentDir.isFile()) {
+                        throw new IllegalArgumentException("Illegal argument: it is not a directory");
+                    }
+                    if (currentDir.exists() && currentDir.listFiles().length == 0) {
+                        throw new IllegalArgumentException("Illegal database: the directory is empty");
+                    }
+                    if (!currentDir.exists()) {
+                        continue;
+                    } else {
+                        for (int j = 0; j < 16; ++j) {
+                            File currentFile = getFileWithNum(j, i);
+                            if (currentFile.exists()) {
                                 try {
-                                    TableBuilder tableBuilder = new TableBuilder(this, loadingTable);
-                                    loadTable(temp, loadingTable, i, j, tableBuilder);
-                                } catch (EOFException e) {
-                                    System.err.println("Wrong format");
-                                    return false;
+                                    if (currentFile.length() == 0) {
+                                        throw new IllegalArgumentException("Illegal database: empty file");
+                                    }
+                                    File tmpFile = new File(currentFile.toString());
+                                    RandomAccessFile temp = new RandomAccessFile(tmpFile, "r");
+                                    try {
+                                        TableBuilder tableBuilder = new TableBuilder(this, loadingTable);
+                                        loadTable(temp, loadingTable, i, j, tableBuilder);
+                                    } catch (EOFException e) {
+                                        System.err.println("Wrong format");
+                                        return false;
+                                    } catch (IOException e) {
+                                        System.err.println("IO exception");
+                                        return false;
+                                    } catch (IllegalArgumentException e) {
+                                        System.err.println("Wrong file format");
+                                        return false;
+                                    } finally {
+                                        temp.close();
+                                    }
                                 } catch (IOException e) {
-                                    System.err.println("IO exception");
+                                    System.err.println("Cannot create new file");
                                     return false;
-                                } catch (IllegalArgumentException e) {
-                                    System.err.println("Wrong file format");
-                                    return false;
-                                } finally {
-                                    temp.close();
                                 }
-                            } catch (IOException e) {
-                                System.err.println("Cannot create new file");
-                                return false;
                             }
                         }
                     }
                 }
+                tables.put(curTableName, loadingTable);
             }
-            tables.put(curTableName, loadingTable);
-        }
         }
         curTable = null;
         return true;
@@ -552,27 +560,34 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
     public DatabaseIndex createIndex(Table table, int column, String name) {
         DatabaseTable myTable = DatabaseTable.class.cast(table);
         ArrayList elements = new ArrayList();
-        for (String key : myTable.oldData.keySet()) {
-            if (myTable.get(key).getColumnAt(column) == null) {
-                throw new IllegalStateException("The column contains null elements");
+        synchronized (table) {
+            for (String key : myTable.oldData.keySet()) {
+                if (myTable.get(key).getColumnAt(column) == null) {
+                    throw new IllegalStateException("The column contains null elements");
+                }
+                if (elements.contains(myTable.get(key).getColumnAt(column))) {
+                    throw new IllegalStateException("The column contains equal elements");
+                } else {
+                    elements.add(myTable.get(key).getColumnAt(column));
+                }
             }
-            if (elements.contains(myTable.get(key).getColumnAt(column))) {
-                throw new IllegalStateException("The column contains equal elements");
-            } else {
-                elements.add(myTable.get(key).getColumnAt(column));
+
+            if (name.equals(myTable.getName())) {
+                throw new IllegalStateException("The index name equals the table name");
             }
-        }
-        if (name.equals(myTable.getName())) {
-            throw new IllegalStateException("The index name equals the table name");
         }
 
         HashMap<Object, String> newIndex = new HashMap<Object, String>();
-        for (String key: tables.get(table.getName()).oldData.keySet()) {
-            Object value = tables.get(table.getName()).oldData.get(key).getColumnAt(column);
-            newIndex.put(value, key);
-        }
-        DatabaseIndex index = new DatabaseIndex(myTable, column, name, newIndex);
+        DatabaseIndex index = null;
+        synchronized (table) {
+            for (String key : tables.get(table.getName()).oldData.keySet()) {
+                Object value = tables.get(table.getName()).oldData.get(key).getColumnAt(column);
+                newIndex.put(value, key);
+            }
+
+        index = new DatabaseIndex(myTable, column, name, newIndex);
         indexMap.put(name, index);
+        }
         return index;
     }
 
