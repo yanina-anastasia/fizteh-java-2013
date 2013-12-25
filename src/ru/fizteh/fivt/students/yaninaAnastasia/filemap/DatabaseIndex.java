@@ -59,9 +59,6 @@ public class DatabaseIndex implements Index {
             } else {
                 myKey = DatabaseTableProvider.typesParser(key, indexTable.getColumnType(column));
             }
-            if ((indexes.get(myKey) == null) || (indexes.get(myKey).isEmpty())) {
-                throw new IllegalArgumentException("The required index is illegal");
-            }
             result = indexTable.oldData.get(indexes.get(myKey));
         } finally {
             lock.readLock().unlock();

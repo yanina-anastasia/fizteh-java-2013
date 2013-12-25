@@ -90,7 +90,7 @@ public class TestsIndex {
         table.remove("key_3");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test
     public void getUnavailableIndex() {
         table.put("key_1", makeStoreable(1));
         table.put("key_2", makeStoreable(2));
@@ -185,7 +185,7 @@ public class TestsIndex {
         multiColumnTable.remove("key_3");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test
     public void createIndexEmptyTable() {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
@@ -244,4 +244,29 @@ public class TestsIndex {
         index.get("");
     }
 
+    @Test
+    public void removeGetIndexTest() {
+        multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
+        multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
+        multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
+        DatabaseIndex index = provider.createIndex(multiColumnTable, 1, "testTheSameElementsIndex");
+        Assert.assertEquals(index.get("First"), null);
+        try {
+            multiColumnTable.commit();
+        } catch (IOException e) {
+            //
+        }
+        Storeable requiredValue = multiColumnTable.get("key_1");
+        Assert.assertEquals(provider.indexMap.get("testTheSameElementsIndex").get("First"), requiredValue);
+        multiColumnTable.remove("key_1");
+        Assert.assertEquals(provider.indexMap.get("testTheSameElementsIndex").get("First"), requiredValue);
+        try {
+            multiColumnTable.commit();
+        } catch (IOException e) {
+            //
+        }
+        Assert.assertNull(provider.indexMap.get("testTheSameElementsIndex").get("First"));
+        multiColumnTable.remove("key_2");
+        multiColumnTable.remove("key_3");
+    }
 }
