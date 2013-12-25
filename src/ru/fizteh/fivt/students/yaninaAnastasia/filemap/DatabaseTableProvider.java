@@ -604,6 +604,9 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
     }
 
     public DatabaseIndex getIndex(String name) {
+        if ((name == null) || name.isEmpty()) {
+            throw new IllegalArgumentException("Illegal index name");
+        }
         return indexMap.get(name);
     }
 }

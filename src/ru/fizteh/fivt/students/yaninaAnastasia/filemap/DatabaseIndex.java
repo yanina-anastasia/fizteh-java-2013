@@ -3,6 +3,7 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 import ru.fizteh.fivt.storage.structured.Index;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -23,6 +24,27 @@ public class DatabaseIndex implements Index {
 
     public String getName() {
         return indexName;
+    }
+
+    public void updateIndex() {
+        lock.writeLock().lock();
+        try {
+            indexes.clear();
+            for (String key : indexTable.oldData.keySet()) {
+                Object value = indexTable.oldData.get(key).getColumnAt(column);
+                if (value == null) {
+                    throw new IllegalStateException("The column contains equal elements");
+                }
+
+                if (indexes.containsKey(value)) {
+                    throw new IllegalStateException("The column contains equal elements");
+                }
+
+                indexes.put(value, key);
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Storeable get(String key) {
