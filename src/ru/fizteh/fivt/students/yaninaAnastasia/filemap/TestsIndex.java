@@ -137,7 +137,7 @@ public class TestsIndex {
         Assert.assertEquals(testIndexOne.column, 1);
     }
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void createIndexWithNullElements() {
         multiColumnTable.put("key_1", makeMultiStoreable(3, null, 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(1, "Null", 10.0));
@@ -153,7 +153,7 @@ public class TestsIndex {
         multiColumnTable.remove("key_3");
     }
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void createIndexWithTheSameElements() {
         multiColumnTable.put("key_1", makeMultiStoreable(3, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(1, "Second", 10.0));
@@ -169,7 +169,7 @@ public class TestsIndex {
         multiColumnTable.remove("key_3");
     }
 
-    @Test (expected = IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void createIndexWithWrongName() {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
@@ -204,7 +204,7 @@ public class TestsIndex {
         multiColumnTable.remove("key_3");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void createIndexIllegalColumn() {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
@@ -217,7 +217,7 @@ public class TestsIndex {
         provider.createIndex(multiColumnTable, -1, "testTheSameElementsIndex");
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void createIndexIllegalName() {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
@@ -230,7 +230,7 @@ public class TestsIndex {
         provider.createIndex(multiColumnTable, -1, null);
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void getIllegalIndexKey() {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
@@ -245,26 +245,22 @@ public class TestsIndex {
     }
 
     @Test
-    public void removeGetIndexTest() {
+    public void removeGetIndexTest() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
         DatabaseIndex index = provider.createIndex(multiColumnTable, 1, "testTheSameElementsIndex");
         Assert.assertEquals(index.get("First"), null);
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         Storeable requiredValue = multiColumnTable.get("key_1");
         Assert.assertEquals(provider.indexMap.get("testTheSameElementsIndex").get("First"), requiredValue);
         multiColumnTable.remove("key_1");
         Assert.assertEquals(provider.indexMap.get("testTheSameElementsIndex").get("First"), requiredValue);
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         Assert.assertNull(provider.indexMap.get("testTheSameElementsIndex").get("First"));
         multiColumnTable.remove("key_2");
         multiColumnTable.remove("key_3");
