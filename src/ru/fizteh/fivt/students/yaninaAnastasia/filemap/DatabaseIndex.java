@@ -62,7 +62,7 @@ public class DatabaseIndex implements Index {
             if ((indexes.get(myKey) == null) || (indexes.get(myKey).isEmpty())) {
                 throw new IllegalArgumentException("The required index is illegal");
             }
-            result = indexTable.get(indexes.get(myKey));
+            result = indexTable.oldData.get(indexes.get(myKey));
         } finally {
             lock.readLock().unlock();
         }
