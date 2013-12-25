@@ -73,15 +73,13 @@ public class TestsIndex {
     }
 
     @Test
-    public void indexCreate() {
+    public void indexCreate() throws IOException {
         table.put("key_1", makeStoreable(1));
         table.put("key_2", makeStoreable(2));
         table.put("key_3", makeStoreable(3));
-        try {
-            table.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        table.commit();
+
         DatabaseIndex testIndex = provider.createIndex(table, 0, "testIndex");
         Assert.assertEquals(testIndex.getName(), "testIndex");
         Assert.assertEquals(testIndex.get("2"), table.get("key_2"));
@@ -105,15 +103,12 @@ public class TestsIndex {
     }
 
     @Test
-    public void multiColumnTableIndex() {
+    public void multiColumnTableIndex() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 1.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 2.0));
         multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 3.0));
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
 
         DatabaseIndex testIndexOne = provider.createIndex(multiColumnTable, 1, "testIndexOne");
         DatabaseIndex testIndexTwo = provider.createIndex(multiColumnTable, 2, "testIndexTwo");
@@ -138,15 +133,13 @@ public class TestsIndex {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void createIndexWithNullElements() {
+    public void createIndexWithNullElements() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(3, null, 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(1, "Null", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(8, null, 5.0));
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         provider.createIndex(multiColumnTable, 1, "testNullIndex");
         multiColumnTable.remove("key_1");
         multiColumnTable.remove("key_2");
@@ -154,15 +147,13 @@ public class TestsIndex {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void createIndexWithTheSameElements() {
+    public void createIndexWithTheSameElements() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(3, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(1, "Second", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(8, "First", 5.0));
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         provider.createIndex(multiColumnTable, 1, "testTheSameElementsIndex");
         multiColumnTable.remove("key_1");
         multiColumnTable.remove("key_2");
@@ -170,15 +161,13 @@ public class TestsIndex {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void createIndexWithWrongName() {
+    public void createIndexWithWrongName() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         provider.createIndex(multiColumnTable, 1, "MultiColumnTable");
         multiColumnTable.remove("key_1");
         multiColumnTable.remove("key_2");
@@ -186,17 +175,15 @@ public class TestsIndex {
     }
 
     @Test
-    public void createIndexEmptyTable() {
+    public void createIndexEmptyTable() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
         DatabaseIndex index = provider.createIndex(multiColumnTable, 1, "testTheSameElementsIndex");
         Assert.assertEquals(index.get("First"), null);
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         Assert.assertEquals(provider.indexMap.get("testTheSameElementsIndex").get("First"),
                 multiColumnTable.get("key_1"));
         multiColumnTable.remove("key_1");
@@ -205,41 +192,35 @@ public class TestsIndex {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createIndexIllegalColumn() {
+    public void createIndexIllegalColumn() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         provider.createIndex(multiColumnTable, -1, "testTheSameElementsIndex");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createIndexIllegalName() {
+    public void createIndexIllegalName() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         provider.createIndex(multiColumnTable, -1, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getIllegalIndexKey() {
+    public void getIllegalIndexKey() throws IOException {
         multiColumnTable.put("key_1", makeMultiStoreable(1, "First", 3.0));
         multiColumnTable.put("key_2", makeMultiStoreable(2, "Second", 10.0));
         multiColumnTable.put("key_3", makeMultiStoreable(3, "Third", 5.0));
-        try {
-            multiColumnTable.commit();
-        } catch (IOException e) {
-            //
-        }
+
+        multiColumnTable.commit();
+
         DatabaseIndex index = provider.createIndex(multiColumnTable, 1, "testIndex");
         index.get("");
     }
