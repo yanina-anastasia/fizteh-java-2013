@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.yaninaAnastasia.filemap;
 import ru.fizteh.fivt.storage.structured.Index;
 import ru.fizteh.fivt.storage.structured.Storeable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
