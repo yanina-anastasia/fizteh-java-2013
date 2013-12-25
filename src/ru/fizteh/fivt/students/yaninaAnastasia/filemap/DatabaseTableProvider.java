@@ -558,6 +558,18 @@ public class DatabaseTableProvider implements AutoCloseable, IndexProvider {
 
 
     public DatabaseIndex createIndex(Table table, int column, String name) {
+        if (table == null) {
+            throw new IllegalArgumentException("The table is null");
+        }
+        if ((name == null) || (name.isEmpty())) {
+            throw new IllegalArgumentException("The name of future index is illegal");
+        }
+        if ((column < 0) || (column > table.getColumnsCount())) {
+            throw new IllegalArgumentException("The number of the column is illegal");
+        }
+        if (indexMap.containsKey(name)) {
+            return null;
+        }
         DatabaseTable myTable = DatabaseTable.class.cast(table);
         ArrayList elements = new ArrayList();
         synchronized (table) {

@@ -26,6 +26,9 @@ public class DatabaseIndex implements Index {
     }
 
     public Storeable get(String key) {
+        if ((key == null) || key.isEmpty()) {
+            throw new IllegalArgumentException("The key is illegal");
+        }
         Object myKey = null;
         Storeable result = null;
         lock.readLock().lock();
@@ -35,8 +38,8 @@ public class DatabaseIndex implements Index {
             } else {
                 myKey = DatabaseTableProvider.typesParser(key, indexTable.getColumnType(column));
             }
-            if (indexes.get(myKey) == null) {
-                return null;
+            if ((indexes.get(myKey) == null) || (indexes.get(myKey).isEmpty())) {
+                throw new IllegalArgumentException("The required index is illegal");
             }
             result = indexTable.get(indexes.get(myKey));
         } finally {
